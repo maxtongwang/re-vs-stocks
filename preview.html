@@ -234,19 +234,30 @@
         type="range"
         id="start-year-slider"
         min="1970"
-        max="2019"
+        max="2024"
         value="1994"
         step="1"
       />
       <span class="val" id="start-year-val">1994</span>
-      <span style="font-size: 10px; color: #444">(1970–2025)</span>
+    </div>
+    <div class="ctrl-row">
+      <span>End:</span>
+      <input
+        type="range"
+        id="end-year-slider"
+        min="1971"
+        max="2025"
+        value="2025"
+        step="1"
+      />
+      <span class="val" id="end-year-val">2025</span>
     </div>
 
     <div class="ctrl-row">
       <span>Cash flow:</span>
       <div class="toggle-group">
-        <button class="toggle-btn active" id="btn-reinvest">Reinvested</button>
-        <button class="toggle-btn" id="btn-additive">Additive</button>
+        <button class="toggle-btn active" id="btn-additive">Additive</button>
+        <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
       </div>
     </div>
 
@@ -391,7 +402,7 @@
       // ── Historical data (1970–2025, 56 entries = index 0–55) ──────────────────
       // 2025 values are preliminary estimates; full-year data may differ
       const BASE_YEAR = 1970,
-        END_YEAR = 2025;
+        MAX_YEAR = 2025;
       const INIT = 100000,
         AMORT_TERMS = 360;
 
@@ -605,7 +616,7 @@
 
       function buildAllWealth(yr) {
         const i = yr - BASE_YEAR;
-        const months = (END_YEAR - yr + 1) * 12;
+        const months = (endYear - yr + 1) * 12;
         const sp = spMonthlyAll.slice(i * 12, i * 12 + months);
         const spP = spPriceMonthlyAll.slice(i * 12, i * 12 + months);
         const spD = SP500_DIV.slice(i);
@@ -625,9 +636,10 @@
 
       // ── Mutable state ─────────────────────────────────────────────────────────
       let startYear = 1994;
-      let reinvest = true;
-      let allWealth = buildAllWealth(1994);
-      let totalMonths = (END_YEAR - 1994 + 1) * 12;
+      let endYear = 2025;
+      let reinvest = false;
+      let allWealth = buildAllWealth(startYear);
+      let totalMonths = (endYear - startYear + 1) * 12;
       let curMonth = totalMonths;
 
       // Initially hidden: 10% Down (idx 4) and 3.5% Down (idx 5)
@@ -645,7 +657,7 @@
       const tbody = document.getElementById("table-body");
       function buildTable() {
         tbody.innerHTML = "";
-        const dur = END_YEAR - startYear + 1;
+        const dur = endYear - startYear + 1;
         const checks = [];
         for (let y = 5; y <= dur; y += 5) checks.push(y);
         const gfc2008 = 2008 - startYear;
@@ -727,22 +739,22 @@
         const i = startYear - BASE_YEAR;
         const mr = (MORTGAGE_RATES[i] * 100).toFixed(2);
         const ry = (CA_RENT_YIELDS[i] * 100).toFixed(1);
-        const yrs = END_YEAR - startYear + 1;
+        const yrs = endYear - startYear + 1;
         const modeLabel = reinvest
           ? "Reinvested (compound)"
           : "Additive (no compound)";
 
         document.getElementById("assumptions-line").textContent =
-          `${startYear}–${END_YEAR} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Cash flow: ${modeLabel}`;
+          `${startYear}–${endYear} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Cash flow: ${modeLabel}`;
 
         document.getElementById("note-dynamic-line").innerHTML =
-          `Period: <strong style="color:#ccc">${startYear}–${END_YEAR}</strong> (${yrs} yrs) &nbsp;·&nbsp; ` +
+          `Period: <strong style="color:#ccc">${startYear}–${endYear}</strong> (${yrs} yrs) &nbsp;·&nbsp; ` +
           `Mortgage: <strong style="color:#ccc">${mr}%</strong> 30yr fixed &nbsp;·&nbsp; ` +
           `Rent yield: <strong style="color:#ccc">${ry}%</strong> (≈${Math.round(1 / CA_RENT_YIELDS[i])}x price-to-rent) &nbsp;·&nbsp; ` +
           `Cash flow: <strong style="color:#ccc">${modeLabel}</strong>`;
 
         document.getElementById("subtitle").textContent =
-          `5 leverage scenarios · dividends & rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${startYear > 2022 ? " · 2025 est." : ""}`;
+          `5 leverage scenarios · dividends & rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${endYear >= MAX_YEAR ? " · 2025 est." : ""}`;
       }
 
       // ── Reinvest toggle ───────────────────────────────────────────────────────
@@ -853,7 +865,7 @@
         ctx.fillStyle = "#555";
         ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
         ctx.textAlign = "center";
-        const dur = END_YEAR - startYear + 1;
+        const dur = endYear - startYear + 1;
         const step = dur <= 10 ? 1 : dur <= 20 ? 2 : 5;
         for (let yr = 0; yr <= dur; yr += step) {
           const m = Math.min(yr * 12, totalMonths - 1);
@@ -954,15 +966,13 @@
         draw(curMonth - 1);
       });
 
-      // ── Start year control ────────────────────────────────────────────────────
-      function setStartYear(yr) {
-        startYear = yr;
-        allWealth = buildAllWealth(yr);
-        totalMonths = (END_YEAR - yr + 1) * 12;
+      // ── Start / end year controls ─────────────────────────────────────────────
+      function rebuild() {
+        allWealth = buildAllWealth(startYear);
+        totalMonths = (endYear - startYear + 1) * 12;
         curMonth = totalMonths;
         sliderEl.max = totalMonths;
         sliderEl.value = totalMonths;
-        document.getElementById("start-year-val").textContent = yr;
         updateAssumptions();
         updateLabel(totalMonths);
         buildTable();
@@ -970,11 +980,46 @@
         draw(totalMonths - 1);
       }
 
+      function setStartYear(yr) {
+        startYear = yr;
+        document.getElementById("start-year-val").textContent = yr;
+        // keep end year at least 1 year ahead
+        const endSlider = document.getElementById("end-year-slider");
+        endSlider.min = yr + 1;
+        if (endYear <= yr) {
+          endYear = yr + 1;
+          endSlider.value = endYear;
+          document.getElementById("end-year-val").textContent = endYear;
+        }
+        rebuild();
+      }
+
+      function setEndYear(yr) {
+        endYear = yr;
+        document.getElementById("end-year-val").textContent = yr;
+        // keep start year at least 1 year behind
+        const startSlider = document.getElementById("start-year-slider");
+        startSlider.max = yr - 1;
+        if (startYear >= yr) {
+          startYear = yr - 1;
+          startSlider.value = startYear;
+          document.getElementById("start-year-val").textContent = startYear;
+        }
+        rebuild();
+      }
+
       document
         .getElementById("start-year-slider")
         .addEventListener("input", function () {
           stopPlay();
           setStartYear(parseInt(this.value));
+        });
+
+      document
+        .getElementById("end-year-slider")
+        .addEventListener("input", function () {
+          stopPlay();
+          setEndYear(parseInt(this.value));
         });
 
       // ── Resize ────────────────────────────────────────────────────────────────
