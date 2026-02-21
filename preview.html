@@ -223,7 +223,7 @@
     </style>
   </head>
   <body>
-    <h1>$100K Invested: S&amp;P 500 vs CA Real Estate</h1>
+    <h1>$100K Invested: S&P 500 vs CA Real Estate</h1>
     <div class="subtitle" id="subtitle">
       5 leverage scenarios · dividends reinvested · rent cash flow reinvested
     </div>
@@ -263,7 +263,7 @@
     <div class="legend" id="legend">
       <div class="leg-item" data-idx="0">
         <div class="leg-dot" style="background: #4da6ff"></div>
-        S&amp;P 500 (total)
+        S&P 500 (total)
       </div>
       <div class="leg-item" data-idx="1">
         <div class="leg-dot" style="background: #66ff66"></div>
@@ -292,7 +292,7 @@
         <thead>
           <tr>
             <th>Year</th>
-            <th style="color: #4da6ff">S&amp;P500+div</th>
+            <th style="color: #4da6ff">S&P500+div</th>
             <th style="color: #66ff66">AllCash</th>
             <th style="color: #ccff33">50%Dn</th>
             <th style="color: #ffaa00">20%Dn</th>
@@ -741,8 +741,8 @@
           `<li>Rent &amp; home price appreciation: historical CA data from ${startYear} forward</li>` +
           `<li>Cash flow mode: <strong style="color:#ccc">${modeLabel}</strong></li>`;
 
-        document.getElementById("subtitle").innerHTML =
-          `5 leverage scenarios &middot; dividends &amp; rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${startYear === END_YEAR || startYear > 2022 ? " &middot; <em>2025 data estimated</em>" : ""}`;
+        document.getElementById("subtitle").textContent =
+          `5 leverage scenarios · dividends & rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${startYear > 2022 ? " · 2025 est." : ""}`;
       }
 
       // ── Reinvest toggle ───────────────────────────────────────────────────────
