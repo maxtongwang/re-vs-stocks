@@ -1,0 +1,84 @@
+// S&P 500 annual PRICE returns (no dividends), 1994–2024
+// Source: Macrotrends / FRED historical data
+export const SP500_ANNUAL_RETURNS: number[] = [
+  -0.0154, // 1994
+  0.3411, // 1995
+  0.2026, // 1996
+  0.3101, // 1997
+  0.2667, // 1998
+  0.1953, // 1999
+  -0.1014, // 2000
+  -0.1303, // 2001
+  -0.2337, // 2002
+  0.2638, // 2003
+  0.0899, // 2004
+  0.03, // 2005
+  0.1362, // 2006
+  0.0353, // 2007
+  -0.3849, // 2008
+  0.2345, // 2009
+  0.1278, // 2010
+  0.0, // 2011
+  0.1341, // 2012
+  0.296, // 2013
+  0.1139, // 2014
+  -0.0073, // 2015
+  0.0954, // 2016
+  0.1942, // 2017
+  -0.0623, // 2018
+  0.2888, // 2019
+  0.1602, // 2020
+  0.2689, // 2021
+  -0.1944, // 2022
+  0.2429, // 2023
+  0.23, // 2024
+];
+
+// California Home Price Index annual appreciation, 1994–2024
+// Approximate Case-Shiller CA / CAR data
+export const CA_RE_ANNUAL_RETURNS: number[] = [
+  -0.02, // 1994
+  0.018, // 1995
+  0.037, // 1996
+  0.068, // 1997
+  0.094, // 1998
+  0.115, // 1999
+  0.12, // 2000
+  0.098, // 2001
+  0.168, // 2002
+  0.213, // 2003
+  0.225, // 2004
+  0.164, // 2005
+  0.078, // 2006
+  -0.044, // 2007
+  -0.259, // 2008
+  -0.081, // 2009
+  -0.009, // 2010
+  -0.038, // 2011
+  0.102, // 2012
+  0.214, // 2013
+  0.09, // 2014
+  0.068, // 2015
+  0.056, // 2016
+  0.073, // 2017
+  0.064, // 2018
+  0.005, // 2019
+  0.114, // 2020
+  0.211, // 2021
+  0.053, // 2022
+  -0.012, // 2023
+  0.068, // 2024
+];
+
+// Interpolate annual returns to monthly multipliers
+// Each year has 12 months; annual return r → monthly return = (1+r)^(1/12) - 1
+export function annualToMonthlyReturns(annualReturns: number[]): number[] {
+  const monthly: number[] = [];
+  for (const r of annualReturns) {
+    const monthlyR = Math.pow(1 + r, 1 / 12) - 1;
+    for (let m = 0; m < 12; m++) {
+      monthly.push(monthlyR);
+    }
+  }
+  return monthly;
+}

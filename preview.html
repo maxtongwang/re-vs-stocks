@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
+    />
+    <title>$100K: S&P 500 vs CA Real Estate (1994–2024)</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #0f0f0f;
+        color: #fff;
+        font-family: monospace;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 14px;
+        color: #fff;
+        text-align: center;
+        margin-bottom: 4px;
+        line-height: 1.4;
+      }
+      .subtitle {
+        font-size: 11px;
+        color: #888;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      #chart-wrap {
+        width: 100%;
+        aspect-ratio: 16/10;
+        position: relative;
+      }
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+      .slider-wrap {
+        margin: 10px 0 4px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .slider-wrap input {
+        flex: 1;
+        accent-color: #4da6ff;
+      }
+      #year-label {
+        font-size: 14px;
+        color: #fff;
+        font-weight: bold;
+        min-width: 60px;
+      }
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 14px;
+        margin-top: 10px;
+      }
+      .leg-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+      }
+      .leg-dot {
+        width: 12px;
+        height: 3px;
+        border-radius: 2px;
+      }
+      .table-wrap {
+        overflow-x: auto;
+        margin-top: 16px;
+      }
+      table {
+        border-collapse: collapse;
+        font-size: 10px;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #333;
+        padding: 4px 6px;
+        text-align: right;
+        white-space: nowrap;
+      }
+      th {
+        background: #1a1a1a;
+        color: #aaa;
+      }
+      td:first-child,
+      th:first-child {
+        text-align: left;
+      }
+      .note {
+        font-size: 10px;
+        color: #555;
+        margin-top: 10px;
+        line-height: 1.5;
+      }
+      .crash {
+        background: #1a0000;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>$100K Invested: S&P 500 vs CA Real Estate</h1>
+    <div class="subtitle">
+      1994–2024 · 5 leverage scenarios · 8.5% mortgage · rent income +
+      depreciation tax
+    </div>
+
+    <div id="chart-wrap"><canvas id="c"></canvas></div>
+
+    <div class="slider-wrap">
+      <span style="font-size: 11px; color: #666">1994</span>
+      <input type="range" id="slider" min="1" max="360" value="360" />
+      <span id="year-label">2024</span>
+    </div>
+
+    <div class="legend">
+      <div class="leg-item">
+        <div class="leg-dot" style="background: #4da6ff; height: 3px"></div>
+        S&P 500
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot" style="background: #66ff66; height: 3px"></div>
+        RE All Cash
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot" style="background: #ccff33; height: 3px"></div>
+        RE 50% Down
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot" style="background: #ffaa00; height: 3px"></div>
+        RE 20% Down
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot" style="background: #ff6600; height: 3px"></div>
+        RE 10% Down
+      </div>
+      <div class="leg-item">
+        <div class="leg-dot" style="background: #ff3333; height: 3px"></div>
+        RE 3.5% Down
+      </div>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Year</th>
+            <th style="color: #4da6ff">S&P500</th>
+            <th style="color: #66ff66">AllCash</th>
+            <th style="color: #ccff33">50%Dn</th>
+            <th style="color: #ffaa00">20%Dn</th>
+            <th style="color: #ff6600">10%Dn</th>
+            <th style="color: #ff3333">3.5%Dn</th>
+          </tr>
+        </thead>
+        <tbody id="table-body"></tbody>
+      </table>
+    </div>
+
+    <div class="note">
+      Assumes: 8.5% 30yr fixed (1994 rate) · $100K initial capital · 6% rent
+      yield · 4%/yr rent growth<br />
+      Prop 13: 1.25% tax + 2%/yr cap · Depreciation tax: 44% rate (35% fed +
+      9.3% CA)<br />
+      Wealth = Current Equity + Cumulative Net Cash Flows · S&P = price return
+      only (no dividends)
+    </div>
+
+    <script>
+      const SCENARIOS = [
+        { label: "S&P 500", color: "#4da6ff" },
+        { label: "RE All Cash", color: "#66ff66" },
+        { label: "RE 50% Down", color: "#ccff33" },
+        { label: "RE 20% Down", color: "#ffaa00" },
+        { label: "RE 10% Down", color: "#ff6600" },
+        { label: "RE 3.5% Down", color: "#ff3333" },
+      ];
+
+      // Financial model
+      const INIT = 100000,
+        MR = 0.085 / 12,
+        TERMS = 360;
+      const SP500_ANN = [
+        -0.0154, 0.3411, 0.2026, 0.3101, 0.2667, 0.1953, -0.1014, -0.1303,
+        -0.2337, 0.2638, 0.0899, 0.03, 0.1362, 0.0353, -0.3849, 0.2345, 0.1278,
+        0.0, 0.1341, 0.296, 0.1139, -0.0073, 0.0954, 0.1942, -0.0623, 0.2888,
+        0.1602, 0.2689, -0.1944, 0.2429, 0.23,
+      ];
+      const CA_ANN = [
+        -0.02, 0.018, 0.037, 0.068, 0.094, 0.115, 0.12, 0.098, 0.168, 0.213,
+        0.225, 0.164, 0.078, -0.044, -0.259, -0.081, -0.009, -0.038, 0.102,
+        0.214, 0.09, 0.068, 0.056, 0.073, 0.064, 0.005, 0.114, 0.211, 0.053,
+        -0.012, 0.068,
+      ];
+
+      function toMonthly(ann) {
+        const out = [];
+        for (const r of ann) {
+          const m = Math.pow(1 + r, 1 / 12) - 1;
+          for (let i = 0; i < 12; i++) out.push(m);
+        }
+        return out.slice(0, 360);
+      }
+      function amortize(principal) {
+        const pmt =
+          (principal * MR * Math.pow(1 + MR, TERMS)) /
+          (Math.pow(1 + MR, TERMS) - 1);
+        let bal = principal;
+        const s = [];
+        for (let m = 0; m < TERMS; m++) {
+          const int = bal * MR,
+            prin = pmt - int;
+          bal -= prin;
+          s.push({ interest: int, balance: Math.max(0, bal) });
+        }
+        return s;
+      }
+      function simRE(down, caM) {
+        const price = INIT / down,
+          mort = price * (1 - down);
+        const sched = mort > 0 ? amortize(mort) : [];
+        const dep = (price * 0.8) / 27.5 / 12;
+        let pv = price,
+          rem = mort,
+          cf = 0,
+          rent = price * 0.06,
+          ptax = price * 0.0125;
+        const w = [];
+        for (let m = 0; m < 360; m++) {
+          pv *= 1 + caM[m];
+          if (m > 0 && m % 12 === 0) {
+            rent *= 1.04;
+            ptax *= 1.02;
+          }
+          const r = rent / 12,
+            t = ptax / 12,
+            ins = (pv * 0.005) / 12,
+            mai = (pv * 0.01) / 12;
+          let int = 0,
+            prin = 0;
+          if (mort > 0 && m < TERMS) {
+            int = sched[m].interest;
+            const prevBal = m > 0 ? sched[m - 1].balance : mort;
+            prin = prevBal - sched[m].balance;
+            rem = sched[m].balance;
+          }
+          const gross = r - (int + prin) - t - ins - mai;
+          const taxInc = r - int - t - ins - mai - dep;
+          cf += gross + -taxInc * 0.44;
+          w.push(Math.round(pv - rem + cf));
+        }
+        return w;
+      }
+      function simSP(m) {
+        let v = INIT;
+        const w = [];
+        for (const r of m) {
+          v *= 1 + r;
+          w.push(Math.round(v));
+        }
+        return w;
+      }
+
+      const spM = toMonthly(SP500_ANN),
+        caM = toMonthly(CA_ANN);
+      const allWealth = [
+        simSP(spM),
+        simRE(1, caM),
+        simRE(0.5, caM),
+        simRE(0.2, caM),
+        simRE(0.1, caM),
+        simRE(0.035, caM),
+      ];
+
+      function fmt(v) {
+        if (v < 0) return `-$${Math.round(-v / 1000)}K`;
+        if (v >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
+        return `$${Math.round(v / 1000)}K`;
+      }
+
+      // Table
+      const tbody = document.getElementById("table-body");
+      const checkYears = [5, 10, 13, 14, 15, 16, 20, 25, 30];
+      const crashYears = new Set([14, 15, 16]);
+      for (const yr of checkYears) {
+        const m = yr * 12 - 1;
+        const tr = document.createElement("tr");
+        if (crashYears.has(yr)) tr.className = "crash";
+        tr.innerHTML =
+          `<td>${1993 + yr}</td>` +
+          allWealth
+            .map((w) => fmt(w[m]))
+            .map((v) => `<td>${v}</td>`)
+            .join("");
+        tbody.appendChild(tr);
+      }
+
+      // Canvas chart
+      const canvas = document.getElementById("c");
+      const slider = document.getElementById("slider");
+      const yearLabel = document.getElementById("year-label");
+
+      function draw(monthsToShow) {
+        const dpr = window.devicePixelRatio || 1;
+        const W = canvas.parentElement.clientWidth,
+          H = (W * 10) / 16;
+        canvas.width = W * dpr;
+        canvas.height = H * dpr;
+        canvas.style.width = W + "px";
+        canvas.style.height = H + "px";
+        const ctx = canvas.getContext("2d");
+        ctx.scale(dpr, dpr);
+
+        const PL = 52,
+          PR = 8,
+          PT = 16,
+          PB = 28;
+        const cw = W - PL - PR,
+          ch = H - PT - PB;
+
+        ctx.fillStyle = "#0f0f0f";
+        ctx.fillRect(0, 0, W, H);
+
+        // Compute y range
+        let yMin = 0,
+          yMax = 200000;
+        for (const w of allWealth) {
+          for (let m = 0; m <= monthsToShow && m < w.length; m++) {
+            if (w[m] < yMin) yMin = w[m];
+            if (w[m] > yMax) yMax = w[m];
+          }
+        }
+        const rng = yMax - yMin;
+        const yLo = yMin - rng * 0.04,
+          yHi = yMax + rng * 0.08;
+
+        const tx = (m) => PL + (m / 359) * cw;
+        const ty = (v) => PT + ((yHi - v) / (yHi - yLo)) * ch;
+
+        // Grid
+        const ticks = 5;
+        for (let i = 0; i <= ticks; i++) {
+          const v = yLo + ((yHi - yLo) * i) / ticks;
+          const y = ty(v);
+          ctx.strokeStyle = "#222";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 4]);
+          ctx.beginPath();
+          ctx.moveTo(PL, y);
+          ctx.lineTo(PL + cw, y);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = "#666";
+          ctx.font = `${Math.max(8, Math.min(10, W / 50))}px monospace`;
+          ctx.textAlign = "right";
+          ctx.fillText(fmt(v), PL - 3, y + 4);
+        }
+
+        // Zero line
+        if (yLo < 0 && yHi > 0) {
+          ctx.strokeStyle = "#444";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.moveTo(PL, ty(0));
+          ctx.lineTo(PL + cw, ty(0));
+          ctx.stroke();
+        }
+
+        // Year x-axis
+        ctx.fillStyle = "#555";
+        ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+        ctx.textAlign = "center";
+        for (let yr = 0; yr <= 30; yr += 5) {
+          const m = Math.min(yr * 12, 359);
+          ctx.fillText(1994 + yr, tx(m), H - 6);
+        }
+
+        // Lines
+        for (let i = 0; i < SCENARIOS.length; i++) {
+          const w = allWealth[i];
+          const s = SCENARIOS[i];
+          ctx.strokeStyle = s.color;
+          ctx.lineWidth = i === 0 ? 2 : 1.5;
+          ctx.lineJoin = "round";
+          ctx.setLineDash([]);
+          ctx.beginPath();
+          ctx.moveTo(tx(0), ty(w[0]));
+          for (let m = 1; m <= monthsToShow && m < w.length; m++) {
+            ctx.lineTo(tx(m), ty(w[m]));
+          }
+          ctx.stroke();
+        }
+
+        // Current value dots
+        if (monthsToShow > 1) {
+          for (let i = 0; i < SCENARIOS.length; i++) {
+            const w = allWealth[i];
+            const m = Math.min(monthsToShow, w.length - 1);
+            const x = tx(m),
+              y = ty(w[m]);
+            ctx.fillStyle = SCENARIOS[i].color;
+            ctx.beginPath();
+            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+
+      function update() {
+        const m = parseInt(slider.value);
+        const yr = Math.floor(1993 + m / 12);
+        const mo = ((m - 1) % 12) + 1;
+        yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}`;
+        draw(m - 1);
+      }
+
+      slider.addEventListener("input", update);
+      window.addEventListener("resize", update);
+      update();
+    </script>
+  </body>
+</html>
