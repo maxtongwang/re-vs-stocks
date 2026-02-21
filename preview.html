@@ -306,9 +306,10 @@
 
     <div class="note" id="note-section">
       <strong>Assumptions (dynamic)</strong>
-      <ul id="note-dynamic-list">
-        <!-- filled by updateAssumptions() -->
-      </ul>
+      <p
+        id="note-dynamic-line"
+        style="margin: 3px 0 6px; line-height: 1.8; white-space: normal"
+      ></p>
       <strong>Assumptions (fixed)</strong>
       <ul>
         <li>Initial capital: $100K for all scenarios</li>
@@ -734,12 +735,11 @@
         document.getElementById("assumptions-line").textContent =
           `${startYear}–${END_YEAR} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Cash flow: ${modeLabel}`;
 
-        document.getElementById("note-dynamic-list").innerHTML =
-          `<li>Period: <strong style="color:#ccc">${startYear}–${END_YEAR}</strong> (${yrs} years)</li>` +
-          `<li>Mortgage rate: <strong style="color:#ccc">${mr}%</strong> 30yr fixed (FRED ${startYear} annual avg)</li>` +
-          `<li>Starting rent yield: <strong style="color:#ccc">${ry}%</strong> (CA price-to-rent ≈${Math.round(1 / CA_RENT_YIELDS[i])}x annual rent)</li>` +
-          `<li>Rent &amp; home price appreciation: historical CA data from ${startYear} forward</li>` +
-          `<li>Cash flow mode: <strong style="color:#ccc">${modeLabel}</strong></li>`;
+        document.getElementById("note-dynamic-line").innerHTML =
+          `Period: <strong style="color:#ccc">${startYear}–${END_YEAR}</strong> (${yrs} yrs) &nbsp;·&nbsp; ` +
+          `Mortgage: <strong style="color:#ccc">${mr}%</strong> 30yr fixed &nbsp;·&nbsp; ` +
+          `Rent yield: <strong style="color:#ccc">${ry}%</strong> (≈${Math.round(1 / CA_RENT_YIELDS[i])}x price-to-rent) &nbsp;·&nbsp; ` +
+          `Cash flow: <strong style="color:#ccc">${modeLabel}</strong>`;
 
         document.getElementById("subtitle").textContent =
           `5 leverage scenarios · dividends & rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${startYear > 2022 ? " · 2025 est." : ""}`;
