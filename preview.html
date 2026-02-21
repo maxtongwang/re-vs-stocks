@@ -200,7 +200,8 @@
     <div class="note">
       <strong style="color: #888">Assumptions</strong><br />
       Mortgage: 8.5% 30yr fixed (1994 FRED rate) · Initial capital: $100K ·
-      Starting rent yield: 6% of purchase price/yr<br />
+      Starting rent yield: 7.5% of purchase price/yr (1994 CA price-to-rent ~13x
+      annual rent)<br />
       Rent growth: historical CA rates (BLS West CPI-Rent 1994–2014; Zillow ZORI
       CA 2015+) — ranges −1.2% (2009) to +10.8% (2021)<br />
       Prop 13 tax: 1.25% of purchase price, capped at +2%/yr · Insurance: 0.5%
@@ -323,7 +324,7 @@
         let pv = price,
           rem = mort,
           cf = 0,
-          rent = price * 0.06,
+          rent = price * 0.075, // 1994 CA rent yield ~7.5% (price-to-rent ~13x)
           ptax = price * 0.0125;
         const w = [];
         for (let m = 0; m < 360; m++) {
@@ -401,6 +402,21 @@
       const slider = document.getElementById("slider");
       const yearLabel = document.getElementById("year-label");
       const playBtn = document.getElementById("play-btn");
+      const ctx = canvas.getContext("2d");
+
+      // Separate resize from draw — avoids context reset every frame
+      let cW = 0,
+        cH = 0;
+      function resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1;
+        cW = canvas.parentElement.clientWidth;
+        cH = Math.round((cW * 10) / 16);
+        canvas.width = cW * dpr;
+        canvas.height = cH * dpr;
+        canvas.style.width = cW + "px";
+        canvas.style.height = cH + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      }
 
       // Hidden scenarios (by index)
       const hidden = new Set();
@@ -417,14 +433,16 @@
           hidden.add(idx);
           item.classList.add("hidden");
         }
-        update();
+        draw(curMonth - 1);
       });
 
-      // Play / pause
+      // Play / pause — track position in curMonth (float), NOT slider.value
+      // slider.value snaps to integers (step=1), so we can't use it as the accumulator
+      let curMonth = 360;
       let playing = false;
       let rafId = null;
       let lastTs = null;
-      const MONTHS_PER_SEC = 15; // speed: ~24s for full run
+      const MONTHS_PER_SEC = 12; // ~30s full run
 
       function stopPlay() {
         playing = false;
@@ -438,19 +456,21 @@
 
       function tick(ts) {
         if (!playing) return;
-        if (lastTs === null) lastTs = ts;
-        const dt = (ts - lastTs) / 1000;
+        if (lastTs === null) {
+          lastTs = ts;
+          rafId = requestAnimationFrame(tick);
+          return;
+        }
+        const dt = Math.min((ts - lastTs) / 1000, 0.1); // cap dt to avoid huge jumps
         lastTs = ts;
-        let cur = parseFloat(slider.value) + dt * MONTHS_PER_SEC;
-        if (cur >= 360) {
-          cur = 360;
-          slider.value = cur;
-          update();
+        curMonth = Math.min(curMonth + dt * MONTHS_PER_SEC, 360);
+        slider.value = Math.round(curMonth);
+        updateLabel(Math.round(curMonth));
+        draw(Math.round(curMonth) - 1);
+        if (curMonth >= 360) {
           stopPlay();
           return;
         }
-        slider.value = cur;
-        update();
         rafId = requestAnimationFrame(tick);
       }
 
@@ -459,8 +479,8 @@
           stopPlay();
           return;
         }
-        // If at end, restart from beginning
-        if (parseInt(slider.value) >= 360) slider.value = 1;
+        if (curMonth >= 360) curMonth = 1;
+        slider.value = Math.round(curMonth);
         playing = true;
         playBtn.textContent = "⏸";
         lastTs = null;
@@ -468,25 +488,17 @@
       });
 
       function draw(monthsToShow) {
-        const dpr = window.devicePixelRatio || 1;
-        const W = canvas.parentElement.clientWidth,
-          H = (W * 10) / 16;
-        canvas.width = W * dpr;
-        canvas.height = H * dpr;
-        canvas.style.width = W + "px";
-        canvas.style.height = H + "px";
-        const ctx = canvas.getContext("2d");
-        ctx.scale(dpr, dpr);
+        const W = cW,
+          H = cH;
+        if (W === 0) return;
+
+        ctx.fillStyle = "#0f0f0f";
+        ctx.fillRect(0, 0, W, H);
 
         const PL = 52,
           PR = 8,
           PT = 16,
           PB = 28;
-        const cw = W - PL - PR,
-          ch = H - PT - PB;
-
-        ctx.fillStyle = "#0f0f0f";
-        ctx.fillRect(0, 0, W, H);
 
         // Compute y range — only visible scenarios
         let yMin = 0,
@@ -503,8 +515,10 @@
         const yLo = yMin - rng * 0.04,
           yHi = yMax + rng * 0.08;
 
-        const tx = (m) => PL + (m / 359) * cw;
-        const ty = (v) => PT + ((yHi - v) / (yHi - yLo)) * ch;
+        const chartW = W - PL - PR,
+          chartH = H - PT - PB;
+        const tx = (m) => PL + (m / 359) * chartW;
+        const ty = (v) => PT + ((yHi - v) / (yHi - yLo)) * chartH;
 
         // Grid
         const ticks = 5;
@@ -516,7 +530,7 @@
           ctx.setLineDash([3, 4]);
           ctx.beginPath();
           ctx.moveTo(PL, y);
-          ctx.lineTo(PL + cw, y);
+          ctx.lineTo(PL + chartW, y);
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.fillStyle = "#666";
@@ -532,7 +546,7 @@
           ctx.setLineDash([]);
           ctx.beginPath();
           ctx.moveTo(PL, ty(0));
-          ctx.lineTo(PL + cw, ty(0));
+          ctx.lineTo(PL + chartW, ty(0));
           ctx.stroke();
         }
 
@@ -575,12 +589,16 @@
         }
       }
 
-      function update() {
-        const m = parseFloat(slider.value);
-        const mInt = Math.floor(m);
+      function updateLabel(mInt) {
         const yr = Math.floor(1993 + mInt / 12);
         const mo = ((mInt - 1) % 12) + 1;
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}`;
+      }
+
+      function update() {
+        const mInt = parseInt(slider.value);
+        curMonth = mInt;
+        updateLabel(mInt);
         draw(mInt - 1);
       }
 
@@ -588,7 +606,11 @@
         stopPlay();
         update();
       });
-      window.addEventListener("resize", update);
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        draw(curMonth - 1);
+      });
+      resizeCanvas();
       update();
     </script>
   </body>
