@@ -162,7 +162,7 @@ export function buildScenarios(): Scenario[] {
 
   return [
     {
-      label: "S&P 500",
+      label: "S&P 500 (total)",
       color: "#4da6ff",
       downPct: 1, // unused
       wealthByMonth: simulateSP500(spMonthly),

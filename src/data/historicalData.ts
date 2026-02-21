@@ -1,6 +1,6 @@
 // S&P 500 annual PRICE returns (no dividends), 1994–2024
 // Source: Macrotrends / FRED historical data
-export const SP500_ANNUAL_RETURNS: number[] = [
+export const SP500_PRICE_RETURNS: number[] = [
   -0.0154, // 1994
   0.3411, // 1995
   0.2026, // 1996
@@ -33,6 +33,47 @@ export const SP500_ANNUAL_RETURNS: number[] = [
   0.2429, // 2023
   0.23, // 2024
 ];
+
+// S&P 500 annual dividend yields, 1994–2024
+// Source: Macrotrends historical S&P 500 dividend yield
+export const SP500_DIVIDEND_YIELDS: number[] = [
+  0.028, // 1994
+  0.024, // 1995
+  0.021, // 1996
+  0.018, // 1997
+  0.015, // 1998
+  0.012, // 1999
+  0.012, // 2000
+  0.014, // 2001
+  0.018, // 2002
+  0.016, // 2003
+  0.016, // 2004
+  0.018, // 2005
+  0.018, // 2006
+  0.019, // 2007
+  0.03, // 2008
+  0.02, // 2009
+  0.019, // 2010
+  0.021, // 2011
+  0.021, // 2012
+  0.019, // 2013
+  0.019, // 2014
+  0.021, // 2015
+  0.021, // 2016
+  0.019, // 2017
+  0.021, // 2018
+  0.019, // 2019
+  0.016, // 2020
+  0.013, // 2021
+  0.016, // 2022
+  0.015, // 2023
+  0.013, // 2024
+];
+
+// S&P 500 total return = price return + dividend yield (dividends reinvested)
+export const SP500_ANNUAL_RETURNS: number[] = SP500_PRICE_RETURNS.map(
+  (r, i) => r + SP500_DIVIDEND_YIELDS[i],
+);
 
 // California Home Price Index annual appreciation, 1994–2024
 // Approximate Case-Shiller CA / CAR data
