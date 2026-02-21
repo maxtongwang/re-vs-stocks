@@ -1240,7 +1240,6 @@
       let playing = false,
         rafId = null,
         lastTs = null;
-      const MONTHS_PER_SEC = 12;
 
       function stopPlay() {
         playing = false;
@@ -1261,7 +1260,7 @@
         }
         const dt = Math.min((ts - lastTs) / 1000, 0.1);
         lastTs = ts;
-        curMonth = Math.min(curMonth + dt * MONTHS_PER_SEC, totalMonths);
+        curMonth = Math.min(curMonth + dt * (totalMonths / 30), totalMonths);
         const m = Math.round(curMonth);
         sliderEl.value = m;
         updateLabel(m);
