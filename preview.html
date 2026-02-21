@@ -69,11 +69,39 @@
         align-items: center;
         gap: 5px;
         font-size: 11px;
+        cursor: pointer;
+        user-select: none;
+        transition: opacity 0.15s;
+      }
+      .leg-item.hidden {
+        opacity: 0.3;
+      }
+      .leg-item.hidden .leg-dot {
+        background: #444 !important;
       }
       .leg-dot {
         width: 12px;
         height: 3px;
         border-radius: 2px;
+      }
+      #play-btn {
+        background: none;
+        border: 1px solid #444;
+        color: #ccc;
+        font-family: monospace;
+        font-size: 16px;
+        width: 32px;
+        height: 24px;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        line-height: 1;
+      }
+      #play-btn:active {
+        background: #222;
       }
       .table-wrap {
         overflow-x: auto;
@@ -120,34 +148,34 @@
     <div id="chart-wrap"><canvas id="c"></canvas></div>
 
     <div class="slider-wrap">
-      <span style="font-size: 11px; color: #666">1994</span>
+      <button id="play-btn">▶</button>
       <input type="range" id="slider" min="1" max="360" value="360" />
       <span id="year-label">2024</span>
     </div>
 
-    <div class="legend">
-      <div class="leg-item">
-        <div class="leg-dot" style="background: #4da6ff; height: 3px"></div>
+    <div class="legend" id="legend">
+      <div class="leg-item" data-idx="0">
+        <div class="leg-dot" style="background: #4da6ff"></div>
         S&P 500
       </div>
-      <div class="leg-item">
-        <div class="leg-dot" style="background: #66ff66; height: 3px"></div>
+      <div class="leg-item" data-idx="1">
+        <div class="leg-dot" style="background: #66ff66"></div>
         RE All Cash
       </div>
-      <div class="leg-item">
-        <div class="leg-dot" style="background: #ccff33; height: 3px"></div>
+      <div class="leg-item" data-idx="2">
+        <div class="leg-dot" style="background: #ccff33"></div>
         RE 50% Down
       </div>
-      <div class="leg-item">
-        <div class="leg-dot" style="background: #ffaa00; height: 3px"></div>
+      <div class="leg-item" data-idx="3">
+        <div class="leg-dot" style="background: #ffaa00"></div>
         RE 20% Down
       </div>
-      <div class="leg-item">
-        <div class="leg-dot" style="background: #ff6600; height: 3px"></div>
+      <div class="leg-item" data-idx="4">
+        <div class="leg-dot" style="background: #ff6600"></div>
         RE 10% Down
       </div>
-      <div class="leg-item">
-        <div class="leg-dot" style="background: #ff3333; height: 3px"></div>
+      <div class="leg-item" data-idx="5">
+        <div class="leg-dot" style="background: #ff3333"></div>
         RE 3.5% Down
       </div>
     </div>
@@ -311,6 +339,72 @@
       const canvas = document.getElementById("c");
       const slider = document.getElementById("slider");
       const yearLabel = document.getElementById("year-label");
+      const playBtn = document.getElementById("play-btn");
+
+      // Hidden scenarios (by index)
+      const hidden = new Set();
+
+      // Legend toggle
+      document.getElementById("legend").addEventListener("click", (e) => {
+        const item = e.target.closest(".leg-item");
+        if (!item) return;
+        const idx = parseInt(item.dataset.idx);
+        if (hidden.has(idx)) {
+          hidden.delete(idx);
+          item.classList.remove("hidden");
+        } else {
+          hidden.add(idx);
+          item.classList.add("hidden");
+        }
+        update();
+      });
+
+      // Play / pause
+      let playing = false;
+      let rafId = null;
+      let lastTs = null;
+      const MONTHS_PER_SEC = 15; // speed: ~24s for full run
+
+      function stopPlay() {
+        playing = false;
+        playBtn.textContent = "▶";
+        if (rafId) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+        lastTs = null;
+      }
+
+      function tick(ts) {
+        if (!playing) return;
+        if (lastTs === null) lastTs = ts;
+        const dt = (ts - lastTs) / 1000;
+        lastTs = ts;
+        let cur = parseFloat(slider.value) + dt * MONTHS_PER_SEC;
+        if (cur >= 360) {
+          cur = 360;
+          slider.value = cur;
+          update();
+          stopPlay();
+          return;
+        }
+        slider.value = cur;
+        update();
+        rafId = requestAnimationFrame(tick);
+      }
+
+      playBtn.addEventListener("click", () => {
+        if (playing) {
+          stopPlay();
+          return;
+        }
+        // If at end, restart from beginning
+        if (parseInt(slider.value) >= 360) slider.value = 1;
+        playing = true;
+        playBtn.textContent = "⏸";
+        lastTs = null;
+        rafId = requestAnimationFrame(tick);
+      });
 
       function draw(monthsToShow) {
         const dpr = window.devicePixelRatio || 1;
@@ -333,10 +427,12 @@
         ctx.fillStyle = "#0f0f0f";
         ctx.fillRect(0, 0, W, H);
 
-        // Compute y range
+        // Compute y range — only visible scenarios
         let yMin = 0,
           yMax = 200000;
-        for (const w of allWealth) {
+        for (let i = 0; i < allWealth.length; i++) {
+          if (hidden.has(i)) continue;
+          const w = allWealth[i];
           for (let m = 0; m <= monthsToShow && m < w.length; m++) {
             if (w[m] < yMin) yMin = w[m];
             if (w[m] > yMax) yMax = w[m];
@@ -388,8 +484,9 @@
           ctx.fillText(1994 + yr, tx(m), H - 6);
         }
 
-        // Lines
+        // Lines (hidden ones drawn dim last so they don't clutter)
         for (let i = 0; i < SCENARIOS.length; i++) {
+          if (hidden.has(i)) continue;
           const w = allWealth[i];
           const s = SCENARIOS[i];
           ctx.strokeStyle = s.color;
@@ -398,36 +495,38 @@
           ctx.setLineDash([]);
           ctx.beginPath();
           ctx.moveTo(tx(0), ty(w[0]));
-          for (let m = 1; m <= monthsToShow && m < w.length; m++) {
+          for (let m = 1; m <= monthsToShow && m < w.length; m++)
             ctx.lineTo(tx(m), ty(w[m]));
-          }
           ctx.stroke();
         }
 
-        // Current value dots
+        // Dots at current position
         if (monthsToShow > 1) {
           for (let i = 0; i < SCENARIOS.length; i++) {
+            if (hidden.has(i)) continue;
             const w = allWealth[i];
             const m = Math.min(monthsToShow, w.length - 1);
-            const x = tx(m),
-              y = ty(w[m]);
             ctx.fillStyle = SCENARIOS[i].color;
             ctx.beginPath();
-            ctx.arc(x, y, 3, 0, Math.PI * 2);
+            ctx.arc(tx(m), ty(w[m]), 3, 0, Math.PI * 2);
             ctx.fill();
           }
         }
       }
 
       function update() {
-        const m = parseInt(slider.value);
-        const yr = Math.floor(1993 + m / 12);
-        const mo = ((m - 1) % 12) + 1;
+        const m = parseFloat(slider.value);
+        const mInt = Math.floor(m);
+        const yr = Math.floor(1993 + mInt / 12);
+        const mo = ((mInt - 1) % 12) + 1;
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}`;
-        draw(m - 1);
+        draw(mInt - 1);
       }
 
-      slider.addEventListener("input", update);
+      slider.addEventListener("input", () => {
+        stopPlay();
+        update();
+      });
       window.addEventListener("resize", update);
       update();
     </script>
