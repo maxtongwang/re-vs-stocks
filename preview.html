@@ -178,6 +178,11 @@
         margin-top: 12px;
         line-height: 1.6;
       }
+      #note-dynamic-line {
+        margin: 3px 0 6px;
+        white-space: nowrap;
+        overflow-x: auto;
+      }
       .note strong {
         color: #777;
         display: block;
@@ -317,10 +322,7 @@
 
     <div class="note" id="note-section">
       <strong>Assumptions (dynamic)</strong>
-      <p
-        id="note-dynamic-line"
-        style="margin: 3px 0 6px; white-space: nowrap; overflow-x: auto"
-      ></p>
+      <p id="note-dynamic-line"></p>
       <strong>Assumptions (fixed)</strong>
       <ul>
         <li>Initial capital: $100K for all scenarios</li>
