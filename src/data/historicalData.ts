@@ -111,6 +111,43 @@ export const CA_RE_ANNUAL_RETURNS: number[] = [
   0.068, // 2024
 ];
 
+// California annual rent growth rates, 1994–2024
+// Sources: Census ACS, BLS CPI-Rent (West Urban), Zillow ZORI (from 2015)
+// Early years (1994–2014): BLS West Urban rent CPI YoY; 2015+ Zillow CA ZORI
+export const CA_RENT_GROWTH: number[] = [
+  0.035, // 1994 — BLS West CPI-Rent
+  0.04, // 1995
+  0.045, // 1996
+  0.048, // 1997
+  0.052, // 1998
+  0.058, // 1999 — dot-com boom
+  0.065, // 2000
+  0.048, // 2001
+  0.028, // 2002 — post dot-com
+  0.018, // 2003
+  0.022, // 2004
+  0.038, // 2005
+  0.048, // 2006
+  0.042, // 2007
+  0.02, // 2008 — GFC begins
+  -0.012, // 2009 — rents fall
+  0.008, // 2010
+  0.025, // 2011
+  0.045, // 2012 — recovery
+  0.055, // 2013
+  0.06, // 2014
+  0.065, // 2015 — Zillow ZORI CA
+  0.055, // 2016
+  0.045, // 2017
+  0.038, // 2018
+  0.03, // 2019
+  0.012, // 2020 — COVID dip
+  0.108, // 2021 — COVID rebound spike
+  0.075, // 2022
+  0.032, // 2023 — cooling
+  0.04, // 2024
+];
+
 // Interpolate annual returns to monthly multipliers
 // Each year has 12 months; annual return r → monthly return = (1+r)^(1/12) - 1
 export function annualToMonthlyReturns(annualReturns: number[]): number[] {
