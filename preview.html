@@ -751,8 +751,8 @@
           ? "Reinvested (compound)"
           : "Additive (no compound)";
 
-        document.getElementById("assumptions-line").textContent =
-          `${startYear}–${endYear} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Cash flow: ${modeLabel}`;
+        document.getElementById("assumptions-line").innerHTML =
+          `${startYear}–${endYear} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}%<br>Cash flow: ${modeLabel}`;
 
         document.getElementById("note-dynamic-line").innerHTML =
           `<strong style="color:#ccc">${startYear}–${endYear}</strong> (${yrs}yr) · ` +
