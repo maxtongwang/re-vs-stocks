@@ -301,7 +301,7 @@
   </head>
   <body>
     <div class="hero">
-      <div class="hero-title">
+      <div class="hero-title" id="hero-title">
         The Last Chart To Understand<br />Real Estate vs Stock Market.
       </div>
       <div class="hero-sub">
@@ -317,7 +317,7 @@
     </div>
 
     <div class="ctrl-row">
-      <span>Start:</span>
+      <span id="label-start">Start:</span>
       <input
         type="range"
         id="start-year-slider"
@@ -329,7 +329,7 @@
       <span class="val" id="start-year-val">1994</span>
     </div>
     <div class="ctrl-row">
-      <span>End:</span>
+      <span id="label-end">End:</span>
       <input
         type="range"
         id="end-year-slider"
@@ -342,10 +342,18 @@
     </div>
 
     <div class="ctrl-row">
-      <span>Cash flow:</span>
+      <span id="label-cashflow">Cash flow:</span>
       <div class="toggle-group">
         <button class="toggle-btn active" id="btn-additive">Additive</button>
         <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
+      </div>
+    </div>
+
+    <div class="ctrl-row">
+      <span id="label-lang">Lang:</span>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btn-lang-en">EN</button>
+        <button class="toggle-btn" id="btn-lang-zh">中文</button>
       </div>
     </div>
 
@@ -362,27 +370,27 @@
     <div class="legend" id="legend">
       <div class="leg-item" data-idx="0">
         <div class="leg-dot" style="background: #4da6ff"></div>
-        S&P 500 (total)
+        <span class="leg-text">S&P 500 (total)</span>
       </div>
       <div class="leg-item" data-idx="1">
         <div class="leg-dot" style="background: #66ff66"></div>
-        RE All Cash
+        <span class="leg-text">RE All Cash</span>
       </div>
       <div class="leg-item" data-idx="2">
         <div class="leg-dot" style="background: #ccff33"></div>
-        RE 50% Down
+        <span class="leg-text">RE 50% Down</span>
       </div>
       <div class="leg-item" data-idx="3">
         <div class="leg-dot" style="background: #ffaa00"></div>
-        RE 20% Down
+        <span class="leg-text">RE 20% Down</span>
       </div>
       <div class="leg-item hidden" data-idx="4">
         <div class="leg-dot" style="background: #ff6600"></div>
-        RE 10% Down
+        <span class="leg-text">RE 10% Down</span>
       </div>
       <div class="leg-item hidden" data-idx="5">
         <div class="leg-dot" style="background: #ff3333"></div>
-        RE 3.5% Down
+        <span class="leg-text">RE 3.5% Down</span>
       </div>
     </div>
 
@@ -390,7 +398,7 @@
       <table>
         <thead>
           <tr>
-            <th>Year</th>
+            <th id="th-year">Year</th>
             <th style="color: #4da6ff">S&P500+div</th>
             <th style="color: #66ff66">AllCash</th>
             <th style="color: #ccff33">50%Dn</th>
@@ -404,10 +412,10 @@
     </div>
 
     <div class="note" id="note-section">
-      <strong>Assumptions (dynamic)</strong>
+      <strong id="label-assm-dyn">Assumptions (dynamic)</strong>
       <p id="note-dynamic-line"></p>
-      <strong>Assumptions (fixed)</strong>
-      <ul>
+      <strong id="label-assm-fix">Assumptions (fixed)</strong>
+      <ul id="fixed-assumptions">
         <li>Initial capital: $100K for all scenarios</li>
         <li>Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr</li>
         <li>Insurance: 0.5% of current property value/yr</li>
@@ -429,7 +437,7 @@
           compounding
         </li>
       </ul>
-      <strong>Sources</strong>
+      <strong id="label-sources">Sources</strong>
       <ul class="src-list">
         <li>
           S&amp;P 500 returns &amp; dividends:
@@ -467,7 +475,9 @@
         </li>
         <li>
           Rent yields:
-          <a href="https://www.car.org/marketdata" target="_blank"
+          <a
+            href="https://www.car.org/marketdata/data/housingdata"
+            target="_blank"
             >CAR price-to-rent</a
           >
         </li>
@@ -484,6 +494,107 @@
         { label: "RE 10% Down", color: "#ff6600" },
         { label: "RE 3.5% Down", color: "#ff3333" },
       ];
+
+      // ── Localization strings ──────────────────────────────────────────────────
+      const STRINGS = {
+        en: {
+          heroTitle:
+            "The Last Chart To Understand<br>Real Estate vs Stock Market.",
+          heroRe: "CA Real Estate",
+          labelStart: "Start:",
+          labelEnd: "End:",
+          labelCashflow: "Cash flow:",
+          labelLang: "Lang:",
+          btnAdditive: "Additive",
+          btnReinvest: "Reinvested",
+          legendLabels: [
+            "S&P 500 (total)",
+            "RE All Cash",
+            "RE 50% Down",
+            "RE 20% Down",
+            "RE 10% Down",
+            "RE 3.5% Down",
+          ],
+          thYear: "Year",
+          assmDyn: "Assumptions (dynamic)",
+          assmFix: "Assumptions (fixed)",
+          labelSources: "Sources",
+          builtBy: "Built by Max Wang",
+          modeLabelReinvest: "Reinvested (compound)",
+          modeLabelAdditive: "Additive (no compound)",
+          subtitle: (rv, ey, MY) =>
+            `5 leverage scenarios · dividends & rent cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
+          assumptionsLine: (sy, ey, yrs, mr, ry, mode) =>
+            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}%<br>Cash flow: ${mode}`,
+          dynamicLine: (sy, ey, yrs, mr, ry, p2r, mode) =>
+            `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
+            `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
+            `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x)<br>` +
+            `<strong style="color:#ccc">${mode}</strong>`,
+          tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
+          crashRowLabel: (yr) => `${yr} (crash)`,
+          fixedItems: [
+            "Initial capital: $100K for all scenarios",
+            "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
+            "Insurance: 0.5% of current property value/yr",
+            "Maintenance: 1% of current property value/yr",
+            "Depreciation: 80% structure / 27.5 yrs (IRS rental schedule)",
+            "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
+            "Rent growth: BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
+            "Wealth = Current Equity + Cumulative Net Cash Flows",
+            "Reinvested mode: dividends & rent net cash flows compound at S&P 500 monthly returns",
+            "Additive mode: dividends & rent cash flows accumulate without compounding",
+          ],
+        },
+        zh: {
+          heroTitle: "看懂房产 vs 股市的终极图表。",
+          heroRe: "加州房产",
+          labelStart: "起始年：",
+          labelEnd: "结束年：",
+          labelCashflow: "现金流：",
+          labelLang: "语言：",
+          btnAdditive: "叠加",
+          btnReinvest: "复投",
+          legendLabels: [
+            "S&P 500 (总回报)",
+            "房产 全现金",
+            "房产 50%首付",
+            "房产 20%首付",
+            "房产 10%首付",
+            "房产 3.5%首付",
+          ],
+          thYear: "年份",
+          assmDyn: "动态假设",
+          assmFix: "固定假设",
+          labelSources: "数据来源",
+          builtBy: "由 Max Wang 制作",
+          modeLabelReinvest: "复投（复利）",
+          modeLabelAdditive: "叠加（无复利）",
+          subtitle: (rv, ey, MY) =>
+            `5种杠杆方案 · 股息和房租现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
+          assumptionsLine: (sy, ey, yrs, mr, ry, mode) =>
+            `${sy}–${ey} · ${yrs}年 · 房贷：${mr}% · 租金回报率：${ry}%<br>现金流：${mode}`,
+          dynamicLine: (sy, ey, yrs, mr, ry, p2r, mode) =>
+            `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
+            `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
+            `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍)<br>` +
+            `<strong style="color:#ccc">${mode}</strong>`,
+          tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,
+          crashRowLabel: (yr) => `${yr}（崩盘）`,
+          fixedItems: [
+            "初始资金：各方案均为 $10万",
+            "13号提案房产税：购入价的1.25%，每年上涨上限2%",
+            "保险：当前房产价值的0.5%/年",
+            "维护费：当前房产价值的1%/年",
+            "折旧：建筑物占80% / 27.5年（IRS出租房规定）",
+            "税率：44%（联邦35% + 加州9.3%），按纸面租金盈亏计算",
+            "租金增长：1994–2014使用BLS西部CPI租金指数，2015+使用Zillow ZORI加州数据；1994年前参考BLS全国CPI租金及学术文献估算，精度较低，仅供参考",
+            "总资产 = 房产净值 + 累计净现金流",
+            "复投模式：股息和房租净现金流按S&P 500月回报率复利增长",
+            "叠加模式：股息和房租现金流线性累加，不复利",
+          ],
+        },
+      };
 
       // ── Historical data (1970–2025, 56 entries = index 0–55) ──────────────────
       // 2025 values are preliminary estimates; full-year data may differ
@@ -724,6 +835,7 @@
       let startYear = 1994;
       let endYear = 2025;
       let reinvest = false;
+      let lang = "en";
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
       let curMonth = totalMonths;
@@ -742,6 +854,7 @@
       // ── Table ─────────────────────────────────────────────────────────────────
       const tbody = document.getElementById("table-body");
       function buildTable() {
+        const s = STRINGS[lang];
         tbody.innerHTML = "";
         const dur = endYear - startYear + 1;
         const checks = [];
@@ -755,7 +868,7 @@
           if (yrs === gfc2008 || yrs === gfc2008 + 1)
             tr.style.background = "#1a0000";
           tr.innerHTML =
-            `<td>Yr ${yrs} (${startYear + yrs})</td>` +
+            `<td>${s.tableRowLabel(yrs, startYear + yrs)}</td>` +
             allWealth
               .map((w, i) => {
                 const cls = hidden.has(i) ? ' class="col-hidden"' : "";
@@ -771,7 +884,7 @@
             const tr = document.createElement("tr");
             tr.style.background = "#1a0000";
             tr.innerHTML =
-              `<td>${startYear + offset} (crash)</td>` +
+              `<td>${s.crashRowLabel(startYear + offset)}</td>` +
               allWealth
                 .map((w, i) => {
                   const cls = hidden.has(i) ? ' class="col-hidden"' : "";
@@ -822,25 +935,60 @@
 
       // ── Assumptions display ───────────────────────────────────────────────────
       function updateAssumptions() {
+        const s = STRINGS[lang];
         const i = startYear - BASE_YEAR;
         const mr = (MORTGAGE_RATES[i] * 100).toFixed(2);
         const ry = (CA_RENT_YIELDS[i] * 100).toFixed(1);
         const yrs = endYear - startYear + 1;
-        const modeLabel = reinvest
-          ? "Reinvested (compound)"
-          : "Additive (no compound)";
+        const p2r = Math.round(1 / CA_RENT_YIELDS[i]);
+        const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
 
         document.getElementById("assumptions-line").innerHTML =
-          `${startYear}–${endYear} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}%<br>Cash flow: ${modeLabel}`;
+          s.assumptionsLine(startYear, endYear, yrs, mr, ry, modeLabel);
 
-        document.getElementById("note-dynamic-line").innerHTML =
-          `<strong style="color:#ccc">${startYear}–${endYear}</strong> (${yrs}yr) · ` +
-          `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-          `Yield <strong style="color:#ccc">${ry}%</strong> (≈${Math.round(1 / CA_RENT_YIELDS[i])}x)<br>` +
-          `<strong style="color:#ccc">${modeLabel}</strong>`;
+        document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
+          startYear,
+          endYear,
+          yrs,
+          mr,
+          ry,
+          p2r,
+          modeLabel,
+        );
 
-        document.getElementById("subtitle").textContent =
-          `5 leverage scenarios · dividends & rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${endYear >= MAX_YEAR ? " · 2025 est." : ""}`;
+        document.getElementById("subtitle").textContent = s.subtitle(
+          reinvest,
+          endYear,
+          MAX_YEAR,
+        );
+      }
+
+      // ── Apply language ────────────────────────────────────────────────────────
+      function applyLang() {
+        const s = STRINGS[lang];
+        document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+        document.getElementById("hero-title").innerHTML = s.heroTitle;
+        document.querySelector(".hero-re").textContent = s.heroRe;
+        document.getElementById("label-start").textContent = s.labelStart;
+        document.getElementById("label-end").textContent = s.labelEnd;
+        document.getElementById("label-cashflow").textContent = s.labelCashflow;
+        document.getElementById("label-lang").textContent = s.labelLang;
+        document.getElementById("btn-additive").textContent = s.btnAdditive;
+        document.getElementById("btn-reinvest").textContent = s.btnReinvest;
+        document.querySelectorAll(".leg-text").forEach((el, i) => {
+          el.innerHTML = s.legendLabels[i];
+        });
+        document.getElementById("th-year").textContent = s.thYear;
+        document.getElementById("label-assm-dyn").textContent = s.assmDyn;
+        document.getElementById("label-assm-fix").textContent = s.assmFix;
+        document.getElementById("label-sources").textContent = s.labelSources;
+        document.getElementById("fixed-assumptions").innerHTML = s.fixedItems
+          .map((item) => `<li>${item}</li>`)
+          .join("");
+        document.getElementById("label-built-by").textContent = s.builtBy;
+        updateAssumptions();
+        buildTable();
+        syncTableCols();
       }
 
       // ── Reinvest toggle ───────────────────────────────────────────────────────
@@ -865,6 +1013,25 @@
         updateAssumptions();
         buildTable();
         syncTableCols();
+        draw(curMonth - 1);
+      });
+
+      // ── Lang toggle ──────────────────────────────────────────────────────────
+      document.getElementById("btn-lang-en").addEventListener("click", () => {
+        if (lang === "en") return;
+        lang = "en";
+        document.getElementById("btn-lang-en").classList.add("active");
+        document.getElementById("btn-lang-zh").classList.remove("active");
+        applyLang();
+        draw(curMonth - 1);
+      });
+
+      document.getElementById("btn-lang-zh").addEventListener("click", () => {
+        if (lang === "zh") return;
+        lang = "zh";
+        document.getElementById("btn-lang-zh").classList.add("active");
+        document.getElementById("btn-lang-en").classList.remove("active");
+        applyLang();
         draw(curMonth - 1);
       });
 
@@ -1116,15 +1283,13 @@
 
       // ── Init ──────────────────────────────────────────────────────────────────
       resizeCanvas();
-      updateAssumptions();
+      applyLang();
       updateLabel(totalMonths);
-      buildTable();
-      syncTableCols();
       draw(totalMonths - 1);
     </script>
 
     <div class="built-by">
-      <div class="built-by-label">Built by Max Wang</div>
+      <div class="built-by-label" id="label-built-by">Built by Max Wang</div>
       <div class="socials">
         <a
           href="https://youtube.com/@whatupmax"
