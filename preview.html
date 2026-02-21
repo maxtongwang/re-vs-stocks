@@ -319,7 +319,7 @@
       <strong>Assumptions (dynamic)</strong>
       <p
         id="note-dynamic-line"
-        style="margin: 3px 0 6px; line-height: 1.8; white-space: normal"
+        style="margin: 3px 0 6px; white-space: nowrap; overflow-x: auto"
       ></p>
       <strong>Assumptions (fixed)</strong>
       <ul>
@@ -748,10 +748,10 @@
           `${startYear}–${endYear} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Cash flow: ${modeLabel}`;
 
         document.getElementById("note-dynamic-line").innerHTML =
-          `Period: <strong style="color:#ccc">${startYear}–${endYear}</strong> (${yrs} yrs) &nbsp;·&nbsp; ` +
-          `Mortgage: <strong style="color:#ccc">${mr}%</strong> 30yr fixed &nbsp;·&nbsp; ` +
-          `Rent yield: <strong style="color:#ccc">${ry}%</strong> (≈${Math.round(1 / CA_RENT_YIELDS[i])}x price-to-rent) &nbsp;·&nbsp; ` +
-          `Cash flow: <strong style="color:#ccc">${modeLabel}</strong>`;
+          `<strong style="color:#ccc">${startYear}–${endYear}</strong> (${yrs}yr) · ` +
+          `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
+          `Yield <strong style="color:#ccc">${ry}%</strong> (≈${Math.round(1 / CA_RENT_YIELDS[i])}x) · ` +
+          `<strong style="color:#ccc">${modeLabel}</strong>`;
 
         document.getElementById("subtitle").textContent =
           `5 leverage scenarios · dividends & rent cash flow: ${reinvest ? "reinvested (compound)" : "additive (no compound)"}${endYear >= MAX_YEAR ? " · 2025 est." : ""}`;
