@@ -19,16 +19,38 @@
         font-family: monospace;
         padding: 12px;
       }
-      h1 {
-        font-size: 14px;
+      .hero {
         text-align: center;
-        margin-bottom: 3px;
-        line-height: 1.4;
+        margin-bottom: 14px;
+      }
+      .hero-amount {
+        font-size: 42px;
+        font-weight: bold;
+        color: #fff;
+        letter-spacing: -1px;
+        line-height: 1.1;
+      }
+      .hero-vs {
+        font-size: 15px;
+        margin-top: 4px;
+        letter-spacing: 0.5px;
+      }
+      .hero-sp {
+        color: #4da6ff;
+      }
+      .hero-re {
+        color: #66ff66;
+      }
+      .hero-divider {
+        color: #444;
+        margin: 0 10px;
+        font-size: 12px;
       }
       .subtitle {
         font-size: 11px;
-        color: #888;
+        color: #555;
         text-align: center;
+        margin-top: 5px;
         margin-bottom: 8px;
       }
       .ctrl-row {
@@ -275,9 +297,16 @@
     </style>
   </head>
   <body>
-    <h1>$100K Invested: S&P 500 vs CA Real Estate</h1>
+    <div class="hero">
+      <div class="hero-amount">$100,000</div>
+      <div class="hero-vs">
+        <span class="hero-sp">S&P 500</span>
+        <span class="hero-divider">vs</span>
+        <span class="hero-re">CA Real Estate</span>
+      </div>
+    </div>
     <div class="subtitle" id="subtitle">
-      5 leverage scenarios · dividends reinvested · rent cash flow reinvested
+      5 leverage scenarios · dividends & rent cash flow: additive
     </div>
 
     <div class="ctrl-row">
