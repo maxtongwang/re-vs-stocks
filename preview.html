@@ -490,11 +490,11 @@
       }
       #outcome-callout {
         font-size: 11px;
-        line-height: 1.6;
+        line-height: 1.7;
         color: #777;
-        text-align: center;
+        text-align: left;
         margin: 4px 0 2px;
-        min-height: 14px;
+        min-height: 28px;
       }
       #outcome-callout strong {
         color: #bbb;
@@ -2892,7 +2892,7 @@
           document.getElementById("index-select").selectedOptions[0].text;
         const spStr = `<span style="color:#4da6ff">${fmt(spVal)} (${spCagr}%/yr)</span>`;
         if (bestReIdx === -1) {
-          el.innerHTML = `${idxLabel}: ${spStr}`;
+          el.innerHTML = `· ${idxLabel}: ${spStr}`;
           return;
         }
         const reCagr = (
@@ -2907,7 +2907,7 @@
           bestReVal > spVal
             ? `<strong>RE ${mult}× ahead</strong>`
             : `<strong>Index ${(spVal / bestReVal).toFixed(2)}× ahead</strong>`;
-        el.innerHTML = `${idxLabel}: ${spStr} · ${reLabel}: ${reStr} — ${winner}`;
+        el.innerHTML = `· ${idxLabel}: ${spStr}<br>· ${reLabel}: ${reStr} — ${winner}`;
       }
 
       function updateLegendCagr(monthsToShow) {
