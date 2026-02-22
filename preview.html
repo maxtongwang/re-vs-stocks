@@ -128,6 +128,10 @@
       #btn-refi-3 {
         min-width: 24px;
       }
+      #btn-refi-rate,
+      #btn-refi-ltv {
+        min-width: 36px;
+      }
       .toggle-btn.active {
         border-color: #4da6ff;
         color: #4da6ff;
@@ -433,6 +437,10 @@
         <button class="toggle-btn" id="btn-refi-1">1</button>
         <button class="toggle-btn" id="btn-refi-2">2</button>
         <button class="toggle-btn" id="btn-refi-3">3</button>
+      </div>
+      <div class="toggle-group" style="margin-left: 4px">
+        <button class="toggle-btn active" id="btn-refi-rate">Rate</button>
+        <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
       </div>
     </div>
 
@@ -771,11 +779,23 @@
             isPrimary
               ? `5 leverage scenarios · primary residence<br>PITI costs; mortgage interest &amp; prop-tax deductible`
               : `5 leverage scenarios · rental<br>dividends &amp; rent: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary, nr) => {
+          assumptionsLine: (
+            sy,
+            ey,
+            yrs,
+            mr,
+            ry,
+            ip,
+            mode,
+            isPrimary,
+            nr,
+            isLTV,
+          ) => {
             const line2 = isPrimary
               ? `Primary: no rental income; int &amp; prop-tax deductible`
               : `Rent yield: ${ry}% · Improvement: ${ip}%`;
-            const refiStr = nr > 0 ? ` · Refi: ${nr}x` : "";
+            const refiStr =
+              nr > 0 ? ` · Refi: ${nr}x ${isLTV ? "(LTV)" : "(Rate)"}` : "";
             return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%${refiStr}<br>${line2}<br>Cash flow: ${mode}`;
           },
           dynamicLine: (
@@ -790,10 +810,11 @@
             isPrimary,
             nr,
             refis,
+            isLTV,
           ) => {
             const refiStr =
               nr > 0
-                ? ` · Refi: ${nr}x (${refis.map((r) => r.year).join(", ")})`
+                ? ` · Refi: ${nr}x ${isLTV ? "LTV" : "Rate"} (${refis.map((r) => r.year).join(", ")})`
                 : "";
             if (isPrimary) {
               return (
@@ -897,11 +918,23 @@
             isPrimary
               ? `5种杠杆方案 · 自住<br>PITI为成本；利息和房产税可抵扣`
               : `5种杠杆方案 · 出租<br>股息和房租：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary, nr) => {
+          assumptionsLine: (
+            sy,
+            ey,
+            yrs,
+            mr,
+            ry,
+            ip,
+            mode,
+            isPrimary,
+            nr,
+            isLTV,
+          ) => {
             const line2 = isPrimary
               ? `自住：无租金收入；利息和房产税可抵扣`
               : `租金回报率：${ry}% · 建筑：${ip}%`;
-            const refiStr = nr > 0 ? ` · 重贷：${nr}次` : "";
+            const refiStr =
+              nr > 0 ? ` · 重贷：${nr}次${isLTV ? "（LTV）" : "（利率）"}` : "";
             return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%${refiStr}<br>${line2}<br>现金流：${mode}`;
           },
           dynamicLine: (
@@ -916,10 +949,11 @@
             isPrimary,
             nr,
             refis,
+            isLTV,
           ) => {
             const refiStr =
               nr > 0
-                ? ` · 重贷：${nr}次（${refis.map((r) => r.year).join("、")}年）`
+                ? ` · 重贷：${nr}次${isLTV ? "LTV" : "利率"}（${refis.map((r) => r.year).join("、")}年）`
                 : "";
             if (isPrimary) {
               return (
@@ -1131,6 +1165,7 @@
       // reinvest=true: net cash flows compound at spSlice monthly returns (invested in market)
       // reinvest=false: net cash flows accumulate additively (current behavior)
       // refis: [{m, rate, year}] sorted by m — refinance events (only applied if rate < current)
+      // useLTV: true = cash-out refi at 75%/80% LTV; false = rate-and-term (remaining balance only)
       function simRE(
         down,
         caM,
@@ -1142,6 +1177,7 @@
         spSlice,
         isPrimary,
         refis,
+        useLTV,
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
@@ -1169,7 +1205,7 @@
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
             ptax *= 1.02;
           }
-          // Cash-out refi: lower rate + pull equity to 75% LTV (rental) / 80% (primary)
+          // Refinance: lower rate; optionally pull equity to LTV (useLTV mode)
           if (
             mort > 0 &&
             refiQueue.length > 0 &&
@@ -1178,15 +1214,20 @@
             refiQueue[0].rate < currentRate
           ) {
             const refi = refiQueue.shift();
-            const ltvRefi = isPrimary ? 0.8 : 0.75;
-            const newLoan = Math.max(rem, pv * ltvRefi);
+            let newLoan = rem; // rate-and-term: keep same balance
+            if (useLTV) {
+              const ltvRefi = isPrimary ? 0.8 : 0.75;
+              newLoan = Math.max(rem, pv * ltvRefi); // cash-out to LTV if equity available
+            }
             const cashOut = newLoan - rem;
             sched = amortize(newLoan, refi.rate / 12);
             schedOffset = m;
             currentRate = refi.rate;
             rem = newLoan; // starting principal for prevBal when si=0
-            if (reinvest) cfPool += cashOut;
-            else cf += cashOut;
+            if (cashOut > 0) {
+              if (reinvest) cfPool += cashOut;
+              else cf += cashOut;
+            }
           }
           // Primary: r=0 (no rent income). Rental: actual rent collected.
           const r = isPrimary ? 0 : rent / 12;
@@ -1264,10 +1305,58 @@
         const refis = getRefis(yr, endYear, numRefis);
         return [
           simSP(spP, sp, spD, reinvest),
-          simRE(1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
-          simRE(0.5, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
-          simRE(0.2, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
-          simRE(0.1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
+          simRE(
+            1,
+            ca,
+            rg,
+            mr,
+            ry,
+            improvPct,
+            reinvest,
+            sp,
+            isPrimary,
+            refis,
+            refiLTV,
+          ),
+          simRE(
+            0.5,
+            ca,
+            rg,
+            mr,
+            ry,
+            improvPct,
+            reinvest,
+            sp,
+            isPrimary,
+            refis,
+            refiLTV,
+          ),
+          simRE(
+            0.2,
+            ca,
+            rg,
+            mr,
+            ry,
+            improvPct,
+            reinvest,
+            sp,
+            isPrimary,
+            refis,
+            refiLTV,
+          ),
+          simRE(
+            0.1,
+            ca,
+            rg,
+            mr,
+            ry,
+            improvPct,
+            reinvest,
+            sp,
+            isPrimary,
+            refis,
+            refiLTV,
+          ),
           simRE(
             0.035,
             ca,
@@ -1279,6 +1368,7 @@
             sp,
             isPrimary,
             refis,
+            refiLTV,
           ),
         ];
       }
@@ -1290,6 +1380,7 @@
       let improvPct = 0.4;
       let isPrimary = false;
       let numRefis = 0;
+      let refiLTV = false;
       let lang = "en";
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
@@ -1412,6 +1503,7 @@
             modeLabel,
             isPrimary,
             numRefis,
+            refiLTV,
           );
 
         document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
@@ -1426,6 +1518,7 @@
           isPrimary,
           numRefis,
           refis,
+          refiLTV,
         );
 
         document.getElementById("subtitle").innerHTML = s.subtitle(
@@ -1519,23 +1612,48 @@
         draw(curMonth - 1);
       });
 
-      // ── Refi toggle ───────────────────────────────────────────────────────────
+      // ── Refi count toggle ────────────────────────────────────────────────────
       [0, 1, 2, 3].forEach((n) => {
         document
           .getElementById(`btn-refi-${n}`)
           .addEventListener("click", () => {
             if (numRefis === n) return;
             numRefis = n;
-            document
-              .querySelectorAll("[id^='btn-refi-']")
-              .forEach((b) => b.classList.remove("active"));
-            document.getElementById(`btn-refi-${n}`).classList.add("active");
+            [0, 1, 2, 3].forEach((i) =>
+              document
+                .getElementById(`btn-refi-${i}`)
+                .classList.toggle("active", i === n),
+            );
             allWealth = buildAllWealth(startYear);
             updateAssumptions();
             buildTable();
             syncTableCols();
             draw(curMonth - 1);
           });
+      });
+
+      // ── Refi type toggle (Rate-term vs LTV cash-out) ──────────────────────────
+      document.getElementById("btn-refi-rate").addEventListener("click", () => {
+        if (!refiLTV) return;
+        refiLTV = false;
+        document.getElementById("btn-refi-rate").classList.add("active");
+        document.getElementById("btn-refi-ltv").classList.remove("active");
+        allWealth = buildAllWealth(startYear);
+        updateAssumptions();
+        buildTable();
+        syncTableCols();
+        draw(curMonth - 1);
+      });
+      document.getElementById("btn-refi-ltv").addEventListener("click", () => {
+        if (refiLTV) return;
+        refiLTV = true;
+        document.getElementById("btn-refi-ltv").classList.add("active");
+        document.getElementById("btn-refi-rate").classList.remove("active");
+        allWealth = buildAllWealth(startYear);
+        updateAssumptions();
+        buildTable();
+        syncTableCols();
+        draw(curMonth - 1);
       });
 
       // ── Share URL ─────────────────────────────────────────────────────────────
@@ -1546,6 +1664,7 @@
         if (reinvest) p.set("m", "r");
         if (isPrimary) p.set("p", "1");
         if (numRefis > 0) p.set("r", numRefis);
+        if (refiLTV) p.set("t", "l");
         if (lang !== "en") p.set("l", lang);
         if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
         const hArr = [...hidden].sort((a, b) => a - b);
@@ -1571,6 +1690,7 @@
         if (p.has("p")) isPrimary = p.get("p") === "1";
         if (p.has("r"))
           numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
+        if (p.has("t")) refiLTV = p.get("t") === "l";
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
         if (p.has("i")) {
           const v = parseInt(p.get("i"));
@@ -1916,10 +2036,15 @@
         document.getElementById("btn-rental").classList.remove("active");
       }
       if (numRefis > 0) {
-        document
-          .querySelectorAll("[id^='btn-refi-']")
-          .forEach((b) => b.classList.remove("active"));
-        document.getElementById(`btn-refi-${numRefis}`).classList.add("active");
+        [0, 1, 2, 3].forEach((i) =>
+          document
+            .getElementById(`btn-refi-${i}`)
+            .classList.toggle("active", i === numRefis),
+        );
+      }
+      if (refiLTV) {
+        document.getElementById("btn-refi-ltv").classList.add("active");
+        document.getElementById("btn-refi-rate").classList.remove("active");
       }
       if (lang !== "en") {
         document.getElementById("btn-lang-" + lang).classList.add("active");
