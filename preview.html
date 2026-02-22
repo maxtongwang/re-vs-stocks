@@ -2305,6 +2305,8 @@
       let activeCaRent = CA_RENT_GROWTH;
       let activeCaRentYields = CA_RENT_YIELDS;
       let activeLocConfig = LOC_CONFIG.ca;
+      let activeAnn = CA_ANN;
+      let activeLocKey = "ca";
 
       function refreshDatasets() {
         const idxKey = document.getElementById("index-select").value;
@@ -2340,6 +2342,8 @@
         activeCaRent = lRent;
         activeCaRentYields = lYield;
         activeLocConfig = LOC_CONFIG[locKey];
+        activeAnn = lAnn;
+        activeLocKey = locKey;
         const locImprov = Math.round(activeLocConfig.improvPct * 100);
         improvPct = activeLocConfig.improvPct;
         document.getElementById("improv-slider").value = locImprov;
@@ -3380,8 +3384,7 @@
           m2022 <= Math.min(monthsToShow, histBoundaryM) &&
           hasLevRE
         ) {
-          const locKey2 = document.getElementById("location-select").value;
-          const ann2021 = LOC_DATA[locKey2].ann[2021 - BASE_YEAR];
+          const ann2021 = activeAnn[2021 - BASE_YEAR];
           const pctPrice = Math.round(ann2021 * 100);
           const pctEquity = Math.round(ann2021 * 5 * 100); // 5× leverage
           const locLabel =
@@ -3392,7 +3395,7 @@
               wa: "WA",
               ny: "NY",
               national: "US",
-            }[locKey2] || locKey2.toUpperCase();
+            }[activeLocKey] || activeLocKey.toUpperCase();
           const fs2 = Math.max(7, Math.min(9, W / 65));
           const bw2 = Math.round(W * 0.225);
           const bh2 = fs2 * 2 + 14;
