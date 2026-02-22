@@ -957,11 +957,9 @@
       for entertainment purpose only
     </div>
 
-    <!-- Static geo content — always in DOM for crawler indexing.
-         Summarizes per-state model context so Google ranks for TX/FL/WA/NY queries
-         even though the interactive data is JS-rendered. -->
-    <section
-      aria-label="State coverage"
+    <!-- Static geo content — <details> is collapsed by default (hidden from users)
+         but Google fully indexes content inside it. Safe alternative to display:none. -->
+    <details
       style="
         font-family: monospace;
         font-size: 10px;
@@ -970,10 +968,17 @@
         line-height: 1.7;
       "
     >
-      <strong style="color: #444; display: block; margin-bottom: 4px"
-        >States covered by this calculator</strong
+      <summary
+        style="
+          color: #2a2a2a;
+          cursor: pointer;
+          list-style: none;
+          font-size: 10px;
+        "
       >
-      <ul style="list-style: none; padding: 0; margin: 0">
+        States covered by this calculator ▸
+      </summary>
+      <ul style="list-style: none; padding: 0; margin: 4px 0 0">
         <li>
           <strong>California (CA)</strong> — Prop 13 property tax (1.25% of
           purchase price, +2%/yr cap). Combined tax rate 44% (35% fed + 9.3%
@@ -1017,7 +1022,7 @@
         1970–2025 · S&amp;P 500 (total return), NASDAQ, and 60/40 portfolio
         available as index benchmarks.
       </p>
-    </section>
+    </details>
 
     <div class="built-by">
       <div class="built-by-label" id="label-built-by">Built by Max Wang</div>
