@@ -34,6 +34,7 @@
       .hero-sub {
         font-size: 13px;
         color: #666;
+        white-space: nowrap;
       }
       .hero-amount {
         color: #aaa;
@@ -155,9 +156,9 @@
         background: #222;
       }
       .legend {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px 14px;
+        display: grid;
+        grid-template-columns: repeat(3, max-content);
+        gap: 6px 20px;
         margin-top: 10px;
       }
       .leg-item {
@@ -244,6 +245,16 @@
       .note li {
         padding-left: 10px;
         text-indent: -10px;
+      }
+      .note .group-hd {
+        color: #666;
+        font-style: italic;
+        margin-top: 6px;
+        padding-left: 0;
+        text-indent: 0;
+      }
+      .note .group-hd::before {
+        content: "";
       }
       .note a {
         color: #4da6ff;
@@ -442,20 +453,18 @@
       <p id="note-dynamic-line"></p>
       <strong id="label-assm-fix">Assumptions (fixed)</strong>
       <ul id="fixed-assumptions">
-        <li>Initial capital: $100K for all scenarios</li>
+        <li class="group-hd">Property &amp; Tax</li>
         <li>Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr</li>
         <li>Insurance: 0.5% of current property value/yr</li>
         <li>Maintenance: 1% of current property value/yr</li>
         <li>
-          Depreciation: IRS 27.5-yr residential schedule; structure % adjustable
-          above (CA coastal typical: 25–50%)
+          Depreciation: IRS 27.5-yr residential schedule; improvement %
+          adjustable above (CA coastal typical: 25–50%; national default often
+          cited as 80%)
         </li>
         <li>Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss</li>
-        <li>
-          Rent growth: BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+);
-          pre-1994 estimated from BLS national CPI-Rent series and academic
-          housing literature — less granular, treat as approximate
-        </li>
+        <li class="group-hd">Capital &amp; Returns</li>
+        <li>Initial capital: $100K for all scenarios</li>
         <li>Wealth = Current Equity + Cumulative Net Cash Flows</li>
         <li>
           Reinvested mode: dividends &amp; rent net cash flows compound at
@@ -464,6 +473,12 @@
         <li>
           Additive mode: dividends &amp; rent cash flows accumulate without
           compounding
+        </li>
+        <li class="group-hd">Rent Data</li>
+        <li>
+          BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994
+          estimated from BLS national CPI-Rent series and academic housing
+          literature — less granular, treat as approximate
         </li>
       </ul>
       <strong id="label-sources">Sources</strong>
@@ -661,17 +676,32 @@
             `<strong style="color:#ccc">${mode}</strong>`,
           tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
           crashRowLabel: (yr) => `${yr} (crash)`,
-          fixedItems: [
-            "Initial capital: $100K for all scenarios",
-            "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
-            "Insurance: 0.5% of current property value/yr",
-            "Maintenance: 1% of current property value/yr",
-            "Depreciation: IRS 27.5-yr residential schedule; improvement % adjustable above (CA coastal typical: 25–50%; national default often cited as 80%)",
-            "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
-            "Rent growth: BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
-            "Wealth = Current Equity + Cumulative Net Cash Flows",
-            "Reinvested mode: dividends & rent net cash flows compound at S&P 500 monthly returns",
-            "Additive mode: dividends & rent cash flows accumulate without compounding",
+          fixedGroups: [
+            {
+              label: "Property & Tax",
+              items: [
+                "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
+                "Insurance: 0.5% of current property value/yr",
+                "Maintenance: 1% of current property value/yr",
+                "Depreciation: IRS 27.5-yr residential schedule; improvement % adjustable above (CA coastal typical: 25–50%; national default often cited as 80%)",
+                "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
+              ],
+            },
+            {
+              label: "Capital & Returns",
+              items: [
+                "Initial capital: $100K for all scenarios",
+                "Wealth = Current Equity + Cumulative Net Cash Flows",
+                "Reinvested mode: dividends & rent net cash flows compound at S&P 500 monthly returns",
+                "Additive mode: dividends & rent cash flows accumulate without compounding",
+              ],
+            },
+            {
+              label: "Rent Data",
+              items: [
+                "BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
+              ],
+            },
           ],
         },
         zh: {
@@ -711,17 +741,32 @@
             `<strong style="color:#ccc">${mode}</strong>`,
           tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,
           crashRowLabel: (yr) => `${yr}（崩盘）`,
-          fixedItems: [
-            "初始资金：各方案均为 $10万",
-            "13号提案房产税：购入价的1.25%，每年上涨上限2%",
-            "保险：当前房产价值的0.5%/年",
-            "维护费：当前房产价值的1%/年",
-            "折旧：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%；全国常引用默认值为80%）",
-            "税率：44%（联邦35% + 加州9.3%），按纸面租金盈亏计算",
-            "租金增长：1994–2014使用BLS西部CPI租金指数，2015+使用Zillow ZORI加州数据；1994年前参考BLS全国CPI租金及学术文献估算，精度较低，仅供参考",
-            "总资产 = 房产净值 + 累计净现金流",
-            "复投模式：股息和房租净现金流按S&P 500月回报率复利增长",
-            "叠加模式：股息和房租现金流线性累加，不复利",
+          fixedGroups: [
+            {
+              label: "房产成本与税务",
+              items: [
+                "13号提案房产税：购入价的1.25%，每年上涨上限2%",
+                "保险：当前房产价值的0.5%/年",
+                "维护费：当前房产价值的1%/年",
+                "折旧：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%；全国常引用默认值为80%）",
+                "税率：44%（联邦35% + 加州9.3%），按纸面租金盈亏计算",
+              ],
+            },
+            {
+              label: "资金与收益",
+              items: [
+                "初始资金：各方案均为 $10万",
+                "总资产 = 房产净值 + 累计净现金流",
+                "复投模式：股息和房租净现金流按S&P 500月回报率复利增长",
+                "叠加模式：股息和房租现金流线性累加，不复利",
+              ],
+            },
+            {
+              label: "租金数据",
+              items: [
+                "1994–2014使用BLS西部CPI租金指数，2015+使用Zillow ZORI加州数据；1994年前参考BLS全国CPI租金及学术文献估算，精度较低，仅供参考",
+              ],
+            },
           ],
         },
       };
@@ -1118,8 +1163,11 @@
         document.getElementById("label-assm-dyn").textContent = s.assmDyn;
         document.getElementById("label-assm-fix").textContent = s.assmFix;
         document.getElementById("label-sources").textContent = s.labelSources;
-        document.getElementById("fixed-assumptions").innerHTML = s.fixedItems
-          .map((item) => `<li>${item}</li>`)
+        document.getElementById("fixed-assumptions").innerHTML = s.fixedGroups
+          .flatMap((g) => [
+            `<li class="group-hd">${g.label}</li>`,
+            ...g.items.map((item) => `<li>${item}</li>`),
+          ])
           .join("");
         document.getElementById("label-built-by").textContent = s.builtBy;
         updateAssumptions();
