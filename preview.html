@@ -7,16 +7,19 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0"
     />
     <title>
-      S&P 500 vs California Real Estate: 30-Year $100K Wealth Comparison
+      S&P 500 vs Real Estate: 30-Year $100K Investment Calculator (CA, TX, FL,
+      WA, NY)
     </title>
     <meta
       name="description"
-      content="Compare $100K invested in the S&P 500 vs California real estate across 5 leverage scenarios (1994–2025). Accounts for mortgage, rent income, depreciation tax shield, and refinancing."
+      content="Interactive calculator: $100K in S&P 500 vs real estate across CA, TX, FL, WA, and NY — 5 leverage scenarios from 1970–2025. Models mortgage, rent yield, depreciation tax shield, and refinancing."
     />
     <meta
       name="keywords"
-      content="S&P 500 vs real estate, California real estate investment, stocks vs property, 100k investment comparison, leverage scenarios, mortgage refinancing, wealth comparison"
+      content="S&P 500 vs real estate, stocks vs property, real estate investment calculator, 100k investment comparison, California Texas Florida real estate, leverage scenarios, mortgage refinancing, wealth comparison"
     />
+    <meta name="author" content="Max Wang" />
+    <meta name="robots" content="index, follow" />
     <link
       rel="canonical"
       href="https://maxtongwang.github.io/remotion-stocks-vs-re/preview.html"
@@ -29,24 +32,50 @@
     />
     <meta
       property="og:title"
-      content="S&P 500 vs California Real Estate: 30-Year $100K Wealth Comparison"
+      content="S&P 500 vs Real Estate: 30-Year $100K Investment Calculator (CA, TX, FL, WA, NY)"
     />
     <meta
       property="og:description"
-      content="Compare $100K invested in the S&P 500 vs California real estate across 5 leverage scenarios (1994–2025). Accounts for mortgage, rent income, depreciation tax shield, and refinancing."
+      content="Interactive calculator: $100K in S&P 500 vs real estate across CA, TX, FL, WA, and NY — 5 leverage scenarios from 1970–2025. Models mortgage, rent yield, depreciation tax shield, and refinancing."
     />
     <meta property="og:image" content="https://i.getmoshi.app/gM2Cx1Kw" />
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta
       name="twitter:title"
-      content="S&P 500 vs California Real Estate: 30-Year $100K Wealth Comparison"
+      content="S&P 500 vs Real Estate: 30-Year $100K Investment Calculator (CA, TX, FL, WA, NY)"
     />
     <meta
       name="twitter:description"
-      content="Compare $100K invested in the S&P 500 vs California real estate across 5 leverage scenarios (1994–2025). Accounts for mortgage, rent income, depreciation tax shield, and refinancing."
+      content="Interactive calculator: $100K in S&P 500 vs real estate across CA, TX, FL, WA, and NY — 5 leverage scenarios from 1970–2025. Models mortgage, rent yield, depreciation tax shield, and refinancing."
     />
     <meta name="twitter:image" content="https://i.getmoshi.app/gM2Cx1Kw" />
+    <!-- JSON-LD structured data -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        "name": "S&P 500 vs Real Estate: 30-Year $100K Investment Calculator",
+        "description": "Interactive calculator comparing $100K invested in stocks vs real estate across CA, TX, FL, WA, and NY with 5 leverage scenarios from 1970–2025. Models mortgage, rent yield, depreciation tax shield, and refinancing.",
+        "url": "https://maxtongwang.github.io/remotion-stocks-vs-re/preview.html",
+        "author": { "@type": "Person", "name": "Max Wang" },
+        "inLanguage": ["en", "zh-CN"],
+        "audience": {
+          "@type": "Audience",
+          "audienceType": "Investors, home buyers, personal finance enthusiasts"
+        }
+      }
+    </script>
+    <!-- Google Analytics 4: replace G-XXXXXXXXXX with your Measurement ID -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+    -->
     <style>
       * {
         box-sizing: border-box;
@@ -529,10 +558,24 @@
     </style>
   </head>
   <body>
+    <noscript>
+      <p
+        style="
+          color: #fff;
+          font-family: monospace;
+          padding: 20px;
+          text-align: center;
+        "
+      >
+        This interactive investment calculator requires JavaScript. Please
+        enable JavaScript to compare S&amp;P 500 vs real estate returns across
+        CA, TX, FL, WA, and NY.
+      </p>
+    </noscript>
     <div class="hero">
-      <div class="hero-title" id="hero-title">
+      <h1 class="hero-title" id="hero-title">
         The Last Chart To Understand<br />Real Estate vs Stock Market
-      </div>
+      </h1>
       <div class="hero-sub">
         <span class="hero-amount">$100,000</span>
         <span class="hero-divider">·</span>
@@ -723,9 +766,12 @@
     </div>
 
     <div class="note" id="note-section">
-      <strong id="label-assm-dyn">Assumptions (dynamic)</strong>
+      <strong id="label-assm-dyn" role="heading" aria-level="2"
+        >Assumptions (dynamic)</strong
+      >
       <p id="note-dynamic-line"></p>
-      <strong id="label-assm-fix">Assumptions (fixed)</strong
+      <strong id="label-assm-fix" role="heading" aria-level="2"
+        >Assumptions (fixed)</strong
       ><span
         id="assm-fix-note"
         style="
@@ -822,7 +868,7 @@
       </ul>
 
       <div id="proj-note"></div>
-      <strong id="label-sources">Sources</strong>
+      <strong id="label-sources" role="heading" aria-level="2">Sources</strong>
       <ul id="sources-list" class="src-list"></ul>
       <p style="color: #555; margin: 4px 0 0; font-size: inherit">
         · Projection data as of
@@ -1110,6 +1156,13 @@
               ],
             },
           ],
+          modeDesc:
+            "· Additive: dividends &amp; rent collected as cash, not compounded<br>" +
+            "· Reinvested: income compounds back into the portfolio",
+          methodologyNote:
+            'Historical data: FHFA/Case-Shiller · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
+          outcomeAhead: (mult, isRE) =>
+            isRE ? `RE ${mult}× ahead` : `Index ${mult}× ahead`,
         },
         zh: {
           heroTitle: "<br>看懂房产 vs 股市的终极图表",
@@ -1262,6 +1315,13 @@
               ],
             },
           ],
+          modeDesc:
+            "· 叠加：股息和房租以现金收取，不复利<br>" +
+            "· 复投：收益重新投入组合，产生复利",
+          methodologyNote:
+            '数据来源：FHFA/Case-Shiller · 标普500 · FRED · <a href="#note-section">完整方法论 ↓</a>',
+          outcomeAhead: (mult, isRE) =>
+            isRE ? `房产领先 ${mult}×` : `指数领先 ${mult}×`,
         },
       };
 
@@ -2648,6 +2708,9 @@
         document.getElementById("assm-fix-note").textContent = s.assmFixNote;
         document.getElementById("label-sources").textContent = s.labelSources;
         document.getElementById("label-built-by").textContent = s.builtBy;
+        document.getElementById("mode-desc").innerHTML = s.modeDesc;
+        document.getElementById("methodology-note").innerHTML =
+          s.methodologyNote;
         updateAssumptions();
         buildSourcesList();
         buildTable();
@@ -2903,10 +2966,11 @@
         const reLabel = SCENARIOS[bestReIdx].label;
         const reStr = `<span style="color:${reColor}">${fmt(bestReVal)} (${reCagr}%/yr)</span>`;
         const mult = (bestReVal / spVal).toFixed(2);
+        const aheadFn = STRINGS[lang].outcomeAhead;
         const winner =
           bestReVal > spVal
-            ? `<strong>RE ${mult}× ahead</strong>`
-            : `<strong>Index ${(spVal / bestReVal).toFixed(2)}× ahead</strong>`;
+            ? `<strong>${aheadFn(mult, true)}</strong>`
+            : `<strong>${aheadFn((spVal / bestReVal).toFixed(2), false)}</strong>`;
         el.innerHTML = `· ${idxLabel}: ${spStr}<br>· ${reLabel}: ${reStr} — ${winner}`;
       }
 
