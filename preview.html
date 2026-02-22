@@ -2069,6 +2069,14 @@
           ctx.fillStyle = "#554400";
           ctx.textAlign = "left";
           ctx.fillText("▸ PROJECTED", x1 + 4, PT + chartH - 6);
+          // Brief annotation at boundary top
+          const noteFs = Math.max(7, Math.min(8, W / 70));
+          ctx.font = `${noteFs}px monospace`;
+          ctx.globalAlpha = 0.55;
+          ctx.fillStyle = "#887722";
+          ctx.fillText("refi savings", x1 + 4, PT + 14);
+          ctx.fillText("compound →", x1 + 4, PT + 14 + noteFs + 2);
+          ctx.globalAlpha = 1.0;
         }
 
         // Refi year markers
@@ -2166,6 +2174,34 @@
               ctx.fill();
               ctx.globalAlpha = 1.0;
             }
+          }
+        }
+
+        // End-of-projection value labels (right edge, staggered to avoid overlap)
+        if (hasProjection) {
+          const lfs = Math.max(7, Math.min(8, W / 70));
+          ctx.font = `${lfs}px monospace`;
+          const rightEdge = PL + chartW;
+          const lbls = [];
+          for (let i = 0; i < SCENARIOS.length; i++) {
+            if (hidden.has(i)) continue;
+            const w = allWealth[i];
+            if (w.length <= histBoundaryM) continue;
+            lbls.push({ i, y: ty(w[w.length - 1]), v: w[w.length - 1] });
+          }
+          // Sort top-to-bottom, then push down overlapping labels
+          lbls.sort((a, b) => a.y - b.y);
+          const minGap = lfs + 3;
+          for (let k = 1; k < lbls.length; k++) {
+            if (lbls[k].y - lbls[k - 1].y < minGap)
+              lbls[k].y = lbls[k - 1].y + minGap;
+          }
+          for (const { i, y, v } of lbls) {
+            ctx.globalAlpha = 0.55;
+            ctx.fillStyle = SCENARIOS[i].color;
+            ctx.textAlign = "right";
+            ctx.fillText(fmt(v), rightEdge - 2, y + 3);
+            ctx.globalAlpha = 1.0;
           }
         }
       }
