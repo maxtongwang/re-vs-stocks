@@ -1393,8 +1393,8 @@
             "· Reinvested: income compounds back into the portfolio",
           methodologyNote:
             'Historical data: FHFA · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
-          outcomeAhead: (mult, isRE) =>
-            isRE ? `RE ${mult}× ahead` : `Index ${mult}× ahead`,
+          outcomeAhead: (pct, isRE) =>
+            isRE ? `RE leads +${pct}%` : `Index leads +${pct}%`,
         },
         zh: {
           heroTitle: "<br>看懂房产 vs 股市的终极图表",
@@ -1553,8 +1553,8 @@
             "· 复投：收益重新投入组合，产生复利",
           methodologyNote:
             '数据来源：FHFA · 标普500 · FRED · <a href="#note-section">完整方法论 ↓</a>',
-          outcomeAhead: (mult, isRE) =>
-            isRE ? `房产领先 ${mult}×` : `指数领先 ${mult}×`,
+          outcomeAhead: (pct, isRE) =>
+            isRE ? `房产领先 +${pct}%` : `指数领先 +${pct}%`,
         },
       };
 
@@ -3230,12 +3230,11 @@
         const reColor = SCENARIOS[bestReIdx].color;
         const reLabel = SCENARIOS[bestReIdx].label;
         const reStr = `<span style="color:${reColor}">${fmt(bestReVal)} (${reCagr}%/yr)</span>`;
-        const mult = (bestReVal / spVal).toFixed(2);
         const aheadFn = STRINGS[lang].outcomeAhead;
         const winner =
           bestReVal > spVal
-            ? `<strong>${aheadFn(mult, true)}</strong>`
-            : `<strong>${aheadFn((spVal / bestReVal).toFixed(2), false)}</strong>`;
+            ? `<strong>${aheadFn(((bestReVal / spVal - 1) * 100).toFixed(0), true)}</strong>`
+            : `<strong>${aheadFn(((spVal / bestReVal - 1) * 100).toFixed(0), false)}</strong>`;
         el.innerHTML = `· ${idxLabel}: ${spStr}<br>· ${reLabel}: ${reStr} — ${winner}`;
       }
 

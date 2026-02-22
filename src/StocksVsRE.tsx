@@ -44,7 +44,7 @@ export const StocksVsRE: React.FC = () => {
 
   const chartPaddingLeft = 160;
   const chartPaddingRight = 180; // room for chasing labels
-  const chartPaddingTop = 160;
+  const chartPaddingTop = 210;
   const chartPaddingBottom = 80;
 
   return (
@@ -125,7 +125,7 @@ export const StocksVsRE: React.FC = () => {
             />
           )}
 
-          {/* Methodology footnote — bottom-left */}
+          {/* Methodology — above chart, below subtitle */}
           {[
             `Assumptions: $100K invested Jan ${START_YEAR} · CA real estate (FHFA HPI) · S&P 500 total return (price + dividends reinvested)`,
             `8.5% fixed 30yr mortgage · 12% initial gross rent yield (1970 CA) · Prop 13: 1.25% tax, +2%/yr cap`,
@@ -134,10 +134,11 @@ export const StocksVsRE: React.FC = () => {
             <text
               key={i}
               x={chartPaddingLeft}
-              y={height - 56 + i * 20}
+              y={155 + i * 18}
               fill="#555"
-              fontSize={18}
+              fontSize={16}
               fontFamily="monospace"
+              opacity={titleOpacity}
             >
               {line}
             </text>
