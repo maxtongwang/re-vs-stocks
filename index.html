@@ -834,7 +834,7 @@
             <th style="color: #4da6ff">S&P500+div</th>
             <th style="color: #66ff66">AllCash</th>
             <th style="color: #ccff33">50%Dn</th>
-            <th style="color: #ffaa00">20%Dn</th>
+            <th class="col-hidden" style="color: #ffaa00">20%Dn</th>
             <th class="col-hidden" style="color: #ff6600">10%Dn</th>
             <th class="col-hidden" style="color: #ff3333">3.5%Dn</th>
           </tr>
@@ -3269,7 +3269,7 @@
       function handleCanvasPointer(clientX, clientY) {
         const rect = canvas.getBoundingClientRect();
         const PL = 52,
-          PR = 8;
+          PR = 90;
         const chartW = cW - PL - PR;
         const cx = (clientX - rect.left) * (cW / rect.width);
         if (cx < PL || cx > cW - PR) {
@@ -3338,8 +3338,26 @@
         if (W === 0) return;
         ctx.fillStyle = "#0f0f0f";
         ctx.fillRect(0, 0, W, H);
+        // Compute right padding to fit chasing labels
+        const chartLegLabels = [
+          "S&P 500",
+          "All Cash",
+          "50% Down",
+          "20% Down",
+          "10% Down",
+          "3.5% Down",
+        ];
+        const lfs = Math.max(8, Math.min(10, W / 65));
+        ctx.font = `${lfs}px monospace`;
+        const maxLW = SCENARIOS.reduce(
+          (mx, s, i) =>
+            hidden.has(i)
+              ? mx
+              : Math.max(mx, ctx.measureText(chartLegLabels[i]).width),
+          0,
+        );
         const PL = 52,
-          PR = 8,
+          PR = Math.ceil(maxLW) + 10,
           PT = 16,
           PB = 28;
         const chartW = W - PL - PR,
@@ -3581,57 +3599,33 @@
           }
         }
 
-        // In-canvas legend — top-right, visible scenarios only
-        const chartLegLabels = [
-          "S&P 500",
-          "All Cash",
-          "50% Down",
-          "20% Down",
-          "10% Down",
-          "3.5% Down",
-        ];
-        const visScen = SCENARIOS.map((s, i) => ({ s, i })).filter(
-          ({ i }) => !hidden.has(i),
-        );
-        if (visScen.length > 0) {
-          const lfs = Math.max(8, Math.min(10, W / 65));
-          ctx.font = `${lfs}px monospace`;
-          const lineH = lfs + 7;
-          const swatchW = 14,
-            pad = 6;
-          const maxLW = Math.max(
-            ...visScen.map(({ i }) => ctx.measureText(chartLegLabels[i]).width),
-          );
-          const bw = pad + swatchW + 5 + maxLW + pad;
-          const bh = pad / 2 + visScen.length * lineH + pad / 2;
-          const bx = PL + chartW - bw - 6;
-          const by = PT + 6;
-          ctx.globalAlpha = 0.82;
-          ctx.fillStyle = "#111";
-          ctx.fillRect(bx, by, bw, bh);
-          ctx.strokeStyle = "#333";
-          ctx.lineWidth = 1;
-          ctx.setLineDash([]);
-          ctx.strokeRect(bx, by, bw, bh);
-          ctx.globalAlpha = 1.0;
-          visScen.forEach(({ s, i }, idx) => {
-            const iy = by + pad / 2 + (idx + 0.6) * lineH;
-            ctx.strokeStyle = s.color;
-            ctx.lineWidth = 2;
-            ctx.setLineDash([]);
-            ctx.beginPath();
-            ctx.moveTo(bx + pad, iy);
-            ctx.lineTo(bx + pad + swatchW, iy);
-            ctx.stroke();
-            ctx.fillStyle = s.color;
+        // Chasing line-head labels (right of current endpoint)
+        {
+          const hm = Math.min(monthsToShow, histBoundaryM) - 1;
+          if (hm >= 0) {
             ctx.font = `${lfs}px monospace`;
             ctx.textAlign = "left";
-            ctx.fillText(
-              chartLegLabels[i],
-              bx + pad + swatchW + 5,
-              iy + lfs * 0.35,
-            );
-          });
+            const items = SCENARIOS.map((s, i) => ({
+              s,
+              i,
+              v: allWealth[i][hm],
+            }))
+              .filter(({ i }) => !hidden.has(i))
+              .sort((a, b) => b.v - a.v);
+            const minGap = lfs + 2;
+            const positions = items.map(({ v }) => ty(v));
+            for (let k = 1; k < positions.length; k++)
+              if (positions[k] < positions[k - 1] + minGap)
+                positions[k] = positions[k - 1] + minGap;
+            for (let k = positions.length - 1; k >= 0; k--)
+              if (positions[k] > PT + chartH - 4)
+                positions[k] = PT + chartH - 4;
+            const lx = PL + chartW + 6;
+            items.forEach(({ s, i }, k) => {
+              ctx.fillStyle = s.color;
+              ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.35);
+            });
+          }
         }
 
         // Update communication elements
