@@ -108,7 +108,7 @@
         min-width: 58px;
       }
       #label-propmode {
-        min-width: 34px;
+        min-width: 58px;
       }
       #label-lang {
         min-width: 30px;
@@ -699,21 +699,29 @@
           modeLabelReinvest: "Reinvested (compound)",
           modeLabelAdditive: "Additive (no compound)",
           subtitle: (rv, ey, MY, isPrimary) =>
-            `5 leverage scenarios · ${isPrimary ? "primary residence" : "rental"}<br>dividends &amp; ${isPrimary ? "imputed rent" : "rent"} cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
+            isPrimary
+              ? `5 leverage scenarios · primary residence<br>PITI costs; mortgage interest &amp; prop-tax deductible`
+              : `5 leverage scenarios · rental<br>dividends &amp; rent: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
           assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary) => {
             const line2 = isPrimary
-              ? `Imputed yield: ${ry}% · Primary res. (no depr.)`
+              ? `Primary: no rental income; int &amp; prop-tax deductible`
               : `Rent yield: ${ry}% · Improvement: ${ip}%`;
             return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%<br>${line2}<br>Cash flow: ${mode}`;
           },
           dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode, isPrimary) => {
-            const extra = isPrimary
-              ? " · primary res.: no depreciation"
-              : ` · Improv <strong style="color:#ccc">${ip}%</strong>`;
+            if (isPrimary) {
+              return (
+                `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
+                `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
+                `Primary: no rent income · int &amp; prop-tax deductible · no depreciation<br>` +
+                `<strong style="color:#ccc">${mode}</strong>`
+              );
+            }
             return (
               `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
               `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-              `${isPrimary ? "Imputed yield" : "Yield"} <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x)${extra}<br>` +
+              `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
+              `Improv <strong style="color:#ccc">${ip}%</strong><br>` +
               `<strong style="color:#ccc">${mode}</strong>`
             );
           },
@@ -784,21 +792,29 @@
           modeLabelReinvest: "复投（复利）",
           modeLabelAdditive: "叠加（无复利）",
           subtitle: (rv, ey, MY, isPrimary) =>
-            `5种杠杆方案 · ${isPrimary ? "自住" : "出租"}<br>股息和${isPrimary ? "虚拟租金" : "房租"}现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
+            isPrimary
+              ? `5种杠杆方案 · 自住<br>PITI为成本；利息和房产税可抵扣`
+              : `5种杠杆方案 · 出租<br>股息和房租：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
           assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary) => {
             const line2 = isPrimary
-              ? `虚拟租金：${ry}% · 自住（无折旧）`
+              ? `自住：无租金收入；利息和房产税可抵扣`
               : `租金回报率：${ry}% · 建筑：${ip}%`;
             return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%<br>${line2}<br>现金流：${mode}`;
           },
           dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode, isPrimary) => {
-            const extra = isPrimary
-              ? " · 自住：无折旧"
-              : ` · 建筑 <strong style="color:#ccc">${ip}%</strong>`;
+            if (isPrimary) {
+              return (
+                `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
+                `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
+                `自住：无租金收入 · 利息和房产税可抵扣 · 无折旧<br>` +
+                `<strong style="color:#ccc">${mode}</strong>`
+              );
+            }
             return (
               `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
               `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
-              `${isPrimary ? "虚拟回报率" : "回报率"} <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍)${extra}<br>` +
+              `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍) · ` +
+              `建筑 <strong style="color:#ccc">${ip}%</strong><br>` +
               `<strong style="color:#ccc">${mode}</strong>`
             );
           },
@@ -998,8 +1014,9 @@
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
             ptax *= 1.02;
           }
-          const r = rent / 12,
-            t = ptax / 12,
+          // Primary: r=0 (no rent income). Rental: actual rent collected.
+          const r = isPrimary ? 0 : rent / 12;
+          const t = ptax / 12,
             ins = (pv * 0.005) / 12,
             mai = (pv * 0.01) / 12;
           let int = 0,
@@ -1011,8 +1028,12 @@
             rem = sched[m].balance;
           }
           const gross = r - (int + prin) - t - ins - mai;
-          const taxInc = r - int - t - ins - mai - (m < 330 ? dep : 0);
-          const netCF = gross + -taxInc * 0.44;
+          // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
+          // Primary: only mortgage interest and property tax are deductible; imputed rent is not taxable.
+          const taxBenefit = isPrimary
+            ? (int + t) * 0.44
+            : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) * 0.44;
+          const netCF = gross + taxBenefit;
 
           if (reinvest) {
             // Only compound positive pool at S&P rate.
