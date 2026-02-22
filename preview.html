@@ -611,9 +611,9 @@
           lower than face-value payment savings suggest.
         </li>
         <li>
-          Primary + refi: no rental income, so no paper-loss dynamic. Lower
-          interest → smaller deduction → slightly higher taxes (if itemizing),
-          but monthly payment savings dominate.
+          Primary + refi: standard deduction assumed — no mortgage interest tax
+          effect. Refi simply lowers monthly payment. Straightforward savings
+          with no tax complication.
         </li>
         <li class="group-hd">Rent Data</li>
         <li>
@@ -820,7 +820,7 @@
           modeLabelAdditive: "Additive (no compound)",
           subtitle: (rv, ey, MY, isPrimary) =>
             isPrimary
-              ? `5 leverage scenarios · primary residence<br>PITI costs; mortgage interest &amp; prop-tax deductible`
+              ? `5 leverage scenarios · primary residence<br>PITI is cost; standard deduction assumed — no mortgage interest tax benefit`
               : `5 leverage scenarios · rental<br>dividends &amp; rent: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
           assumptionsLine: (
             sy,
@@ -835,7 +835,7 @@
             isLTV,
           ) => {
             const line2 = isPrimary
-              ? `Primary: no rental income; int &amp; prop-tax deductible`
+              ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
               : `Rent yield: ${ry}% · Improvement: ${ip}%`;
             const refiStr =
               nr > 0 ? ` · Refi: ${nr}x ${isLTV ? "(LTV)" : "(Bal)"}` : "";
@@ -863,7 +863,7 @@
               return (
                 `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
                 `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-                `Primary: no rent income · int &amp; prop-tax deductible · no depreciation` +
+                `Primary: no rent income · std. deduction (no mortgage interest benefit) · no depreciation` +
                 refiStr +
                 `<br>` +
                 `<strong style="color:#ccc">${mode}</strong>`
@@ -911,7 +911,7 @@
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
                 "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
                 "Rental + refi (tax interaction): mortgage interest is deductible against rental income. A high-rate loan creates large paper losses (interest + depreciation > rent) → tax refunds. Refinancing to a lower rate shrinks interest, reducing those paper losses and their tax refunds — partially offsetting the payment savings. In some cases the paper loss flips to a taxable profit, adding a tax cost on top. Net refi benefit for rentals is always lower than face-value payment savings suggest.",
-                "Primary + refi: no rental income, so no paper-loss dynamic. Lower interest → smaller deduction → slightly higher taxes (if itemizing), but monthly payment savings dominate. The math is more straightforward than rental.",
+                "Primary + refi: standard deduction assumed — no mortgage interest tax effect. Refi simply lowers monthly payment. Straightforward savings with no tax complication.",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
@@ -963,7 +963,7 @@
           modeLabelAdditive: "叠加（无复利）",
           subtitle: (rv, ey, MY, isPrimary) =>
             isPrimary
-              ? `5种杠杆方案 · 自住<br>PITI为成本；利息和房产税可抵扣`
+              ? `5种杠杆方案 · 自住<br>PITI为成本；假设标准扣除额——房贷利息无节税效果`
               : `5种杠杆方案 · 出租<br>股息和房租：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
           assumptionsLine: (
             sy,
@@ -978,7 +978,7 @@
             isLTV,
           ) => {
             const line2 = isPrimary
-              ? `自住：无租金收入；利息和房产税可抵扣`
+              ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
               : `租金回报率：${ry}% · 建筑：${ip}%`;
             const refiStr =
               nr > 0 ? ` · 重贷：${nr}次${isLTV ? "（LTV）" : "（余额）"}` : "";
@@ -1006,7 +1006,7 @@
               return (
                 `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
                 `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
-                `自住：无租金收入 · 利息和房产税可抵扣 · 无折旧` +
+                `自住：无租金收入 · 标准扣除额（无房贷利息抵税） · 无折旧` +
                 refiStr +
                 `<br>` +
                 `<strong style="color:#ccc">${mode}</strong>`
@@ -1054,7 +1054,7 @@
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
                 "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
                 "出租+重贷（税务联动）：房贷利息可抵扣租金收入。高利率贷款通常产生纸面亏损（利息+折旧>租金）→ 退税。重贷降低利息，意味着抵扣减少、纸面亏损缩小，退税减少——部分抵消月供节省效果。极端情况下纸面亏损转为应税利润，还会增加税务负担。出租房重贷的实际净收益始终低于月供节省的表面数字。",
-                "自住+重贷：无租金收入，无纸面亏损联动。利息降低→抵扣减少→税负微增（如有逐项扣除），但月供节省效果占主导，逻辑比出租简单直接。",
+                "自住+重贷：假设标准扣除额，无房贷利息税务效应。重贷仅降低月供，无税务复杂性，节省效果直接清晰。",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
@@ -1322,9 +1322,10 @@
           }
           const gross = r - (int + prin) - t - ins - mai;
           // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
-          // Primary: only mortgage interest and property tax are deductible; imputed rent is not taxable.
+          // Primary: standard deduction assumed ($29,200 MFJ 2024) — mortgage interest provides
+          // no incremental tax benefit for most homeowners; taxBenefit = 0.
           const taxBenefit = isPrimary
-            ? (int + t) * 0.44
+            ? 0
             : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) * 0.44;
           const netCF = gross + taxBenefit;
 
