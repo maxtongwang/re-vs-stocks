@@ -598,8 +598,8 @@
           property value). Difference credited to investor cash position
         </li>
         <li>
-          Each refi resets to a new 30-yr amortization at the new rate; no
-          closing costs modeled
+          Each refi amortizes the new loan over the remaining hold period at the
+          new rate; no closing costs modeled
         </li>
         <li>Source: FRED MORTGAGE30US annual averages</li>
         <li class="group-hd">Rent Data</li>
@@ -896,7 +896,7 @@
                 "Rate rule: selects X years with the lowest 30-yr fixed rates in the chosen period (excluding purchase year); only fires if the new rate is lower than the current rate",
                 `Bal (rate-and-term): refi to same remaining balance at the new lower rate`,
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
-                "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
+                "Each refi amortizes the new loan over the remaining hold period at the new rate; no closing costs modeled",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
@@ -1037,7 +1037,7 @@
                 "利率规则：选取所选区间内利率最低的X个年份（不含购房年），仅当新利率低于当前利率时执行",
                 `余额（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
-                "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
+                "每次重贷均以剩余持有期限按新利率重新摊销贷款，不计交易成本",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
@@ -1162,14 +1162,14 @@
       const caMonthlyAll = toMonthly(CA_ANN); // 672 months
 
       // ── Financial model ───────────────────────────────────────────────────────
-      function amortize(principal, monthlyRate) {
-        if (principal === 0) return [];
+      function amortize(principal, monthlyRate, terms = AMORT_TERMS) {
+        if (principal === 0 || terms === 0) return [];
         const pmt =
-          (principal * monthlyRate * Math.pow(1 + monthlyRate, AMORT_TERMS)) /
-          (Math.pow(1 + monthlyRate, AMORT_TERMS) - 1);
+          (principal * monthlyRate * Math.pow(1 + monthlyRate, terms)) /
+          (Math.pow(1 + monthlyRate, terms) - 1);
         let bal = principal;
         const s = [];
-        for (let m = 0; m < AMORT_TERMS; m++) {
+        for (let m = 0; m < terms; m++) {
           const int = bal * monthlyRate,
             prin = pmt - int;
           bal -= prin;
@@ -1253,7 +1253,7 @@
               newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
             }
             const cashOut = newLoan - rem;
-            sched = amortize(newLoan, refi.rate / 12);
+            sched = amortize(newLoan, refi.rate / 12, caM.length - m);
             schedOffset = m;
             currentRate = refi.rate;
             rem = newLoan; // starting principal for prevBal when si=0
@@ -1903,6 +1903,7 @@
         if (numRefis > 0) {
           const refis = getRefis(startYear, endYear, numRefis);
           const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+          let refiLabelIdx = 0;
           for (const refi of refis) {
             if (refi.m > monthsToShow) continue;
             const x = tx(refi.m);
@@ -1917,7 +1918,9 @@
             ctx.fillStyle = "#888";
             ctx.font = xLabelFont;
             ctx.textAlign = "center";
-            ctx.fillText(`R${refi.year}`, x, PT + 8);
+            const labelY = PT + 8 + (refiLabelIdx % 3) * 10;
+            ctx.fillText(`R${refi.year}`, x, labelY);
+            refiLabelIdx++;
           }
         }
 
