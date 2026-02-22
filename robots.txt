@@ -1,4 +1,5 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://maxtongwang.github.io/remotion-stocks-vs-re/sitemap.xml
+Sitemap: https://maxtongwang.github.io/re-vs-stocks/sitemap.xml
+
