@@ -135,6 +135,9 @@
         align-items: flex-start;
         padding-top: 3px;
       }
+      #refi-type-group {
+        display: none;
+      }
       #row-ltv-pct {
         display: none;
       }
@@ -448,7 +451,7 @@
           <button class="toggle-btn" id="btn-refi-2">2</button>
           <button class="toggle-btn" id="btn-refi-3">3</button>
         </div>
-        <div class="toggle-group">
+        <div class="toggle-group" id="refi-type-group">
           <button class="toggle-btn active" id="btn-refi-rate">Bal</button>
           <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
         </div>
@@ -1661,6 +1664,14 @@
                 .getElementById(`btn-refi-${i}`)
                 .classList.toggle("active", i === n),
             );
+            const hasRefis = n > 0;
+            document.getElementById("refi-type-group").style.display = hasRefis
+              ? "flex"
+              : "none";
+            if (!hasRefis)
+              document.getElementById("row-ltv-pct").style.display = "none";
+            else if (refiLTV)
+              document.getElementById("row-ltv-pct").style.display = "flex";
             allWealth = buildAllWealth(startYear);
             updateAssumptions();
             buildTable();
@@ -2100,8 +2111,9 @@
             .getElementById(`btn-refi-${i}`)
             .classList.toggle("active", i === numRefis),
         );
+        document.getElementById("refi-type-group").style.display = "flex";
       }
-      if (refiLTV) {
+      if (refiLTV && numRefis > 0) {
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
         document.getElementById("row-ltv-pct").style.display = "flex";
