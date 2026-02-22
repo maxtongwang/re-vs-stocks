@@ -1897,6 +1897,28 @@
           ctx.stroke();
         }
 
+        // Refi year markers
+        if (numRefis > 0) {
+          const refis = getRefis(startYear, endYear, numRefis);
+          const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+          for (const refi of refis) {
+            if (refi.m > monthsToShow) continue;
+            const x = tx(refi.m);
+            ctx.strokeStyle = "#666";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+            ctx.beginPath();
+            ctx.moveTo(x, PT);
+            ctx.lineTo(x, PT + chartH);
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.fillStyle = "#888";
+            ctx.font = xLabelFont;
+            ctx.textAlign = "center";
+            ctx.fillText(`R${refi.year}`, x, PT + 8);
+          }
+        }
+
         // X-axis year labels
         ctx.fillStyle = "#555";
         ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
