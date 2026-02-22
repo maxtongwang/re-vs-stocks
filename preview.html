@@ -1601,11 +1601,7 @@
           sources: {
             homePrice: [
               {
-                text: "CAR median prices",
-                href: "https://www.car.org/marketdata/data/housingdata",
-              },
-              {
-                text: "Case-Shiller CA",
+                text: "FHFA CA HPI",
                 href: "https://fred.stlouisfed.org/series/CASTHPI",
               },
             ],
@@ -1627,11 +1623,7 @@
                 href: "https://www.zillow.com/research/data/",
               },
               {
-                text: "CAR median prices (home price)",
-                href: "https://www.car.org/marketdata/data/housingdata",
-              },
-              {
-                text: "FHFA CA index (home price)",
+                text: "FHFA CA HPI (home price)",
                 href: "https://fred.stlouisfed.org/series/CASTHPI",
               },
             ],
@@ -2172,7 +2164,7 @@
 
       let SP500_ANN = SP500_PRICE.map((r, i) => r + SP500_DIV[i]);
 
-      // California Home Price Index annual appreciation — FHFA/Case-Shiller CA
+      // California Home Price Index annual appreciation — FHFA CA HPI (CASTHPI)
       const CA_ANN = [
         // 1970–1993
         0.06, 0.08, 0.1, 0.13, 0.11, 0.08, 0.13, 0.18, 0.21, 0.16, 0.11, 0.04,
@@ -2230,7 +2222,7 @@
         // PROJ_MORT_END
       ];
 
-      // CA gross rent yield — derived from Zillow ZORI CA + CAR / FHFA price data
+      // CA gross rent yield — derived from Zillow ZORI CA (rent) + FHFA CA HPI (price)
       const CA_RENT_YIELDS = [
         // 1970–1993 (higher yields when prices were low relative to rent)
         0.12, 0.12, 0.11, 0.11, 0.11, 0.1, 0.1, 0.09, 0.085, 0.08, 0.08, 0.09,
