@@ -3372,6 +3372,56 @@
         }
         ctx.globalAlpha = 1.0;
 
+        // Leverage callout — explains the COVID-era spike in high-leverage RE scenarios
+        const m2022 = (2022 - startYear) * 12;
+        const hasLevRE = [2, 3, 4, 5].some((i) => !hidden.has(i));
+        if (
+          m2022 > 0 &&
+          m2022 <= Math.min(monthsToShow, histBoundaryM) &&
+          hasLevRE
+        ) {
+          const locKey2 = document.getElementById("location-select").value;
+          const ann2021 = LOC_DATA[locKey2].ann[2021 - BASE_YEAR];
+          const pctPrice = Math.round(ann2021 * 100);
+          const pctEquity = Math.round(ann2021 * 5 * 100); // 5× leverage
+          const locLabel =
+            {
+              ca: "CA",
+              tx: "TX",
+              fl: "FL",
+              wa: "WA",
+              ny: "NY",
+              national: "US",
+            }[locKey2] || locKey2.toUpperCase();
+          const fs2 = Math.max(7, Math.min(9, W / 65));
+          const bw2 = Math.round(W * 0.225);
+          const bh2 = fs2 * 2 + 14;
+          const cx2 = tx(m2022);
+          const bx2 = Math.min(cx2 + 6, PL + chartW - bw2 - 4);
+          const by2 = PT + 6;
+          ctx.globalAlpha = 0.88;
+          ctx.fillStyle = "#141414";
+          ctx.strokeStyle = "#3d3d3d";
+          ctx.lineWidth = 1;
+          ctx.fillRect(bx2, by2, bw2, bh2);
+          ctx.strokeRect(bx2, by2, bw2, bh2);
+          ctx.fillStyle = "#999";
+          ctx.font = `${fs2}px monospace`;
+          ctx.textAlign = "left";
+          ctx.fillText(
+            `2021: ${locLabel} prices +${pctPrice}%`,
+            bx2 + 5,
+            by2 + fs2 + 2,
+          );
+          ctx.fillStyle = "#666";
+          ctx.fillText(
+            `20% down (5× lev.) → equity ≈ +${pctEquity}%`,
+            bx2 + 5,
+            by2 + fs2 * 2 + 6,
+          );
+          ctx.globalAlpha = 1.0;
+        }
+
         // X-axis year labels (historical = normal, projected = dimmer)
         ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
         ctx.textAlign = "center";
