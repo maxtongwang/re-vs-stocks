@@ -133,11 +133,12 @@ export const StocksVsRE: React.FC = () => {
           ].map((line, i) => (
             <text
               key={i}
-              x={chartPaddingLeft}
+              x={width / 2}
               y={155 + i * 18}
               fill="#555"
               fontSize={16}
               fontFamily="monospace"
+              textAnchor="middle"
               opacity={titleOpacity}
             >
               {line}
