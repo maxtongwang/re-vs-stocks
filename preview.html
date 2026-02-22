@@ -98,12 +98,10 @@
         text-align: center;
       }
       #btn-additive,
-      #btn-reinvest {
-        min-width: 68px;
-      }
+      #btn-reinvest,
       #btn-rental,
       #btn-primary {
-        min-width: 68px;
+        min-width: 80px;
       }
       #label-start,
       #label-end,
@@ -822,7 +820,7 @@
               ? `Primary: no rental income; int &amp; prop-tax deductible`
               : `Rent yield: ${ry}% · Improvement: ${ip}%`;
             const refiStr =
-              nr > 0 ? ` · Refi: ${nr}x ${isLTV ? "(LTV)" : "(Rate)"}` : "";
+              nr > 0 ? ` · Refi: ${nr}x ${isLTV ? "(LTV)" : "(Bal)"}` : "";
             return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%${refiStr}<br>${line2}<br>Cash flow: ${mode}`;
           },
           dynamicLine: (
@@ -841,7 +839,7 @@
           ) => {
             const refiStr =
               nr > 0
-                ? ` · Refi: ${nr}x ${isLTV ? "LTV" : "Rate"} (${refis.map((r) => r.year).join(", ")})`
+                ? ` · Refi: ${nr}x ${isLTV ? "LTV" : "Bal"} (${refis.map((r) => r.year).join(", ")})`
                 : "";
             if (isPrimary) {
               return (
@@ -962,7 +960,7 @@
               ? `自住：无租金收入；利息和房产税可抵扣`
               : `租金回报率：${ry}% · 建筑：${ip}%`;
             const refiStr =
-              nr > 0 ? ` · 重贷：${nr}次${isLTV ? "（LTV）" : "（利率）"}` : "";
+              nr > 0 ? ` · 重贷：${nr}次${isLTV ? "（LTV）" : "（余额）"}` : "";
             return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%${refiStr}<br>${line2}<br>现金流：${mode}`;
           },
           dynamicLine: (
@@ -981,7 +979,7 @@
           ) => {
             const refiStr =
               nr > 0
-                ? ` · 重贷：${nr}次${isLTV ? "LTV" : "利率"}（${refis.map((r) => r.year).join("、")}年）`
+                ? ` · 重贷：${nr}次${isLTV ? "LTV" : "余额"}（${refis.map((r) => r.year).join("、")}年）`
                 : "";
             if (isPrimary) {
               return (
