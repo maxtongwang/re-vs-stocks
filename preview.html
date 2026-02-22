@@ -20,6 +20,11 @@
     />
     <meta name="author" content="Max Wang" />
     <meta name="robots" content="index, follow" />
+    <meta name="geo.region" content="US" />
+    <meta
+      name="geo.placename"
+      content="California, Texas, Florida, Washington, New York, United States"
+    />
     <link
       rel="canonical"
       href="https://maxtongwang.github.io/remotion-stocks-vs-re/preview.html"
@@ -64,6 +69,55 @@
           "@type": "Audience",
           "audienceType": "Investors, home buyers, personal finance enthusiasts"
         }
+      }
+    </script>
+    <!-- FAQPage structured data for rich snippets -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Did S&P 500 outperform California real estate over 30 years?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "It depends on leverage. An all-cash California real estate purchase from 1995–2025 underperformed the S&P 500 on a total-return basis. However, leveraged scenarios (20% down, 8.5% mortgage) often matched or exceeded S&P 500 returns due to leverage amplifying home price appreciation, rental income, and depreciation tax shields."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does Texas real estate compare to S&P 500?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Texas real estate has lower purchase prices and higher rent yields than California, making leveraged scenarios more cash-flow positive. However, Texas has higher property tax rates (~2.1% of assessed value annually) which reduce net returns. This calculator models all five leverage scenarios for Texas from 1970–2025."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Does this calculator include rental income and depreciation?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. The rental mode models rent yield (adjustable), annual rent growth, vacancy, maintenance (1%), insurance (0.5%), property tax (location-specific), and IRS 27.5-year depreciation on the improvement portion. The depreciation tax shield can create a paper loss that offsets rental income taxes even when the property cash flows positively."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is the difference between Additive and Reinvested cash flow modes?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "In Additive mode, dividends and rental cash flows accumulate as cash without compounding. In Reinvested mode, positive cash flows are reinvested at S&P 500 monthly returns, compounding over time. For highly leveraged properties with negative early cash flows, both modes produce identical results since there is no positive pool to reinvest."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Which US states are covered in this real estate vs stocks comparison?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The calculator covers California (CA), Texas (TX), Florida (FL), Washington (WA), New York (NY), and a National average. Each state uses location-specific property tax rules, tax rates, and improvement percentage defaults based on local land-to-improvement ratios."
+            }
+          }
+        ]
       }
     </script>
     <!-- Google Analytics 4: replace G-XXXXXXXXXX with your Measurement ID -->
@@ -902,6 +956,68 @@
     >
       for entertainment purpose only
     </div>
+
+    <!-- Static geo content — always in DOM for crawler indexing.
+         Summarizes per-state model context so Google ranks for TX/FL/WA/NY queries
+         even though the interactive data is JS-rendered. -->
+    <section
+      aria-label="State coverage"
+      style="
+        font-family: monospace;
+        font-size: 10px;
+        color: #333;
+        margin: 12px 0 8px;
+        line-height: 1.7;
+      "
+    >
+      <strong style="color: #444; display: block; margin-bottom: 4px"
+        >States covered by this calculator</strong
+      >
+      <ul style="list-style: none; padding: 0; margin: 0">
+        <li>
+          <strong>California (CA)</strong> — Prop 13 property tax (1.25% of
+          purchase price, +2%/yr cap). Combined tax rate 44% (35% fed + 9.3%
+          state). Improvement ratio ~40%. High home price-to-rent ratios make
+          all-cash RE a long-term underperformer vs S&amp;P 500; leveraged
+          scenarios are competitive due to appreciation and depreciation shield.
+        </li>
+        <li>
+          <strong>Texas (TX)</strong> — Market-rate property tax ~2.1%/yr of
+          assessed value. No state income tax (combined rate 35% fed). Higher
+          rent yields than CA; improvement ratio ~70% (more land-efficient
+          builds). Strong job growth drives home price appreciation.
+        </li>
+        <li>
+          <strong>Florida (FL)</strong> — Homestead exemption applies to primary
+          residences; rental properties taxed at ~1.1%/yr. No state income tax
+          (35% fed). Coastal demand and migration from high-tax states support
+          appreciation. Improvement ratio ~65%.
+        </li>
+        <li>
+          <strong>Washington (WA)</strong> — Property tax ~1.0%/yr. No state
+          income tax (35% fed). Tech-driven demand in Seattle metro supports
+          above-average home appreciation. Improvement ratio ~50%.
+        </li>
+        <li>
+          <strong>New York (NY)</strong> — Property tax ~1.7%/yr. Combined tax
+          rate 50% (35% fed + 10.9% state + 3.9% NYC). Dense urban market with
+          high price-to-rent ratios; improvement ratio ~35% (land premium).
+          Depreciation tax shield is most valuable here due to high marginal
+          rate.
+        </li>
+        <li>
+          <strong>National average</strong> — Blended property tax ~1.1%/yr.
+          Combined rate 38% (35% fed + 3% avg state). FHFA national home price
+          index used for appreciation. Improvement ratio ~55%.
+        </li>
+      </ul>
+      <p style="margin-top: 4px; color: #2a2a2a">
+        All scenarios: $100,000 initial investment · 5 leverage levels (all
+        cash, 50% down, 20% down, 10% down, 3.5% down) · historical data
+        1970–2025 · S&amp;P 500 (total return), NASDAQ, and 60/40 portfolio
+        available as index benchmarks.
+      </p>
+    </section>
 
     <div class="built-by">
       <div class="built-by-label" id="label-built-by">Built by Max Wang</div>
