@@ -812,7 +812,7 @@
         <span class="leg-text">RE 50% Down</span
         ><span class="leg-cagr" id="leg-cagr-2"></span>
       </div>
-      <div class="leg-item" data-idx="3">
+      <div class="leg-item hidden" data-idx="3">
         <div class="leg-dot" style="background: #ffaa00"></div>
         <span class="leg-text">RE 20% Down</span
         ><span class="leg-cagr" id="leg-cagr-3"></span>
@@ -2725,8 +2725,8 @@
       let totalMonths = (endYear - startYear + 1) * 12;
       let curMonth = totalMonths;
 
-      // Initially hidden: 10% Down (idx 4) and 3.5% Down (idx 5)
-      const hidden = new Set([4, 5]);
+      // Initially hidden: 20% Down (idx 3), 10% Down (idx 4), 3.5% Down (idx 5)
+      const hidden = new Set([3, 4, 5]);
 
       // ── Formatting ────────────────────────────────────────────────────────────
       function fmt(v) {
