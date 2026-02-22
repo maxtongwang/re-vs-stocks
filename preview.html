@@ -2391,8 +2391,6 @@
       let activeCaRent = CA_RENT_GROWTH;
       let activeCaRentYields = CA_RENT_YIELDS;
       let activeLocConfig = LOC_CONFIG.ca;
-      let activeAnn = CA_ANN;
-      let activeLocKey = "ca";
 
       function refreshDatasets() {
         const idxKey = document.getElementById("index-select").value;
@@ -2428,8 +2426,6 @@
         activeCaRent = lRent;
         activeCaRentYields = lYield;
         activeLocConfig = LOC_CONFIG[locKey];
-        activeAnn = lAnn;
-        activeLocKey = locKey;
         const locImprov = Math.round(activeLocConfig.improvPct * 100);
         improvPct = activeLocConfig.improvPct;
         document.getElementById("improv-slider").value = locImprov;
