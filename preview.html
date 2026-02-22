@@ -323,10 +323,10 @@
         id="start-year-slider"
         min="1970"
         max="2024"
-        value="1994"
+        value="1995"
         step="1"
       />
-      <span class="val" id="start-year-val">1994</span>
+      <span class="val" id="start-year-val">1995</span>
     </div>
     <div class="ctrl-row">
       <span id="label-end">End:</span>
@@ -922,7 +922,7 @@
       }
 
       // ── Mutable state ─────────────────────────────────────────────────────────
-      let startYear = 1994;
+      let startYear = 1995;
       let endYear = 2025;
       let reinvest = false;
       let lang = "en";
@@ -1109,7 +1109,7 @@
       // ── Share URL ─────────────────────────────────────────────────────────────
       function getShareParams() {
         const p = new URLSearchParams();
-        if (startYear !== 1994) p.set("s", startYear);
+        if (startYear !== 1995) p.set("s", startYear);
         if (endYear !== 2025) p.set("e", endYear);
         if (reinvest) p.set("m", "r");
         if (lang !== "en") p.set("l", lang);
