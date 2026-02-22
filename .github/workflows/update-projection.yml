@@ -2,8 +2,8 @@ name: Monthly projection update
 
 on:
   schedule:
-    - cron: "0 8 1 * *"   # 1st of each month at 8am UTC
-  workflow_dispatch:        # allow manual trigger from GitHub UI
+    - cron: "0 8 1 * *" # 1st of each month at 8am UTC
+  workflow_dispatch: # allow manual trigger from GitHub UI
 
 jobs:
   update:
@@ -14,38 +14,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Fetch FRED MORTGAGE30US
-        id: fred
+      - name: Update projection data from FMP
         env:
-          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+          FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
         run: |
-          RESPONSE=$(curl -sf \
-            "https://api.stlouisfed.org/fred/series/observations\
-?series_id=MORTGAGE30US\
-&api_key=${FRED_API_KEY}\
-&sort_order=desc\
-&limit=4\
-&file_type=json")
+          DATE=$(date +%Y-%m)
+          python3 scripts/update_projection.py "$DATE"
 
-          RATE=$(echo "$RESPONSE" | python3 - <<'EOF'
-import sys, json
-obs = json.loads(sys.stdin.read())["observations"]
-for o in obs:
-    if o["value"] != ".":
-        print(float(o["value"]) / 100)
-        break
-EOF
-          )
-
-          echo "rate=$RATE" >> "$GITHUB_OUTPUT"
-          echo "date=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
-          echo "Fetched rate: $RATE"
-
-      - name: Update preview.html
+      - name: Verify JS syntax
         run: |
-          python3 scripts/update_projection.py \
-            "${{ steps.fred.outputs.rate }}" \
-            "${{ steps.fred.outputs.date }}"
+          node -e "
+            const fs = require('fs');
+            const html = fs.readFileSync('preview.html', 'utf8');
+            const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
+            scripts.forEach((s, i) => {
+              try { new Function(s.replace(/<\/?script>/g, '')); }
+              catch(e) { console.error('JS error block', i, ':', e.message); process.exit(1); }
+            });
+            console.log('JS OK');
+          "
 
       - name: Commit and push if changed
         run: |
@@ -55,7 +42,6 @@ EOF
           if git diff --staged --quiet; then
             echo "No changes — projection data unchanged."
           else
-            git commit -m \
-              "chore: projection mortgage rate ${{ steps.fred.outputs.rate }} · ${{ steps.fred.outputs.date }} [skip ci]"
+            git commit -m "chore: monthly projection update $(date +%Y-%m) [skip ci]"
             git push
           fi

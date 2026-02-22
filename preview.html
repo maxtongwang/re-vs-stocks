@@ -677,6 +677,12 @@
             target="_blank"
             >multpl.com (dividends)</a
           >
+          &amp;
+          <a
+            href="https://financialmodelingprep.com/developer/docs"
+            target="_blank"
+            >FMP (current year live)</a
+          >
         </li>
         <li>
           CA home prices:
@@ -733,8 +739,14 @@
             ><!-- PROJ_DATE_START -->2026-02<!-- PROJ_DATE_END --></strong
           >
           &middot; 30yr mortgage:
-          <strong id="proj-mort-rate" style="color: #777">6.89%</strong>
-          &middot; auto-updated monthly from FRED
+          <strong id="proj-mort-rate" style="color: #777">5.88%</strong>
+          &middot; auto-updated monthly via
+          <a
+            href="https://financialmodelingprep.com"
+            target="_blank"
+            style="color: #555"
+            >Financial Modeling Prep</a
+          >
         </li>
       </ul>
     </div>
@@ -1158,21 +1170,86 @@
       const SP500_PRICE = [
         // 1970–1993 (price-only, no dividends — source: Macrotrends / sp500live.co)
         0.001,
-        0.1079, 0.1563, -0.1737, -0.2972, 0.3155, 0.1915, -0.115, 0.0106,
-        0.1231, 0.2577, -0.0973, 0.1476, 0.1727, 0.014, 0.2633, 0.1462, 0.0203,
-        0.124, 0.2725, -0.0656, 0.2631, 0.0446, 0.0706,
+        0.1079,
+        0.1563,
+        -0.1737,
+        -0.2972,
+        0.3155,
+        0.1915,
+        -0.115,
+        0.0106,
+        0.1231,
+        0.2577,
+        -0.0973,
+        0.1476,
+        0.1727,
+        0.014,
+        0.2633,
+        0.1462,
+        0.0203,
+        0.124,
+        0.2725,
+        -0.0656,
+        0.2631,
+        0.0446,
+        0.0706,
         // 1994–2024
-        -0.0154, 0.3411, 0.2026, 0.3101, 0.2667, 0.1953, -0.1014, -0.1303,
-        -0.2337, 0.2638, 0.0899, 0.03, 0.1362, 0.0353, -0.3849, 0.2345, 0.1278,
-        0.0, 0.1341, 0.296, 0.1139, -0.0073, 0.0954, 0.1942, -0.0623, 0.2888,
-        0.1602, 0.2689, -0.1944, 0.2429, 0.23,
-        // 2025 (preliminary estimate)
-        -0.02,
+        -0.0154,
+        0.3411,
+        0.2026,
+        0.3101,
+        0.2667,
+        0.1953,
+        -0.1014,
+        -0.1303,
+        -0.2337,
+        0.2638,
+        0.0899,
+        0.03,
+        0.1362,
+        0.0353,
+        -0.3849,
+        0.2345,
+        0.1278,
+        0.0,
+        0.1341,
+        0.296,
+        0.1139,
+        -0.0073,
+        0.0954,
+        0.1942,
+        -0.0623,
+        0.2888,
+        0.1602,
+        0.2689,
+        -0.1944,
+        0.2429,
+        0.23,
+        // SP500_2025_START (auto-updated monthly from FMP)
+        0.1639, // 2025 (preliminary estimate)
+        // SP500_2025_END
         // 2026–2045 (projected price-only ~5.6%/yr; +1.4% div = 7% total nominal)
         // Source: inst. consensus 5–7% total (Vanguard/JPMorgan/Schwab); CAPE-40 implies 2–4%
         0.056,
-        0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056,
-        0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056, 0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
+        0.056,
       ];
       // S&P 500 annual dividend yields — Macrotrends historical
       const SP500_DIV = [
@@ -1244,11 +1321,10 @@
         0.0296, 0.0534, 0.0681, 0.0672,
         // 2025 (estimate)
         0.068,
-        // PROJ_MORT_START (auto-updated monthly from FRED MORTGAGE30US)
-        // 2026–2045: glides from 6.89% → 6.0% floor (CBO/MBA consensus; no 20yr futures)
-        0.069,
-        0.069, 0.068, 0.068, 0.067, 0.067, 0.066, 0.066, 0.065, 0.065, 0.064,
-        0.064, 0.063, 0.063, 0.062, 0.062, 0.061, 0.061, 0.06, 0.06,
+        // PROJ_MORT_START (auto-updated monthly from FMP treasury)
+        // 2026–2045: glides from 5.88% → 6.0% floor (10yr Treasury + 2bps spread)
+        0.059, 0.059, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06,
+        0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06,
         // PROJ_MORT_END
       ];
 
