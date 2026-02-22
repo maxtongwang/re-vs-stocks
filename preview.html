@@ -890,7 +890,7 @@
             rem = sched[m].balance;
           }
           const gross = r - (int + prin) - t - ins - mai;
-          const taxInc = r - int - t - ins - mai - dep;
+          const taxInc = r - int - t - ins - mai - (m < 330 ? dep : 0);
           const netCF = gross + -taxInc * 0.44;
 
           if (reinvest) {
