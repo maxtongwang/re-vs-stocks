@@ -339,7 +339,7 @@
     </div>
 
     <div class="ctrl-row">
-      <span id="label-improv">Struct %:</span>
+      <span id="label-improv">Improvement %:</span>
       <input
         type="range"
         id="improv-slider"
@@ -619,7 +619,7 @@
           labelStart: "Start:",
           labelEnd: "End:",
           labelCashflow: "Cash flow:",
-          labelImprov: "Struct %:",
+          labelImprov: "Improvement %:",
           labelLang: "Lang:",
           btnAdditive: "Additive",
           btnReinvest: "Reinvested",
@@ -641,12 +641,12 @@
           subtitle: (rv, ey, MY) =>
             `5 leverage scenarios · dividends & rent cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
           assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
-            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Struct: ${ip}%<br>Cash flow: ${mode}`,
+            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Improvement: ${ip}%<br>Cash flow: ${mode}`,
           dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
             `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
             `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
             `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
-            `Struct <strong style="color:#ccc">${ip}%</strong><br>` +
+            `Improv <strong style="color:#ccc">${ip}%</strong><br>` +
             `<strong style="color:#ccc">${mode}</strong>`,
           tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
           crashRowLabel: (yr) => `${yr} (crash)`,
@@ -655,7 +655,7 @@
             "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
             "Insurance: 0.5% of current property value/yr",
             "Maintenance: 1% of current property value/yr",
-            "Depreciation: IRS 27.5-yr residential schedule; structure % adjustable above (CA coastal typical: 25–50%; national default often cited as 80%)",
+            "Depreciation: IRS 27.5-yr residential schedule; improvement % adjustable above (CA coastal typical: 25–50%; national default often cited as 80%)",
             "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
             "Rent growth: BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
             "Wealth = Current Equity + Cumulative Net Cash Flows",
@@ -1472,6 +1472,8 @@
           document.getElementById("improv-val").textContent = this.value + "%";
           allWealth = buildAllWealth(startYear);
           updateAssumptions();
+          buildTable();
+          syncTableCols();
           draw(curMonth - 1);
         });
 
