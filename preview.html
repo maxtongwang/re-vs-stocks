@@ -467,8 +467,9 @@
         <li>Initial capital: $100K for all scenarios</li>
         <li>Wealth = Current Equity + Cumulative Net Cash Flows</li>
         <li>
-          Reinvested mode: dividends &amp; rent net cash flows compound at
-          S&amp;P 500 monthly returns
+          Reinvested mode: positive cash flows compound at S&amp;P 500 monthly
+          returns; deficit periods accumulate additively (treated as
+          out-of-pocket cost, not leveraged against the market)
         </li>
         <li>
           Additive mode: dividends &amp; rent cash flows accumulate without
@@ -692,7 +693,7 @@
               items: [
                 "Initial capital: $100K for all scenarios",
                 "Wealth = Current Equity + Cumulative Net Cash Flows",
-                "Reinvested mode: dividends & rent net cash flows compound at S&P 500 monthly returns",
+                "Reinvested mode: positive cash flows compound at S&P 500 monthly returns; deficit periods accumulate additively (treated as out-of-pocket cost, not leveraged against the market)",
                 "Additive mode: dividends & rent cash flows accumulate without compounding",
               ],
             },
@@ -757,7 +758,7 @@
               items: [
                 "初始资金：各方案均为 $10万",
                 "总资产 = 房产净值 + 累计净现金流",
-                "复投模式：股息和房租净现金流按S&P 500月回报率复利增长",
+                "复投模式：正现金流按S&P 500月回报率复利增长；亏损期间线性累加（视为自费补贴，非市场杠杆）",
                 "叠加模式：股息和房租现金流线性累加，不复利",
               ],
             },
