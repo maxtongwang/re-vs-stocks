@@ -3397,10 +3397,21 @@
               national: "US",
             }[activeLocKey] || activeLocKey.toUpperCase();
           const fs2 = Math.max(7, Math.min(9, W / 65));
-          const bw2 = Math.round(W * 0.225);
+          ctx.font = `${fs2}px monospace`;
+          const line1 = `2021: ${locLabel} prices +${pctPrice}%`;
+          const line2 = `20% down (5\u00d7 lev.) \u2192 equity \u2248 +${pctEquity}%`;
+          const bw2 =
+            Math.ceil(
+              Math.max(
+                ctx.measureText(line1).width,
+                ctx.measureText(line2).width,
+              ),
+            ) + 12;
           const bh2 = fs2 * 2 + 14;
           const cx2 = tx(m2022);
-          const bx2 = Math.min(cx2 + 6, PL + chartW - bw2 - 4);
+          const bx2Right = cx2 + 6;
+          const bx2 =
+            bx2Right + bw2 > PL + chartW - 2 ? cx2 - bw2 - 6 : bx2Right;
           const by2 = PT + 6;
           ctx.globalAlpha = 0.88;
           ctx.fillStyle = "#141414";
@@ -3409,19 +3420,10 @@
           ctx.fillRect(bx2, by2, bw2, bh2);
           ctx.strokeRect(bx2, by2, bw2, bh2);
           ctx.fillStyle = "#999";
-          ctx.font = `${fs2}px monospace`;
           ctx.textAlign = "left";
-          ctx.fillText(
-            `2021: ${locLabel} prices +${pctPrice}%`,
-            bx2 + 5,
-            by2 + fs2 + 2,
-          );
+          ctx.fillText(line1, bx2 + 5, by2 + fs2 + 2);
           ctx.fillStyle = "#666";
-          ctx.fillText(
-            `20% down (5× lev.) → equity ≈ +${pctEquity}%`,
-            bx2 + 5,
-            by2 + fs2 * 2 + 6,
-          );
+          ctx.fillText(line2, bx2 + 5, by2 + fs2 * 2 + 6);
           ctx.globalAlpha = 1.0;
         }
 
