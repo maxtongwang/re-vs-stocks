@@ -468,6 +468,64 @@
       .note .src-list li::before {
         content: "· ";
       }
+      /* ── Communication improvements ─────────────────────────────────── */
+      #chart-wrap {
+        position: relative;
+      }
+      #chart-tooltip {
+        position: absolute;
+        pointer-events: none;
+        background: rgba(15, 15, 15, 0.93);
+        border: 1px solid #2a2a2a;
+        padding: 5px 8px;
+        font-family: monospace;
+        font-size: 10px;
+        color: #ccc;
+        border-radius: 3px;
+        display: none;
+        z-index: 10;
+        line-height: 1.8;
+        min-width: 130px;
+        white-space: nowrap;
+      }
+      #outcome-callout {
+        font-size: 11px;
+        line-height: 1.6;
+        color: #777;
+        text-align: center;
+        margin: 4px 0 2px;
+        min-height: 14px;
+      }
+      #outcome-callout strong {
+        color: #bbb;
+        font-weight: bold;
+      }
+      #methodology-note {
+        font-size: 10px;
+        color: #3a3a3a;
+        text-align: center;
+        margin: 2px 0 4px;
+      }
+      #methodology-note a {
+        color: #444;
+        text-decoration: none;
+      }
+      #methodology-note a:hover {
+        color: #666;
+      }
+      #mode-desc {
+        font-size: 10px;
+        color: #444;
+        text-align: center;
+        margin: 2px 0 4px;
+        line-height: 1.5;
+      }
+      .leg-cagr {
+        font-size: 9px;
+        color: #444;
+        margin-left: 3px;
+        letter-spacing: -0.2px;
+      }
     </style>
   </head>
   <body>
@@ -496,17 +554,6 @@
     </div>
     <div class="subtitle" id="subtitle">
       5 leverage scenarios<br />dividends &amp; rent cash flow: additive
-    </div>
-    <div
-      id="disclaimer"
-      style="
-        text-align: center;
-        color: #888;
-        font-size: 13px;
-        margin: 6px 0 16px;
-      "
-    >
-      for entertainment purpose only
     </div>
 
     <div class="ctrl-row">
@@ -587,7 +634,7 @@
         <button class="toggle-btn active" id="btn-additive">Additive</button>
         <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
       </div>
-      <span id="label-lang" style="margin-left: 8px">Lang:</span>
+      <span id="label-lang" style="margin-left: auto">Lang:</span>
       <div class="toggle-group">
         <button class="toggle-btn active" id="btn-lang-en">EN</button>
         <button class="toggle-btn" id="btn-lang-zh">中文</button>
@@ -603,8 +650,18 @@
     </div>
 
     <div id="assumptions-line"></div>
+    <div id="mode-desc">
+      Additive: income collected as cash · Reinvested: income compounds back in
+    </div>
+    <div id="methodology-note">
+      Historical data: FHFA/Case-Shiller · S&amp;P 500 · FRED ·
+      <a href="#note-section">full methodology ↓</a>
+    </div>
 
-    <div id="chart-wrap"><canvas id="c"></canvas></div>
+    <div id="chart-wrap">
+      <canvas id="c"></canvas>
+      <div id="chart-tooltip"></div>
+    </div>
 
     <div class="slider-wrap">
       <button id="play-btn">&#9654;</button>
@@ -612,31 +669,38 @@
       <input type="range" id="slider" min="1" max="372" value="372" />
       <span id="year-label">2024/12</span>
     </div>
+    <div id="outcome-callout"></div>
 
     <div class="legend" id="legend">
       <div class="leg-item" data-idx="0">
         <div class="leg-dot" style="background: #4da6ff"></div>
-        <span class="leg-text">S&P 500 (total)</span>
+        <span class="leg-text">S&P 500 (total)</span
+        ><span class="leg-cagr" id="leg-cagr-0"></span>
       </div>
       <div class="leg-item" data-idx="1">
         <div class="leg-dot" style="background: #66ff66"></div>
-        <span class="leg-text">RE All Cash</span>
+        <span class="leg-text">RE All Cash</span
+        ><span class="leg-cagr" id="leg-cagr-1"></span>
       </div>
       <div class="leg-item" data-idx="2">
         <div class="leg-dot" style="background: #ccff33"></div>
-        <span class="leg-text">RE 50% Down</span>
+        <span class="leg-text">RE 50% Down</span
+        ><span class="leg-cagr" id="leg-cagr-2"></span>
       </div>
       <div class="leg-item" data-idx="3">
         <div class="leg-dot" style="background: #ffaa00"></div>
-        <span class="leg-text">RE 20% Down</span>
+        <span class="leg-text">RE 20% Down</span
+        ><span class="leg-cagr" id="leg-cagr-3"></span>
       </div>
       <div class="leg-item hidden" data-idx="4">
         <div class="leg-dot" style="background: #ff6600"></div>
-        <span class="leg-text">RE 10% Down</span>
+        <span class="leg-text">RE 10% Down</span
+        ><span class="leg-cagr" id="leg-cagr-4"></span>
       </div>
       <div class="leg-item hidden" data-idx="5">
         <div class="leg-dot" style="background: #ff3333"></div>
-        <span class="leg-text">RE 3.5% Down</span>
+        <span class="leg-text">RE 3.5% Down</span
+        ><span class="leg-cagr" id="leg-cagr-5"></span>
       </div>
     </div>
 
@@ -778,6 +842,18 @@
           >Financial Modeling Prep</a
         >
       </p>
+    </div>
+
+    <div
+      id="disclaimer"
+      style="
+        text-align: center;
+        color: #555;
+        font-size: 11px;
+        margin: 10px 0 4px;
+      "
+    >
+      for entertainment purpose only
     </div>
 
     <div class="built-by">
@@ -2789,14 +2865,131 @@
         draw(curMonth - 1);
       });
 
+      // ── Communication helpers ─────────────────────────────────────────────────
+      function updateOutcomeCallout(monthsToShow) {
+        const el = document.getElementById("outcome-callout");
+        if (!el || monthsToShow < 6) {
+          if (el) el.textContent = "";
+          return;
+        }
+        const m = Math.min(monthsToShow, allWealth[0].length - 1);
+        const years = (m + 1) / 12;
+        const spVal = allWealth[0][m];
+        const spCagr = ((Math.pow(spVal / INIT, 1 / years) - 1) * 100).toFixed(
+          1,
+        );
+        // Best visible RE scenario
+        let bestReIdx = -1,
+          bestReVal = -Infinity;
+        for (let i = 1; i < allWealth.length; i++) {
+          if (!hidden.has(i) && allWealth[i][m] > bestReVal) {
+            bestReVal = allWealth[i][m];
+            bestReIdx = i;
+          }
+        }
+        const idxLabel =
+          document.getElementById("index-select").selectedOptions[0].text;
+        const spStr = `<span style="color:#4da6ff">${fmt(spVal)} (${spCagr}%/yr)</span>`;
+        if (bestReIdx === -1) {
+          el.innerHTML = `${idxLabel}: ${spStr}`;
+          return;
+        }
+        const reCagr = (
+          (Math.pow(Math.max(bestReVal, 1) / INIT, 1 / years) - 1) *
+          100
+        ).toFixed(1);
+        const reColor = SCENARIOS[bestReIdx].color;
+        const reLabel = SCENARIOS[bestReIdx].label;
+        const reStr = `<span style="color:${reColor}">${fmt(bestReVal)} (${reCagr}%/yr)</span>`;
+        const mult = (bestReVal / spVal).toFixed(2);
+        const winner =
+          bestReVal > spVal
+            ? `<strong>RE ${mult}× ahead</strong>`
+            : `<strong>Index ${(spVal / bestReVal).toFixed(2)}× ahead</strong>`;
+        el.innerHTML = `${idxLabel}: ${spStr} · ${reLabel}: ${reStr} — ${winner}`;
+      }
+
+      function updateLegendCagr(monthsToShow) {
+        const m = Math.min(monthsToShow, allWealth[0].length - 1);
+        const years = (m + 1) / 12;
+        for (let i = 0; i < allWealth.length; i++) {
+          const el = document.getElementById(`leg-cagr-${i}`);
+          if (!el) continue;
+          const v = allWealth[i][m];
+          if (years < 1) {
+            el.textContent = "";
+            continue;
+          }
+          const cagr = (Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100;
+          el.textContent = `${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%/yr`;
+          el.style.color = cagr >= 8 ? "#556" : cagr >= 0 ? "#445" : "#722";
+        }
+      }
+
       // ── Canvas ────────────────────────────────────────────────────────────────
       const canvas = document.getElementById("c");
       const sliderEl = document.getElementById("slider");
       const yearLabel = document.getElementById("year-label");
       const playBtn = document.getElementById("play-btn");
       const ctx = canvas.getContext("2d");
+      const chartTooltip = document.getElementById("chart-tooltip");
       let cW = 0,
         cH = 0;
+
+      function handleCanvasPointer(clientX, clientY) {
+        const rect = canvas.getBoundingClientRect();
+        const PL = 52,
+          PR = 8;
+        const chartW = cW - PL - PR;
+        const cx = (clientX - rect.left) * (cW / rect.width);
+        if (cx < PL || cx > cW - PR) {
+          chartTooltip.style.display = "none";
+          return;
+        }
+        const ratio = (cx - PL) / chartW;
+        const projMonths = allWealth[0].length;
+        const m = Math.round(
+          Math.max(0, Math.min(projMonths - 1, ratio * (projMonths - 1))),
+        );
+        const yr = startYear + Math.floor(m / 12);
+        const mo = (m % 12) + 1;
+        const years = (m + 1) / 12;
+        let html = `<div style="color:#666;margin-bottom:2px">${yr}/${mo.toString().padStart(2, "0")}</div>`;
+        for (let i = 0; i < allWealth.length; i++) {
+          if (hidden.has(i)) continue;
+          const v = allWealth[i][m];
+          const cagrStr =
+            years >= 1
+              ? ` <span style="color:#444">${((Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100).toFixed(1)}%/yr</span>`
+              : "";
+          html += `<div><span style="color:${SCENARIOS[i].color}">▪</span> ${fmt(v)}${cagrStr}</div>`;
+        }
+        chartTooltip.innerHTML = html;
+        chartTooltip.style.display = "block";
+        const wrapRect = canvas.parentElement.getBoundingClientRect();
+        let tx = clientX - wrapRect.left + 14;
+        let ty = clientY - wrapRect.top - 10;
+        if (tx + 155 > wrapRect.width) tx = clientX - wrapRect.left - 165;
+        chartTooltip.style.left = tx + "px";
+        chartTooltip.style.top = ty + "px";
+      }
+      canvas.addEventListener("mousemove", (e) =>
+        handleCanvasPointer(e.clientX, e.clientY),
+      );
+      canvas.addEventListener("mouseleave", () => {
+        chartTooltip.style.display = "none";
+      });
+      canvas.addEventListener(
+        "touchmove",
+        (e) => {
+          e.preventDefault();
+          handleCanvasPointer(e.touches[0].clientX, e.touches[0].clientY);
+        },
+        { passive: false },
+      );
+      canvas.addEventListener("touchend", () => {
+        chartTooltip.style.display = "none";
+      });
 
       function resizeCanvas() {
         const dpr = window.devicePixelRatio || 1;
@@ -2920,6 +3113,34 @@
           }
         }
 
+        // Historical event annotations
+        const EVENTS = [
+          { year: 2000, label: "dot-com" },
+          { year: 2008, label: "GFC" },
+          { year: 2020, label: "COVID" },
+          { year: 2022, label: "rates↑" },
+        ];
+        ctx.font = `${Math.max(7, Math.min(8, W / 80))}px monospace`;
+        ctx.globalAlpha = 0.45;
+        for (const ev of EVENTS) {
+          const evM = (ev.year - startYear) * 12;
+          if (evM <= 0 || evM >= Math.min(monthsToShow, histBoundaryM))
+            continue;
+          const ex = tx(evM);
+          ctx.strokeStyle = "#383838";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([2, 4]);
+          ctx.beginPath();
+          ctx.moveTo(ex, PT);
+          ctx.lineTo(ex, PT + chartH);
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.fillStyle = "#555";
+          ctx.textAlign = "center";
+          ctx.fillText(ev.label, ex, PT + chartH - 16);
+        }
+        ctx.globalAlpha = 1.0;
+
         // X-axis year labels (historical = normal, projected = dimmer)
         ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
         ctx.textAlign = "center";
@@ -3020,6 +3241,10 @@
             ctx.globalAlpha = 1.0;
           }
         }
+
+        // Update communication elements
+        updateOutcomeCallout(monthsToShow);
+        updateLegendCagr(monthsToShow);
       }
 
       // ── Year label ────────────────────────────────────────────────────────────
