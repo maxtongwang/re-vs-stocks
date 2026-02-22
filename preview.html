@@ -598,8 +598,8 @@
           property value). Difference credited to investor cash position
         </li>
         <li>
-          Each refi amortizes the new loan over the remaining hold period at the
-          new rate; no closing costs modeled
+          Each refi resets to a new 30-yr amortization at the new rate; no
+          closing costs modeled
         </li>
         <li>Source: FRED MORTGAGE30US annual averages</li>
         <li class="group-hd">Rent Data</li>
@@ -896,7 +896,7 @@
                 "Rate rule: selects X years with the lowest 30-yr fixed rates in the chosen period (excluding purchase year); only fires if the new rate is lower than the current rate",
                 `Bal (rate-and-term): refi to same remaining balance at the new lower rate`,
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
-                "Each refi amortizes the new loan over the remaining hold period at the new rate; no closing costs modeled",
+                "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
@@ -1037,7 +1037,7 @@
                 "利率规则：选取所选区间内利率最低的X个年份（不含购房年），仅当新利率低于当前利率时执行",
                 `余额（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
-                "每次重贷均以剩余持有期限按新利率重新摊销贷款，不计交易成本",
+                "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
@@ -1253,7 +1253,7 @@
               newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
             }
             const cashOut = newLoan - rem;
-            sched = amortize(newLoan, refi.rate / 12, caM.length - m);
+            sched = amortize(newLoan, refi.rate / 12);
             schedOffset = m;
             currentRate = refi.rate;
             rem = newLoan; // starting principal for prevBal when si=0
