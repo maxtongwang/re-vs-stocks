@@ -460,11 +460,11 @@
         <span class="hero-divider">vs</span>
         <select class="hero-select hero-re" id="location-select">
           <option value="ca">CA Real Estate</option>
-          <option value="national">National RE</option>
           <option value="tx">TX Real Estate</option>
           <option value="fl">FL Real Estate</option>
           <option value="wa">WA Real Estate</option>
           <option value="ny">NY Real Estate</option>
+          <option value="national">National RE</option>
         </select>
       </div>
     </div>
@@ -715,86 +715,11 @@
           equity loss often offsets the payment savings — full net benefit
           usually requires holding 10+ years past the refi date.
         </li>
-        <li class="group-hd">Rent Data</li>
-        <li>
-          BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994
-          estimated from BLS national CPI-Rent series and academic housing
-          literature — less granular, treat as approximate
-        </li>
+
       </ul>
       <div id="proj-note"></div>
       <strong id="label-sources">Sources</strong>
-      <ul class="src-list">
-        <li>
-          S&amp;P 500 returns:
-          <a
-            href="https://www.macrotrends.net/2526/sp-500-historical-annual-returns"
-            target="_blank"
-            >Macrotrends (price)</a
-          >
-          &amp;
-          <a
-            href="https://www.multpl.com/s-p-500-dividend-yield/table/by-year"
-            target="_blank"
-            >multpl.com (dividends)</a
-          >
-          &amp;
-          <a
-            href="https://financialmodelingprep.com/developer/docs"
-            target="_blank"
-            >FMP (current year live)</a
-          >
-        </li>
-        <li>
-          CA home prices:
-          <a
-            href="https://www.car.org/marketdata/data/housingdata"
-            target="_blank"
-            >CAR median prices</a
-          >
-          &amp;
-          <a
-            href="https://us.spindices.com/index-family/real-estate/sp-corelogic-case-shiller"
-            target="_blank"
-            >Case-Shiller CA</a
-          >
-          (approx)
-        </li>
-        <li>
-          Mortgage rates:
-          <a
-            href="https://fred.stlouisfed.org/series/MORTGAGE30US"
-            target="_blank"
-            >FRED MORTGAGE30US</a
-          >
-        </li>
-        <li>
-          Rent growth pre-2015:
-          <a
-            href="https://fred.stlouisfed.org/series/CUUR0400SEHA"
-            target="_blank"
-            >BLS CPI West Urban Rent (FRED)</a
-          >
-        </li>
-        <li>
-          Rent growth 2015+:
-          <a href="https://www.zillow.com/research/data/" target="_blank"
-            >Zillow ZORI (metro CSV)</a
-          >
-        </li>
-        <li>
-          Rent yields: estimated from
-          <a
-            href="https://www.car.org/marketdata/data/housingdata"
-            target="_blank"
-            >CAR median prices</a
-          >
-          &amp;
-          <a href="https://fred.stlouisfed.org/series/CASTHPI" target="_blank"
-            >FHFA price index</a
-          >
-        </li>
-      </ul>
+      <ul id="sources-list" class="src-list"></ul>
       <p style="color: #555; margin: 4px 0 0; font-size: inherit">· Projection data as of <strong style="color: #777; display: inline; margin: 0"><!-- PROJ_DATE_START -->2026-02<!-- PROJ_DATE_END --></strong> &middot; 30yr mortgage: <strong id="proj-mort-rate" style="color: #777; display: inline; margin: 0">5.88%</strong> &middot; auto-updated monthly via <a href="https://financialmodelingprep.com" target="_blank" style="color: #555">Financial Modeling Prep</a></p>
     </div>
 
@@ -1046,12 +971,7 @@
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
-            {
-              label: "Rent Data",
-              items: [
-                activeLocConfig.rentDataNote,
-              ],
-            },
+
           ],
         },
         zh: {
@@ -1203,12 +1123,7 @@
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
-            {
-              label: "租金数据",
-              items: [
-                activeLocConfig.rentDataNote,
-              ],
-            },
+
           ],
         },
       };
@@ -1326,12 +1241,82 @@
       ];
       // ── Location config: per-metro tax rates & property tax rules ──────────────
       const LOC_CONFIG = {
-        ca:       { propTaxRate:0.0125, propTaxTracksValue:false, propTaxAnnualIncrease:0.02, taxRate:0.44,  propTaxNote:"CA Prop 13: 1.25% of purchase price, +2%/yr max",               taxNote:"44% (35% fed + 9.3% CA)",           rentDataNote:"BLS West CPI-Rent (1970–2014), Zillow ZORI CA (2015+) — pre-1994 approximate" },
-        national: { propTaxRate:0.011,  propTaxTracksValue:true,  propTaxAnnualIncrease:0.02, taxRate:0.38,  propTaxNote:"National avg: ~1.1% of current market value (reassessed annually)", taxNote:"38% (35% fed + ~3% avg state)",      rentDataNote:"BLS national CPI-Rent (1970–2014), Zillow national ZORI (2015+) — approximate" },
-        tx:       { propTaxRate:0.021,  propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.35,  propTaxNote:"TX: ~2.1% of current market value, no income tax state",           taxNote:"35% (35% fed + 0% TX — no income tax)", rentDataNote:"BLS South CPI-Rent (1970–2014), Zillow ZORI TX metros (2015+) — approximate" },
-        fl:       { propTaxRate:0.01,   propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.35,  propTaxNote:"FL: ~1.0% of current market value, no income tax state",            taxNote:"35% (35% fed + 0% FL — no income tax)", rentDataNote:"BLS South CPI-Rent (1970–2014), Zillow ZORI FL metros (2015+) — approximate" },
-        wa:       { propTaxRate:0.0093, propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.35,  propTaxNote:"WA: ~0.93% of current market value, no income tax state",           taxNote:"35% (35% fed + 0% WA — no income tax)", rentDataNote:"BLS West CPI-Rent (1970–2014), Zillow ZORI Seattle (2015+) — approximate" },
-        ny:       { propTaxRate:0.015,  propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.457, propTaxNote:"NY metro: ~1.5% of current market value",                           taxNote:"45.7% (35% fed + 10.9% NY)",         rentDataNote:"BLS Northeast CPI-Rent (1970–2014), Zillow ZORI NY metro (2015+) — approximate" },
+        ca: {
+          propTaxRate:0.0125, propTaxTracksValue:false, propTaxAnnualIncrease:0.02, taxRate:0.44,
+          propTaxNote:"CA Prop 13: 1.25% of purchase price, +2%/yr max",
+          taxNote:"44% (35% fed + 9.3% CA)",
+          sources: {
+            homePrice: [{text:"CAR median prices", href:"https://www.car.org/marketdata/data/housingdata"}, {text:"Case-Shiller CA", href:"https://fred.stlouisfed.org/series/CASTHPI"}],
+            rentPre2015: [{text:"BLS CPI West Urban Rent", href:"https://fred.stlouisfed.org/series/CUUR0400SEHA"}],
+            rentPost2015: [{text:"Zillow ZORI CA", href:"https://www.zillow.com/research/data/"}],
+            rentYield: [{text:"CAR median prices", href:"https://www.car.org/marketdata/data/housingdata"}, {text:"FHFA CA index", href:"https://fred.stlouisfed.org/series/CASTHPI"}],
+          },
+        },
+        national: {
+          propTaxRate:0.011, propTaxTracksValue:true, propTaxAnnualIncrease:0.02, taxRate:0.38,
+          propTaxNote:"National avg: ~1.1% of current market value (reassessed annually)",
+          taxNote:"38% (35% fed + ~3% avg state)",
+          sources: {
+            homePrice: [{text:"Case-Shiller National", href:"https://fred.stlouisfed.org/series/CSUSHPINSA"}, {text:"FHFA National HPI", href:"https://fred.stlouisfed.org/series/USSTHPI"}],
+            rentPre2015: [{text:"BLS CPI National Rent", href:"https://fred.stlouisfed.org/series/CUUR0000SEHA"}],
+            rentPost2015: [{text:"Zillow National ZORI", href:"https://www.zillow.com/research/data/"}],
+            rentYield: [{text:"FHFA National HPI", href:"https://fred.stlouisfed.org/series/USSTHPI"}],
+          },
+        },
+        tx: {
+          propTaxRate:0.021, propTaxTracksValue:true, propTaxAnnualIncrease:0.0, taxRate:0.35,
+          propTaxNote:"TX: ~2.1% of current market value, no income tax state",
+          taxNote:"35% (35% fed + 0% TX — no income tax)",
+          sources: {
+            homePrice: [{text:"FHFA TX HPI", href:"https://fred.stlouisfed.org/series/TXSTHPI"}],
+            rentPre2015: [{text:"BLS CPI South Urban Rent", href:"https://fred.stlouisfed.org/series/CUUR0300SEHA"}],
+            rentPost2015: [{text:"Zillow ZORI TX metros", href:"https://www.zillow.com/research/data/"}],
+            rentYield: [{text:"FHFA TX HPI", href:"https://fred.stlouisfed.org/series/TXSTHPI"}],
+          },
+        },
+        fl: {
+          propTaxRate:0.01, propTaxTracksValue:true, propTaxAnnualIncrease:0.0, taxRate:0.35,
+          propTaxNote:"FL: ~1.0% of current market value, no income tax state",
+          taxNote:"35% (35% fed + 0% FL — no income tax)",
+          sources: {
+            homePrice: [{text:"FHFA FL HPI", href:"https://fred.stlouisfed.org/series/FLSTHPI"}],
+            rentPre2015: [{text:"BLS CPI South Urban Rent", href:"https://fred.stlouisfed.org/series/CUUR0300SEHA"}],
+            rentPost2015: [{text:"Zillow ZORI FL metros", href:"https://www.zillow.com/research/data/"}],
+            rentYield: [{text:"FHFA FL HPI", href:"https://fred.stlouisfed.org/series/FLSTHPI"}],
+          },
+        },
+        wa: {
+          propTaxRate:0.0093, propTaxTracksValue:true, propTaxAnnualIncrease:0.0, taxRate:0.35,
+          propTaxNote:"WA: ~0.93% of current market value, no income tax state",
+          taxNote:"35% (35% fed + 0% WA — no income tax)",
+          sources: {
+            homePrice: [{text:"FHFA WA HPI", href:"https://fred.stlouisfed.org/series/WASTHPI"}],
+            rentPre2015: [{text:"BLS CPI West Urban Rent", href:"https://fred.stlouisfed.org/series/CUUR0400SEHA"}],
+            rentPost2015: [{text:"Zillow ZORI Seattle", href:"https://www.zillow.com/research/data/"}],
+            rentYield: [{text:"FHFA WA HPI", href:"https://fred.stlouisfed.org/series/WASTHPI"}],
+          },
+        },
+        ny: {
+          propTaxRate:0.015, propTaxTracksValue:true, propTaxAnnualIncrease:0.0, taxRate:0.457,
+          propTaxNote:"NY metro: ~1.5% of current market value",
+          taxNote:"45.7% (35% fed + 10.9% NY)",
+          sources: {
+            homePrice: [{text:"FHFA NY HPI", href:"https://fred.stlouisfed.org/series/NYSTHPI"}],
+            rentPre2015: [{text:"BLS CPI Northeast Urban Rent", href:"https://fred.stlouisfed.org/series/CUUR0100SEHA"}],
+            rentPost2015: [{text:"Zillow ZORI NY metro", href:"https://www.zillow.com/research/data/"}],
+            rentYield: [{text:"FHFA NY HPI", href:"https://fred.stlouisfed.org/series/NYSTHPI"}],
+          },
+        },
+      };
+      const INDEX_SOURCES = {
+        sp500: {
+          returns: [{text:"Macrotrends (price)", href:"https://www.macrotrends.net/2526/sp-500-historical-annual-returns"}, {text:"multpl.com (dividends)", href:"https://www.multpl.com/s-p-500-dividend-yield/table/by-year"}],
+          live: [{text:"FMP API", href:"https://financialmodelingprep.com/developer/docs"}],
+        },
+        nasdaq: {
+          returns: [{text:"Macrotrends NASDAQ", href:"https://www.macrotrends.net/1320/nasdaq-historical-chart"}, {text:"multpl.com (dividends)", href:"https://www.multpl.com/nasdaq-dividend-yield/table/by-year"}],
+          live: [{text:"FMP API", href:"https://financialmodelingprep.com/developer/docs"}],
+        },
       };
 
       // Texas (Dallas/Houston/Austin composite) price appreciation, 1970–2045
@@ -2212,6 +2197,26 @@
       }
 
       // ── Apply language ────────────────────────────────────────────────────────
+      function buildSourcesList() {
+        const idxKey = document.getElementById("index-select").value;
+        const iSrc = INDEX_SOURCES[idxKey] || INDEX_SOURCES.sp500;
+        const lSrc = activeLocConfig.sources;
+        const locLabel = document.getElementById("location-select").selectedOptions[0].text;
+        const idxLabel = document.getElementById("index-select").selectedOptions[0].text;
+        function lnk(arr) {
+          return arr.map(l => `<a href="${l.href}" target="_blank">${l.text}</a>`).join(" &amp; ");
+        }
+        const items = [
+          `${idxLabel} returns: ${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)} (current year live)`,
+          `${locLabel} home prices: ${lnk(lSrc.homePrice)}`,
+          `Mortgage rates: <a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">FRED MORTGAGE30US</a>`,
+          `Rent growth pre-2015: ${lnk(lSrc.rentPre2015)}`,
+          `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
+          `Rent yields: estimated from ${lnk(lSrc.rentYield)}`,
+        ];
+        document.getElementById("sources-list").innerHTML = items.map(i => `<li>${i}</li>`).join("");
+      }
+
       function applyLang() {
         const s = STRINGS[lang];
         document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
@@ -2239,6 +2244,7 @@
         document.getElementById("label-sources").textContent = s.labelSources;
         document.getElementById("label-built-by").textContent = s.builtBy;
         updateAssumptions();
+        buildSourcesList();
         buildTable();
         syncTableCols();
       }
