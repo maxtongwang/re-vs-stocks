@@ -100,8 +100,15 @@
       #btn-reinvest {
         min-width: 68px;
       }
+      #btn-rental,
+      #btn-primary {
+        min-width: 60px;
+      }
       #label-cashflow {
         min-width: 58px;
+      }
+      #label-propmode {
+        min-width: 34px;
       }
       #label-lang {
         min-width: 30px;
@@ -381,6 +388,14 @@
     </div>
 
     <div class="ctrl-row">
+      <span id="label-propmode">Prop:</span>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btn-rental">Rental</button>
+        <button class="toggle-btn" id="btn-primary">Primary</button>
+      </div>
+    </div>
+
+    <div class="ctrl-row">
       <span id="label-cashflow">Cash flow:</span>
       <div class="toggle-group">
         <button class="toggle-btn active" id="btn-additive">Additive</button>
@@ -465,9 +480,9 @@
         <li>Insurance: 0.5% of current property value/yr</li>
         <li>Maintenance: 1% of current property value/yr</li>
         <li>
-          Depreciation: IRS 27.5-yr residential schedule; improvement %
-          adjustable above (CA coastal typical: 25–50%; national default often
-          cited as 80%)
+          Depreciation (rental only): IRS 27.5-yr schedule; improvement %
+          adjustable above. Primary residences are not eligible for depreciation
+          deductions.
         </li>
         <li>Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss</li>
         <li class="group-hd">Capital &amp; Returns</li>
@@ -654,9 +669,12 @@
           labelEnd: "End:",
           labelCashflow: "Cash flow:",
           labelImprov: "Improvement %:",
+          labelPropMode: "Prop:",
           labelLang: "Lang:",
           btnAdditive: "Additive",
           btnReinvest: "Reinvested",
+          btnRental: "Rental",
+          btnPrimary: "Primary",
           legendLabels: [
             "S&P 500 (total)",
             "RE All Cash",
@@ -665,6 +683,14 @@
             "RE 10% Down",
             "RE 3.5% Down",
           ],
+          legendLabelsPrimary: [
+            "S&P 500 (total)",
+            "Primary All Cash",
+            "Primary 50% Down",
+            "Primary 20% Down",
+            "Primary 10% Down",
+            "Primary 3.5% Down",
+          ],
           thYear: "Year",
           assmDyn: "Assumptions (dynamic)",
           assmFix: "Assumptions (fixed)",
@@ -672,16 +698,25 @@
           builtBy: "Built by Max Wang",
           modeLabelReinvest: "Reinvested (compound)",
           modeLabelAdditive: "Additive (no compound)",
-          subtitle: (rv, ey, MY) =>
-            `5 leverage scenarios<br>dividends &amp; rent cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
-            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%<br>Rent yield: ${ry}% · Improvement: ${ip}%<br>Cash flow: ${mode}`,
-          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
-            `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
-            `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-            `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
-            `Improv <strong style="color:#ccc">${ip}%</strong><br>` +
-            `<strong style="color:#ccc">${mode}</strong>`,
+          subtitle: (rv, ey, MY, isPrimary) =>
+            `5 leverage scenarios · ${isPrimary ? "primary residence" : "rental"}<br>dividends &amp; ${isPrimary ? "imputed rent" : "rent"} cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
+          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary) => {
+            const line2 = isPrimary
+              ? `Imputed yield: ${ry}% · Primary res. (no depr.)`
+              : `Rent yield: ${ry}% · Improvement: ${ip}%`;
+            return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%<br>${line2}<br>Cash flow: ${mode}`;
+          },
+          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode, isPrimary) => {
+            const extra = isPrimary
+              ? " · primary res.: no depreciation"
+              : ` · Improv <strong style="color:#ccc">${ip}%</strong>`;
+            return (
+              `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
+              `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
+              `${isPrimary ? "Imputed yield" : "Yield"} <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x)${extra}<br>` +
+              `<strong style="color:#ccc">${mode}</strong>`
+            );
+          },
           tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
           crashRowLabel: (yr) => `${yr} (crash)`,
           fixedGroups: [
@@ -691,7 +726,7 @@
                 "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
                 "Insurance: 0.5% of current property value/yr",
                 "Maintenance: 1% of current property value/yr",
-                "Depreciation: IRS 27.5-yr residential schedule; improvement % adjustable above (CA coastal typical: 25–50%; national default often cited as 80%)",
+                "Depreciation (rental only): IRS 27.5-yr schedule; improvement % adjustable above. Primary residences are not eligible for depreciation deductions.",
                 "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
               ],
             },
@@ -719,9 +754,12 @@
           labelEnd: "结束年：",
           labelCashflow: "现金流：",
           labelImprov: "建筑占比：",
+          labelPropMode: "类型：",
           labelLang: "语言：",
           btnAdditive: "叠加",
           btnReinvest: "复投",
+          btnRental: "出租",
+          btnPrimary: "自住",
           legendLabels: [
             "S&P 500 (总回报)",
             "房产 全现金",
@@ -730,6 +768,14 @@
             "房产 10%首付",
             "房产 3.5%首付",
           ],
+          legendLabelsPrimary: [
+            "S&P 500 (总回报)",
+            "自住 全现金",
+            "自住 50%首付",
+            "自住 20%首付",
+            "自住 10%首付",
+            "自住 3.5%首付",
+          ],
           thYear: "年份",
           assmDyn: "动态假设",
           assmFix: "固定假设",
@@ -737,16 +783,25 @@
           builtBy: "由 Max Wang 制作",
           modeLabelReinvest: "复投（复利）",
           modeLabelAdditive: "叠加（无复利）",
-          subtitle: (rv, ey, MY) =>
-            `5种杠杆方案<br>股息和房租现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
-            `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%<br>租金回报率：${ry}% · 建筑：${ip}%<br>现金流：${mode}`,
-          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
-            `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
-            `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
-            `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍) · ` +
-            `建筑 <strong style="color:#ccc">${ip}%</strong><br>` +
-            `<strong style="color:#ccc">${mode}</strong>`,
+          subtitle: (rv, ey, MY, isPrimary) =>
+            `5种杠杆方案 · ${isPrimary ? "自住" : "出租"}<br>股息和${isPrimary ? "虚拟租金" : "房租"}现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
+          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary) => {
+            const line2 = isPrimary
+              ? `虚拟租金：${ry}% · 自住（无折旧）`
+              : `租金回报率：${ry}% · 建筑：${ip}%`;
+            return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%<br>${line2}<br>现金流：${mode}`;
+          },
+          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode, isPrimary) => {
+            const extra = isPrimary
+              ? " · 自住：无折旧"
+              : ` · 建筑 <strong style="color:#ccc">${ip}%</strong>`;
+            return (
+              `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
+              `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
+              `${isPrimary ? "虚拟回报率" : "回报率"} <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍)${extra}<br>` +
+              `<strong style="color:#ccc">${mode}</strong>`
+            );
+          },
           tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,
           crashRowLabel: (yr) => `${yr}（崩盘）`,
           fixedGroups: [
@@ -756,7 +811,7 @@
                 "13号提案房产税：购入价的1.25%，每年上涨上限2%",
                 "保险：当前房产价值的0.5%/年",
                 "维护费：当前房产价值的1%/年",
-                "折旧：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%；全国常引用默认值为80%）",
+                "折旧（仅适用出租）：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%）。自住房产不可享受折旧抵税。",
                 "税率：44%（联邦35% + 加州9.3%），按纸面租金盈亏计算",
               ],
             },
@@ -918,12 +973,14 @@
         improvPct,
         reinvest,
         spSlice,
+        isPrimary,
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
         const MR = mortRate / 12;
         const sched = mort > 0 ? amortize(mort, MR) : [];
-        const dep = (price * improvPct) / 27.5 / 12;
+        // Primary residences: no depreciation deduction (IRS rule)
+        const dep = isPrimary ? 0 : (price * improvPct) / 27.5 / 12;
         let pv = price,
           rem = mort;
         let rent = price * startYield,
@@ -1010,11 +1067,11 @@
         const ry = CA_RENT_YIELDS[i];
         return [
           simSP(spP, sp, spD, reinvest),
-          simRE(1, ca, rg, mr, ry, improvPct, reinvest, sp),
-          simRE(0.5, ca, rg, mr, ry, improvPct, reinvest, sp),
-          simRE(0.2, ca, rg, mr, ry, improvPct, reinvest, sp),
-          simRE(0.1, ca, rg, mr, ry, improvPct, reinvest, sp),
-          simRE(0.035, ca, rg, mr, ry, improvPct, reinvest, sp),
+          simRE(1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
+          simRE(0.5, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
+          simRE(0.2, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
+          simRE(0.1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
+          simRE(0.035, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
         ];
       }
 
@@ -1023,6 +1080,7 @@
       let endYear = 2025;
       let reinvest = false;
       let improvPct = 0.4;
+      let isPrimary = false;
       let lang = "en";
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
@@ -1133,7 +1191,16 @@
         const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
 
         document.getElementById("assumptions-line").innerHTML =
-          s.assumptionsLine(startYear, endYear, yrs, mr, ry, ip, modeLabel);
+          s.assumptionsLine(
+            startYear,
+            endYear,
+            yrs,
+            mr,
+            ry,
+            ip,
+            modeLabel,
+            isPrimary,
+          );
 
         document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
           startYear,
@@ -1144,12 +1211,14 @@
           p2r,
           ip,
           modeLabel,
+          isPrimary,
         );
 
         document.getElementById("subtitle").innerHTML = s.subtitle(
           reinvest,
           endYear,
           MAX_YEAR,
+          isPrimary,
         );
       }
 
@@ -1163,11 +1232,15 @@
         document.getElementById("label-end").textContent = s.labelEnd;
         document.getElementById("label-cashflow").textContent = s.labelCashflow;
         document.getElementById("label-improv").textContent = s.labelImprov;
+        document.getElementById("label-propmode").textContent = s.labelPropMode;
         document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
+        document.getElementById("btn-rental").textContent = s.btnRental;
+        document.getElementById("btn-primary").textContent = s.btnPrimary;
+        const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
         document.querySelectorAll(".leg-text").forEach((el, i) => {
-          el.innerHTML = s.legendLabels[i];
+          el.innerHTML = legLabels[i];
         });
         document.getElementById("th-year").textContent = s.thYear;
         document.getElementById("label-assm-dyn").textContent = s.assmDyn;
@@ -1210,12 +1283,34 @@
         draw(curMonth - 1);
       });
 
+      // ── Property mode toggle ─────────────────────────────────────────────────
+      document.getElementById("btn-rental").addEventListener("click", () => {
+        if (!isPrimary) return;
+        isPrimary = false;
+        document.getElementById("btn-rental").classList.add("active");
+        document.getElementById("btn-primary").classList.remove("active");
+        allWealth = buildAllWealth(startYear);
+        applyLang();
+        draw(curMonth - 1);
+      });
+
+      document.getElementById("btn-primary").addEventListener("click", () => {
+        if (isPrimary) return;
+        isPrimary = true;
+        document.getElementById("btn-primary").classList.add("active");
+        document.getElementById("btn-rental").classList.remove("active");
+        allWealth = buildAllWealth(startYear);
+        applyLang();
+        draw(curMonth - 1);
+      });
+
       // ── Share URL ─────────────────────────────────────────────────────────────
       function getShareParams() {
         const p = new URLSearchParams();
         if (startYear !== 1995) p.set("s", startYear);
         if (endYear !== 2025) p.set("e", endYear);
         if (reinvest) p.set("m", "r");
+        if (isPrimary) p.set("p", "1");
         if (lang !== "en") p.set("l", lang);
         if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
         const hArr = [...hidden].sort((a, b) => a - b);
@@ -1238,6 +1333,7 @@
         }
         if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
         if (p.has("m")) reinvest = p.get("m") === "r";
+        if (p.has("p")) isPrimary = p.get("p") === "1";
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
         if (p.has("i")) {
           const v = parseInt(p.get("i"));
@@ -1567,6 +1663,10 @@
       if (reinvest) {
         document.getElementById("btn-reinvest").classList.add("active");
         document.getElementById("btn-additive").classList.remove("active");
+      }
+      if (isPrimary) {
+        document.getElementById("btn-primary").classList.add("active");
+        document.getElementById("btn-rental").classList.remove("active");
       }
       if (lang !== "en") {
         document.getElementById("btn-lang-" + lang).classList.add("active");
