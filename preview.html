@@ -1149,6 +1149,90 @@
         { label: "RE 3.5% Down", color: "#ff3333" },
       ];
 
+      // ── Market events (crashes + spikes) ─────────────────────────────────────
+      // type:"crash" → red table row + red chart line
+      // type:"spike" → amber chart line + label (no table row)
+      // chartLine:false → table row only (e.g. GFC year 2 continuation)
+      const MARKET_EVENTS = [
+        {
+          year: 1973,
+          name: "Oil crisis",
+          nameZh: "石油危机",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 1980,
+          name: "Volcker shock",
+          nameZh: "沃尔克冲击",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 1987,
+          name: "Black Monday",
+          nameZh: "黑色星期一",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 2000,
+          name: "Dot-com bust",
+          nameZh: "互联网泡沫",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 2008,
+          name: "GFC",
+          nameZh: "金融危机",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 2009,
+          name: "GFC",
+          nameZh: "金融危机",
+          type: "crash",
+          chartLine: false,
+        },
+        {
+          year: 2020,
+          name: "COVID crash",
+          nameZh: "新冠暴跌",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 2022,
+          name: "Rate hike",
+          nameZh: "加息",
+          type: "crash",
+          chartLine: true,
+        },
+        {
+          year: 2004,
+          name: "Housing bubble",
+          nameZh: "楼市泡沫",
+          type: "spike",
+          chartLine: true,
+        },
+        {
+          year: 2013,
+          name: "RE recovery",
+          nameZh: "楼市复苏",
+          type: "spike",
+          chartLine: true,
+        },
+        {
+          year: 2021,
+          name: "COVID boom",
+          nameZh: "新冠繁荣",
+          type: "spike",
+          chartLine: true,
+        },
+      ];
+
       // ── Localization strings ──────────────────────────────────────────────────
       const STRINGS = {
         en: {
@@ -1256,7 +1340,8 @@
           },
           tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
           tableRowLabelProj: (yrs, yr) => `▸ Yr ${yrs} (${yr})`,
-          crashRowLabel: (yr) => `${yr} (crash)`,
+          crashRowLabel: (yr, evName) =>
+            evName ? `${yr} \u2014 ${evName}` : `${yr} (crash)`,
           projNote:
             `<strong>▸ 2026–2045 Projection Sources</strong><br>` +
             `No futures market exists for any of these beyond ~2 years. Use as rough scenario only.<br>` +
@@ -1417,7 +1502,8 @@
           },
           tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,
           tableRowLabelProj: (yrs, yr) => `▸ 第${yrs}年 (${yr})`,
-          crashRowLabel: (yr) => `${yr}（崩盘）`,
+          crashRowLabel: (yr, evName) =>
+            evName ? `${yr} \u2014 ${evName}` : `${yr}（崩盘）`,
           projNote:
             `<strong>▸ 2026–2045 预测数据来源</strong><br>` +
             `以下数据均无法从期货市场获取（期货流动性普遍不足2年），仅供参考情景使用。<br>` +
@@ -2660,18 +2746,27 @@
         const s = STRINGS[lang];
         tbody.innerHTML = "";
         const dur = endYear - startYear + 1;
+        const crashYearSet = new Set(
+          MARKET_EVENTS.filter((e) => e.type === "crash").map((e) => e.year),
+        );
+        const crashEvByYear = Object.fromEntries(
+          MARKET_EVENTS.filter((e) => e.type === "crash").map((e) => [
+            e.year,
+            e,
+          ]),
+        );
         const checks = [];
         for (let y = 5; y <= dur; y += 5) checks.push(y);
-        const gfc2008 = 2008 - startYear;
-        const gfc2009 = 2009 - startYear;
         for (const yrs of checks) {
           const m = yrs * 12 - 1;
           if (m >= totalMonths) continue;
+          const yr = startYear + yrs;
+          const ev = crashEvByYear[yr];
           const tr = document.createElement("tr");
-          if (yrs === gfc2008 || yrs === gfc2008 + 1)
-            tr.style.background = "#1a0000";
+          if (ev) tr.style.background = "#1a0000";
+          const evName = ev ? (lang === "zh" ? ev.nameZh : ev.name) : null;
           tr.innerHTML =
-            `<td>${s.tableRowLabel(yrs, startYear + yrs)}</td>` +
+            `<td>${ev ? s.crashRowLabel(yr, evName) : s.tableRowLabel(yrs, yr)}</td>` +
             allWealth
               .map((w, i) => {
                 const cls = hidden.has(i) ? ' class="col-hidden"' : "";
@@ -2680,29 +2775,36 @@
               .join("");
           tbody.appendChild(tr);
         }
-        for (const offset of [gfc2008, gfc2009]) {
-          if (offset > 0 && offset <= dur && offset % 5 !== 0) {
-            const m = offset * 12 - 1;
-            if (m >= totalMonths) continue;
-            const tr = document.createElement("tr");
-            tr.style.background = "#1a0000";
-            tr.innerHTML =
-              `<td>${s.crashRowLabel(startYear + offset)}</td>` +
-              allWealth
-                .map((w, i) => {
-                  const cls = hidden.has(i) ? ' class="col-hidden"' : "";
-                  return `<td${cls}>${fmt(w[m])}</td>`;
-                })
-                .join("");
-            const rows = [...tbody.querySelectorAll("tr")];
-            const insertBefore = rows.find((r) => {
-              const label = r.cells[0].textContent;
-              const m2 = parseInt(label.match(/\d{4}/)?.[0] || "9999");
-              return m2 > startYear + offset;
-            });
-            if (insertBefore) tbody.insertBefore(tr, insertBefore);
-            else tbody.appendChild(tr);
-          }
+        // Insert crash years not already on a 5-year interval
+        const crashOffsets = MARKET_EVENTS.filter((e) => e.type === "crash")
+          .map((e) => ({ offset: e.year - startYear, ev: e }))
+          .filter(
+            ({ offset }) => offset > 0 && offset <= dur && offset % 5 !== 0,
+          );
+        for (const { offset, ev } of crashOffsets) {
+          const m = offset * 12 - 1;
+          if (m >= totalMonths) continue;
+          const yr = startYear + offset;
+          const evName = lang === "zh" ? ev.nameZh : ev.name;
+          const tr = document.createElement("tr");
+          tr.style.background = "#1a0000";
+          tr.innerHTML =
+            `<td>${s.crashRowLabel(yr, evName)}</td>` +
+            allWealth
+              .map((w, i) => {
+                const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+                return `<td${cls}>${fmt(w[m])}</td>`;
+              })
+              .join("");
+          const rows = [...tbody.querySelectorAll("tr")];
+          const insertBefore = rows.find((r) => {
+            const m2 = parseInt(
+              r.cells[0].textContent.match(/\d{4}/)?.[0] || "9999",
+            );
+            return m2 > yr;
+          });
+          if (insertBefore) tbody.insertBefore(tr, insertBefore);
+          else tbody.appendChild(tr);
         }
 
         // Projected rows (every 5 yrs beyond endYear up to PROJ_END_YEAR, when refi > 0)
@@ -3348,21 +3450,19 @@
           }
         }
 
-        // Historical event annotations
-        const EVENTS = [
-          { year: 2000, label: "dot-com" },
-          { year: 2008, label: "GFC" },
-          { year: 2020, label: "COVID" },
-          { year: 2022, label: "rates↑" },
-        ];
+        // Historical event annotations — crashes (red) + spikes (amber)
         ctx.font = `${Math.max(7, Math.min(8, W / 80))}px monospace`;
-        ctx.globalAlpha = 0.45;
-        for (const ev of EVENTS) {
+        ctx.globalAlpha = 0.5;
+        let lastCrashLabelX = -999,
+          lastSpikeLabelX = -999;
+        for (const ev of MARKET_EVENTS) {
+          if (!ev.chartLine) continue;
           const evM = (ev.year - startYear) * 12;
           if (evM <= 0 || evM >= Math.min(monthsToShow, histBoundaryM))
             continue;
           const ex = tx(evM);
-          ctx.strokeStyle = "#383838";
+          const isCrash = ev.type === "crash";
+          ctx.strokeStyle = isCrash ? "#883333" : "#886622";
           ctx.lineWidth = 1;
           ctx.setLineDash([2, 4]);
           ctx.beginPath();
@@ -3370,9 +3470,20 @@
           ctx.lineTo(ex, PT + chartH);
           ctx.stroke();
           ctx.setLineDash([]);
-          ctx.fillStyle = "#555";
+          const evLabel = lang === "zh" ? ev.nameZh : ev.name;
+          ctx.fillStyle = isCrash ? "#cc4444" : "#cc9933";
           ctx.textAlign = "center";
-          ctx.fillText(ev.label, ex, PT + chartH - 16);
+          if (isCrash) {
+            if (Math.abs(ex - lastCrashLabelX) > 36) {
+              ctx.fillText(evLabel, ex, PT + chartH - 16);
+              lastCrashLabelX = ex;
+            }
+          } else {
+            if (Math.abs(ex - lastSpikeLabelX) > 36) {
+              ctx.fillText(evLabel, ex, PT + 44);
+              lastSpikeLabelX = ex;
+            }
+          }
         }
         ctx.globalAlpha = 1.0;
 
