@@ -3620,7 +3620,7 @@
             for (let k = positions.length - 1; k >= 0; k--)
               if (positions[k] > PT + chartH - 4)
                 positions[k] = PT + chartH - 4;
-            const lx = PL + chartW + 6;
+            const lx = tx(hm) + 6;
             items.forEach(({ s, i }, k) => {
               ctx.fillStyle = s.color;
               ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.35);
