@@ -14,9 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Update projection data from FMP
+      - name: Update projection data from FMP + FRED
         env:
           FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
         run: |
           DATE=$(date +%Y-%m)
           python3 scripts/update_projection.py "$DATE"
@@ -25,7 +26,7 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
-            const html = fs.readFileSync('preview.html', 'utf8');
+            const html = fs.readFileSync('index.html', 'utf8');
             const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
             scripts.forEach((s, i) => {
               try { new Function(s.replace(/<\/?script>/g, '')); }
@@ -38,7 +39,7 @@ jobs:
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add preview.html
+          git add index.html
           if git diff --staged --quiet; then
             echo "No changes — projection data unchanged."
           else
