@@ -135,7 +135,7 @@ export const StocksVsRE: React.FC = () => {
             textAnchor="middle"
             opacity={titleOpacity}
           >
-            maxtongwang.github.io/re-vs-stocks
+            Full Interactive Chart: maxtongwang.github.io/re-vs-stocks
           </text>
 
           {/* Methodology — above chart, below URL */}
