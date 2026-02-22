@@ -53,13 +53,10 @@ export const LineChart: React.FC<LineChartProps> = ({
     }
   }
   if (!isFinite(yMin)) yMin = 50_000;
-  // Snap yLo down to nearest nice number (1/2/5 × decade) just below yMin
+  // Floor: 2-sig-fig round-down of yMin*0.85 — keeps lines near bottom of chart
   const loRaw = yMin * 0.85;
-  const decade = Math.pow(10, Math.floor(Math.log10(loRaw)));
-  const yLo = Math.max(
-    LOG_FLOOR,
-    [5, 2, 1].map((m) => m * decade).find((v) => v <= loRaw) ?? decade,
-  );
+  const loMag = Math.pow(10, Math.floor(Math.log10(loRaw)) - 1);
+  const yLo = Math.max(LOG_FLOOR, Math.floor(loRaw / loMag) * loMag);
   const yHi = yMax * 1.1;
   const logRange = Math.log(yHi) - Math.log(yLo);
 

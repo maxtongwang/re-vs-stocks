@@ -3385,13 +3385,10 @@
           }
         }
         if (!isFinite(yMin)) yMin = 50000;
-        // Snap yLo down to nearest nice number (1/2/5 × decade) just below yMin
+        // Floor: 2-sig-fig round-down of yMin*0.85 — keeps lines near bottom of chart
         const _loRaw = yMin * 0.85;
-        const _decade = Math.pow(10, Math.floor(Math.log10(_loRaw)));
-        const yLo = Math.max(
-          1000,
-          [5, 2, 1].map((m) => m * _decade).find((v) => v <= _loRaw) || _decade,
-        );
+        const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
+        const yLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
         const yHi = yMax * 1.1;
         const tx = (m) => PL + (m / Math.max(projMonths - 1, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
