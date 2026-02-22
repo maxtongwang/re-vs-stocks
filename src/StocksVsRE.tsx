@@ -125,18 +125,23 @@ export const StocksVsRE: React.FC = () => {
             />
           )}
 
-          {/* Y-axis label */}
-          <text
-            x={30}
-            y={height / 2}
-            fill="#888"
-            fontSize={22}
-            fontFamily="monospace"
-            textAnchor="middle"
-            transform={`rotate(-90, 30, ${height / 2})`}
-          >
-            Total Wealth (Equity + Net Cash Flows)
-          </text>
+          {/* Methodology footnote — bottom-left */}
+          {[
+            `Assumptions: $100K invested Jan ${START_YEAR} · CA real estate (FHFA HPI) · S&P 500 total return (price + dividends reinvested)`,
+            `8.5% fixed 30yr mortgage · 12% initial gross rent yield (1970 CA) · Prop 13: 1.25% tax, +2%/yr cap`,
+            `Depreciation shield: 27.5yr straight-line · 44% marginal tax rate · maintenance + insurance modeled annually`,
+          ].map((line, i) => (
+            <text
+              key={i}
+              x={chartPaddingLeft}
+              y={height - 56 + i * 20}
+              fill="#555"
+              fontSize={18}
+              fontFamily="monospace"
+            >
+              {line}
+            </text>
+          ))}
         </svg>
       </div>
 

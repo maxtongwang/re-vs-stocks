@@ -114,8 +114,8 @@ export const LineChart: React.FC<LineChartProps> = ({
           <text
             x={paddingLeft - 10}
             y={toY(val) + 5}
-            fill="#888"
-            fontSize={22}
+            fill="#bbb"
+            fontSize={28}
             textAnchor="end"
             fontFamily="monospace"
           >
@@ -130,8 +130,8 @@ export const LineChart: React.FC<LineChartProps> = ({
           key={year}
           x={toX(Math.min(month, TOTAL_MONTHS - 1))}
           y={paddingTop + chartHeight + 40}
-          fill="#888"
-          fontSize={22}
+          fill="#aaa"
+          fontSize={26}
           textAnchor="middle"
           fontFamily="monospace"
         >
