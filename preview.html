@@ -83,6 +83,7 @@
       .toggle-group {
         display: flex;
         gap: 4px;
+        align-items: center;
       }
       .toggle-btn {
         background: none;
@@ -546,18 +547,22 @@
         </li>
         <li class="group-hd">Refinance</li>
         <li>
-          Refi count (0–3): number of times the borrower refinances during the
-          holding period
+          Refi count (0–3): number of cash-out refinances during the holding
+          period
         </li>
         <li>
-          Rule: the model selects the X years with the lowest 30-yr fixed
-          mortgage rates within the chosen period (excluding the purchase year),
-          and refinances at the start of each of those years — but only if the
-          new rate is lower than the current rate
+          Rate rule: selects X years with the lowest 30-yr fixed rates in the
+          chosen period (excl. purchase year); only fires if new rate &lt;
+          current rate
         </li>
         <li>
-          Each refinance resets to a new 30-yr amortization on the remaining
-          principal at the new rate; no closing costs modeled
+          LTV rule: new loan = max(remaining balance, 75% of current property
+          value) for rental; 80% for primary. The difference is cash-out,
+          credited to the investor's cash position
+        </li>
+        <li>
+          Each refi resets to a new 30-yr amortization on the new loan amount;
+          no closing costs modeled
         </li>
         <li>Source: FRED MORTGAGE30US annual averages</li>
         <li class="group-hd">Rent Data</li>
@@ -836,9 +841,10 @@
             {
               label: "Refinance",
               items: [
-                "Refi count (0–3): number of times the borrower refinances during the holding period",
-                "Rule: the model selects the X years with the lowest 30-yr fixed mortgage rates within the chosen period (excluding the purchase year), and refinances at the start of each of those years — but only if the new rate is lower than the current rate",
-                "Each refinance resets to a new 30-yr amortization on the remaining principal at the new rate; no closing costs modeled",
+                "Refi count (0–3): number of cash-out refinances during the holding period",
+                "Rate rule: selects the X years with the lowest 30-yr fixed rates in the chosen period (excluding purchase year); only fires if the new rate is lower than the current rate",
+                "LTV rule: new loan = max(remaining balance, 75% of current property value) for rental; 80% for primary residence. The difference (cash-out) is credited to the investor's cash position",
+                "Each refi resets to a new 30-yr amortization on the new loan amount at the new rate; no closing costs modeled",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
@@ -961,9 +967,10 @@
             {
               label: "重新贷款",
               items: [
-                "重贷次数（0–3）：借款人在持有期间重新融资的次数",
-                "规则：模型选取所选区间内利率最低的X个年份（不含购房年），于每年初重新贷款——仅当新利率低于当前利率时执行",
-                "每次重贷均以剩余本金按新利率重新计算30年摊销，不计交易成本",
+                "重贷次数（0–3）：持有期间进行套现再融资的次数",
+                "利率规则：选取所选区间内利率最低的X个年份（不含购房年），仅当新利率低于当前利率时执行",
+                "LTV规则：新贷款 = max(剩余本金, 当前房产价值×75%)（出租）或80%（自住）。差额为套现金额，计入投资者现金持仓",
+                "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
@@ -1152,19 +1159,7 @@
         const refiQueue = refis ? [...refis] : [];
         const w = [];
         for (let m = 0; m < caM.length; m++) {
-          // Refinance: reset amortization to new rate on remaining principal
-          if (
-            mort > 0 &&
-            refiQueue.length > 0 &&
-            refiQueue[0].m === m &&
-            rem > 0 &&
-            refiQueue[0].rate < currentRate
-          ) {
-            const refi = refiQueue.shift();
-            sched = amortize(rem, refi.rate / 12);
-            schedOffset = m;
-            currentRate = refi.rate;
-          }
+          // Apply appreciation first so LTV uses current value
           pv *= 1 + caM[m];
           if (m > 0 && m % 12 === 0) {
             const yi = Math.floor(m / 12);
@@ -1173,6 +1168,25 @@
               (rentGrowthSlice[yi] ??
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
             ptax *= 1.02;
+          }
+          // Cash-out refi: lower rate + pull equity to 75% LTV (rental) / 80% (primary)
+          if (
+            mort > 0 &&
+            refiQueue.length > 0 &&
+            refiQueue[0].m === m &&
+            rem > 0 &&
+            refiQueue[0].rate < currentRate
+          ) {
+            const refi = refiQueue.shift();
+            const ltvRefi = isPrimary ? 0.8 : 0.75;
+            const newLoan = Math.max(rem, pv * ltvRefi);
+            const cashOut = newLoan - rem;
+            sched = amortize(newLoan, refi.rate / 12);
+            schedOffset = m;
+            currentRate = refi.rate;
+            rem = newLoan; // starting principal for prevBal when si=0
+            if (reinvest) cfPool += cashOut;
+            else cf += cashOut;
           }
           // Primary: r=0 (no rent income). Rental: actual rent collected.
           const r = isPrimary ? 0 : rent / 12;
