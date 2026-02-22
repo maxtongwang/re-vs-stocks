@@ -863,7 +863,7 @@
           },
           tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
           crashRowLabel: (yr) => `${yr} (crash)`,
-          fixedGroups: [
+          fixedGroups: (ltvPct) => [
             {
               label: "Property & Tax",
               items: [
@@ -887,10 +887,11 @@
             {
               label: "Refinance",
               items: [
-                "Refi count (0–3): number of cash-out refinances during the holding period",
-                "Rate rule: selects the X years with the lowest 30-yr fixed rates in the chosen period (excluding purchase year); only fires if the new rate is lower than the current rate",
-                "LTV rule: new loan = max(remaining balance, 75% of current property value) for rental; 80% for primary residence. The difference (cash-out) is credited to the investor's cash position",
-                "Each refi resets to a new 30-yr amortization on the new loan amount at the new rate; no closing costs modeled",
+                "Refi count (0–3): number of refinances during the holding period",
+                "Rate rule: selects X years with the lowest 30-yr fixed rates in the chosen period (excluding purchase year); only fires if the new rate is lower than the current rate",
+                `Bal (rate-and-term): refi to same remaining balance at the new lower rate`,
+                `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
+                "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
@@ -1003,7 +1004,7 @@
           },
           tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,
           crashRowLabel: (yr) => `${yr}（崩盘）`,
-          fixedGroups: [
+          fixedGroups: (ltvPct) => [
             {
               label: "房产成本与税务",
               items: [
@@ -1027,9 +1028,10 @@
             {
               label: "重新贷款",
               items: [
-                "重贷次数（0–3）：持有期间进行套现再融资的次数",
+                "重贷次数（0–3）：持有期间进行重新贷款的次数",
                 "利率规则：选取所选区间内利率最低的X个年份（不含购房年），仅当新利率低于当前利率时执行",
-                "LTV规则：新贷款 = max(剩余本金, 当前房产价值×75%)（出租）或80%（自住）。差额为套现金额，计入投资者现金持仓",
+                `余额（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
+                `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
                 "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
@@ -1553,6 +1555,14 @@
           refiLTV,
         );
 
+        document.getElementById("fixed-assumptions").innerHTML = s
+          .fixedGroups(refiLTVPct)
+          .flatMap((g) => [
+            `<li class="group-hd">${g.label}</li>`,
+            ...g.items.map((item) => `<li>${item}</li>`),
+          ])
+          .join("");
+
         document.getElementById("subtitle").innerHTML = s.subtitle(
           reinvest,
           endYear,
@@ -1587,12 +1597,6 @@
         document.getElementById("label-assm-dyn").textContent = s.assmDyn;
         document.getElementById("label-assm-fix").textContent = s.assmFix;
         document.getElementById("label-sources").textContent = s.labelSources;
-        document.getElementById("fixed-assumptions").innerHTML = s.fixedGroups
-          .flatMap((g) => [
-            `<li class="group-hd">${g.label}</li>`,
-            ...g.items.map((item) => `<li>${item}</li>`),
-          ])
-          .join("");
         document.getElementById("label-built-by").textContent = s.builtBy;
         updateAssumptions();
         buildTable();
