@@ -608,9 +608,13 @@
           Refi count (0–3): number of refinances during the holding period
         </li>
         <li>
+          Purchase rate is the 30-yr fixed average for the start year and is
+          locked until a refi occurs
+        </li>
+        <li>
           Rate rule: selects X years with the lowest 30-yr fixed rates in the
-          chosen period (excl. purchase year); only fires if new rate &lt;
-          current rate
+          chosen period (excl. purchase year); refi fires only if new rate is
+          &ge;0.5% below current rate and &ge;1 year since last refi or purchase
         </li>
         <li>
           Bal (rate-and-term): refi to same remaining balance at the new lower
@@ -944,7 +948,8 @@
               label: "Refinance",
               items: [
                 "Refi count (0–3): number of refinances during the holding period",
-                "Rate rule: selects X years with the lowest 30-yr fixed rates in the chosen period (excluding purchase year); only fires if the new rate is lower than the current rate",
+                "Purchase rate is the 30-yr fixed average for the start year, locked until a refi occurs",
+                "Rate rule: selects X years with the lowest 30-yr fixed rates in the chosen period (excl. purchase year); refi fires only if new rate is ≥0.5% below current rate and ≥1 year since last refi or purchase",
                 `Bal (rate-and-term): refi to same remaining balance at the new lower rate`,
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
                 "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
@@ -1099,7 +1104,8 @@
               label: "重新贷款",
               items: [
                 "重贷次数（0–3）：持有期间进行重新贷款的次数",
-                "利率规则：选取所选区间内利率最低的X个年份（不含购房年），仅当新利率低于当前利率时执行",
+                "购房利率锁定为开始年份的30年固定利率均值，直至发生重贷",
+                "利率规则：选取所选区间内利率最低的X个年份（不含购房年）；重贷触发条件：新利率比当前利率低至少0.5%，且距购房或上次重贷至少1年",
                 `余额（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
                 "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
@@ -1291,7 +1297,7 @@
       // simRE: simulate real estate wealth over time.
       // reinvest=true: net cash flows compound at spSlice monthly returns (invested in market)
       // reinvest=false: net cash flows accumulate additively (current behavior)
-      // refis: [{m, rate, year}] sorted by m — refinance events (only applied if rate < current)
+      // refis: [{m, rate, year}] sorted by m — fires only if new rate ≤ current−0.5% and ≥12mo gap
       // useLTV: true = cash-out refi to ltvPct; false = rate-and-term (remaining balance only)
       function simRE(
         down,
@@ -1321,6 +1327,7 @@
         let cf = 0, // additive mode accumulator
           cfPool = 0; // reinvest mode: compounding pool
         const refiQueue = refis ? [...refis] : [];
+        let lastRefiMonth = -Infinity; // tracks month of last refi (or purchase)
         const w = [];
         for (let m = 0; m < caM.length; m++) {
           // Apply appreciation first so LTV uses current value
@@ -1333,13 +1340,14 @@
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
             ptax *= 1.02;
           }
-          // Refinance: lower rate; optionally pull equity to LTV (useLTV mode)
+          // Refinance: fires only if new rate is ≥0.5% below current AND ≥12mo since last refi
           if (
             mort > 0 &&
             refiQueue.length > 0 &&
             refiQueue[0].m === m &&
             rem > 0 &&
-            refiQueue[0].rate < currentRate
+            refiQueue[0].rate <= currentRate - 0.005 &&
+            m - lastRefiMonth >= 12
           ) {
             const refi = refiQueue.shift();
             let newLoan = rem; // rate-and-term: keep same balance
@@ -1350,6 +1358,7 @@
             sched = amortize(newLoan, refi.rate / 12);
             schedOffset = m;
             currentRate = refi.rate;
+            lastRefiMonth = m;
             rem = newLoan; // starting principal for prevBal when si=0
             if (cashOut > 0) {
               if (reinvest) cfPool += cashOut;
