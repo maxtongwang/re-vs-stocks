@@ -1152,11 +1152,11 @@
             {
               label: "房产成本与税务",
               items: [
-                `Property tax: ${activeLocConfig.propTaxNote}`,
+                `房产税：${activeLocConfig.propTaxNoteZh}`,
                 "保险：当前房产价值的0.5%/年",
                 "维护费：当前房产价值的1%/年",
-                "折旧（仅适用出租）：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%）。自住房产不可享受折旧抵税。",
-                `Tax rate: ${activeLocConfig.taxNote} on paper rental gain/loss`,
+                "折旧（仅适用出租）：IRS 27.5年住宅折旧规定；建筑占比可在上方调整。自住房产不可享受折旧抵税。",
+                `税率：${activeLocConfig.taxNoteZh}（适用出租纸面盈亏）`,
               ],
             },
             {
@@ -1307,7 +1307,9 @@
           taxRate: 0.44,
           improvPct: 0.4,
           propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+          propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
           taxNote: "44% (35% fed + 9.3% CA)",
+          taxNoteZh: "44%（联邦35% + 加州9.3%）",
           sources: {
             homePrice: [
               {
@@ -1351,7 +1353,9 @@
           improvPct: 0.55,
           propTaxNote:
             "National avg: ~1.1% of current market value (reassessed annually)",
+          propTaxNoteZh: "全国均值：约当前市值1.1%（每年重新评估）",
           taxNote: "38% (35% fed + ~3% avg state)",
+          taxNoteZh: "38%（联邦35% + 州均约3%）",
           sources: {
             homePrice: [
               {
@@ -1390,7 +1394,9 @@
           taxRate: 0.35,
           improvPct: 0.7,
           propTaxNote: "TX: ~2.1% of current market value, no income tax state",
+          propTaxNoteZh: "德州：约当前市值2.1%，无州所得税",
           taxNote: "35% (35% fed + 0% TX — no income tax)",
+          taxNoteZh: "35%（联邦35% + 德州0%，无州所得税）",
           sources: {
             homePrice: [
               {
@@ -1425,7 +1431,9 @@
           taxRate: 0.35,
           improvPct: 0.65,
           propTaxNote: "FL: ~1.0% of current market value, no income tax state",
+          propTaxNoteZh: "佛州：约当前市值1.0%，无州所得税",
           taxNote: "35% (35% fed + 0% FL — no income tax)",
+          taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
           sources: {
             homePrice: [
               {
@@ -1461,7 +1469,9 @@
           improvPct: 0.5,
           propTaxNote:
             "WA: ~0.93% of current market value, no income tax state",
+          propTaxNoteZh: "华盛顿州：约当前市值0.93%，无州所得税",
           taxNote: "35% (35% fed + 0% WA — no income tax)",
+          taxNoteZh: "35%（联邦35% + 华州0%，无州所得税）",
           sources: {
             homePrice: [
               {
@@ -1496,7 +1506,9 @@
           taxRate: 0.457,
           improvPct: 0.35,
           propTaxNote: "NY metro: ~1.5% of current market value",
+          propTaxNoteZh: "纽约都市区：约当前市值1.5%",
           taxNote: "45.7% (35% fed + 10.9% NY)",
+          taxNoteZh: "45.7%（联邦35% + 纽约州10.9%）",
           sources: {
             homePrice: [
               {
