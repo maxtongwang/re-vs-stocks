@@ -108,7 +108,7 @@
         color: #555;
         text-align: center;
         margin-bottom: 8px;
-        min-height: 14px;
+        min-height: 42px;
       }
       #chart-wrap {
         width: 100%;
@@ -321,7 +321,7 @@
       </div>
     </div>
     <div class="subtitle" id="subtitle">
-      5 leverage scenarios · dividends & rent cash flow: additive
+      5 leverage scenarios<br />dividends &amp; rent cash flow: additive
     </div>
 
     <div class="ctrl-row">
@@ -650,9 +650,9 @@
           modeLabelReinvest: "Reinvested (compound)",
           modeLabelAdditive: "Additive (no compound)",
           subtitle: (rv, ey, MY) =>
-            `5 leverage scenarios · dividends & rent cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
+            `5 leverage scenarios<br>dividends &amp; rent cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
           assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
-            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Improvement: ${ip}%<br>Cash flow: ${mode}`,
+            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%<br>Rent yield: ${ry}% · Improvement: ${ip}%<br>Cash flow: ${mode}`,
           dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
             `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
             `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
@@ -700,9 +700,9 @@
           modeLabelReinvest: "复投（复利）",
           modeLabelAdditive: "叠加（无复利）",
           subtitle: (rv, ey, MY) =>
-            `5种杠杆方案 · 股息和房租现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
+            `5种杠杆方案<br>股息和房租现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
           assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
-            `${sy}–${ey} · ${yrs}年 · 房贷：${mr}% · 租金回报率：${ry}% · 建筑：${ip}%<br>现金流：${mode}`,
+            `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%<br>租金回报率：${ry}% · 建筑：${ip}%<br>现金流：${mode}`,
           dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
             `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
             `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
@@ -1091,7 +1091,7 @@
           modeLabel,
         );
 
-        document.getElementById("subtitle").textContent = s.subtitle(
+        document.getElementById("subtitle").innerHTML = s.subtitle(
           reinvest,
           endYear,
           MAX_YEAR,
