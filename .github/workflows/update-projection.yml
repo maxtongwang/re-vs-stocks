@@ -1,0 +1,61 @@
+name: Monthly projection update
+
+on:
+  schedule:
+    - cron: "0 8 1 * *"   # 1st of each month at 8am UTC
+  workflow_dispatch:        # allow manual trigger from GitHub UI
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch FRED MORTGAGE30US
+        id: fred
+        env:
+          FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+        run: |
+          RESPONSE=$(curl -sf \
+            "https://api.stlouisfed.org/fred/series/observations\
+?series_id=MORTGAGE30US\
+&api_key=${FRED_API_KEY}\
+&sort_order=desc\
+&limit=4\
+&file_type=json")
+
+          RATE=$(echo "$RESPONSE" | python3 - <<'EOF'
+import sys, json
+obs = json.loads(sys.stdin.read())["observations"]
+for o in obs:
+    if o["value"] != ".":
+        print(float(o["value"]) / 100)
+        break
+EOF
+          )
+
+          echo "rate=$RATE" >> "$GITHUB_OUTPUT"
+          echo "date=$(date +%Y-%m)" >> "$GITHUB_OUTPUT"
+          echo "Fetched rate: $RATE"
+
+      - name: Update preview.html
+        run: |
+          python3 scripts/update_projection.py \
+            "${{ steps.fred.outputs.rate }}" \
+            "${{ steps.fred.outputs.date }}"
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add preview.html
+          if git diff --staged --quiet; then
+            echo "No changes — projection data unchanged."
+          else
+            git commit -m \
+              "chore: projection mortgage rate ${{ steps.fred.outputs.rate }} · ${{ steps.fred.outputs.date }} [skip ci]"
+            git push
+          fi

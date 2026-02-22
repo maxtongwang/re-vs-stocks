@@ -727,6 +727,15 @@
             >FHFA price index</a
           >
         </li>
+        <li style="color: #555">
+          Projection data as of
+          <strong style="color: #777"
+            ><!-- PROJ_DATE_START -->2026-02<!-- PROJ_DATE_END --></strong
+          >
+          &middot; 30yr mortgage:
+          <strong id="proj-mort-rate" style="color: #777">6.89%</strong>
+          &middot; auto-updated monthly from FRED
+        </li>
       </ul>
     </div>
 
@@ -1235,11 +1244,12 @@
         0.0296, 0.0534, 0.0681, 0.0672,
         // 2025 (estimate)
         0.068,
-        // 2026–2045 (projected: 6.5% near-term → 6.0% long-run; no futures beyond ~2yr)
-        // Source: CBO 10yr Treasury ~4.4% + ~200bps spread; MBA/Fannie consensus 6.0–6.4%
-        0.065,
-        0.065, 0.064, 0.064, 0.063, 0.063, 0.062, 0.062, 0.061, 0.061, 0.06,
-        0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06, 0.06,
+        // PROJ_MORT_START (auto-updated monthly from FRED MORTGAGE30US)
+        // 2026–2045: glides from 6.89% → 6.0% floor (CBO/MBA consensus; no 20yr futures)
+        0.069,
+        0.069, 0.068, 0.068, 0.067, 0.067, 0.066, 0.066, 0.065, 0.065, 0.064,
+        0.064, 0.063, 0.063, 0.062, 0.062, 0.061, 0.061, 0.06, 0.06,
+        // PROJ_MORT_END
       ];
 
       // CA gross rent yield — derived from price-to-rent ratios (CAR / FHFA data)
