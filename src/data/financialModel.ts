@@ -3,20 +3,24 @@ import {
   SP500_ANNUAL_RETURNS,
   CA_RE_ANNUAL_RETURNS,
   CA_RENT_GROWTH,
+  CA_RENT_YIELDS,
 } from "./historicalData";
+
+export const START_YEAR = 1970;
+export const TOTAL_MONTHS = CA_RE_ANNUAL_RETURNS.length * 12; // 55 years × 12
 
 export interface Scenario {
   label: string;
   color: string;
   downPct: number;
-  wealthByMonth: number[]; // 360 values, index 0 = end of month 1
+  wealthByMonth: number[];
 }
 
 const INITIAL_CASH = 100_000;
-const MORTGAGE_RATE_ANNUAL = 0.085; // 8.5% 30yr fixed, 1994
+const MORTGAGE_RATE_ANNUAL = 0.085; // 8.5% — actual 30yr fixed rate in 1970
 const MORTGAGE_RATE_MONTHLY = MORTGAGE_RATE_ANNUAL / 12;
 const MORTGAGE_TERMS = 360; // 30 years
-const RENT_YIELD_ANNUAL = 0.075; // 7.5% of purchase price/yr — 1994 CA price-to-rent ~13x annual rent
+const RENT_YIELD_ANNUAL = CA_RENT_YIELDS[0]; // 12% — 1970 CA gross rent yield
 const PROP_TAX_RATE = 0.0125; // 1.25% of purchase price
 const PROP_TAX_INCREASE = 0.02; // +2%/yr (Prop 13 cap)
 const INSURANCE_RATE = 0.005; // 0.5% of current value/yr
@@ -86,7 +90,7 @@ function simulateRealEstate(
 
   const wealthByMonth: number[] = [];
 
-  for (let m = 0; m < 360; m++) {
+  for (let m = 0; m < TOTAL_MONTHS; m++) {
     // Property appreciation this month
     currentPropertyValue *= 1 + caMonthlyReturns[m];
 
@@ -152,7 +156,7 @@ function simulateRealEstate(
 function simulateSP500(spMonthlyReturns: number[]): number[] {
   let value = INITIAL_CASH;
   const wealthByMonth: number[] = [];
-  for (let m = 0; m < 360; m++) {
+  for (let m = 0; m < TOTAL_MONTHS; m++) {
     value *= 1 + spMonthlyReturns[m];
     wealthByMonth.push(value);
   }
@@ -165,37 +169,37 @@ export function buildScenarios(): Scenario[] {
 
   return [
     {
-      label: "S&P 500 (total)",
+      label: "S&P 500",
       color: "#4da6ff",
       downPct: 1, // unused
       wealthByMonth: simulateSP500(spMonthly),
     },
     {
-      label: "RE All Cash",
+      label: "All Cash",
       color: "#66ff66",
       downPct: 1.0,
       wealthByMonth: simulateRealEstate(1.0, caMonthly, CA_RENT_GROWTH),
     },
     {
-      label: "RE 50% Down",
+      label: "50% Down",
       color: "#ccff33",
       downPct: 0.5,
       wealthByMonth: simulateRealEstate(0.5, caMonthly, CA_RENT_GROWTH),
     },
     {
-      label: "RE 20% Down",
+      label: "20% Down",
       color: "#ffaa00",
       downPct: 0.2,
       wealthByMonth: simulateRealEstate(0.2, caMonthly, CA_RENT_GROWTH),
     },
     {
-      label: "RE 10% Down",
+      label: "10% Down",
       color: "#ff6600",
       downPct: 0.1,
       wealthByMonth: simulateRealEstate(0.1, caMonthly, CA_RENT_GROWTH),
     },
     {
-      label: "RE 3.5% Down",
+      label: "3.5% Down",
       color: "#ff3333",
       downPct: 0.035,
       wealthByMonth: simulateRealEstate(0.035, caMonthly, CA_RENT_GROWTH),

@@ -1,6 +1,5 @@
 import React from "react";
-// remotion imported for potential future use
-import { Scenario } from "../data/financialModel";
+import { Scenario, TOTAL_MONTHS, START_YEAR } from "../data/financialModel";
 
 interface LineChartProps {
   scenarios: Scenario[];
@@ -23,6 +22,8 @@ function formatDollar(value: number): string {
   return `$${value.toFixed(0)}`;
 }
 
+const LOG_FLOOR = 10_000;
+
 export const LineChart: React.FC<LineChartProps> = ({
   scenarios,
   progress,
@@ -33,35 +34,28 @@ export const LineChart: React.FC<LineChartProps> = ({
   paddingTop,
   paddingBottom,
 }) => {
-  const totalMonths = 360;
-  const revealedMonths = Math.floor(progress * totalMonths);
+  const revealedMonths = Math.floor(progress * TOTAL_MONTHS);
 
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
 
-  // Dynamic Y scale: find min/max across all scenarios up to revealedMonths
-  let yMin = 0;
+  // Log-scale Y range — find max across all scenarios (full range for stable scale)
   let yMax = 200_000;
-
   for (const s of scenarios) {
-    for (let m = 0; m <= revealedMonths && m < s.wealthByMonth.length; m++) {
-      const v = s.wealthByMonth[m];
-      if (v < yMin) yMin = v;
-      if (v > yMax) yMax = v;
+    for (let m = 0; m < s.wealthByMonth.length; m++) {
+      if (s.wealthByMonth[m] > yMax) yMax = s.wealthByMonth[m];
     }
   }
-
-  // Add 10% padding to y range
-  const yRange = yMax - yMin;
-  const yMinPadded = yMin - yRange * 0.05;
-  const yMaxPadded = yMax + yRange * 0.08;
+  const yLo = LOG_FLOOR;
+  const yHi = yMax * 1.1;
+  const logRange = Math.log(yHi) - Math.log(yLo);
 
   const toX = (monthIndex: number) =>
-    paddingLeft + (monthIndex / (totalMonths - 1)) * chartWidth;
+    paddingLeft + (monthIndex / (TOTAL_MONTHS - 1)) * chartWidth;
 
   const toY = (value: number) =>
     paddingTop +
-    ((yMaxPadded - value) / (yMaxPadded - yMinPadded)) * chartHeight;
+    ((Math.log(yHi) - Math.log(Math.max(value, yLo))) / logRange) * chartHeight;
 
   // Build SVG path for each scenario
   const buildPath = (data: number[], upTo: number): string => {
@@ -73,19 +67,24 @@ export const LineChart: React.FC<LineChartProps> = ({
     return d;
   };
 
-  // Y-axis grid lines
-  const numGridLines = 6;
+  // Log-spaced grid values (1, 2, 5 × powers of 10)
   const gridValues: number[] = [];
-  for (let i = 0; i <= numGridLines; i++) {
-    gridValues.push(
-      yMinPadded + ((yMaxPadded - yMinPadded) * i) / numGridLines,
-    );
+  for (
+    let dec = Math.floor(Math.log10(yLo));
+    dec <= Math.ceil(Math.log10(yHi));
+    dec++
+  ) {
+    for (const m of [1, 2, 5]) {
+      const v = m * Math.pow(10, dec);
+      if (v >= yLo && v <= yHi) gridValues.push(v);
+    }
   }
 
-  // X-axis year labels (every 5 years = 60 months)
+  // X-axis year labels (every 5 years)
+  const totalYears = TOTAL_MONTHS / 12;
   const yearLabels: Array<{ month: number; year: number }> = [];
-  for (let yr = 0; yr <= 30; yr += 5) {
-    yearLabels.push({ month: yr * 12, year: 1994 + yr });
+  for (let yr = 0; yr <= totalYears; yr += 5) {
+    yearLabels.push({ month: yr * 12, year: START_YEAR + yr });
   }
 
   return (
@@ -115,23 +114,11 @@ export const LineChart: React.FC<LineChartProps> = ({
         </g>
       ))}
 
-      {/* Zero line (if in view) */}
-      {yMinPadded < 0 && yMaxPadded > 0 && (
-        <line
-          x1={paddingLeft}
-          y1={toY(0)}
-          x2={paddingLeft + chartWidth}
-          y2={toY(0)}
-          stroke="#555"
-          strokeWidth={2}
-        />
-      )}
-
       {/* X-axis labels */}
       {yearLabels.map(({ month, year }) => (
         <text
           key={year}
-          x={toX(Math.min(month, totalMonths - 1))}
+          x={toX(Math.min(month, TOTAL_MONTHS - 1))}
           y={paddingTop + chartHeight + 40}
           fill="#888"
           fontSize={22}
@@ -146,49 +133,54 @@ export const LineChart: React.FC<LineChartProps> = ({
       {scenarios.map((scenario, idx) => {
         const pathD = buildPath(scenario.wealthByMonth, revealedMonths);
         if (!pathD) return null;
-
-        const lastMonth = Math.min(
-          revealedMonths,
-          scenario.wealthByMonth.length - 1,
-        );
-        const lastValue = scenario.wealthByMonth[lastMonth];
-        const labelX = toX(lastMonth) + 8;
-        const labelY = toY(lastValue);
-
         return (
-          <g key={idx}>
-            <path
-              d={pathD}
-              stroke={scenario.color}
-              strokeWidth={3}
-              fill="none"
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
-            {/* Floating label at line tip */}
-            {revealedMonths > 5 && (
-              <g>
-                <circle
-                  cx={toX(lastMonth)}
-                  cy={toY(lastValue)}
-                  r={5}
-                  fill={scenario.color}
-                />
-                <text
-                  x={labelX}
-                  y={labelY + 5}
-                  fill={scenario.color}
-                  fontSize={20}
-                  fontFamily="monospace"
-                  fontWeight="bold"
-                >
-                  {formatDollar(lastValue)}
-                </text>
-              </g>
-            )}
-          </g>
+          <path
+            key={idx}
+            d={pathD}
+            stroke={scenario.color}
+            strokeWidth={3}
+            fill="none"
+            strokeLinejoin="round"
+            strokeLinecap="round"
+          />
         );
       })}
+
+      {/* Chasing name labels at line tips with collision avoidance */}
+      {revealedMonths > 5 &&
+        (() => {
+          const labelFontSize = 22;
+          const minGap = labelFontSize + 3;
+          const lastMonth = Math.min(revealedMonths, TOTAL_MONTHS - 1);
+          const items = scenarios
+            .map((s, idx) => ({
+              s,
+              idx,
+              v: s.wealthByMonth[lastMonth],
+            }))
+            .sort((a, b) => b.v - a.v);
+          const positions = items.map(({ v }) => toY(v));
+          for (let k = 1; k < positions.length; k++)
+            if (positions[k] < positions[k - 1] + minGap)
+              positions[k] = positions[k - 1] + minGap;
+          for (let k = positions.length - 1; k >= 0; k--)
+            if (positions[k] > paddingTop + chartHeight - 4)
+              positions[k] = paddingTop + chartHeight - 4;
+          const lx = toX(lastMonth) + 8;
+          return items.map(({ s, idx }, k) => (
+            <text
+              key={idx}
+              x={lx}
+              y={positions[k] + labelFontSize * 0.35}
+              fill={s.color}
+              fontSize={labelFontSize}
+              fontFamily="monospace"
+              fontWeight="bold"
+            >
+              {s.label}
+            </text>
+          ));
+        })()}
 
       {/* Axes borders */}
       <line

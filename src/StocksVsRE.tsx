@@ -1,14 +1,16 @@
 import React, { useMemo } from "react";
 import { useCurrentFrame, useVideoConfig, interpolate } from "remotion";
-import { buildScenarios } from "./data/financialModel";
+import {
+  buildScenarios,
+  TOTAL_MONTHS,
+  START_YEAR,
+} from "./data/financialModel";
 import { LineChart } from "./components/LineChart";
-import { Legend } from "./components/Legend";
 import { YearLabel } from "./components/YearLabel";
 
-// Animation timing
-const DATA_START_FRAME = 30; // brief hold before data starts
-const DATA_END_FRAME = 780; // frame when all 360 months are revealed
-const TOTAL_MONTHS = 360;
+// Animation timing — ~2.17 frames/month, 55 years = 1430 frames of data
+const DATA_START_FRAME = 30;
+const DATA_END_FRAME = 1460;
 
 export const StocksVsRE: React.FC = () => {
   const frame = useCurrentFrame();
@@ -16,7 +18,6 @@ export const StocksVsRE: React.FC = () => {
 
   const scenarios = useMemo(() => buildScenarios(), []);
 
-  // Data reveal progress: 0 to 1 mapping frames DATA_START_FRAME→DATA_END_FRAME
   const dataProgress = interpolate(
     frame,
     [DATA_START_FRAME, DATA_END_FRAME],
@@ -26,7 +27,6 @@ export const StocksVsRE: React.FC = () => {
 
   const revealedMonths = Math.floor(dataProgress * TOTAL_MONTHS);
 
-  // Outro fade
   const outroOpacity = interpolate(
     frame,
     [DATA_END_FRAME + 60, DATA_END_FRAME + 120],
@@ -34,14 +34,13 @@ export const StocksVsRE: React.FC = () => {
     { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
   );
 
-  // Title fade in
   const titleOpacity = interpolate(frame, [0, 30], [0, 1], {
     extrapolateLeft: "clamp",
     extrapolateRight: "clamp",
   });
 
   const chartPaddingLeft = 160;
-  const chartPaddingRight = 220;
+  const chartPaddingRight = 180; // room for chasing labels
   const chartPaddingTop = 120;
   const chartPaddingBottom = 80;
 
@@ -56,7 +55,7 @@ export const StocksVsRE: React.FC = () => {
         fontFamily: "monospace",
       }}
     >
-      {/* Main chart SVG layer */}
+      {/* Main chart layer */}
       <div style={{ opacity: outroOpacity, position: "absolute", inset: 0 }}>
         <svg
           width={width}
@@ -74,7 +73,7 @@ export const StocksVsRE: React.FC = () => {
             textAnchor="middle"
             opacity={titleOpacity}
           >
-            $100K Invested: S&P 500 vs CA Real Estate (1994–2024)
+            $100K Invested: S&P 500 vs CA Real Estate ({START_YEAR}–2024)
           </text>
 
           <text
@@ -86,7 +85,7 @@ export const StocksVsRE: React.FC = () => {
             textAnchor="middle"
             opacity={titleOpacity}
           >
-            5 leverage scenarios • 8.5% mortgage • rent income + depreciation
+            5 leverage scenarios · 8.5% mortgage · rent income + depreciation
             tax benefits
           </text>
 
@@ -94,21 +93,19 @@ export const StocksVsRE: React.FC = () => {
           <LineChart
             scenarios={scenarios}
             progress={dataProgress}
-            width={width - 240}
-            height={height - 80}
+            width={width}
+            height={height - 60}
             paddingLeft={chartPaddingLeft}
             paddingRight={chartPaddingRight}
             paddingTop={chartPaddingTop}
             paddingBottom={chartPaddingBottom}
           />
 
-          {/* Legend - positioned top right */}
-          <Legend scenarios={scenarios} x={width - 230} y={130} />
-
           {/* Year/month counter */}
           {revealedMonths > 0 && (
             <YearLabel
               revealedMonths={revealedMonths}
+              startYear={START_YEAR}
               x={width / 2}
               y={height - 20}
             />
@@ -143,10 +140,7 @@ export const StocksVsRE: React.FC = () => {
               frame,
               [DATA_END_FRAME + 30, DATA_END_FRAME + 90],
               [0, 1],
-              {
-                extrapolateLeft: "clamp",
-                extrapolateRight: "clamp",
-              },
+              { extrapolateLeft: "clamp", extrapolateRight: "clamp" },
             ),
           }}
         >
@@ -171,7 +165,7 @@ export const StocksVsRE: React.FC = () => {
               lineHeight: 1.6,
             }}
           >
-            30-year simulation (1994–2024)
+            55-year simulation ({START_YEAR}–2024)
             <br />
             $100K initial investment · all scenarios
           </div>
@@ -184,10 +178,9 @@ export const StocksVsRE: React.FC = () => {
               textAlign: "center",
             }}
           >
-            Assumes 8.5% fixed rate · 6% rent yield · 4%/yr rent growth
+            8.5% fixed rate (1970) · 12% initial rent yield · Prop 13 tax base
             <br />
-            Depreciation tax savings included · Price returns only (no
-            dividends)
+            Depreciation tax savings included · Total return with dividends
           </div>
         </div>
       )}

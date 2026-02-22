@@ -3368,27 +3368,39 @@
         const projMonths = allWealth[0].length; // may be longer when refi active
         const hasProjection = projMonths > histBoundaryM;
 
-        // Y range — include full projection so scale is stable
-        let yMin = 0,
-          yMax = 200000;
+        // Y range (log scale) — use full projection for stable scale
+        const LOG_FLOOR = 10000;
+        let yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
           const mLimit = hasProjection ? w.length - 1 : monthsToShow;
           for (let m = 0; m <= mLimit && m < w.length; m++) {
-            if (w[m] < yMin) yMin = w[m];
             if (w[m] > yMax) yMax = w[m];
           }
         }
-        const rng = yMax - yMin;
-        const yLo = yMin - rng * 0.04,
-          yHi = yMax + rng * 0.08;
+        const yLo = LOG_FLOOR;
+        const yHi = yMax * 1.1;
         const tx = (m) => PL + (m / Math.max(projMonths - 1, 1)) * chartW;
-        const ty = (v) => PT + ((yHi - v) / (yHi - yLo)) * chartH;
+        const logRange = Math.log(yHi) - Math.log(yLo);
+        const ty = (v) =>
+          PT +
+          ((Math.log(yHi) - Math.log(Math.max(v, yLo))) / logRange) * chartH;
 
-        // Grid
-        for (let i = 0; i <= 5; i++) {
-          const v = yLo + ((yHi - yLo) * i) / 5;
+        // Log-spaced grid (1, 2, 5 × powers of 10)
+        const gridVals = [];
+        for (
+          let dec = Math.floor(Math.log10(yLo));
+          dec <= Math.ceil(Math.log10(yHi));
+          dec++
+        ) {
+          for (const m of [1, 2, 5]) {
+            const v = m * Math.pow(10, dec);
+            if (v >= yLo && v <= yHi) gridVals.push(v);
+          }
+        }
+        ctx.font = `${Math.max(8, Math.min(10, W / 50))}px monospace`;
+        for (const v of gridVals) {
           const y = ty(v);
           ctx.strokeStyle = "#222";
           ctx.lineWidth = 1;
@@ -3399,20 +3411,8 @@
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.fillStyle = "#666";
-          ctx.font = `${Math.max(8, Math.min(10, W / 50))}px monospace`;
           ctx.textAlign = "right";
           ctx.fillText(fmt(v), PL - 3, y + 4);
-        }
-
-        // Zero line
-        if (yLo < 0 && yHi > 0) {
-          ctx.strokeStyle = "#444";
-          ctx.lineWidth = 1;
-          ctx.setLineDash([]);
-          ctx.beginPath();
-          ctx.moveTo(PL, ty(0));
-          ctx.lineTo(PL + chartW, ty(0));
-          ctx.stroke();
         }
 
         // Projected region — shaded background + label (shown when refi > 0)
