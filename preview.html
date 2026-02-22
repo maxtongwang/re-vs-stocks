@@ -1287,6 +1287,7 @@
       }
 
       // getRefis: pick n years with lowest mortgage rates in (sy, ey], sorted by month.
+      // Enforces ≥2yr gap between any two selected years (consistent with simRE ≥24mo check).
       // Returns [{m: relMonthIdx, rate, year}, ...] Only applies if new rate < current rate.
       function getRefis(sy, ey, n) {
         if (n === 0 || sy >= ey) return [];
@@ -1298,8 +1299,15 @@
             year: y,
           });
         }
+        // Sort cheapest first, then greedily pick up to n with ≥2yr gap between any pair
         candidates.sort((a, b) => a.rate - b.rate);
-        return candidates.slice(0, n).sort((a, b) => a.m - b.m);
+        const selected = [];
+        for (const c of candidates) {
+          if (selected.length >= n) break;
+          if (selected.every((s) => Math.abs(s.year - c.year) >= 2))
+            selected.push(c);
+        }
+        return selected.sort((a, b) => a.m - b.m);
       }
 
       // simRE: simulate real estate wealth over time.
