@@ -3479,6 +3479,7 @@
       speedBtn.addEventListener("click", () => {
         speedMultiplier = speedMultiplier === 1 ? 2 : 1;
         speedBtn.classList.toggle("active", speedMultiplier === 2);
+        if (!playing) playBtn.click();
       });
 
       function stopPlay() {
