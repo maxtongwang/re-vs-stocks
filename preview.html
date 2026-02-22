@@ -339,6 +339,19 @@
     </div>
 
     <div class="ctrl-row">
+      <span id="label-improv">Struct %:</span>
+      <input
+        type="range"
+        id="improv-slider"
+        min="10"
+        max="80"
+        value="40"
+        step="5"
+      />
+      <span class="val" id="improv-val">40%</span>
+    </div>
+
+    <div class="ctrl-row">
       <span id="label-cashflow">Cash flow:</span>
       <div class="toggle-group">
         <button class="toggle-btn active" id="btn-additive">Additive</button>
@@ -422,7 +435,10 @@
         <li>Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr</li>
         <li>Insurance: 0.5% of current property value/yr</li>
         <li>Maintenance: 1% of current property value/yr</li>
-        <li>Depreciation: 80% structure / 27.5 yrs (IRS rental schedule)</li>
+        <li>
+          Depreciation: IRS 27.5-yr residential schedule; structure % adjustable
+          above (CA coastal typical: 25–50%)
+        </li>
         <li>Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss</li>
         <li>
           Rent growth: BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+);
@@ -603,6 +619,7 @@
           labelStart: "Start:",
           labelEnd: "End:",
           labelCashflow: "Cash flow:",
+          labelImprov: "Struct %:",
           labelLang: "Lang:",
           btnAdditive: "Additive",
           btnReinvest: "Reinvested",
@@ -623,12 +640,13 @@
           modeLabelAdditive: "Additive (no compound)",
           subtitle: (rv, ey, MY) =>
             `5 leverage scenarios · dividends & rent cash flow: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, mode) =>
-            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}%<br>Cash flow: ${mode}`,
-          dynamicLine: (sy, ey, yrs, mr, ry, p2r, mode) =>
+          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
+            `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}% · Rent yield: ${ry}% · Struct: ${ip}%<br>Cash flow: ${mode}`,
+          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
             `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
             `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-            `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x)<br>` +
+            `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
+            `Struct <strong style="color:#ccc">${ip}%</strong><br>` +
             `<strong style="color:#ccc">${mode}</strong>`,
           tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
           crashRowLabel: (yr) => `${yr} (crash)`,
@@ -637,7 +655,7 @@
             "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
             "Insurance: 0.5% of current property value/yr",
             "Maintenance: 1% of current property value/yr",
-            "Depreciation: 80% structure / 27.5 yrs (IRS rental schedule)",
+            "Depreciation: IRS 27.5-yr residential schedule; structure % adjustable above (CA coastal typical: 25–50%; national default often cited as 80%)",
             "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
             "Rent growth: BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
             "Wealth = Current Equity + Cumulative Net Cash Flows",
@@ -651,6 +669,7 @@
           labelStart: "起始年：",
           labelEnd: "结束年：",
           labelCashflow: "现金流：",
+          labelImprov: "建筑占比：",
           labelLang: "语言：",
           btnAdditive: "叠加",
           btnReinvest: "复投",
@@ -671,12 +690,13 @@
           modeLabelAdditive: "叠加（无复利）",
           subtitle: (rv, ey, MY) =>
             `5种杠杆方案 · 股息和房租现金流：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, mode) =>
-            `${sy}–${ey} · ${yrs}年 · 房贷：${mr}% · 租金回报率：${ry}%<br>现金流：${mode}`,
-          dynamicLine: (sy, ey, yrs, mr, ry, p2r, mode) =>
+          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode) =>
+            `${sy}–${ey} · ${yrs}年 · 房贷：${mr}% · 租金回报率：${ry}% · 建筑：${ip}%<br>现金流：${mode}`,
+          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode) =>
             `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
             `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
-            `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍)<br>` +
+            `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍) · ` +
+            `建筑 <strong style="color:#ccc">${ip}%</strong><br>` +
             `<strong style="color:#ccc">${mode}</strong>`,
           tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,
           crashRowLabel: (yr) => `${yr}（崩盘）`,
@@ -685,7 +705,7 @@
             "13号提案房产税：购入价的1.25%，每年上涨上限2%",
             "保险：当前房产价值的0.5%/年",
             "维护费：当前房产价值的1%/年",
-            "折旧：建筑物占80% / 27.5年（IRS出租房规定）",
+            "折旧：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%；全国常引用默认值为80%）",
             "税率：44%（联邦35% + 加州9.3%），按纸面租金盈亏计算",
             "租金增长：1994–2014使用BLS西部CPI租金指数，2015+使用Zillow ZORI加州数据；1994年前参考BLS全国CPI租金及学术文献估算，精度较低，仅供参考",
             "总资产 = 房产净值 + 累计净现金流",
@@ -831,6 +851,7 @@
         rentGrowthSlice,
         mortRate,
         startYield,
+        improvPct,
         reinvest,
         spSlice,
       ) {
@@ -838,7 +859,7 @@
           mort = price * (1 - down);
         const MR = mortRate / 12;
         const sched = mort > 0 ? amortize(mort, MR) : [];
-        const dep = (price * 0.8) / 27.5 / 12;
+        const dep = (price * improvPct) / 27.5 / 12;
         let pv = price,
           rem = mort;
         let rent = price * startYield,
@@ -923,11 +944,11 @@
         const ry = CA_RENT_YIELDS[i];
         return [
           simSP(spP, sp, spD, reinvest),
-          simRE(1, ca, rg, mr, ry, reinvest, sp),
-          simRE(0.5, ca, rg, mr, ry, reinvest, sp),
-          simRE(0.2, ca, rg, mr, ry, reinvest, sp),
-          simRE(0.1, ca, rg, mr, ry, reinvest, sp),
-          simRE(0.035, ca, rg, mr, ry, reinvest, sp),
+          simRE(1, ca, rg, mr, ry, improvPct, reinvest, sp),
+          simRE(0.5, ca, rg, mr, ry, improvPct, reinvest, sp),
+          simRE(0.2, ca, rg, mr, ry, improvPct, reinvest, sp),
+          simRE(0.1, ca, rg, mr, ry, improvPct, reinvest, sp),
+          simRE(0.035, ca, rg, mr, ry, improvPct, reinvest, sp),
         ];
       }
 
@@ -935,6 +956,7 @@
       let startYear = 1995;
       let endYear = 2025;
       let reinvest = false;
+      let improvPct = 0.4;
       let lang = "en";
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
@@ -1041,10 +1063,11 @@
         const ry = (CA_RENT_YIELDS[i] * 100).toFixed(1);
         const yrs = endYear - startYear + 1;
         const p2r = Math.round(1 / CA_RENT_YIELDS[i]);
+        const ip = Math.round(improvPct * 100);
         const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
 
         document.getElementById("assumptions-line").innerHTML =
-          s.assumptionsLine(startYear, endYear, yrs, mr, ry, modeLabel);
+          s.assumptionsLine(startYear, endYear, yrs, mr, ry, ip, modeLabel);
 
         document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
           startYear,
@@ -1053,6 +1076,7 @@
           mr,
           ry,
           p2r,
+          ip,
           modeLabel,
         );
 
@@ -1072,6 +1096,7 @@
         document.getElementById("label-start").textContent = s.labelStart;
         document.getElementById("label-end").textContent = s.labelEnd;
         document.getElementById("label-cashflow").textContent = s.labelCashflow;
+        document.getElementById("label-improv").textContent = s.labelImprov;
         document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
@@ -1123,6 +1148,7 @@
         if (endYear !== 2025) p.set("e", endYear);
         if (reinvest) p.set("m", "r");
         if (lang !== "en") p.set("l", lang);
+        if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
         const hArr = [...hidden].sort((a, b) => a - b);
         const isDefault = hArr.length === 2 && hArr[0] === 4 && hArr[1] === 5;
         if (!isDefault) p.set("h", hArr.join(","));
@@ -1144,6 +1170,10 @@
         if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
         if (p.has("m")) reinvest = p.get("m") === "r";
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
+        if (p.has("i")) {
+          const v = parseInt(p.get("i"));
+          if (v >= 10 && v <= 80 && v % 5 === 0) improvPct = v / 100;
+        }
         if (p.has("h")) {
           hidden.clear();
           const hStr = p.get("h");
@@ -1435,6 +1465,16 @@
           setEndYear(parseInt(this.value));
         });
 
+      document
+        .getElementById("improv-slider")
+        .addEventListener("input", function () {
+          improvPct = parseInt(this.value) / 100;
+          document.getElementById("improv-val").textContent = this.value + "%";
+          allWealth = buildAllWealth(startYear);
+          updateAssumptions();
+          draw(curMonth - 1);
+        });
+
       // ── Resize ────────────────────────────────────────────────────────────────
       window.addEventListener("resize", () => {
         resizeCanvas();
@@ -1448,6 +1488,9 @@
       document.getElementById("start-year-val").textContent = startYear;
       document.getElementById("end-year-slider").value = endYear;
       document.getElementById("end-year-val").textContent = endYear;
+      const ipPct = Math.round(improvPct * 100);
+      document.getElementById("improv-slider").value = ipPct;
+      document.getElementById("improv-val").textContent = ipPct + "%";
       document.getElementById("end-year-slider").min = startYear + 1;
       document.getElementById("start-year-slider").max = endYear - 1;
       if (reinvest) {
