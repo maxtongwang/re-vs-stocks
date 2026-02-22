@@ -8,9 +8,10 @@ import {
 import { LineChart } from "./components/LineChart";
 import { YearLabel } from "./components/YearLabel";
 
-// Animation timing — ~2.17 frames/month, 55 years = 1430 frames of data
-const DATA_START_FRAME = 30;
-const DATA_END_FRAME = 1460;
+// Animation timing — matches index.html: totalMonths / 30s playthrough
+// 30s × 30fps = 900 frames for data reveal
+const DATA_START_FRAME = 0;
+const DATA_END_FRAME = 900;
 
 export const StocksVsRE: React.FC = () => {
   const frame = useCurrentFrame();
