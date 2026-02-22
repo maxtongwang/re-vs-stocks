@@ -646,9 +646,13 @@
           savings suggest.
         </li>
         <li>
-          Primary + refi: standard deduction assumed — no mortgage interest tax
-          effect. Refi simply lowers monthly payment. Straightforward savings
-          with no tax complication.
+          Primary + refi: standard deduction assumed — no tax complication.
+          Benefit lands in two places: (1) lower monthly PI reduces cumulative
+          costs, improving the cash-flow component of wealth; (2) however, each
+          refi resets to a new 30-yr amortization, so equity builds more slowly
+          and the loan payoff date extends. Within a typical 30-yr window the
+          equity loss often offsets the payment savings — full net benefit
+          usually requires holding 10+ years past the refi date.
         </li>
         <li class="group-hd">Rent Data</li>
         <li>
@@ -962,7 +966,7 @@
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
                 "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
                 'Rental + refi (tax interaction): rental mortgage interest is tax-deductible. When interest + depreciation exceed rent income, you have a "paper loss" — you owe no tax and may receive a refund, even though you are depositing rent checks. Refinancing to a lower rate reduces that interest deduction, shrinking the paper loss and its tax refund — partially offsetting the payment savings. In some cases the paper loss flips to taxable profit, adding a tax bill. Net refi benefit for rentals is always lower than the face-value payment savings suggest.',
-                "Primary + refi: standard deduction assumed — no mortgage interest tax effect. Refi simply lowers monthly payment. Straightforward savings with no tax complication.",
+                "Primary + refi: standard deduction assumed — no tax complication. Benefit lands in two places: (1) lower monthly PI reduces cumulative costs, improving the cash-flow component of wealth; (2) each refi resets to a new 30-yr amortization, so equity builds more slowly and the loan payoff date extends. Within a typical 30-yr window the equity loss often offsets the payment savings — full net benefit usually requires holding 10+ years past the refi date.",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
             },
@@ -1118,7 +1122,7 @@
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
                 "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
                 "出租+重贷（税务联动）：出租房贷款利息可从租金收入中抵税。当利息+折旧超过租金收入时，产生「纸面亏损」——即使每月都在收租，报税时仍显示亏损并可获得退税。重贷降低利率后，利息减少，可抵扣金额减少，纸面亏损缩小，退税也随之减少——从而部分抵消月供节省的效果。极端情况下纸面亏损转为应税利润，还会增加税务负担。出租房重贷的实际净收益始终低于月供节省的表面数字。",
-                "自住+重贷：假设标准扣除额，无房贷利息税务效应。重贷仅降低月供，无税务复杂性，节省效果直接清晰。",
+                "自住+重贷：假设标准扣除额，无税务复杂性。收益体现在两处：（1）月供（本息）降低，每月少付出，累计现金流亏损缩小，提升总资产中的现金流部分；（2）但每次重贷均重置为新的30年摊销，前期还款以利息为主，房产净值积累变慢，贷款还清日期延后。在典型30年持有周期内，净值损失往往抵消月供节省——通常需在重贷后再持有10年以上才能真正受益。",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
