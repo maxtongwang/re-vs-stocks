@@ -950,7 +950,9 @@
           const netCF = gross + -taxInc * 0.44;
 
           if (reinvest) {
-            cfPool *= 1 + spSlice[m]; // compound existing pool at S&P rate
+            // Only compound positive pool at S&P rate.
+            // Negative balance = deficit funded out-of-pocket, accumulates linearly.
+            if (cfPool > 0) cfPool *= 1 + spSlice[m];
             cfPool += netCF; // add this month's cash flow
             w.push(Math.round(pv - rem + cfPool));
           } else {
