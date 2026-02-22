@@ -659,7 +659,16 @@
     <div class="note" id="note-section">
       <strong id="label-assm-dyn">Assumptions (dynamic)</strong>
       <p id="note-dynamic-line"></p>
-      <strong id="label-assm-fix">Assumptions (fixed)</strong>
+      <strong id="label-assm-fix">Assumptions (fixed)</strong
+      ><span
+        id="assm-fix-note"
+        style="
+          color: #555;
+          font-weight: normal;
+          margin-left: 6px;
+          font-size: 10px;
+        "
+      ></span>
       <ul id="fixed-assumptions">
         <li class="group-hd">Property &amp; Tax</li>
         <li id="static-prop-tax">
@@ -745,10 +754,7 @@
           usually requires holding 10+ years past the refi date.
         </li>
       </ul>
-      <p class="note" style="margin-top: 6px">
-        * Some values above (property tax rules, tax rate, mortgage rate source)
-        update when you change the selected location.
-      </p>
+
       <div id="proj-note"></div>
       <strong id="label-sources">Sources</strong>
       <ul id="sources-list" class="src-list"></ul>
@@ -906,6 +912,8 @@
           thYear: "Year",
           assmDyn: "Assumptions (dynamic)",
           assmFix: "Assumptions (fixed)",
+          assmFixNote:
+            "* property tax, tax rate & improvement % update with selected location",
           labelSources: "Sources",
           builtBy: "Built by Max Wang",
           disclaimer: "for entertainment purpose only",
@@ -1059,6 +1067,7 @@
           thYear: "年份",
           assmDyn: "动态假设",
           assmFix: "固定假设",
+          assmFixNote: "* 财产税、税率及折旧比例随所选地区更新",
           labelSources: "数据来源",
           builtBy: "由 Max Wang 制作",
           disclaimer: "仅供娱乐参考",
@@ -1296,6 +1305,7 @@
           propTaxTracksValue: false,
           propTaxAnnualIncrease: 0.02,
           taxRate: 0.44,
+          improvPct: 0.4,
           propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
           taxNote: "44% (35% fed + 9.3% CA)",
           sources: {
@@ -1338,6 +1348,7 @@
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.02,
           taxRate: 0.38,
+          improvPct: 0.55,
           propTaxNote:
             "National avg: ~1.1% of current market value (reassessed annually)",
           taxNote: "38% (35% fed + ~3% avg state)",
@@ -1377,6 +1388,7 @@
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
           taxRate: 0.35,
+          improvPct: 0.7,
           propTaxNote: "TX: ~2.1% of current market value, no income tax state",
           taxNote: "35% (35% fed + 0% TX — no income tax)",
           sources: {
@@ -1411,6 +1423,7 @@
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
           taxRate: 0.35,
+          improvPct: 0.65,
           propTaxNote: "FL: ~1.0% of current market value, no income tax state",
           taxNote: "35% (35% fed + 0% FL — no income tax)",
           sources: {
@@ -1445,6 +1458,7 @@
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
           taxRate: 0.35,
+          improvPct: 0.5,
           propTaxNote:
             "WA: ~0.93% of current market value, no income tax state",
           taxNote: "35% (35% fed + 0% WA — no income tax)",
@@ -1480,6 +1494,7 @@
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
           taxRate: 0.457,
+          improvPct: 0.35,
           propTaxNote: "NY metro: ~1.5% of current market value",
           taxNote: "45.7% (35% fed + 10.9% NY)",
           sources: {
@@ -1931,6 +1946,10 @@
         activeCaRent = lRent;
         activeCaRentYields = lYield;
         activeLocConfig = LOC_CONFIG[locKey];
+        const locImprov = Math.round(activeLocConfig.improvPct * 100);
+        improvPct = activeLocConfig.improvPct;
+        document.getElementById("improv-slider").value = locImprov;
+        document.getElementById("improv-val").textContent = locImprov + "%";
         SP500_ANN = iPrice.map((r, i) => r + iDiv[i]);
         spMonthlyAll = toMonthly(SP500_ANN);
         spPriceMonthlyAll = toMonthly(iPrice);
@@ -2458,6 +2477,7 @@
         document.getElementById("th-year").textContent = s.thYear;
         document.getElementById("label-assm-dyn").textContent = s.assmDyn;
         document.getElementById("label-assm-fix").textContent = s.assmFix;
+        document.getElementById("assm-fix-note").textContent = s.assmFixNote;
         document.getElementById("label-sources").textContent = s.labelSources;
         document.getElementById("label-built-by").textContent = s.builtBy;
         updateAssumptions();
