@@ -51,7 +51,7 @@ export const SP500_DIVIDEND_YIELDS: number[] = [
   0.018, // 2005
   0.018, // 2006
   0.019, // 2007
-  0.03, // 2008
+  0.0323, // 2008
   0.02, // 2009
   0.019, // 2010
   0.021, // 2011
@@ -76,7 +76,7 @@ export const SP500_ANNUAL_RETURNS: number[] = SP500_PRICE_RETURNS.map(
 );
 
 // California Home Price Index annual appreciation, 1994–2024
-// Approximate Case-Shiller CA / CAR data
+// Sources: CAR median home prices & S&P/CoreLogic Case-Shiller CA (approximate)
 export const CA_RE_ANNUAL_RETURNS: number[] = [
   -0.02, // 1994
   0.018, // 1995
