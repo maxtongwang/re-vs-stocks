@@ -464,7 +464,7 @@
         type="range"
         id="ltv-pct-slider"
         min="50"
-        max="90"
+        max="80"
         step="5"
         value="75"
       />
@@ -1761,7 +1761,7 @@
         if (p.has("t")) refiLTV = p.get("t") === "l";
         if (p.has("v")) {
           const v = parseInt(p.get("v"));
-          if (v >= 50 && v <= 90 && v % 5 === 0) refiLTVPct = v / 100;
+          if (v >= 50 && v <= 80 && v % 5 === 0) refiLTVPct = v / 100;
         }
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
         if (p.has("i")) {
