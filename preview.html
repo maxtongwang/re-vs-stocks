@@ -3487,57 +3487,6 @@
         }
         ctx.globalAlpha = 1.0;
 
-        // Leverage callout — explains the COVID-era spike in high-leverage RE scenarios
-        const m2022 = (2022 - startYear) * 12;
-        const hasLevRE = [2, 3, 4, 5].some((i) => !hidden.has(i));
-        if (
-          m2022 > 0 &&
-          m2022 <= Math.min(monthsToShow, histBoundaryM) &&
-          hasLevRE
-        ) {
-          const ann2021 = activeAnn[2021 - BASE_YEAR];
-          const pctPrice = Math.round(ann2021 * 100);
-          const pctEquity = Math.round(ann2021 * 5 * 100); // 5× leverage
-          const locLabel =
-            {
-              ca: "CA",
-              tx: "TX",
-              fl: "FL",
-              wa: "WA",
-              ny: "NY",
-              national: "US",
-            }[activeLocKey] || activeLocKey.toUpperCase();
-          const fs2 = Math.max(7, Math.min(9, W / 65));
-          ctx.font = `${fs2}px monospace`;
-          const line1 = `2021: ${locLabel} prices +${pctPrice}%`;
-          const line2 = `20% down (5\u00d7 lev.) \u2192 equity \u2248 +${pctEquity}%`;
-          const bw2 =
-            Math.ceil(
-              Math.max(
-                ctx.measureText(line1).width,
-                ctx.measureText(line2).width,
-              ),
-            ) + 12;
-          const bh2 = fs2 * 2 + 14;
-          const cx2 = tx(m2022);
-          const bx2Right = cx2 + 6;
-          const bx2 =
-            bx2Right + bw2 > PL + chartW - 2 ? cx2 - bw2 - 6 : bx2Right;
-          const by2 = PT + 6;
-          ctx.globalAlpha = 0.88;
-          ctx.fillStyle = "#141414";
-          ctx.strokeStyle = "#3d3d3d";
-          ctx.lineWidth = 1;
-          ctx.fillRect(bx2, by2, bw2, bh2);
-          ctx.strokeRect(bx2, by2, bw2, bh2);
-          ctx.fillStyle = "#999";
-          ctx.textAlign = "left";
-          ctx.fillText(line1, bx2 + 5, by2 + fs2 + 2);
-          ctx.fillStyle = "#666";
-          ctx.fillText(line2, bx2 + 5, by2 + fs2 * 2 + 6);
-          ctx.globalAlpha = 1.0;
-        }
-
         // X-axis year labels (historical = normal, projected = dimmer)
         ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
         ctx.textAlign = "center";
