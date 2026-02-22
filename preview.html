@@ -65,12 +65,24 @@
       .hero-select {
         background: transparent;
         border: none;
+        border-bottom: 1px solid currentColor;
         outline: none;
         font-family: monospace;
         font-size: 13px;
         cursor: pointer;
-        padding: 0 2px;
+        padding: 0 14px 1px 0;
+        -webkit-appearance: none;
+        appearance: none;
         color: inherit;
+        background-repeat: no-repeat;
+        background-position: right 2px center;
+        background-size: 8px 5px;
+      }
+      .hero-select.hero-sp {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%234da6ff'/%3E%3C/svg%3E");
+      }
+      .hero-select.hero-re {
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2366ff66'/%3E%3C/svg%3E");
       }
       .hero-select option {
         background: #1a1a1a;
@@ -449,6 +461,10 @@
         <select class="hero-select hero-re" id="location-select">
           <option value="ca">CA Real Estate</option>
           <option value="national">National RE</option>
+          <option value="tx">TX Real Estate</option>
+          <option value="fl">FL Real Estate</option>
+          <option value="wa">WA Real Estate</option>
+          <option value="ny">NY Real Estate</option>
         </select>
       </div>
     </div>
@@ -621,7 +637,7 @@
       <strong id="label-assm-fix">Assumptions (fixed)</strong>
       <ul id="fixed-assumptions">
         <li class="group-hd">Property &amp; Tax</li>
-        <li>Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr</li>
+        <li id="static-prop-tax">Property tax: CA Prop 13: 1.25% of purchase price, +2%/yr max</li>
         <li>Insurance: 0.5% of current property value/yr</li>
         <li>Maintenance: 1% of current property value/yr</li>
         <li>
@@ -629,7 +645,7 @@
           adjustable above. Primary residences are not eligible for depreciation
           deductions.
         </li>
-        <li>Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss</li>
+        <li id="static-tax-rate">Tax rate: 44% (35% fed + 9.3% CA) on paper rental gain/loss</li>
         <li class="group-hd">Capital &amp; Returns</li>
         <li>Initial capital: $100K for all scenarios</li>
         <li>
@@ -999,11 +1015,11 @@
             {
               label: "Property & Tax",
               items: [
-                "Prop 13 property tax: 1.25% of purchase price, capped at +2%/yr",
+                `Property tax: ${activeLocConfig.propTaxNote}`,
                 "Insurance: 0.5% of current property value/yr",
                 "Maintenance: 1% of current property value/yr",
                 "Depreciation (rental only): IRS 27.5-yr schedule; improvement % adjustable above. Primary residences are not eligible for depreciation deductions.",
-                "Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss",
+                `Tax rate: ${activeLocConfig.taxNote} on paper rental gain/loss`,
               ],
             },
             {
@@ -1033,7 +1049,7 @@
             {
               label: "Rent Data",
               items: [
-                "BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
+                activeLocConfig.rentDataNote,
               ],
             },
           ],
@@ -1156,11 +1172,11 @@
             {
               label: "房产成本与税务",
               items: [
-                "13号提案房产税：购入价的1.25%，每年上涨上限2%",
+                `Property tax: ${activeLocConfig.propTaxNote}`,
                 "保险：当前房产价值的0.5%/年",
                 "维护费：当前房产价值的1%/年",
                 "折旧（仅适用出租）：IRS 27.5年住宅折旧规定；建筑占比可在上方调整（加州沿海典型值：25–50%）。自住房产不可享受折旧抵税。",
-                "税率：44%（联邦35% + 加州9.3%），按纸面租金盈亏计算",
+                `Tax rate: ${activeLocConfig.taxNote} on paper rental gain/loss`,
               ],
             },
             {
@@ -1190,7 +1206,7 @@
             {
               label: "租金数据",
               items: [
-                "1994–2014使用BLS西部CPI租金指数，2015+使用Zillow ZORI加州数据；1994年前参考BLS全国CPI租金及学术文献估算，精度较低，仅供参考",
+                activeLocConfig.rentDataNote,
               ],
             },
           ],
@@ -1308,6 +1324,216 @@
         0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014,
         0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014, 0.014,
       ];
+      // ── Location config: per-metro tax rates & property tax rules ──────────────
+      const LOC_CONFIG = {
+        ca:       { propTaxRate:0.0125, propTaxTracksValue:false, propTaxAnnualIncrease:0.02, taxRate:0.44,  propTaxNote:"CA Prop 13: 1.25% of purchase price, +2%/yr max",               taxNote:"44% (35% fed + 9.3% CA)",           rentDataNote:"BLS West CPI-Rent (1970–2014), Zillow ZORI CA (2015+) — pre-1994 approximate" },
+        national: { propTaxRate:0.011,  propTaxTracksValue:true,  propTaxAnnualIncrease:0.02, taxRate:0.38,  propTaxNote:"National avg: ~1.1% of current market value (reassessed annually)", taxNote:"38% (35% fed + ~3% avg state)",      rentDataNote:"BLS national CPI-Rent (1970–2014), Zillow national ZORI (2015+) — approximate" },
+        tx:       { propTaxRate:0.021,  propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.35,  propTaxNote:"TX: ~2.1% of current market value, no income tax state",           taxNote:"35% (35% fed + 0% TX — no income tax)", rentDataNote:"BLS South CPI-Rent (1970–2014), Zillow ZORI TX metros (2015+) — approximate" },
+        fl:       { propTaxRate:0.01,   propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.35,  propTaxNote:"FL: ~1.0% of current market value, no income tax state",            taxNote:"35% (35% fed + 0% FL — no income tax)", rentDataNote:"BLS South CPI-Rent (1970–2014), Zillow ZORI FL metros (2015+) — approximate" },
+        wa:       { propTaxRate:0.0093, propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.35,  propTaxNote:"WA: ~0.93% of current market value, no income tax state",           taxNote:"35% (35% fed + 0% WA — no income tax)", rentDataNote:"BLS West CPI-Rent (1970–2014), Zillow ZORI Seattle (2015+) — approximate" },
+        ny:       { propTaxRate:0.015,  propTaxTracksValue:true,  propTaxAnnualIncrease:0.0,  taxRate:0.457, propTaxNote:"NY metro: ~1.5% of current market value",                           taxNote:"45.7% (35% fed + 10.9% NY)",         rentDataNote:"BLS Northeast CPI-Rent (1970–2014), Zillow ZORI NY metro (2015+) — approximate" },
+      };
+
+      // Texas (Dallas/Houston/Austin composite) price appreciation, 1970–2045
+      const TX_ANN = [
+        // 1970–1993
+        0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.11, 0.13, 0.12,
+        0.10, 0.07, 0.03, -0.02, -0.03, -0.04, -0.03, -0.01, 0.01, 0.02,
+        0.02, 0.03, 0.03, 0.03,
+        // 1994–2024
+        0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.06, 0.05, 0.04,
+        0.03, 0.03, 0.04, 0.05, -0.02, -0.04, 0.01, 0.03, 0.06, 0.08,
+        0.09, 0.09, 0.06, 0.06, 0.05, 0.04, 0.07, 0.19, 0.03, 0.00,
+        0.04,
+        // 2025 (estimate)
+        0.03,
+        // 2026–2045 (projected ~4%/yr)
+        0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04,
+        0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04,
+      ];
+      const TX_RENT_GROWTH = [
+        // 1970–1993
+        0.04, 0.04, 0.04, 0.05, 0.06, 0.07, 0.08, 0.09, 0.09, 0.08,
+        0.07, 0.04, 0.02, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.03,
+        0.03, 0.03, 0.03, 0.03,
+        // 1994–2024
+        0.030, 0.030, 0.032, 0.034, 0.038, 0.042, 0.045, 0.038, 0.030, 0.020,
+        0.020, 0.028, 0.035, 0.040, 0.015, -0.010, 0.005, 0.018, 0.028, 0.038,
+        0.040, 0.042, 0.038, 0.030, 0.025, 0.028, 0.030, 0.085, 0.060, 0.025,
+        0.030,
+        // 2025 (estimate)
+        0.025,
+        // 2026–2045 (projected ~2.8%/yr)
+        0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028,
+        0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028, 0.028,
+      ];
+      const TX_RENT_YIELDS = [
+        // 1970–1993 (higher than CA, more landlord-friendly)
+        0.11, 0.11, 0.10, 0.10, 0.10, 0.10, 0.09, 0.09, 0.09, 0.09,
+        0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09,
+        0.09, 0.09, 0.09, 0.09,
+        // 1994–2024
+        0.090, 0.090, 0.090, 0.090, 0.088, 0.086, 0.085, 0.086, 0.087, 0.087,
+        0.087, 0.087, 0.087, 0.086, 0.090, 0.092, 0.090, 0.088, 0.088, 0.086,
+        0.085, 0.084, 0.082, 0.080, 0.080, 0.080, 0.077, 0.070, 0.075, 0.078,
+        0.078,
+        // 2025 (estimate)
+        0.078,
+        // 2026–2045
+        0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078,
+        0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078, 0.078,
+      ];
+
+      // Florida (Miami/Tampa composite) price appreciation, 1970–2045
+      const FL_ANN = [
+        // 1970–1993
+        0.04, 0.05, 0.05, 0.06, 0.07, 0.07, 0.08, 0.10, 0.12, 0.13,
+        0.11, 0.07, 0.04, 0.02, 0.02, 0.03, 0.05, 0.04, 0.04, 0.03,
+        0.01, -0.01, 0.00, 0.02,
+        // 1994–2024
+        0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14, 0.12, 0.10, 0.09,
+        0.08, 0.07, 0.05, 0.00, -0.10, -0.20, -0.14, -0.08, 0.03, 0.08,
+        0.07, 0.08, 0.09, 0.08, 0.07, 0.04, 0.12, 0.24, 0.08, 0.01,
+        0.04,
+        // 2025 (estimate)
+        0.03,
+        // 2026–2045 (projected ~3.5%/yr)
+        0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035,
+        0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035,
+      ];
+      const FL_RENT_GROWTH = [
+        // 1970–1993
+        0.04, 0.04, 0.04, 0.05, 0.06, 0.07, 0.07, 0.07, 0.08, 0.09,
+        0.08, 0.05, 0.03, 0.02, 0.02, 0.03, 0.04, 0.04, 0.04, 0.03,
+        0.02, 0.01, 0.02, 0.02,
+        // 1994–2024
+        0.025, 0.030, 0.035, 0.040, 0.048, 0.056, 0.062, 0.060, 0.050, 0.040,
+        0.030, 0.025, 0.022, 0.018, 0.005, -0.020, -0.010, 0.010, 0.030, 0.040,
+        0.045, 0.045, 0.042, 0.038, 0.028, 0.025, 0.028, 0.095, 0.068, 0.028,
+        0.030,
+        // 2025 (estimate)
+        0.028,
+        // 2026–2045 (projected ~3%/yr)
+        0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030,
+        0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030,
+      ];
+      const FL_RENT_YIELDS = [
+        // 1970–1993
+        0.10, 0.10, 0.09, 0.09, 0.09, 0.09, 0.09, 0.08, 0.08, 0.08,
+        0.08, 0.08, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09, 0.09,
+        0.09, 0.09, 0.09, 0.09,
+        // 1994–2024
+        0.090, 0.088, 0.085, 0.080, 0.075, 0.068, 0.060, 0.055, 0.050, 0.045,
+        0.040, 0.038, 0.038, 0.040, 0.048, 0.058, 0.062, 0.065, 0.062, 0.058,
+        0.055, 0.052, 0.050, 0.048, 0.050, 0.050, 0.048, 0.042, 0.048, 0.052,
+        0.052,
+        // 2025 (estimate)
+        0.052,
+        // 2026–2045
+        0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052,
+        0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052, 0.052,
+      ];
+
+      // Washington/Seattle metro price appreciation, 1970–2045
+      const WA_ANN = [
+        // 1970–1993
+        0.03, 0.04, 0.05, 0.06, 0.07, 0.08, 0.10, 0.13, 0.14, 0.12,
+        0.08, 0.04, 0.03, 0.04, 0.06, 0.07, 0.08, 0.06, 0.05, 0.04,
+        0.01, -0.01, 0.01, 0.03,
+        // 1994–2024
+        0.05, 0.06, 0.07, 0.08, 0.09, 0.09, 0.08, 0.07, 0.09, 0.10,
+        0.09, 0.10, 0.08, 0.04, -0.12, -0.07, -0.02, 0.03, 0.06, 0.11,
+        0.09, 0.09, 0.08, 0.09, 0.06, 0.05, 0.12, 0.22, 0.03, -0.02,
+        0.05,
+        // 2025 (estimate)
+        0.04,
+        // 2026–2045 (projected ~4%/yr)
+        0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04,
+        0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04, 0.04,
+      ];
+      const WA_RENT_GROWTH = [
+        // 1970–1993
+        0.03, 0.04, 0.04, 0.05, 0.06, 0.07, 0.07, 0.08, 0.09, 0.09,
+        0.07, 0.04, 0.03, 0.03, 0.04, 0.04, 0.05, 0.04, 0.04, 0.03,
+        0.02, 0.01, 0.02, 0.03,
+        // 1994–2024
+        0.030, 0.035, 0.038, 0.040, 0.045, 0.048, 0.048, 0.040, 0.038, 0.032,
+        0.028, 0.030, 0.038, 0.042, 0.010, -0.008, 0.005, 0.018, 0.038, 0.050,
+        0.048, 0.052, 0.048, 0.040, 0.032, 0.030, 0.032, 0.090, 0.062, 0.025,
+        0.030,
+        // 2025 (estimate)
+        0.025,
+        // 2026–2045 (projected ~3%/yr)
+        0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030,
+        0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030,
+      ];
+      const WA_RENT_YIELDS = [
+        // 1970–1993
+        0.10, 0.10, 0.09, 0.09, 0.09, 0.09, 0.09, 0.08, 0.08, 0.08,
+        0.08, 0.09, 0.09, 0.09, 0.09, 0.09, 0.08, 0.08, 0.08, 0.08,
+        0.08, 0.08, 0.08, 0.08,
+        // 1994–2024
+        0.075, 0.073, 0.072, 0.070, 0.068, 0.065, 0.062, 0.060, 0.058, 0.055,
+        0.052, 0.050, 0.050, 0.052, 0.060, 0.065, 0.066, 0.064, 0.062, 0.058,
+        0.055, 0.052, 0.050, 0.048, 0.048, 0.048, 0.046, 0.040, 0.044, 0.047,
+        0.047,
+        // 2025 (estimate)
+        0.047,
+        // 2026–2045
+        0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047,
+        0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047, 0.047,
+      ];
+
+      // New York (NYC metro) price appreciation, 1970–2045
+      const NY_ANN = [
+        // 1970–1993
+        0.04, 0.05, 0.05, 0.06, 0.07, 0.08, 0.11, 0.14, 0.18, 0.20,
+        0.15, 0.08, 0.03, 0.01, 0.01, 0.02, 0.04, 0.05, 0.05, 0.04,
+        -0.01, -0.03, -0.02, 0.01,
+        // 1994–2024
+        0.02, 0.04, 0.06, 0.08, 0.10, 0.12, 0.14, 0.12, 0.12, 0.13,
+        0.16, 0.19, 0.12, 0.05, -0.08, -0.12, -0.06, -0.01, 0.04, 0.09,
+        0.07, 0.08, 0.07, 0.06, 0.05, 0.03, 0.10, 0.16, 0.05, 0.03,
+        0.04,
+        // 2025 (estimate)
+        0.03,
+        // 2026–2045 (projected ~3.5%/yr)
+        0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035,
+        0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035, 0.035,
+      ];
+      const NY_RENT_GROWTH = [
+        // 1970–1993
+        0.04, 0.04, 0.04, 0.05, 0.07, 0.09, 0.09, 0.09, 0.10, 0.11,
+        0.10, 0.07, 0.04, 0.02, 0.02, 0.03, 0.04, 0.05, 0.05, 0.04,
+        0.01, 0.00, 0.01, 0.02,
+        // 1994–2024
+        0.025, 0.035, 0.040, 0.045, 0.050, 0.055, 0.060, 0.055, 0.048, 0.040,
+        0.032, 0.030, 0.028, 0.025, 0.012, -0.015, 0.005, 0.015, 0.032, 0.045,
+        0.042, 0.045, 0.040, 0.035, 0.025, 0.022, 0.020, 0.065, 0.055, 0.028,
+        0.032,
+        // 2025 (estimate)
+        0.025,
+        // 2026–2045 (projected ~3%/yr)
+        0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030,
+        0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030, 0.030,
+      ];
+      const NY_RENT_YIELDS = [
+        // 1970–1993
+        0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.08, 0.07, 0.07, 0.06,
+        0.06, 0.07, 0.08, 0.08, 0.08, 0.08, 0.07, 0.06, 0.06, 0.06,
+        0.07, 0.07, 0.07, 0.07,
+        // 1994–2024
+        0.065, 0.062, 0.060, 0.058, 0.055, 0.050, 0.044, 0.040, 0.038, 0.034,
+        0.032, 0.028, 0.028, 0.030, 0.036, 0.042, 0.044, 0.044, 0.042, 0.038,
+        0.036, 0.034, 0.034, 0.033, 0.034, 0.034, 0.032, 0.028, 0.032, 0.034,
+        0.034,
+        // 2025 (estimate)
+        0.034,
+        // 2026–2045
+        0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034,
+        0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034, 0.034,
+      ];
+
       // NASDAQ Composite annual price returns, 1970–2045 (approximate; source: Macrotrends)
       const NASDAQ_PRICE = [
         // 1970–1993
@@ -1487,18 +1713,28 @@
       let activeSpDiv = SP500_DIV;
       let activeCaRent = CA_RENT_GROWTH;
       let activeCaRentYields = CA_RENT_YIELDS;
+      let activeLocConfig = LOC_CONFIG.ca;
 
       function refreshDatasets() {
         const idxKey = document.getElementById("index-select").value;
         const locKey = document.getElementById("location-select").value;
         const iPrice = idxKey === "nasdaq" ? NASDAQ_PRICE : SP500_PRICE;
         const iDiv   = idxKey === "nasdaq" ? NASDAQ_DIV   : SP500_DIV;
-        const lAnn   = locKey === "national" ? NATIONAL_ANN          : CA_ANN;
-        const lRent  = locKey === "national" ? NATIONAL_RENT_GROWTH   : CA_RENT_GROWTH;
-        const lYield = locKey === "national" ? NATIONAL_RENT_YIELDS   : CA_RENT_YIELDS;
+        const LOC_DATA = {
+          ca:       { ann: CA_ANN,       rent: CA_RENT_GROWTH,       yield: CA_RENT_YIELDS },
+          national: { ann: NATIONAL_ANN, rent: NATIONAL_RENT_GROWTH, yield: NATIONAL_RENT_YIELDS },
+          tx:       { ann: TX_ANN,       rent: TX_RENT_GROWTH,       yield: TX_RENT_YIELDS },
+          fl:       { ann: FL_ANN,       rent: FL_RENT_GROWTH,       yield: FL_RENT_YIELDS },
+          wa:       { ann: WA_ANN,       rent: WA_RENT_GROWTH,       yield: WA_RENT_YIELDS },
+          ny:       { ann: NY_ANN,       rent: NY_RENT_GROWTH,       yield: NY_RENT_YIELDS },
+        };
+        const lAnn   = LOC_DATA[locKey].ann;
+        const lRent  = LOC_DATA[locKey].rent;
+        const lYield = LOC_DATA[locKey].yield;
         activeSpDiv = iDiv;
         activeCaRent = lRent;
         activeCaRentYields = lYield;
+        activeLocConfig = LOC_CONFIG[locKey];
         SP500_ANN = iPrice.map((r, i) => r + iDiv[i]);
         spMonthlyAll = toMonthly(SP500_ANN);
         spPriceMonthlyAll = toMonthly(iPrice);
@@ -1567,6 +1803,7 @@
         refis,
         useLTV,
         ltvPct,
+        locCfg,
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
@@ -1578,7 +1815,7 @@
         let schedOffset = 0,
           currentRate = mortRate;
         let rent = price * startYield,
-          ptax = price * 0.0125;
+          ptax = price * locCfg.propTaxRate;
         let cf = 0, // additive mode accumulator
           cfPool = 0; // reinvest mode: compounding pool
         const refiQueue = refis ? [...refis] : [];
@@ -1593,7 +1830,8 @@
               1 +
               (rentGrowthSlice[yi] ??
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
-            ptax *= 1.02;
+            if (locCfg.propTaxTracksValue) ptax = pv * locCfg.propTaxRate;
+            else ptax *= 1 + locCfg.propTaxAnnualIncrease;
           }
           // Refinance: fires only if new rate is ≥1% below current AND ≥24mo since last refi
           if (
@@ -1640,7 +1878,7 @@
           // no incremental tax benefit for most homeowners; taxBenefit = 0.
           const taxBenefit = isPrimary
             ? 0
-            : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) * 0.44;
+            : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) * locCfg.taxRate;
           const netCF = gross + taxBenefit;
 
           if (reinvest) {
@@ -1713,6 +1951,7 @@
             refis,
             refiLTV,
             refiLTVPct,
+            activeLocConfig,
           ),
           simRE(
             0.5,
@@ -1727,6 +1966,7 @@
             refis,
             refiLTV,
             refiLTVPct,
+            activeLocConfig,
           ),
           simRE(
             0.2,
@@ -1741,6 +1981,7 @@
             refis,
             refiLTV,
             refiLTVPct,
+            activeLocConfig,
           ),
           simRE(
             0.1,
@@ -1755,6 +1996,7 @@
             refis,
             refiLTV,
             refiLTVPct,
+            activeLocConfig,
           ),
           simRE(
             0.035,
@@ -1769,6 +2011,7 @@
             refis,
             refiLTV,
             refiLTVPct,
+            activeLocConfig,
           ),
         ];
       }
@@ -1907,9 +2150,9 @@
         const s = STRINGS[lang];
         const i = startYear - BASE_YEAR;
         const mr = (MORTGAGE_RATES[i] * 100).toFixed(2);
-        const ry = (CA_RENT_YIELDS[i] * 100).toFixed(1);
+        const ry = (activeCaRentYields[i] * 100).toFixed(1);
         const yrs = endYear - startYear + 1;
-        const p2r = Math.round(1 / CA_RENT_YIELDS[i]);
+        const p2r = Math.round(1 / activeCaRentYields[i]);
         const ip = Math.round(improvPct * 100);
         const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
 
