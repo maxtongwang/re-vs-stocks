@@ -587,7 +587,11 @@
         <li>Tax rate: 44% (35% federal + 9.3% CA) on paper rental gain/loss</li>
         <li class="group-hd">Capital &amp; Returns</li>
         <li>Initial capital: $100K for all scenarios</li>
-        <li>Wealth = Current Equity + Cumulative Net Cash Flows</li>
+        <li>
+          Wealth = Current Equity + Cumulative Net Cash Flows — equity is home
+          value minus remaining mortgage balance; cash flows are total rent
+          collected minus all expenses paid out of pocket
+        </li>
         <li>
           Reinvested mode: positive cash flows compound at S&amp;P 500 monthly
           returns; deficit periods accumulate additively (treated as
@@ -612,9 +616,10 @@
           locked until a refi occurs
         </li>
         <li>
-          Rate rule: selects X years with the lowest 30-yr fixed rates in the
-          chosen period (excl. purchase year); refi fires only if new rate is
-          &ge;0.5% below current rate and &ge;1 year since last refi or purchase
+          Rate rule: selects the N cheapest years to refi from historical data
+          in the chosen period (N = refi count, excl. purchase year); a refi
+          fires only if the new rate is &ge;1% below the current rate and at
+          least 2 years have passed since the last refi or purchase
         </li>
         <li>
           Bal (rate-and-term): refi to same remaining balance at the new lower
@@ -630,12 +635,15 @@
         </li>
         <li>Source: FRED MORTGAGE30US annual averages</li>
         <li>
-          Rental + refi (tax interaction): mortgage interest is deductible
-          against rental income. A high-rate loan creates large paper losses
-          (interest + depreciation &gt; rent) → tax refunds. Refinancing shrinks
-          interest, reducing paper losses and their tax refunds — partially
-          offsetting the payment savings. Net refi benefit for rentals is always
-          lower than face-value payment savings suggest.
+          Rental + refi (tax interaction): rental mortgage interest is
+          tax-deductible. When interest + depreciation exceed rent income, you
+          have a &ldquo;paper loss&rdquo; — you owe no tax and may receive a
+          refund, even though you are depositing rent checks. Refinancing to a
+          lower rate reduces that interest deduction, shrinking the paper loss
+          and its tax refund — partially offsetting the payment savings. In some
+          cases the paper loss flips to taxable profit, adding a tax bill. Net
+          refi benefit for rentals is always lower than the face-value payment
+          savings suggest.
         </li>
         <li>
           Primary + refi: standard deduction assumed — no mortgage interest tax
@@ -938,7 +946,7 @@
               label: "Capital & Returns",
               items: [
                 "Initial capital: $100K for all scenarios",
-                "Wealth = Current Equity + Cumulative Net Cash Flows",
+                "Wealth = Current Equity + Cumulative Net Cash Flows — equity is home value minus remaining mortgage balance; cash flows are total rent collected minus all expenses paid out of pocket",
                 "Reinvested mode: positive cash flows compound at S&P 500 monthly returns; deficit periods accumulate additively (treated as out-of-pocket cost, not leveraged against the market)",
                 "Note: for highly leveraged scenarios (e.g. 20% down with high mortgage rates), net cash flows are often negative throughout — Reinvested and Additive modes produce identical results since there is no positive pool to compound",
                 "Additive mode: dividends & rent cash flows accumulate without compounding",
@@ -949,11 +957,11 @@
               items: [
                 "Refi count (0–3): number of refinances during the holding period",
                 "Purchase rate is the 30-yr fixed average for the start year, locked until a refi occurs",
-                "Rate rule: selects X years with the lowest 30-yr fixed rates in the chosen period (excl. purchase year); refi fires only if new rate is ≥0.5% below current rate and ≥1 year since last refi or purchase",
+                "Rate rule: selects the N cheapest years to refi from historical data in the chosen period (N = refi count, excl. purchase year); a refi fires only if the new rate is ≥1% below the current rate and at least 2 years have passed since the last refi or purchase",
                 `Bal (rate-and-term): refi to same remaining balance at the new lower rate`,
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
                 "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
-                "Rental + refi (tax interaction): mortgage interest is deductible against rental income. A high-rate loan creates large paper losses (interest + depreciation > rent) → tax refunds. Refinancing to a lower rate shrinks interest, reducing those paper losses and their tax refunds — partially offsetting the payment savings. In some cases the paper loss flips to a taxable profit, adding a tax cost on top. Net refi benefit for rentals is always lower than face-value payment savings suggest.",
+                'Rental + refi (tax interaction): rental mortgage interest is tax-deductible. When interest + depreciation exceed rent income, you have a "paper loss" — you owe no tax and may receive a refund, even though you are depositing rent checks. Refinancing to a lower rate reduces that interest deduction, shrinking the paper loss and its tax refund — partially offsetting the payment savings. In some cases the paper loss flips to taxable profit, adding a tax bill. Net refi benefit for rentals is always lower than the face-value payment savings suggest.',
                 "Primary + refi: standard deduction assumed — no mortgage interest tax effect. Refi simply lowers monthly payment. Straightforward savings with no tax complication.",
                 "Source: FRED MORTGAGE30US annual averages",
               ],
@@ -1094,7 +1102,7 @@
               label: "资金与收益",
               items: [
                 "初始资金：各方案均为 $10万",
-                "总资产 = 房产净值 + 累计净现金流",
+                "总资产 = 房产净值 + 累计净现金流（净值 = 房产市值 − 剩余贷款余额；现金流 = 历年租金总收入 − 历年总支出）",
                 "复投模式：正现金流按S&P 500月回报率复利增长；亏损期间线性累加（视为自费补贴，非市场杠杆）",
                 "注意：高杠杆方案（如高利率下首付20%）的净现金流往往全程为负——此时复投与叠加结果相同，因无正值现金流可复投",
                 "叠加模式：股息和房租现金流线性累加，不复利",
@@ -1105,11 +1113,11 @@
               items: [
                 "重贷次数（0–3）：持有期间进行重新贷款的次数",
                 "购房利率锁定为开始年份的30年固定利率均值，直至发生重贷",
-                "利率规则：选取所选区间内利率最低的X个年份（不含购房年）；重贷触发条件：新利率比当前利率低至少0.5%，且距购房或上次重贷至少1年",
+                "利率规则：从所选区间历史数据中选出利率最低的N个年份作为重贷时机（N等于重贷次数，不含购房年）；触发条件：新利率须低于当前利率至少1%，且距购房或上次重贷满2年",
                 `余额（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
                 "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
-                "出租+重贷（税务联动）：房贷利息可抵扣租金收入。高利率贷款通常产生纸面亏损（利息+折旧>租金）→ 退税。重贷降低利息，意味着抵扣减少、纸面亏损缩小，退税减少——部分抵消月供节省效果。极端情况下纸面亏损转为应税利润，还会增加税务负担。出租房重贷的实际净收益始终低于月供节省的表面数字。",
+                "出租+重贷（税务联动）：出租房贷款利息可从租金收入中抵税。当利息+折旧超过租金收入时，产生"纸面亏损"——即使每月都在收租，报税时仍显示亏损并可获得退税。重贷降低利率后，利息减少，可抵扣金额减少，纸面亏损缩小，退税也随之减少——从而部分抵消月供节省的效果。极端情况下纸面亏损转为应税利润，还会增加税务负担。出租房重贷的实际净收益始终低于月供节省的表面数字。",
                 "自住+重贷：假设标准扣除额，无房贷利息税务效应。重贷仅降低月供，无税务复杂性，节省效果直接清晰。",
                 "数据来源：FRED MORTGAGE30US年均利率",
               ],
@@ -1297,7 +1305,7 @@
       // simRE: simulate real estate wealth over time.
       // reinvest=true: net cash flows compound at spSlice monthly returns (invested in market)
       // reinvest=false: net cash flows accumulate additively (current behavior)
-      // refis: [{m, rate, year}] sorted by m — fires only if new rate ≤ current−0.5% and ≥12mo gap
+      // refis: [{m, rate, year}] sorted by m — fires only if new rate ≤ current−1% and ≥24mo gap
       // useLTV: true = cash-out refi to ltvPct; false = rate-and-term (remaining balance only)
       function simRE(
         down,
@@ -1340,14 +1348,14 @@
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
             ptax *= 1.02;
           }
-          // Refinance: fires only if new rate is ≥0.5% below current AND ≥12mo since last refi
+          // Refinance: fires only if new rate is ≥1% below current AND ≥24mo since last refi
           if (
             mort > 0 &&
             refiQueue.length > 0 &&
             refiQueue[0].m === m &&
             rem > 0 &&
-            refiQueue[0].rate <= currentRate - 0.005 &&
-            m - lastRefiMonth >= 12
+            refiQueue[0].rate <= currentRate - 0.01 &&
+            m - lastRefiMonth >= 24
           ) {
             const refi = refiQueue.shift();
             let newLoan = rem; // rate-and-term: keep same balance
