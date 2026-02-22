@@ -118,6 +118,15 @@
       #label-lang {
         min-width: 30px;
       }
+      #label-refi {
+        min-width: 30px;
+      }
+      #btn-refi-0,
+      #btn-refi-1,
+      #btn-refi-2,
+      #btn-refi-3 {
+        min-width: 24px;
+      }
       .toggle-btn.active {
         border-color: #4da6ff;
         color: #4da6ff;
@@ -417,6 +426,13 @@
         <button class="toggle-btn active" id="btn-rental">Rental</button>
         <button class="toggle-btn" id="btn-primary">Primary</button>
       </div>
+      <span id="label-refi" style="margin-left: 8px">Refi:</span>
+      <div class="toggle-group">
+        <button class="toggle-btn active" id="btn-refi-0">0</button>
+        <button class="toggle-btn" id="btn-refi-1">1</button>
+        <button class="toggle-btn" id="btn-refi-2">2</button>
+        <button class="toggle-btn" id="btn-refi-3">3</button>
+      </div>
     </div>
 
     <div class="ctrl-row">
@@ -528,6 +544,22 @@
           Additive mode: dividends &amp; rent cash flows accumulate without
           compounding
         </li>
+        <li class="group-hd">Refinance</li>
+        <li>
+          Refi count (0–3): number of times the borrower refinances during the
+          holding period
+        </li>
+        <li>
+          Rule: the model selects the X years with the lowest 30-yr fixed
+          mortgage rates within the chosen period (excluding the purchase year),
+          and refinances at the start of each of those years — but only if the
+          new rate is lower than the current rate
+        </li>
+        <li>
+          Each refinance resets to a new 30-yr amortization on the remaining
+          principal at the new rate; no closing costs modeled
+        </li>
+        <li>Source: FRED MORTGAGE30US annual averages</li>
         <li class="group-hd">Rent Data</li>
         <li>
           BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994
@@ -701,6 +733,7 @@
           labelCashflow: "Cash flow:",
           labelImprov: "Improvement %:",
           labelPropMode: "Prop:",
+          labelRefi: "Refi:",
           labelLang: "Lang:",
           btnAdditive: "Additive",
           btnReinvest: "Reinvested",
@@ -733,18 +766,37 @@
             isPrimary
               ? `5 leverage scenarios · primary residence<br>PITI costs; mortgage interest &amp; prop-tax deductible`
               : `5 leverage scenarios · rental<br>dividends &amp; rent: ${rv ? "reinvested (compound)" : "additive (no compound)"}${ey >= MY ? " · 2025 est." : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary) => {
+          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary, nr) => {
             const line2 = isPrimary
               ? `Primary: no rental income; int &amp; prop-tax deductible`
               : `Rent yield: ${ry}% · Improvement: ${ip}%`;
-            return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%<br>${line2}<br>Cash flow: ${mode}`;
+            const refiStr = nr > 0 ? ` · Refi: ${nr}x` : "";
+            return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%${refiStr}<br>${line2}<br>Cash flow: ${mode}`;
           },
-          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode, isPrimary) => {
+          dynamicLine: (
+            sy,
+            ey,
+            yrs,
+            mr,
+            ry,
+            p2r,
+            ip,
+            mode,
+            isPrimary,
+            nr,
+            refis,
+          ) => {
+            const refiStr =
+              nr > 0
+                ? ` · Refi: ${nr}x (${refis.map((r) => r.year).join(", ")})`
+                : "";
             if (isPrimary) {
               return (
                 `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
                 `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-                `Primary: no rent income · int &amp; prop-tax deductible · no depreciation<br>` +
+                `Primary: no rent income · int &amp; prop-tax deductible · no depreciation` +
+                refiStr +
+                `<br>` +
                 `<strong style="color:#ccc">${mode}</strong>`
               );
             }
@@ -752,7 +804,9 @@
               `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
               `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
               `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
-              `Improv <strong style="color:#ccc">${ip}%</strong><br>` +
+              `Improv <strong style="color:#ccc">${ip}%</strong>` +
+              refiStr +
+              `<br>` +
               `<strong style="color:#ccc">${mode}</strong>`
             );
           },
@@ -780,6 +834,15 @@
               ],
             },
             {
+              label: "Refinance",
+              items: [
+                "Refi count (0–3): number of times the borrower refinances during the holding period",
+                "Rule: the model selects the X years with the lowest 30-yr fixed mortgage rates within the chosen period (excluding the purchase year), and refinances at the start of each of those years — but only if the new rate is lower than the current rate",
+                "Each refinance resets to a new 30-yr amortization on the remaining principal at the new rate; no closing costs modeled",
+                "Source: FRED MORTGAGE30US annual averages",
+              ],
+            },
+            {
               label: "Rent Data",
               items: [
                 "BLS West CPI-Rent (1994–2014), Zillow ZORI CA (2015+); pre-1994 estimated from BLS national CPI-Rent series and academic housing literature — less granular, treat as approximate",
@@ -795,6 +858,7 @@
           labelCashflow: "现金流：",
           labelImprov: "建筑占比：",
           labelPropMode: "类型：",
+          labelRefi: "重贷：",
           labelLang: "语言：",
           btnAdditive: "叠加",
           btnReinvest: "复投",
@@ -827,18 +891,37 @@
             isPrimary
               ? `5种杠杆方案 · 自住<br>PITI为成本；利息和房产税可抵扣`
               : `5种杠杆方案 · 出租<br>股息和房租：${rv ? "复投（复利）" : "叠加（无复利）"}${ey >= MY ? " · 2025估算" : ""}`,
-          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary) => {
+          assumptionsLine: (sy, ey, yrs, mr, ry, ip, mode, isPrimary, nr) => {
             const line2 = isPrimary
               ? `自住：无租金收入；利息和房产税可抵扣`
               : `租金回报率：${ry}% · 建筑：${ip}%`;
-            return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%<br>${line2}<br>现金流：${mode}`;
+            const refiStr = nr > 0 ? ` · 重贷：${nr}次` : "";
+            return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%${refiStr}<br>${line2}<br>现金流：${mode}`;
           },
-          dynamicLine: (sy, ey, yrs, mr, ry, p2r, ip, mode, isPrimary) => {
+          dynamicLine: (
+            sy,
+            ey,
+            yrs,
+            mr,
+            ry,
+            p2r,
+            ip,
+            mode,
+            isPrimary,
+            nr,
+            refis,
+          ) => {
+            const refiStr =
+              nr > 0
+                ? ` · 重贷：${nr}次（${refis.map((r) => r.year).join("、")}年）`
+                : "";
             if (isPrimary) {
               return (
                 `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
                 `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
-                `自住：无租金收入 · 利息和房产税可抵扣 · 无折旧<br>` +
+                `自住：无租金收入 · 利息和房产税可抵扣 · 无折旧` +
+                refiStr +
+                `<br>` +
                 `<strong style="color:#ccc">${mode}</strong>`
               );
             }
@@ -846,7 +929,9 @@
               `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
               `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
               `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍) · ` +
-              `建筑 <strong style="color:#ccc">${ip}%</strong><br>` +
+              `建筑 <strong style="color:#ccc">${ip}%</strong>` +
+              refiStr +
+              `<br>` +
               `<strong style="color:#ccc">${mode}</strong>`
             );
           },
@@ -871,6 +956,15 @@
                 "复投模式：正现金流按S&P 500月回报率复利增长；亏损期间线性累加（视为自费补贴，非市场杠杆）",
                 "注意：高杠杆方案（如高利率下首付20%）的净现金流往往全程为负——此时复投与叠加结果相同，因无正值现金流可复投",
                 "叠加模式：股息和房租现金流线性累加，不复利",
+              ],
+            },
+            {
+              label: "重新贷款",
+              items: [
+                "重贷次数（0–3）：借款人在持有期间重新融资的次数",
+                "规则：模型选取所选区间内利率最低的X个年份（不含购房年），于每年初重新贷款——仅当新利率低于当前利率时执行",
+                "每次重贷均以剩余本金按新利率重新计算30年摊销，不计交易成本",
+                "数据来源：FRED MORTGAGE30US年均利率",
               ],
             },
             {
@@ -1010,9 +1104,26 @@
         return s;
       }
 
+      // getRefis: pick n years with lowest mortgage rates in (sy, ey], sorted by month.
+      // Returns [{m: relMonthIdx, rate, year}, ...] Only applies if new rate < current rate.
+      function getRefis(sy, ey, n) {
+        if (n === 0 || sy >= ey) return [];
+        const candidates = [];
+        for (let y = sy + 1; y <= ey; y++) {
+          candidates.push({
+            m: (y - sy) * 12,
+            rate: MORTGAGE_RATES[y - BASE_YEAR],
+            year: y,
+          });
+        }
+        candidates.sort((a, b) => a.rate - b.rate);
+        return candidates.slice(0, n).sort((a, b) => a.m - b.m);
+      }
+
       // simRE: simulate real estate wealth over time.
       // reinvest=true: net cash flows compound at spSlice monthly returns (invested in market)
       // reinvest=false: net cash flows accumulate additively (current behavior)
+      // refis: [{m, rate, year}] sorted by m — refinance events (only applied if rate < current)
       function simRE(
         down,
         caM,
@@ -1023,21 +1134,37 @@
         reinvest,
         spSlice,
         isPrimary,
+        refis,
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
-        const MR = mortRate / 12;
-        const sched = mort > 0 ? amortize(mort, MR) : [];
         // Primary residences: no depreciation deduction (IRS rule)
         const dep = isPrimary ? 0 : (price * improvPct) / 27.5 / 12;
         let pv = price,
           rem = mort;
+        let sched = mort > 0 ? amortize(mort, mortRate / 12) : [];
+        let schedOffset = 0,
+          currentRate = mortRate;
         let rent = price * startYield,
           ptax = price * 0.0125;
         let cf = 0, // additive mode accumulator
           cfPool = 0; // reinvest mode: compounding pool
+        const refiQueue = refis ? [...refis] : [];
         const w = [];
         for (let m = 0; m < caM.length; m++) {
+          // Refinance: reset amortization to new rate on remaining principal
+          if (
+            mort > 0 &&
+            refiQueue.length > 0 &&
+            refiQueue[0].m === m &&
+            rem > 0 &&
+            refiQueue[0].rate < currentRate
+          ) {
+            const refi = refiQueue.shift();
+            sched = amortize(rem, refi.rate / 12);
+            schedOffset = m;
+            currentRate = refi.rate;
+          }
           pv *= 1 + caM[m];
           if (m > 0 && m % 12 === 0) {
             const yi = Math.floor(m / 12);
@@ -1054,11 +1181,12 @@
             mai = (pv * 0.01) / 12;
           let int = 0,
             prin = 0;
-          if (mort > 0 && m < AMORT_TERMS) {
-            int = sched[m].interest;
-            const prevBal = m > 0 ? sched[m - 1].balance : mort;
-            prin = prevBal - sched[m].balance;
-            rem = sched[m].balance;
+          const si = m - schedOffset;
+          if (mort > 0 && si < sched.length) {
+            int = sched[si].interest;
+            const prevBal = si > 0 ? sched[si - 1].balance : rem;
+            prin = prevBal - sched[si].balance;
+            rem = sched[si].balance;
           }
           const gross = r - (int + prin) - t - ins - mai;
           // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
@@ -1119,13 +1247,25 @@
         const rg = CA_RENT_GROWTH.slice(i);
         const mr = MORTGAGE_RATES[i];
         const ry = CA_RENT_YIELDS[i];
+        const refis = getRefis(yr, endYear, numRefis);
         return [
           simSP(spP, sp, spD, reinvest),
-          simRE(1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
-          simRE(0.5, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
-          simRE(0.2, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
-          simRE(0.1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
-          simRE(0.035, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary),
+          simRE(1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
+          simRE(0.5, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
+          simRE(0.2, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
+          simRE(0.1, ca, rg, mr, ry, improvPct, reinvest, sp, isPrimary, refis),
+          simRE(
+            0.035,
+            ca,
+            rg,
+            mr,
+            ry,
+            improvPct,
+            reinvest,
+            sp,
+            isPrimary,
+            refis,
+          ),
         ];
       }
 
@@ -1135,6 +1275,7 @@
       let reinvest = false;
       let improvPct = 0.4;
       let isPrimary = false;
+      let numRefis = 0;
       let lang = "en";
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
@@ -1244,6 +1385,8 @@
         const ip = Math.round(improvPct * 100);
         const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
 
+        const refis = getRefis(startYear, endYear, numRefis);
+
         document.getElementById("assumptions-line").innerHTML =
           s.assumptionsLine(
             startYear,
@@ -1254,6 +1397,7 @@
             ip,
             modeLabel,
             isPrimary,
+            numRefis,
           );
 
         document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
@@ -1266,6 +1410,8 @@
           ip,
           modeLabel,
           isPrimary,
+          numRefis,
+          refis,
         );
 
         document.getElementById("subtitle").innerHTML = s.subtitle(
@@ -1287,6 +1433,7 @@
         document.getElementById("label-cashflow").textContent = s.labelCashflow;
         document.getElementById("label-improv").textContent = s.labelImprov;
         document.getElementById("label-propmode").textContent = s.labelPropMode;
+        document.getElementById("label-refi").textContent = s.labelRefi;
         document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
@@ -1358,6 +1505,25 @@
         draw(curMonth - 1);
       });
 
+      // ── Refi toggle ───────────────────────────────────────────────────────────
+      [0, 1, 2, 3].forEach((n) => {
+        document
+          .getElementById(`btn-refi-${n}`)
+          .addEventListener("click", () => {
+            if (numRefis === n) return;
+            numRefis = n;
+            document
+              .querySelectorAll("[id^='btn-refi-']")
+              .forEach((b) => b.classList.remove("active"));
+            document.getElementById(`btn-refi-${n}`).classList.add("active");
+            allWealth = buildAllWealth(startYear);
+            updateAssumptions();
+            buildTable();
+            syncTableCols();
+            draw(curMonth - 1);
+          });
+      });
+
       // ── Share URL ─────────────────────────────────────────────────────────────
       function getShareParams() {
         const p = new URLSearchParams();
@@ -1365,6 +1531,7 @@
         if (endYear !== 2025) p.set("e", endYear);
         if (reinvest) p.set("m", "r");
         if (isPrimary) p.set("p", "1");
+        if (numRefis > 0) p.set("r", numRefis);
         if (lang !== "en") p.set("l", lang);
         if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
         const hArr = [...hidden].sort((a, b) => a - b);
@@ -1388,6 +1555,8 @@
         if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
         if (p.has("m")) reinvest = p.get("m") === "r";
         if (p.has("p")) isPrimary = p.get("p") === "1";
+        if (p.has("r"))
+          numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
         if (p.has("i")) {
           const v = parseInt(p.get("i"));
@@ -1731,6 +1900,12 @@
       if (isPrimary) {
         document.getElementById("btn-primary").classList.add("active");
         document.getElementById("btn-rental").classList.remove("active");
+      }
+      if (numRefis > 0) {
+        document
+          .querySelectorAll("[id^='btn-refi-']")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(`btn-refi-${numRefis}`).classList.add("active");
       }
       if (lang !== "en") {
         document.getElementById("btn-lang-" + lang).classList.add("active");
