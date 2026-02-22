@@ -44,7 +44,7 @@ export const StocksVsRE: React.FC = () => {
 
   const chartPaddingLeft = 160;
   const chartPaddingRight = 180; // room for chasing labels
-  const chartPaddingTop = 210;
+  const chartPaddingTop = 230;
   const chartPaddingBottom = 80;
 
   return (
@@ -125,6 +125,19 @@ export const StocksVsRE: React.FC = () => {
             />
           )}
 
+          {/* Live URL */}
+          <text
+            x={width / 2}
+            y={148}
+            fill="#4da6ff"
+            fontSize={20}
+            fontFamily="monospace"
+            textAnchor="middle"
+            opacity={titleOpacity}
+          >
+            maxtongwang.github.io/re-vs-stocks
+          </text>
+
           {/* Methodology — above chart, below subtitle */}
           {[
             `Assumptions: $100K invested Jan ${START_YEAR} · CA real estate (FHFA HPI) · S&P 500 total return (price + dividends reinvested)`,
@@ -134,7 +147,7 @@ export const StocksVsRE: React.FC = () => {
             <text
               key={i}
               x={width / 2}
-              y={155 + i * 18}
+              y={172 + i * 18}
               fill="#555"
               fontSize={16}
               fontFamily="monospace"
