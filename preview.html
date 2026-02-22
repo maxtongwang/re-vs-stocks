@@ -582,8 +582,7 @@
         </li>
         <li class="group-hd">Refinance</li>
         <li>
-          Refi count (0–3): number of cash-out refinances during the holding
-          period
+          Refi count (0–3): number of refinances during the holding period
         </li>
         <li>
           Rate rule: selects X years with the lowest 30-yr fixed rates in the
@@ -591,13 +590,16 @@
           current rate
         </li>
         <li>
-          LTV rule: new loan = max(remaining balance, 75% of current property
-          value) for rental; 80% for primary. The difference is cash-out,
-          credited to the investor's cash position
+          Bal (rate-and-term): refi to same remaining balance at the new lower
+          rate
         </li>
         <li>
-          Each refi resets to a new 30-yr amortization on the new loan amount;
-          no closing costs modeled
+          LTV (cash-out): new loan = max(remaining balance, 75% of current
+          property value). Difference credited to investor cash position
+        </li>
+        <li>
+          Each refi resets to a new 30-yr amortization at the new rate; no
+          closing costs modeled
         </li>
         <li>Source: FRED MORTGAGE30US annual averages</li>
         <li class="group-hd">Rent Data</li>
