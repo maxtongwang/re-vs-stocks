@@ -103,7 +103,7 @@
       }
       #btn-rental,
       #btn-primary {
-        min-width: 60px;
+        min-width: 68px;
       }
       #label-start,
       #label-end,
@@ -131,6 +131,12 @@
       #btn-refi-rate,
       #btn-refi-ltv {
         min-width: 36px;
+      }
+      #row-ltv-pct {
+        display: none;
+      }
+      #label-ltv-pct {
+        min-width: 92px;
       }
       .toggle-btn.active {
         border-color: #4da6ff;
@@ -444,6 +450,19 @@
       </div>
     </div>
 
+    <div class="ctrl-row" id="row-ltv-pct">
+      <span id="label-ltv-pct">LTV %:</span>
+      <input
+        type="range"
+        id="ltv-pct-slider"
+        min="50"
+        max="90"
+        step="5"
+        value="75"
+      />
+      <span class="val" id="ltv-pct-val">75%</span>
+    </div>
+
     <div class="ctrl-row">
       <span id="label-cashflow">Cash flow:</span>
       <div class="toggle-group">
@@ -747,6 +766,7 @@
           labelImprov: "Improvement %:",
           labelPropMode: "Prop:",
           labelRefi: "Refi:",
+          labelLTVPct: "LTV %:",
           labelLang: "Lang:",
           btnAdditive: "Additive",
           btnReinvest: "Reinvested",
@@ -886,6 +906,7 @@
           labelImprov: "建筑占比：",
           labelPropMode: "类型：",
           labelRefi: "重贷：",
+          labelLTVPct: "LTV比例：",
           labelLang: "语言：",
           btnAdditive: "叠加",
           btnReinvest: "复投",
@@ -1165,7 +1186,7 @@
       // reinvest=true: net cash flows compound at spSlice monthly returns (invested in market)
       // reinvest=false: net cash flows accumulate additively (current behavior)
       // refis: [{m, rate, year}] sorted by m — refinance events (only applied if rate < current)
-      // useLTV: true = cash-out refi at 75%/80% LTV; false = rate-and-term (remaining balance only)
+      // useLTV: true = cash-out refi to ltvPct; false = rate-and-term (remaining balance only)
       function simRE(
         down,
         caM,
@@ -1178,6 +1199,7 @@
         isPrimary,
         refis,
         useLTV,
+        ltvPct,
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
@@ -1216,8 +1238,7 @@
             const refi = refiQueue.shift();
             let newLoan = rem; // rate-and-term: keep same balance
             if (useLTV) {
-              const ltvRefi = isPrimary ? 0.8 : 0.75;
-              newLoan = Math.max(rem, pv * ltvRefi); // cash-out to LTV if equity available
+              newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
             }
             const cashOut = newLoan - rem;
             sched = amortize(newLoan, refi.rate / 12);
@@ -1317,6 +1338,7 @@
             isPrimary,
             refis,
             refiLTV,
+            refiLTVPct,
           ),
           simRE(
             0.5,
@@ -1330,6 +1352,7 @@
             isPrimary,
             refis,
             refiLTV,
+            refiLTVPct,
           ),
           simRE(
             0.2,
@@ -1343,6 +1366,7 @@
             isPrimary,
             refis,
             refiLTV,
+            refiLTVPct,
           ),
           simRE(
             0.1,
@@ -1356,6 +1380,7 @@
             isPrimary,
             refis,
             refiLTV,
+            refiLTVPct,
           ),
           simRE(
             0.035,
@@ -1369,6 +1394,7 @@
             isPrimary,
             refis,
             refiLTV,
+            refiLTVPct,
           ),
         ];
       }
@@ -1381,6 +1407,7 @@
       let isPrimary = false;
       let numRefis = 0;
       let refiLTV = false;
+      let refiLTVPct = 0.75;
       let lang = "en";
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
@@ -1541,6 +1568,7 @@
         document.getElementById("label-improv").textContent = s.labelImprov;
         document.getElementById("label-propmode").textContent = s.labelPropMode;
         document.getElementById("label-refi").textContent = s.labelRefi;
+        document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
         document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
@@ -1636,6 +1664,7 @@
       document.getElementById("btn-refi-rate").addEventListener("click", () => {
         if (!refiLTV) return;
         refiLTV = false;
+        document.getElementById("row-ltv-pct").style.display = "none";
         document.getElementById("btn-refi-rate").classList.add("active");
         document.getElementById("btn-refi-ltv").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -1647,6 +1676,7 @@
       document.getElementById("btn-refi-ltv").addEventListener("click", () => {
         if (refiLTV) return;
         refiLTV = true;
+        document.getElementById("row-ltv-pct").style.display = "";
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -1655,6 +1685,20 @@
         syncTableCols();
         draw(curMonth - 1);
       });
+      document
+        .getElementById("ltv-pct-slider")
+        .addEventListener("input", (e) => {
+          refiLTVPct = parseInt(e.target.value) / 100;
+          document.getElementById("ltv-pct-val").textContent =
+            e.target.value + "%";
+          if (refiLTV) {
+            allWealth = buildAllWealth(startYear);
+            updateAssumptions();
+            buildTable();
+            syncTableCols();
+            draw(curMonth - 1);
+          }
+        });
 
       // ── Share URL ─────────────────────────────────────────────────────────────
       function getShareParams() {
@@ -1665,6 +1709,8 @@
         if (isPrimary) p.set("p", "1");
         if (numRefis > 0) p.set("r", numRefis);
         if (refiLTV) p.set("t", "l");
+        if (refiLTV && refiLTVPct !== 0.75)
+          p.set("v", Math.round(refiLTVPct * 100));
         if (lang !== "en") p.set("l", lang);
         if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
         const hArr = [...hidden].sort((a, b) => a - b);
@@ -1691,6 +1737,10 @@
         if (p.has("r"))
           numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
         if (p.has("t")) refiLTV = p.get("t") === "l";
+        if (p.has("v")) {
+          const v = parseInt(p.get("v"));
+          if (v >= 50 && v <= 90 && v % 5 === 0) refiLTVPct = v / 100;
+        }
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
         if (p.has("i")) {
           const v = parseInt(p.get("i"));
@@ -2045,6 +2095,10 @@
       if (refiLTV) {
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
+        document.getElementById("row-ltv-pct").style.display = "";
+        const ltvPctInit = Math.round(refiLTVPct * 100);
+        document.getElementById("ltv-pct-slider").value = ltvPctInit;
+        document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
       }
       if (lang !== "en") {
         document.getElementById("btn-lang-" + lang).classList.add("active");
