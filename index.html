@@ -3368,16 +3368,20 @@
         const projMonths = allWealth[0].length; // may be longer when refi active
         const hasProjection = projMonths > histBoundaryM;
 
-        // Y range (log scale) — use full projection for stable scale
+        // Y range (log scale)
+        // yMax: full range for stable top bound; yMin: revealed data only for tight bottom
         let yMin = Infinity,
           yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          const mLimit = hasProjection ? w.length - 1 : monthsToShow;
-          for (let m = 0; m <= mLimit && m < w.length; m++) {
-            if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
+          const mFull = hasProjection ? w.length - 1 : monthsToShow;
+          const mRevealed = Math.min(monthsToShow, histBoundaryM);
+          for (let m = 0; m <= mFull && m < w.length; m++) {
             if (w[m] > yMax) yMax = w[m];
+          }
+          for (let m = 0; m <= mRevealed && m < w.length; m++) {
+            if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
           }
         }
         if (!isFinite(yMin)) yMin = 50000;
@@ -3620,18 +3624,19 @@
             }))
               .filter(({ i }) => !hidden.has(i))
               .sort((a, b) => b.v - a.v);
-            const minGap = lfs + 2;
+            const minGap = lfs * 2 + 4;
             const positions = items.map(({ v }) => ty(v));
             for (let k = 1; k < positions.length; k++)
               if (positions[k] < positions[k - 1] + minGap)
                 positions[k] = positions[k - 1] + minGap;
             for (let k = positions.length - 1; k >= 0; k--)
-              if (positions[k] > PT + chartH - 4)
-                positions[k] = PT + chartH - 4;
+              if (positions[k] > PT + chartH - lfs)
+                positions[k] = PT + chartH - lfs;
             const lx = tx(hm) + 6;
-            items.forEach(({ s, i }, k) => {
+            items.forEach(({ s, i, v }, k) => {
               ctx.fillStyle = s.color;
-              ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.35);
+              ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
+              ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.9);
             });
           }
         }

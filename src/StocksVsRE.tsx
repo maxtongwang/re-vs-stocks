@@ -4,6 +4,7 @@ import {
   buildScenarios,
   TOTAL_MONTHS,
   START_YEAR,
+  END_YEAR,
 } from "./data/financialModel";
 import { LineChart } from "./components/LineChart";
 import { YearLabel } from "./components/YearLabel";
@@ -17,7 +18,8 @@ export const StocksVsRE: React.FC = () => {
   const frame = useCurrentFrame();
   const { width, height } = useVideoConfig();
 
-  const scenarios = useMemo(() => buildScenarios(), []);
+  // Show S&P 500, All Cash, 50% Down, 20% Down — match index.html defaults
+  const scenarios = useMemo(() => buildScenarios().slice(0, 4), []);
 
   const dataProgress = interpolate(
     frame,
@@ -42,7 +44,7 @@ export const StocksVsRE: React.FC = () => {
 
   const chartPaddingLeft = 160;
   const chartPaddingRight = 180; // room for chasing labels
-  const chartPaddingTop = 120;
+  const chartPaddingTop = 160;
   const chartPaddingBottom = 80;
 
   return (
@@ -66,28 +68,39 @@ export const StocksVsRE: React.FC = () => {
           {/* Title */}
           <text
             x={width / 2}
-            y={60}
+            y={52}
             fill="#ffffff"
-            fontSize={38}
+            fontSize={42}
             fontFamily="monospace"
             fontWeight="bold"
             textAnchor="middle"
             opacity={titleOpacity}
           >
-            $100K Invested: S&P 500 vs CA Real Estate ({START_YEAR}–2024)
+            The Last Chart To Understand
           </text>
-
           <text
             x={width / 2}
-            y={96}
+            y={100}
+            fill="#ffffff"
+            fontSize={42}
+            fontFamily="monospace"
+            fontWeight="bold"
+            textAnchor="middle"
+            opacity={titleOpacity}
+          >
+            Real Estate vs Stock Market
+          </text>
+          <text
+            x={width / 2}
+            y={136}
             fill="#aaaaaa"
             fontSize={22}
             fontFamily="monospace"
             textAnchor="middle"
             opacity={titleOpacity}
           >
-            5 leverage scenarios · 8.5% mortgage · rent income + depreciation
-            tax benefits
+            $100K · CA Real Estate vs S&P 500 · {START_YEAR}–{END_YEAR} · log
+            scale
           </text>
 
           {/* Chart */}
@@ -166,7 +179,7 @@ export const StocksVsRE: React.FC = () => {
               lineHeight: 1.6,
             }}
           >
-            55-year simulation ({START_YEAR}–2024)
+            {END_YEAR - START_YEAR}-year simulation ({START_YEAR}–{END_YEAR})
             <br />
             $100K initial investment · all scenarios
           </div>

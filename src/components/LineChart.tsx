@@ -39,14 +39,27 @@ export const LineChart: React.FC<LineChartProps> = ({
   const chartWidth = width - paddingLeft - paddingRight;
   const chartHeight = height - paddingTop - paddingBottom;
 
-  // Log-scale Y range — find max across all scenarios (full range for stable scale)
+  // Log-scale Y range
+  // yMax: full range for stable top; yMin: revealed data only for tight bottom
+  let yMin = Infinity;
   let yMax = 200_000;
   for (const s of scenarios) {
     for (let m = 0; m < s.wealthByMonth.length; m++) {
       if (s.wealthByMonth[m] > yMax) yMax = s.wealthByMonth[m];
     }
+    for (let m = 0; m <= revealedMonths && m < s.wealthByMonth.length; m++) {
+      const v = s.wealthByMonth[m];
+      if (v > LOG_FLOOR && v < yMin) yMin = v;
+    }
   }
-  const yLo = LOG_FLOOR;
+  if (!isFinite(yMin)) yMin = 50_000;
+  // Snap yLo down to nearest nice number (1/2/5 × decade) just below yMin
+  const loRaw = yMin * 0.85;
+  const decade = Math.pow(10, Math.floor(Math.log10(loRaw)));
+  const yLo = Math.max(
+    LOG_FLOOR,
+    [5, 2, 1].map((m) => m * decade).find((v) => v <= loRaw) ?? decade,
+  );
   const yHi = yMax * 1.1;
   const logRange = Math.log(yHi) - Math.log(yLo);
 
@@ -146,40 +159,47 @@ export const LineChart: React.FC<LineChartProps> = ({
         );
       })}
 
-      {/* Chasing name labels at line tips with collision avoidance */}
+      {/* Chasing labels at line tips: dollar amount above, name below */}
       {revealedMonths > 5 &&
         (() => {
-          const labelFontSize = 22;
-          const minGap = labelFontSize + 3;
+          const fs = 22;
+          const minGap = fs * 2 + 4;
           const lastMonth = Math.min(revealedMonths, TOTAL_MONTHS - 1);
           const items = scenarios
-            .map((s, idx) => ({
-              s,
-              idx,
-              v: s.wealthByMonth[lastMonth],
-            }))
+            .map((s, idx) => ({ s, idx, v: s.wealthByMonth[lastMonth] }))
             .sort((a, b) => b.v - a.v);
           const positions = items.map(({ v }) => toY(v));
           for (let k = 1; k < positions.length; k++)
             if (positions[k] < positions[k - 1] + minGap)
               positions[k] = positions[k - 1] + minGap;
           for (let k = positions.length - 1; k >= 0; k--)
-            if (positions[k] > paddingTop + chartHeight - 4)
-              positions[k] = paddingTop + chartHeight - 4;
+            if (positions[k] > paddingTop + chartHeight - fs)
+              positions[k] = paddingTop + chartHeight - fs;
           const lx = toX(lastMonth) + 8;
-          return items.map(({ s, idx }, k) => (
+          return items.flatMap(({ s, idx }, k) => [
             <text
-              key={idx}
+              key={`${idx}-v`}
               x={lx}
-              y={positions[k] + labelFontSize * 0.35}
+              y={positions[k] - fs * 0.3}
               fill={s.color}
-              fontSize={labelFontSize}
+              fontSize={fs}
+              fontFamily="monospace"
+              fontWeight="bold"
+            >
+              {formatDollar(s.wealthByMonth[lastMonth])}
+            </text>,
+            <text
+              key={`${idx}-n`}
+              x={lx}
+              y={positions[k] + fs * 0.9}
+              fill={s.color}
+              fontSize={fs}
               fontFamily="monospace"
               fontWeight="bold"
             >
               {s.label}
-            </text>
-          ));
+            </text>,
+          ]);
         })()}
 
       {/* Axes borders */}

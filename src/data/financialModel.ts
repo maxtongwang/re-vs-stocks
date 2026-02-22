@@ -7,7 +7,8 @@ import {
 } from "./historicalData";
 
 export const START_YEAR = 1970;
-export const TOTAL_MONTHS = CA_RE_ANNUAL_RETURNS.length * 12; // 55 years × 12
+export const END_YEAR = START_YEAR + CA_RE_ANNUAL_RETURNS.length - 1; // 2025
+export const TOTAL_MONTHS = CA_RE_ANNUAL_RETURNS.length * 12; // 56 years × 12 = 672
 
 export interface Scenario {
   label: string;
