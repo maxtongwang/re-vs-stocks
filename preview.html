@@ -494,6 +494,12 @@
           out-of-pocket cost, not leveraged against the market)
         </li>
         <li>
+          Note: for highly leveraged scenarios (e.g. 20% down with high mortgage
+          rates), net cash flows are often negative throughout — Reinvested and
+          Additive modes will produce identical results since there is no
+          positive pool to compound
+        </li>
+        <li>
           Additive mode: dividends &amp; rent cash flows accumulate without
           compounding
         </li>
@@ -744,6 +750,7 @@
                 "Initial capital: $100K for all scenarios",
                 "Wealth = Current Equity + Cumulative Net Cash Flows",
                 "Reinvested mode: positive cash flows compound at S&P 500 monthly returns; deficit periods accumulate additively (treated as out-of-pocket cost, not leveraged against the market)",
+                "Note: for highly leveraged scenarios (e.g. 20% down with high mortgage rates), net cash flows are often negative throughout — Reinvested and Additive modes produce identical results since there is no positive pool to compound",
                 "Additive mode: dividends & rent cash flows accumulate without compounding",
               ],
             },
@@ -837,6 +844,7 @@
                 "初始资金：各方案均为 $10万",
                 "总资产 = 房产净值 + 累计净现金流",
                 "复投模式：正现金流按S&P 500月回报率复利增长；亏损期间线性累加（视为自费补贴，非市场杠杆）",
+                "注意：高杠杆方案（如高利率下首付20%）的净现金流往往全程为负——此时复投与叠加结果相同，因无正值现金流可复投",
                 "叠加模式：股息和房租现金流线性累加，不复利",
               ],
             },
