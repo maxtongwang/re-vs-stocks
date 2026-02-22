@@ -3369,17 +3369,25 @@
         const hasProjection = projMonths > histBoundaryM;
 
         // Y range (log scale) — use full projection for stable scale
-        const LOG_FLOOR = 10000;
-        let yMax = 200000;
+        let yMin = Infinity,
+          yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
           const mLimit = hasProjection ? w.length - 1 : monthsToShow;
           for (let m = 0; m <= mLimit && m < w.length; m++) {
+            if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
             if (w[m] > yMax) yMax = w[m];
           }
         }
-        const yLo = LOG_FLOOR;
+        if (!isFinite(yMin)) yMin = 50000;
+        // Snap yLo down to nearest nice number (1/2/5 × decade) just below yMin
+        const _loRaw = yMin * 0.85;
+        const _decade = Math.pow(10, Math.floor(Math.log10(_loRaw)));
+        const yLo = Math.max(
+          1000,
+          [5, 2, 1].map((m) => m * _decade).find((v) => v <= _loRaw) || _decade,
+        );
         const yHi = yMax * 1.1;
         const tx = (m) => PL + (m / Math.max(projMonths - 1, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
