@@ -697,25 +697,21 @@
         <button class="toggle-btn active" id="btn-rental">Rental</button>
         <button class="toggle-btn" id="btn-primary">Primary</button>
       </div>
-      <span id="label-refi" style="margin-left: 8px">Refi:</span>
-      <div style="display: flex; flex-direction: column; gap: 5px">
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-refi-0">0</button>
-          <button class="toggle-btn" id="btn-refi-1">1</button>
-          <button class="toggle-btn" id="btn-refi-2">2</button>
-          <button class="toggle-btn" id="btn-refi-3">3</button>
-          <button
-            class="toggle-btn"
-            id="share-btn"
-            title="Copy share link"
-            style="margin-left: 6px"
-          >
-            🔗
-          </button>
-        </div>
-        <div class="toggle-group" id="refi-type-group">
-          <button class="toggle-btn active" id="btn-refi-rate">Bal</button>
-          <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
+      <div
+        style="margin-left: auto; display: flex; align-items: center; gap: 8px"
+      >
+        <span id="label-refi">Refi:</span>
+        <div style="display: flex; flex-direction: column; gap: 5px">
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-refi-0">0</button>
+            <button class="toggle-btn" id="btn-refi-1">1</button>
+            <button class="toggle-btn" id="btn-refi-2">2</button>
+            <button class="toggle-btn" id="btn-refi-3">3</button>
+          </div>
+          <div class="toggle-group" id="refi-type-group">
+            <button class="toggle-btn active" id="btn-refi-rate">Bal</button>
+            <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
+          </div>
         </div>
       </div>
     </div>
@@ -739,10 +735,17 @@
         <button class="toggle-btn active" id="btn-additive">Additive</button>
         <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
       </div>
-      <span id="label-lang" style="margin-left: auto">Lang:</span>
-      <div class="toggle-group">
-        <button class="toggle-btn active" id="btn-lang-en">EN</button>
-        <button class="toggle-btn" id="btn-lang-zh">中文</button>
+      <div
+        style="margin-left: auto; display: flex; align-items: center; gap: 8px"
+      >
+        <span id="label-lang">Lang:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-lang-en">EN</button>
+          <button class="toggle-btn" id="btn-lang-zh">中文</button>
+        </div>
+        <button class="toggle-btn" id="share-btn" title="Copy share link">
+          🔗
+        </button>
       </div>
     </div>
 
