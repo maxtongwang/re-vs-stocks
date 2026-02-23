@@ -626,6 +626,19 @@
       #methodology-note a:hover {
         color: #666;
       }
+      #primary-note {
+        font-size: 11px;
+        color: #998;
+        background: #141200;
+        border-left: 2px solid #554;
+        padding: 4px 8px;
+        margin: 3px 0;
+        line-height: 1.5;
+        display: none;
+      }
+      #primary-note strong {
+        color: #ccb;
+      }
       #mode-desc {
         font-size: 10px;
         color: #444;
@@ -843,6 +856,8 @@
       Historical data: FHFA · S&amp;P 500 · FRED ·
       <a href="#note-section">full methodology ↓</a>
     </div>
+
+    <div id="primary-note"></div>
 
     <div id="chart-wrap">
       <canvas id="c"></canvas>
@@ -1457,6 +1472,8 @@
             "· Reinvested: income compounds back into the portfolio",
           methodologyNote:
             'Historical data: FHFA · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
+          primaryNote:
+            "ℹ <strong>Primary mode:</strong> no rental income — PITI is a pure cost. Leveraged scenarios can go <strong>deeply negative</strong> during downturns (cumulative costs exceed equity). The log-scale chart cannot display ≤ $0, so those lines hug the floor. <em>Not a display bug.</em>",
           outcomeAhead: (pct, isRE) =>
             isRE ? `RE leads +${pct}%` : `Index leads +${pct}%`,
         },
@@ -1617,6 +1634,8 @@
             "· 复投：收益重新投入组合，产生复利",
           methodologyNote:
             '数据来源：FHFA · 标普500 · FRED · <a href="#note-section">完整方法论 ↓</a>',
+          primaryNote:
+            "ℹ <strong>自住模式：</strong>无租金收入，PITI为纯成本支出。楼市下跌期间，高杠杆情景可能出现<strong>净财富为负</strong>（累计成本 > 净资产）。对数坐标无法显示 ≤ $0 的值，受影响的曲线将贴近图表底部。<em>这不是显示错误。</em>",
           outcomeAhead: (pct, isRE) =>
             isRE ? `房产领先 +${pct}%` : `指数领先 +${pct}%`,
         },
@@ -3877,6 +3896,9 @@
         document.getElementById("mode-desc").innerHTML = s.modeDesc;
         document.getElementById("methodology-note").innerHTML =
           s.methodologyNote;
+        const primaryNoteEl = document.getElementById("primary-note");
+        primaryNoteEl.style.display = isPrimary ? "" : "none";
+        if (isPrimary) primaryNoteEl.innerHTML = s.primaryNote;
         updateAssumptions();
         buildSourcesList();
         buildTable();
@@ -4535,6 +4557,34 @@
               ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
               ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.9);
             });
+          }
+        }
+
+        // Primary mode: annotate when any visible scenario is below the chart floor
+        if (isPrimary) {
+          let hasFloored = false;
+          const mCheck = Math.min(monthsToShow, histBoundaryM);
+          outer: for (let i = 0; i < allWealth.length; i++) {
+            if (hidden.has(i)) continue;
+            for (let m = 0; m <= mCheck && m < allWealth[i].length; m++) {
+              if (allWealth[i][m] < yLo) {
+                hasFloored = true;
+                break outer;
+              }
+            }
+          }
+          if (hasFloored) {
+            const afs = Math.max(7, Math.min(8, W / 80));
+            ctx.font = `${afs}px monospace`;
+            ctx.globalAlpha = 0.6;
+            ctx.fillStyle = "#aa7700";
+            ctx.textAlign = "center";
+            const floorLabel =
+              lang === "zh"
+                ? "▼ 部分曲线低于图表底部（净财富为负）"
+                : "▼ some lines below chart floor — negative wealth (costs > equity)";
+            ctx.fillText(floorLabel, PL + chartW / 2, PT + chartH - 3);
+            ctx.globalAlpha = 1.0;
           }
         }
 
