@@ -673,19 +673,6 @@
     <div class="hero">
       <h1 class="hero-title" id="hero-title">
         The Last Chart To Understand<br />Real Estate vs Stock Market
-        <button
-          class="toggle-btn"
-          id="share-btn"
-          title="Copy share link"
-          style="
-            font-size: 13px;
-            padding: 2px 6px;
-            vertical-align: middle;
-            margin-left: 8px;
-          "
-        >
-          🔗
-        </button>
       </h1>
       <div class="hero-sub">
         <span class="hero-amount">$100,000</span>
@@ -1374,7 +1361,7 @@
       const STRINGS = {
         en: {
           heroTitle:
-            "The Last Chart To Understand<br>Real Estate vs Stock Market",
+            'The Last Chart To Understand<br>Real Estate vs Stock Market <button class="toggle-btn" id="share-btn" title="Copy share link" style="font-size:13px;padding:2px 6px;vertical-align:middle;margin-left:8px">🔗</button>',
           heroRe: "CA Real Estate",
           labelStart: "Start:",
           labelEnd: "End:",
@@ -1544,7 +1531,8 @@
             isRE ? `RE leads +${pct}%` : `Index leads +${pct}%`,
         },
         zh: {
-          heroTitle: "<br>看懂房产 vs 股市的终极图表",
+          heroTitle:
+            '<br>看懂房产 vs 股市的终极图表 <button class="toggle-btn" id="share-btn" title="复制分享链接" style="font-size:13px;padding:2px 6px;vertical-align:middle;margin-left:8px">🔗</button>',
           heroRe: "加州房产",
           labelStart: "起始年：",
           labelEnd: "结束年：",
@@ -4218,7 +4206,8 @@
         if (p.has("cos")) inclCosts = p.get("cos") !== "0";
       }
 
-      document.getElementById("share-btn").addEventListener("click", () => {
+      document.addEventListener("click", (e) => {
+        if (!e.target.closest("#share-btn")) return;
         const qs = getShareParams();
         history.replaceState(
           null,
