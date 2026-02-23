@@ -4121,7 +4121,8 @@
                 if (base > 0 && projYrs > 0) {
                   const cagr = (Math.pow(proj / base, 1 / projYrs) - 1) * 100;
                   const sign = cagr >= 0 ? "+" : "";
-                  pctStr = `<br><span style="font-size:0.85em;opacity:0.8">${sign}${cagr.toFixed(0)}%/yr</span>`;
+                  const color = cagr >= 0 ? "#4caf50" : "#f44336";
+                  pctStr = `<br><span style="font-size:0.85em;color:${color}">${sign}${cagr.toFixed(0)}%/yr</span>`;
                 }
                 return `<td${cls}>${fmt(proj)}${pctStr}</td>`;
               })
