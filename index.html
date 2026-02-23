@@ -4583,8 +4583,10 @@
 
       // ── Return decomposition panel ────────────────────────────────────────────
       let decompActiveRow = null;
+      let clickedKey = null; // pinned row — survives mouse leaving barsEl
 
       function renderDecomp(monthsToShow) {
+        clickedKey = null; // clear pin on re-render (month changed)
         const titleEl = document.getElementById("decomp-title");
         const barsEl = document.getElementById("decomp-bars");
         const eduEl = document.getElementById("decomp-edu");
@@ -5047,7 +5049,7 @@
         barsEl.querySelectorAll(".decomp-row").forEach((el) => {
           const key = el.dataset.key;
           if (!eduMap[key]) return;
-          const activate = () => {
+          const showEdu = () => {
             barsEl
               .querySelectorAll(".decomp-row")
               .forEach((e) => e.classList.remove("active-edu"));
@@ -5057,8 +5059,25 @@
               decompActiveRow = key;
             }
           };
-          el.addEventListener("mouseenter", activate);
-          el.addEventListener("click", activate);
+          el.addEventListener("mouseenter", () => {
+            // Don't override a pinned row unless hovering the pinned row itself
+            if (clickedKey && clickedKey !== key) return;
+            showEdu();
+          });
+          el.addEventListener("click", () => {
+            if (clickedKey === key) {
+              // Click pinned row again → unpin
+              clickedKey = null;
+              barsEl
+                .querySelectorAll(".decomp-row")
+                .forEach((e) => e.classList.remove("active-edu"));
+              if (eduEl) eduEl.innerHTML = defaultEdu;
+              decompActiveRow = null;
+            } else {
+              clickedKey = key;
+              showEdu();
+            }
+          });
         });
         const hintEl = document.getElementById("decomp-hint");
         const hint = isZh
@@ -5070,13 +5089,17 @@
           ? `<strong style="color:#888">收益明细</strong>：涨幅（杠杆放大）、现金流、成本、税收 → 正值叠加，负值抵消。悬停行查看计算逻辑。`
           : `<strong style="color:#888">Return Breakdown</strong>: appreciation (leverage-amplified) + cash flows + costs + tax → positive adds, negative drags. Hover a row for the math.`;
 
-        barsEl.addEventListener("mouseleave", () => {
-          decompActiveRow = null;
-          barsEl
-            .querySelectorAll(".decomp-row")
-            .forEach((e) => e.classList.remove("active-edu"));
-          if (eduEl) eduEl.innerHTML = defaultEdu;
-        });
+        // Use the outer panel so moving mouse to edu text doesn't reset content
+        const panelEl = document.getElementById("decomp-panel");
+        if (panelEl)
+          panelEl.addEventListener("mouseleave", () => {
+            clickedKey = null; // clear pin when mouse fully leaves panel
+            decompActiveRow = null;
+            barsEl
+              .querySelectorAll(".decomp-row")
+              .forEach((e) => e.classList.remove("active-edu"));
+            if (eduEl) eduEl.innerHTML = defaultEdu;
+          });
 
         // Restore active edu if row still exists, otherwise show default
         if (decompActiveRow && eduMap[decompActiveRow]) {
