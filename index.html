@@ -1542,7 +1542,7 @@
               nr > 0
                 ? ` · Refi: ${W(nr + "x " + (isLTV ? "(LTV)" : "(Bal)"))}`
                 : "";
-            return `${W(sy + "–" + ey)} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}${refiStr}<br>${line2}<br>Cash flow: ${W(mode)}`;
+            return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}${refiStr}<br>${line2}<br>Cash flow: ${W(mode)}`;
           },
           dynamicLine: (
             sy,
@@ -1714,7 +1714,7 @@
               nr > 0
                 ? ` · 重贷：${W(nr + "次" + (isLTV ? "（LTV）" : "（余额）"))}`
                 : "";
-            return `${W(sy + "–" + ey)} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}${refiStr}<br>${line2}<br>现金流：${W(mode)}`;
+            return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}${refiStr}<br>${line2}<br>现金流：${W(mode)}`;
           },
           dynamicLine: (
             sy,
@@ -4766,19 +4766,14 @@
         // Sum(positive bars) - sum(negative bars) = total bar width. ✓
         function buildTable(rows, headerLabel, headerColor) {
           if (!rows.length) return "";
-          const positiveSum =
-            rows
-              .filter((r) => !r.total)
-              .reduce((s, r) => s + Math.max(0, r.val), 0) || 1;
+          const totalVal = Math.abs(rows.find((r) => r.total)?.val || 1) || 1;
           let h = `<table class="decomp-table"><thead><tr><td colspan="3" class="decomp-table-head" style="color:${headerColor}">${headerLabel}</td></tr></thead><tbody>`;
           rows.forEach((row) => {
             const isNeg = row.val < 0;
-            const w = row.total
-              ? 100
-              : Math.min(
-                  100,
-                  Math.round((Math.abs(row.val) / positiveSum) * 100),
-                );
+            const w = Math.min(
+              100,
+              Math.round((Math.abs(row.val) / totalVal) * 100),
+            );
             const opacity = row.total ? 1 : row.base ? 0.8 : 0.7;
             const barPos = isNeg ? "left:auto;right:0" : "left:0";
             const bold = row.total ? ";font-weight:bold" : "";
