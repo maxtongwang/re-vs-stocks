@@ -352,9 +352,6 @@
       #label-propmode {
         min-width: 74px;
       }
-      #label-lang {
-        min-width: 30px;
-      }
       #label-refi {
         min-width: 74px;
       }
@@ -823,7 +820,44 @@
         CA, TX, FL, WA, and NY.
       </p>
     </noscript>
-    <div class="hero">
+    <div class="hero" style="position: relative">
+      <div
+        style="
+          position: absolute;
+          top: 0;
+          right: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+        "
+      >
+        <button
+          class="toggle-btn"
+          id="share-btn"
+          title="Copy share link"
+          style="font-size: 13px; padding: 2px 6px"
+        >
+          🔗
+        </button>
+        <select
+          id="lang-select"
+          title="Language"
+          style="
+            background: #1a1a1a;
+            border: 1px solid #444;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+            color: #fff;
+            padding: 1px 4px;
+            line-height: 1;
+          "
+        >
+          <option value="en">🇺🇸</option>
+          <option value="zh">🇨🇳</option>
+        </select>
+      </div>
       <h1 class="hero-title" id="hero-title">
         The Last Chart To Understand<br />Real Estate vs Stock Market
       </h1>
@@ -1084,14 +1118,8 @@
           <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
         </div>
       </div>
-      <!-- row 3 right: Lang -->
-      <div style="display: flex; align-items: center; gap: 8px">
-        <span id="label-lang">Lang:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-lang-en">EN</button>
-          <button class="toggle-btn" id="btn-lang-zh">中文</button>
-        </div>
-      </div>
+      <!-- row 3 right: empty -->
+      <div></div>
     </div>
 
     <div id="mode-desc">
@@ -1568,7 +1596,7 @@
       const STRINGS = {
         en: {
           heroTitle:
-            'The Last Chart To Understand<br>Real Estate vs Stock Market <button class="toggle-btn" id="share-btn" title="Copy share link" style="font-size:13px;padding:2px 6px;vertical-align:middle;margin-left:8px">🔗</button>',
+            "The Last Chart To Understand<br>Real Estate vs Stock Market",
           heroRe: "CA Real Estate",
           labelStart: "Start:",
           labelEnd: "End:",
@@ -1748,8 +1776,7 @@
             isRE ? `RE leads +${pct}%` : `Index leads +${pct}%`,
         },
         zh: {
-          heroTitle:
-            '<br>看懂房产 vs 股市的终极图表 <button class="toggle-btn" id="share-btn" title="复制分享链接" style="font-size:13px;padding:2px 6px;vertical-align:middle;margin-left:8px">🔗</button>',
+          heroTitle: "<br>看懂房产 vs 股市的终极图表",
           heroRe: "加州房产",
           labelStart: "起始年：",
           labelEnd: "结束年：",
@@ -4385,7 +4412,6 @@
         document.getElementById("ltv-tip-line").textContent = s.tipLtvLine;
         document.getElementById("refi-bal-tip").textContent = s.tipBalLine;
         document.getElementById("label-improv").dataset.tip = s.tipImprov;
-        document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
         document.getElementById("btn-rental").textContent = s.btnRental;
@@ -4668,21 +4694,9 @@
           .catch(() => {});
       });
 
-      // ── Lang toggle ──────────────────────────────────────────────────────────
-      document.getElementById("btn-lang-en").addEventListener("click", () => {
-        if (lang === "en") return;
-        lang = "en";
-        document.getElementById("btn-lang-en").classList.add("active");
-        document.getElementById("btn-lang-zh").classList.remove("active");
-        applyLang();
-        draw(curMonth - 1);
-      });
-
-      document.getElementById("btn-lang-zh").addEventListener("click", () => {
-        if (lang === "zh") return;
-        lang = "zh";
-        document.getElementById("btn-lang-zh").classList.add("active");
-        document.getElementById("btn-lang-en").classList.remove("active");
+      // ── Lang select ──────────────────────────────────────────────────────────
+      document.getElementById("lang-select").addEventListener("change", (e) => {
+        lang = e.target.value;
         applyLang();
         draw(curMonth - 1);
       });
@@ -5886,10 +5900,7 @@
         document.getElementById("ltv-pct-slider").value = ltvPctInit;
         document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
       }
-      if (lang !== "en") {
-        document.getElementById("btn-lang-" + lang).classList.add("active");
-        document.getElementById("btn-lang-en").classList.remove("active");
-      }
+      document.getElementById("lang-select").value = lang;
       if (!inclTaxBenefits)
         document
           .getElementById("btn-incl-taxbenefit")
