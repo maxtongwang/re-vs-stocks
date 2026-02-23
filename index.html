@@ -667,11 +667,11 @@
         margin: 0;
         line-height: 1.7;
       }
-      /* Default: 1 column (portrait). Wide: 2 columns with row alignment. */
+      /* Portrait: 1 column. Landscape or wide desktop: 2 columns. */
       #settings-grid {
         grid-template-columns: 1fr;
       }
-      @media (min-width: 440px) {
+      @media (orientation: landscape), (min-width: 768px) {
         #settings-grid {
           grid-template-columns: 1fr 1fr;
         }
