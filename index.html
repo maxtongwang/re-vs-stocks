@@ -5415,18 +5415,17 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range: target computed from revealed data (0..fullM), lerped in log-space
-        // during playback so the ceiling rises smoothly as lines grow.
+        // Y range: target from tip values at fullM only — prevents historical lows
+        // from collapsing the floor. Ceiling rises as lines grow; lerped in log-space.
         // Snaps instantly on slider drag / settings changes.
         let yMin = Infinity,
           yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          for (let m = 0; m <= fullM && m < w.length; m++) {
-            if (w[m] > yMax) yMax = w[m];
-            if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
-          }
+          const v = w[Math.min(fullM, w.length - 1)];
+          if (v > yMax) yMax = v;
+          if (v > 1000 && v < yMin) yMin = v;
         }
         if (!isFinite(yMin)) yMin = 50000;
         const _loRaw = yMin * 0.85;
