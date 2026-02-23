@@ -2023,10 +2023,13 @@
           propTaxRate: 0.01,
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
+          propTaxAnnualCap: 0.1,
           taxRate: 0.35,
           improvPct: 0.55,
-          propTaxNote: "FL: ~1.0% of current market value, no income tax state",
-          propTaxNoteZh: "佛州：约当前市值1.0%，无州所得税",
+          propTaxNote:
+            "FL Save Our Homes: ~1.0% of assessed value; non-homestead rental capped +10%/yr",
+          propTaxNoteZh:
+            "佛州《拯救家园》：评估价值约1.0%；非自住出租上限+10%/年",
           taxNote: "35% (35% fed + 0% FL — no income tax)",
           taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
           sources: {
@@ -2147,10 +2150,12 @@
           propTaxRate: 0.015,
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
+          propTaxAnnualCap: 0.06,
           taxRate: 0.457,
           improvPct: 0.22,
-          propTaxNote: "NY metro: ~1.5% of current market value",
-          propTaxNoteZh: "纽约都会区：约当前市值1.5%",
+          propTaxNote:
+            "NYC Class 1-2 residential: ~1.5% of assessed value; assessed value capped +6%/yr",
+          propTaxNoteZh: "纽约市第1-2类住宅：评估价值约1.5%；年增上限+6%",
           taxNote: "45.7% (35% fed + 10.9% NY)",
           taxNoteZh: "45.7%（联邦35% + 纽约州10.9%）",
           sources: {
@@ -2187,7 +2192,7 @@
         national: {
           propTaxRate: 0.011,
           propTaxTracksValue: true,
-          propTaxAnnualIncrease: 0.02,
+          propTaxAnnualIncrease: 0.0,
           taxRate: 0.38,
           improvPct: 0.55,
           propTaxNote:
@@ -2275,10 +2280,13 @@
           propTaxRate: 0.01,
           propTaxTracksValue: true,
           propTaxAnnualIncrease: 0.0,
+          propTaxAnnualCap: 0.1,
           taxRate: 0.35,
           improvPct: 0.65,
-          propTaxNote: "FL: ~1.0% of current market value, no income tax state",
-          propTaxNoteZh: "佛州：约当前市值1.0%，无州所得税",
+          propTaxNote:
+            "FL Save Our Homes: ~1.0% of assessed value; non-homestead rental capped +10%/yr",
+          propTaxNoteZh:
+            "佛州《拯救家园》：评估价值约1.0%；非自住出租上限+10%/年",
           taxNote: "35% (35% fed + 0% FL — no income tax)",
           taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
           sources: {
@@ -3504,8 +3512,17 @@
               1 +
               (rentGrowthSlice[yi] ??
                 rentGrowthSlice[rentGrowthSlice.length - 1]);
-            if (locCfg.propTaxTracksValue) ptax = pv * locCfg.propTaxRate;
-            else ptax *= 1 + locCfg.propTaxAnnualIncrease;
+            if (locCfg.propTaxTracksValue) {
+              const mktPtax = pv * locCfg.propTaxRate;
+              // States with assessment caps (e.g. FL 10%/yr, NYC 6%/yr): assessed value
+              // can rise to market value but no faster than the cap per year.
+              ptax =
+                (locCfg.propTaxAnnualCap ?? 0) > 0
+                  ? Math.min(mktPtax, ptax * (1 + locCfg.propTaxAnnualCap))
+                  : mktPtax;
+            } else {
+              ptax *= 1 + locCfg.propTaxAnnualIncrease;
+            }
           }
           // Refinance: fires only if new rate is ≥1% below current AND ≥24mo since last refi
           if (
