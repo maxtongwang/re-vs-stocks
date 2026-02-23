@@ -3578,12 +3578,12 @@
           const gross = r - (int + prin) - t - ins - mai;
           // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
           // Primary: standard deduction assumed — no incremental tax benefit; taxBenefit = 0.
-          // Rental tax benefits ON: full deductions (interest + costs + depreciation) offset rent income.
-          // Rental tax benefits OFF: rent income fully taxable with no deductions (always worse than ON).
+          // Rental tax benefits ON:  taxable = rent - interest - costs - depreciation
+          // Rental tax benefits OFF: taxable = rent - costs (no interest deduction, no depreciation shield)
           const taxBenefit = isPrimary
             ? 0
             : !inclTaxBenefits
-              ? -r * locCfg.taxRate // no deductions: taxed on gross rent
+              ? -(r - t - ins - mai) * locCfg.taxRate // remove interest + dep; costs still deductible
               : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) *
                 locCfg.taxRate;
           const netCF = gross + taxBenefit;
