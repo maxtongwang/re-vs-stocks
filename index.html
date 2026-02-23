@@ -5207,14 +5207,16 @@
           ctx.globalAlpha = 1.0;
         }
 
-        // Refi year markers
-        if (numRefis > 0) {
-          const refis = getRefis(startYear, endYear, numRefis);
+        // Refi year markers — use fired ratePeriods so chart matches decomp edu
+        // allDecomp[2] = 50% Down (first leveraged scenario; fired refis identical across leverage levels)
+        const firedRefis = (allDecomp[2]?.ratePeriods ?? []).slice(1); // slice(1): skip original period
+        if (firedRefis.length > 0) {
           const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
           let refiLabelIdx = 0;
-          for (const refi of refis) {
-            if (refi.m > monthsToShow) continue;
-            const x = tx(refi.m);
+          for (const p of firedRefis) {
+            if (p.fromM > monthsToShow) continue;
+            const x = tx(p.fromM);
+            const refiYr = startYear + Math.floor(p.fromM / 12);
             ctx.strokeStyle = "#666";
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);
@@ -5227,7 +5229,7 @@
             ctx.font = xLabelFont;
             ctx.textAlign = "center";
             const labelY = PT + 8 + (refiLabelIdx % 3) * 10;
-            ctx.fillText(`R${refi.year}`, x, labelY);
+            ctx.fillText(`R${refiYr}`, x, labelY);
             refiLabelIdx++;
           }
         }
