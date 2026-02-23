@@ -628,6 +628,35 @@
         margin: 3px 0 5px;
         line-height: 1.7;
       }
+      .tip {
+        position: relative;
+      }
+      .tip[data-tip]::after {
+        content: attr(data-tip);
+        position: absolute;
+        bottom: calc(100% + 6px);
+        left: 50%;
+        transform: translateX(-50%);
+        background: #1a1a1a;
+        color: #bbb;
+        font-size: 11px;
+        line-height: 1.5;
+        padding: 5px 9px;
+        border: 1px solid #333;
+        border-radius: 3px;
+        white-space: normal;
+        max-width: 220px;
+        text-align: left;
+        z-index: 999;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.12s;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+      }
+      .tip[data-tip]:hover::after,
+      .tip[data-tip].open::after {
+        opacity: 1;
+      }
       .leg-cagr {
         font-size: 9px;
         color: #444;
@@ -829,7 +858,7 @@
     </div>
 
     <div class="ctrl-row">
-      <span id="label-improv">Improvement %:</span>
+      <span id="label-improv" class="tip">Improvement %:</span>
       <select
         id="improv-slider"
         style="
@@ -906,22 +935,32 @@
         style="
           display: none;
           grid-column: 1 / -1;
-          align-items: center;
-          gap: 8px;
-          height: 24px;
+          flex-direction: column;
+          gap: 2px;
         "
       >
-        <span id="label-ltv-pct">LTV %:</span>
-        <input
-          type="range"
-          id="ltv-pct-slider"
-          min="50"
-          max="80"
-          step="5"
-          value="75"
-          style="flex: 1"
-        />
-        <span class="val" id="ltv-pct-val">75%</span>
+        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
+          <span id="label-ltv-pct">LTV %:</span>
+          <input
+            type="range"
+            id="ltv-pct-slider"
+            min="50"
+            max="80"
+            step="5"
+            value="75"
+            style="flex: 1"
+          />
+          <span class="val" id="ltv-pct-val">75%</span>
+        </div>
+        <span
+          id="ltv-tip-line"
+          style="
+            font-size: 10px;
+            color: #fff;
+            line-height: 13px;
+            padding-left: 2px;
+          "
+        ></span>
       </div>
       <!-- row 2: Includes — spans both columns -->
       <div
@@ -1458,6 +1497,10 @@
           labelPropMode: "Prop:",
           labelRefi: "Refi:",
           labelLTVPct: "LTV %:",
+          tipLtvLine:
+            "Loan-to-Value: new loan ÷ current property value. Bank won't lend above this ceiling.",
+          tipImprov:
+            "IRS: only the structure (not land) depreciates on a 27.5yr schedule. CA metro ~40%, TX ~60%.",
           labelLang: "Lang:",
           btnAdditive: "Additive",
           btnReinvest: "Reinvested",
@@ -1617,6 +1660,9 @@
           labelPropMode: "类型：",
           labelRefi: "重贷：",
           labelLTVPct: "LTV比例：",
+          tipLtvLine: "贷款价值比：新贷款 ÷ 当前房产价值。银行不超此比例放贷。",
+          tipImprov:
+            "IRS：只有建筑物（非土地）可按27.5年折旧。加州约40%，德州约60%。",
           labelLang: "语言：",
           btnAdditive: "叠加",
           btnReinvest: "复投",
@@ -3955,6 +4001,8 @@
         document.getElementById("label-propmode").textContent = s.labelPropMode;
         document.getElementById("label-refi").textContent = s.labelRefi;
         document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
+        document.getElementById("ltv-tip-line").textContent = s.tipLtvLine;
+        document.getElementById("label-improv").dataset.tip = s.tipImprov;
         document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
@@ -4564,6 +4612,10 @@
                 edu: () => {
                   const taxRatePct = Math.round(activeLocConfig.taxRate * 100);
                   const annualDep = Math.round((price * improvPct) / 27.5);
+                  const depClaimed = Math.round(
+                    annualDep * Math.min(yrs, 27.5),
+                  );
+                  const depRecapture = Math.round(depClaimed * 0.25);
                   const initRent = (price * startYield) / 12;
                   const initInt = (mort * mortRate) / 12;
                   const initPropTax =
@@ -4583,8 +4635,8 @@
                   );
                   if (reDc.cumTax >= 0) {
                     return isZh
-                      ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• 节税 ${fmt(reDc.cumTax)} | 利息${inclDepreciation ? "+折旧" : ""}抵扣 | ${W(taxRatePct + "%边际税率")} | ${yrs}年<br>• 首月：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → ~${fmt(initMonthlyTaxBen)}/月税收收益${inclDepreciation ? `<br>• 折旧：${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5年")} = ${fmt(annualDep)}/年账面亏损（不花钱）<br>&nbsp;&nbsp;· 出售时 ${W("25%")} 追缴${isPrimary ? "" : "（1031置换除外）"}` : `<br>• 开启<em>折旧</em>：${fmt(price)} × X% ÷ 27.5年 = 账面亏损，进一步减税`}`
-                      : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• saved ${fmt(reDc.cumTax)} | interest${inclDepreciation ? " + depreciation" : ""} deduction | ${W(taxRatePct + "% marginal rate")} | ${yrs}yrs<br>• mo-1: rent − interest − costs${inclDepreciation ? " − dep" : ""} = taxable → ~${fmt(initMonthlyTaxBen)}/mo benefit${inclDepreciation ? `<br>• depreciation: ${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5yr")} = ${fmt(annualDep)}/yr write-off (non-cash)<br>&nbsp;&nbsp;· recaptured at ${W("25%")} on sale${isPrimary ? "" : " — unless 1031 exchange"}` : `<br>• enable <em>Depreciation</em>: non-cash write-off reduces taxable income further`}`;
+                      ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• 节税 ${fmt(reDc.cumTax)} | 利息${inclDepreciation ? "+折旧" : ""}抵扣 | ${W(taxRatePct + "%边际税率")} | ${yrs}年<br>• 首月：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → ~${fmt(initMonthlyTaxBen)}/月税收收益${inclDepreciation ? `<br>• 折旧：${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5年")} = ${fmt(annualDep)}/年账面亏损（不花钱）<br>&nbsp;&nbsp;· 累计抵扣 ${W(fmt(depClaimed))} → 出售追缴 ${W(fmt(depRecapture))}（25%）${isPrimary ? "" : "（1031置换除外）"}` : `<br>• 开启<em>折旧</em>：${fmt(price)} × X% ÷ 27.5年 = 账面亏损，进一步减税`}`
+                      : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• saved ${fmt(reDc.cumTax)} | interest${inclDepreciation ? " + depreciation" : ""} deduction | ${W(taxRatePct + "% marginal rate")} | ${yrs}yrs<br>• mo-1: rent − interest − costs${inclDepreciation ? " − dep" : ""} = taxable → ~${fmt(initMonthlyTaxBen)}/mo benefit${inclDepreciation ? `<br>• depreciation: ${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5yr")} = ${fmt(annualDep)}/yr write-off (non-cash)<br>&nbsp;&nbsp;· ${W(fmt(depClaimed))} claimed → ${W(fmt(depRecapture))} recapture at sale${isPrimary ? "" : " — unless 1031 exchange"}` : `<br>• enable <em>Depreciation</em>: non-cash write-off reduces taxable income further`}`;
                   } else {
                     return isZh
                       ? `<strong style="color:${taxColor}">税务负担</strong><br>• 应缴 ${fmt(-reDc.cumTax)} | 租金 > 利息+成本${inclDepreciation ? "+折旧" : ""} → 净应税收入<br>&nbsp;&nbsp;· ${W(taxRatePct + "%边际税率")} → 每$1利润 = ${W(taxRatePct + "¢")}税<br>• 切换<em>税务优惠</em>可移除；或开启<em>折旧</em>加回亏损抵税`
@@ -5363,6 +5415,14 @@
       applyLang();
       updateLabel(totalMonths);
       draw(totalMonths - 1);
+
+      document.addEventListener("click", (e) => {
+        const t = e.target.closest(".tip");
+        document.querySelectorAll(".tip.open").forEach((el) => {
+          if (el !== t) el.classList.remove("open");
+        });
+        if (t) t.classList.toggle("open");
+      });
     </script>
   </body>
 </html>
