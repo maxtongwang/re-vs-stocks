@@ -3542,11 +3542,13 @@
           }
           const gross = r - (int + prin) - t - ins - mai;
           // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
-          // Primary: standard deduction assumed ($29,200 MFJ 2024) — mortgage interest provides
-          // no incremental tax benefit for most homeowners; taxBenefit = 0.
-          const taxBenefit =
-            isPrimary || !inclTaxBenefits
-              ? 0
+          // Primary: standard deduction assumed — no incremental tax benefit; taxBenefit = 0.
+          // Rental tax benefits ON: full deductions (interest + costs + depreciation) offset rent income.
+          // Rental tax benefits OFF: rent income fully taxable with no deductions (always worse than ON).
+          const taxBenefit = isPrimary
+            ? 0
+            : !inclTaxBenefits
+              ? -r * locCfg.taxRate // no deductions: taxed on gross rent
               : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) *
                 locCfg.taxRate;
           const netCF = gross + taxBenefit;
@@ -3705,7 +3707,7 @@
       let startYear = 1995;
       let endYear = 2025;
       let reinvest = false;
-      let improvPct = 0.4;
+      let improvPct = activeLocConfig.improvPct; // keep in sync with default location
       let isPrimary = false;
       let inclTaxBenefits = true,
         inclDepreciation = true,
@@ -4704,17 +4706,28 @@
             }
           }
           if (hasFloored) {
-            const afs = Math.max(7, Math.min(8, W / 80));
-            ctx.font = `${afs}px monospace`;
-            ctx.globalAlpha = 0.6;
-            ctx.fillStyle = "#aa7700";
+            const afs = Math.max(8, Math.min(10, W / 70));
+            ctx.font = `bold ${afs}px monospace`;
             ctx.textAlign = "center";
             const floorLabel =
               lang === "zh"
                 ? "▼ 部分曲线低于图表底部（净财富为负）"
-                : "▼ some lines below chart floor — negative wealth (costs > equity)";
-            ctx.fillText(floorLabel, PL + chartW / 2, H - 3);
+                : "▼ some lines below chart floor — negative wealth";
+            const labelX = PL + chartW / 2;
+            // Position midway in bottom padding, above year labels (H-6)
+            const labelY = H - PB + Math.round(PB * 0.55);
+            const tw = ctx.measureText(floorLabel).width;
+            ctx.globalAlpha = 0.75;
+            ctx.fillStyle = "#300000";
+            ctx.fillRect(
+              labelX - tw / 2 - 4,
+              labelY - afs - 1,
+              tw + 8,
+              afs + 4,
+            );
             ctx.globalAlpha = 1.0;
+            ctx.fillStyle = "#ff4444";
+            ctx.fillText(floorLabel, labelX, labelY);
           }
         }
 
