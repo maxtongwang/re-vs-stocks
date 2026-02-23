@@ -978,9 +978,20 @@
             <button class="toggle-btn" id="btn-refi-3">3</button>
           </div>
           <div class="toggle-group" id="refi-type-group">
-            <button class="toggle-btn active" id="btn-refi-rate">Bal</button>
+            <button class="toggle-btn active" id="btn-refi-rate">
+              Balance
+            </button>
             <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
           </div>
+          <span
+            id="refi-bal-tip"
+            style="
+              font-size: 10px;
+              color: #aaa;
+              line-height: 13px;
+              padding-left: 2px;
+            "
+          ></span>
         </div>
       </div>
       <!-- LTV row: spans both columns, hidden by default -->
@@ -1220,8 +1231,8 @@
           least 2 years have passed since the last refi or purchase
         </li>
         <li>
-          Bal (rate-and-term): refi to same remaining balance at the new lower
-          rate
+          Balance (rate-and-term): refi to same remaining balance at the new
+          lower rate
         </li>
         <li>
           LTV (cash-out): new loan = max(remaining balance, 75% of current
@@ -1551,6 +1562,8 @@
           labelPropMode: "Prop:",
           labelRefi: "Refi:",
           labelLTVPct: "LTV %:",
+          tipBalLine:
+            "Rate-and-term: keeps the same remaining balance, resets to a new 30-yr schedule at the lower rate.",
           tipLtvLine:
             "Loan-to-Value: new loan ÷ current property value. Bank won't lend above this ceiling.",
           tipImprov:
@@ -1560,6 +1573,7 @@
           btnReinvest: "Reinvested",
           btnRental: "Rental",
           btnPrimary: "Primary",
+          btnRefiBalance: "Balance",
           labelIncludes: "Includes:",
           btnTaxBenefits: "Tax Benefits",
           btnDepreciation: "Depreciation",
@@ -1624,7 +1638,7 @@
             const refiLabel = actual < nr ? `${actual}/${nr}x ⚠` : `${nr}x`;
             const refiStr =
               nr > 0
-                ? `Refi: ${W(refiLabel + " " + (isLTV ? "(LTV)" : "(Bal)"))} · `
+                ? `Refi: ${W(refiLabel + " " + (isLTV ? "(LTV)" : "(Balance)"))} · `
                 : "";
             return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}<br>${line2}<br>${refiStr}Cash flow: ${W(mode)}`;
           },
@@ -1646,7 +1660,7 @@
             const skipped = nr - actual;
             const refiStr =
               nr > 0
-                ? `Refi: ${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}x ${isLTV ? "LTV" : "Bal"} ⚠ ${skipped} skipped — rates rose above locked rate</span>` : `${nr}x ${isLTV ? "LTV" : "Bal"} (${refis.map((r) => r.year).join(", ")})`} · `
+                ? `Refi: ${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}x ${isLTV ? "LTV" : "Balance"} ⚠ ${skipped} skipped — rates rose above locked rate</span>` : `${nr}x ${isLTV ? "LTV" : "Balance"} (${refis.map((r) => r.year).join(", ")})`} · `
                 : "";
             if (isPrimary) {
               return (
@@ -1698,7 +1712,7 @@
                 "Refi count (0–3): number of refinances during the holding period",
                 "Purchase rate is the 30-yr fixed average for the start year, locked until a refi occurs",
                 "Rate rule: selects the N cheapest years to refi from historical data in the chosen period (N = refi count, excl. purchase year); a refi fires only if the new rate is ≥1% below the current rate and at least 2 years have passed since the last refi or purchase",
-                `Bal (rate-and-term): refi to same remaining balance at the new lower rate`,
+                `Balance (rate-and-term): refi to same remaining balance at the new lower rate`,
                 `LTV (cash-out): new loan = max(remaining balance, ${Math.round(ltvPct * 100)}% of current property value). Difference credited to investor cash position`,
                 "Each refi resets to a new 30-yr amortization at the new rate; no closing costs modeled",
                 'Rental + refi (tax interaction): rental mortgage interest is tax-deductible. When interest + depreciation exceed rent income, you have a "paper loss" — you owe no tax and may receive a refund, even though you are depositing rent checks. Refinancing to a lower rate reduces that interest deduction, shrinking the paper loss and its tax refund — partially offsetting the payment savings. In some cases the paper loss flips to taxable profit, adding a tax bill. Net refi benefit for rentals is always lower than the face-value payment savings suggest.',
@@ -1727,6 +1741,8 @@
           labelPropMode: "类型：",
           labelRefi: "重贷：",
           labelLTVPct: "LTV比例：",
+          tipBalLine:
+            "利率调整型：维持剩余贷款金额不变，以新低利率重新计算30年还款计划。",
           tipLtvLine: "贷款价值比：新贷款 ÷ 当前房产价值。银行不超此比例放贷。",
           tipImprov:
             "IRS：只有建筑物（非土地）可按27.5年折旧。加州约40%，德州约60%。",
@@ -1735,6 +1751,7 @@
           btnReinvest: "复投",
           btnRental: "出租",
           btnPrimary: "自住",
+          btnRefiBalance: "剩余贷款",
           labelIncludes: "计入：",
           btnTaxBenefits: "税务优惠",
           btnDepreciation: "折旧",
@@ -1798,7 +1815,7 @@
             const refiLabel = actual < nr ? `${actual}/${nr}次 ⚠` : `${nr}次`;
             const refiStr =
               nr > 0
-                ? `重贷：${W(refiLabel + (isLTV ? "（LTV）" : "（余额）"))} · `
+                ? `重贷：${W(refiLabel + (isLTV ? "（LTV）" : "（剩余贷款）"))} · `
                 : "";
             return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}<br>${line2}<br>${refiStr}现金流：${W(mode)}`;
           },
@@ -1820,7 +1837,7 @@
             const skipped = nr - actual;
             const refiStr =
               nr > 0
-                ? `重贷：${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}次${isLTV ? "LTV" : "余额"} ⚠ ${skipped}次跳过——利率高于已锁定利率</span>` : `${nr}次${isLTV ? "LTV" : "余额"}（${refis.map((r) => r.year).join("、")}年）`} · `
+                ? `重贷：${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}次${isLTV ? "LTV" : "剩余贷款"} ⚠ ${skipped}次跳过——利率高于已锁定利率</span>` : `${nr}次${isLTV ? "LTV" : "剩余贷款"}（${refis.map((r) => r.year).join("、")}年）`} · `
                 : "";
             if (isPrimary) {
               return (
@@ -1872,7 +1889,7 @@
                 "重贷次数（0–3）：持有期间进行重新贷款的次数",
                 "购房利率锁定为开始年份的30年固定利率均值，直至发生重贷",
                 "利率规则：从所选区间历史数据中选出利率最低的N个年份作为重贷时机（N等于重贷次数，不含购房年）；触发条件：新利率须低于当前利率至少1%，且距购房或上次重贷满2年",
-                `余额（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
+                `剩余贷款（利率调整）：以新低利率对剩余本金重新贷款，不增加贷款金额`,
                 `LTV（套现）：新贷款 = max(剩余本金, 当前房产价值×${Math.round(ltvPct * 100)}%)，差额计入投资者现金持仓`,
                 "每次重贷均以新贷款金额按新利率重新计算30年摊销，不计交易成本",
                 "出租+重贷（税务联动）：出租房贷款利息可从租金收入中抵税。当利息+折旧超过租金收入时，产生「纸面亏损」——即使每月都在收租，报税时仍显示亏损并可获得退税。重贷降低利率后，利息减少，可抵扣金额减少，纸面亏损缩小，退税也随之减少——从而部分抵消月供节省的效果。极端情况下纸面亏损转为应税利润，还会增加税务负担。出租房重贷的实际净收益始终低于月供节省的表面数字。",
@@ -4342,12 +4359,14 @@
         document.getElementById("label-refi").textContent = s.labelRefi;
         document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
         document.getElementById("ltv-tip-line").textContent = s.tipLtvLine;
+        document.getElementById("refi-bal-tip").textContent = s.tipBalLine;
         document.getElementById("label-improv").dataset.tip = s.tipImprov;
         document.getElementById("label-lang").textContent = s.labelLang;
         document.getElementById("btn-additive").textContent = s.btnAdditive;
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
         document.getElementById("btn-rental").textContent = s.btnRental;
         document.getElementById("btn-primary").textContent = s.btnPrimary;
+        document.getElementById("btn-refi-rate").textContent = s.btnRefiBalance;
         document.getElementById("label-includes").textContent = s.labelIncludes;
         document.getElementById("btn-incl-taxbenefit").textContent =
           s.btnTaxBenefits;
@@ -4490,6 +4509,7 @@
         if (!refiLTV) return;
         refiLTV = false;
         document.getElementById("row-ltv-pct").style.display = "none";
+        document.getElementById("refi-bal-tip").style.display = "";
         document.getElementById("btn-refi-rate").classList.add("active");
         document.getElementById("btn-refi-ltv").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -4502,6 +4522,7 @@
         if (refiLTV) return;
         refiLTV = true;
         document.getElementById("row-ltv-pct").style.display = "flex";
+        document.getElementById("refi-bal-tip").style.display = "none";
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
         allWealth = buildAllWealth(startYear);
