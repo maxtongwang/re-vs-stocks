@@ -877,72 +877,58 @@
             </optgroup>
           </select>
         </span>
+        <span class="hero-divider">·</span>
+        <span class="abbr-wrap">
+          <span
+            class="abbr-text"
+            id="lang-abbr"
+            style="font-size: 18px; padding-right: 10px"
+            >🇺🇸</span
+          >
+          <select class="abbr-sel" id="lang-select" title="Language">
+            <option value="en">🇺🇸</option>
+            <option value="zh">🇨🇳</option>
+          </select>
+        </span>
       </div>
     </div>
-    <div class="subtitle" id="subtitle">
-      dividends &amp; rent cash flow: additive
+    <div style="display: flex; align-items: center">
+      <div class="subtitle" id="subtitle" style="flex: 1">
+        dividends &amp; rent cash flow: additive
+      </div>
+      <button
+        class="toggle-btn"
+        id="share-btn"
+        title="Copy share link"
+        style="font-size: 13px; padding: 2px 6px; flex-shrink: 0"
+      >
+        🔗
+      </button>
     </div>
 
-    <div style="display: flex; gap: 8px; align-items: flex-start">
-      <div style="flex: 1; min-width: 0">
-        <div class="ctrl-row">
-          <span id="label-start">Start:</span>
-          <input
-            type="range"
-            id="start-year-slider"
-            min="1970"
-            max="2024"
-            value="1995"
-            step="1"
-          />
-          <span class="val" id="start-year-val">1995</span>
-        </div>
-        <div class="ctrl-row">
-          <span id="label-end">End:</span>
-          <input
-            type="range"
-            id="end-year-slider"
-            min="1971"
-            max="2026"
-            value="2026"
-            step="1"
-          />
-          <span class="val" id="end-year-val">2026</span>
-        </div>
-      </div>
-      <div
-        style="
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        "
-      >
-        <button
-          class="toggle-btn"
-          id="share-btn"
-          title="Copy share link"
-          style="font-size: 13px; padding: 2px 6px"
-        >
-          🔗
-        </button>
-        <select
-          id="lang-select"
-          title="Language"
-          style="
-            background: #1a1a1a;
-            border: 1px solid #444;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            color: #fff;
-            padding: 1px 4px;
-          "
-        >
-          <option value="en">🇺🇸</option>
-          <option value="zh">🇨🇳</option>
-        </select>
-      </div>
+    <div class="ctrl-row">
+      <span id="label-start">Start:</span>
+      <input
+        type="range"
+        id="start-year-slider"
+        min="1970"
+        max="2024"
+        value="1995"
+        step="1"
+      />
+      <span class="val" id="start-year-val">1995</span>
+    </div>
+    <div class="ctrl-row">
+      <span id="label-end">End:</span>
+      <input
+        type="range"
+        id="end-year-slider"
+        min="1971"
+        max="2026"
+        value="2026"
+        step="1"
+      />
+      <span class="val" id="end-year-val">2026</span>
     </div>
 
     <div class="ctrl-row">
@@ -4697,6 +4683,8 @@
       // ── Lang select ──────────────────────────────────────────────────────────
       document.getElementById("lang-select").addEventListener("change", (e) => {
         lang = e.target.value;
+        document.getElementById("lang-abbr").textContent =
+          lang === "zh" ? "🇨🇳" : "🇺🇸";
         applyLang();
         draw(curMonth - 1);
       });
@@ -5901,6 +5889,8 @@
         document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
       }
       document.getElementById("lang-select").value = lang;
+      document.getElementById("lang-abbr").textContent =
+        lang === "zh" ? "🇨🇳" : "🇺🇸";
       if (!inclTaxBenefits)
         document
           .getElementById("btn-incl-taxbenefit")
