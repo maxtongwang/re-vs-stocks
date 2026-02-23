@@ -289,15 +289,6 @@
         color: #333;
         margin: 0 7px;
       }
-      .subtitle {
-        font-size: 11px;
-        line-height: 16px; /* pin: 2 lines × 16px = 32px */
-        min-height: 32px;
-        color: #555;
-        text-align: center;
-        margin-top: 5px;
-        margin-bottom: 8px;
-      }
       .ctrl-row {
         display: flex;
         align-items: center;
@@ -890,20 +881,20 @@
             <option value="zh">🇨🇳</option>
           </select>
         </span>
+        <button
+          class="toggle-btn"
+          id="share-btn"
+          title="Copy share link"
+          style="
+            font-size: 13px;
+            padding: 2px 6px;
+            margin-left: 6px;
+            vertical-align: middle;
+          "
+        >
+          🔗
+        </button>
       </div>
-    </div>
-    <div style="display: flex; align-items: center">
-      <div class="subtitle" id="subtitle" style="flex: 1">
-        dividends &amp; rent cash flow: additive
-      </div>
-      <button
-        class="toggle-btn"
-        id="share-btn"
-        title="Copy share link"
-        style="font-size: 13px; padding: 2px 6px; flex-shrink: 0"
-      >
-        🔗
-      </button>
     </div>
 
     <div class="ctrl-row">
@@ -4353,13 +4344,6 @@
             ...g.items.map((item) => `<li>${item}</li>`),
           ])
           .join("");
-
-        document.getElementById("subtitle").innerHTML = s.subtitle(
-          reinvest,
-          endYear,
-          MAX_YEAR,
-          isPrimary,
-        );
       }
 
       // ── Apply language ────────────────────────────────────────────────────────
