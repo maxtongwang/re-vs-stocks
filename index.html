@@ -1940,7 +1940,7 @@
         0.1639, // 2025 (preliminary estimate)
         // SP500_2025_END
         // SP500_CUR_START (auto-updated monthly — current year YTD estimate)
-        0.0, // 2026 (estimate)
+        0.08, // 2026 (estimate — Bloomberg Wall St consensus)
         // SP500_CUR_END
       ];
       // S&P 500 annual dividend yields — Macrotrends historical
@@ -3279,7 +3279,7 @@
         0.03, // 2025 (preliminary estimate)
         // NASDAQ_2025_END
         // NASDAQ_CUR_START (auto-updated monthly — current year YTD estimate)
-        0.03, // 2026 (estimate)
+        0.1, // 2026 (estimate — Bloomberg analyst consensus)
         // NASDAQ_CUR_END
       ];
       const NASDAQ_DIV = [
@@ -4026,7 +4026,9 @@
       let allDecomp = [];
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
-      let curMonth = totalMonths;
+      let projStartM =
+        (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
+      let curMonth = Math.min(projStartM + 1, totalMonths);
 
       // Initially hidden: 20% Down (idx 3), 10% Down (idx 4), 3.5% Down (idx 5)
       const hidden = new Set([3, 4, 5]);
@@ -4074,28 +4076,43 @@
               .join("");
           tbody.appendChild(tr);
         }
-        // Final row: add last data point when simulation doesn't end on a 5-yr boundary
-        // This ensures the table matches the max-slider value shown in callout / decomp
-        {
-          const lastFiveYrM = Math.min(
-            Math.floor(dur / 5) * 5 * 12,
-            totalMonths - 1,
-          );
-          const mFinal = totalMonths - 1;
-          if (lastFiveYrM < mFinal) {
-            const yrFinal = startYear + Math.floor(mFinal / 12);
-            const moFinal = (mFinal % 12) + 1;
-            const tr = document.createElement("tr");
-            tr.innerHTML =
-              `<td>${yrFinal}/${moFinal.toString().padStart(2, "0")}</td>` +
-              allWealth
-                .map((w, i) => {
-                  const cls = hidden.has(i) ? ' class="col-hidden"' : "";
-                  return `<td${cls}>${fmt(w[mFinal])}</td>`;
-                })
-                .join("");
-            tbody.appendChild(tr);
-          }
+        // Primary final row: last actual data month
+        const mData = projStartM; // 0-based index of Jan 2026
+        const lastFiveYrM = Math.min(
+          Math.floor(dur / 5) * 5 * 12,
+          totalMonths - 1,
+        );
+        if (lastFiveYrM < mData) {
+          const yrF = startYear + Math.floor(mData / 12);
+          const moF = (mData % 12) + 1;
+          const tr = document.createElement("tr");
+          tr.innerHTML =
+            `<td>${yrF}/${moF.toString().padStart(2, "0")}</td>` +
+            allWealth
+              .map((w, i) => {
+                const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+                return `<td${cls}>${fmt(w[mData])}</td>`;
+              })
+              .join("");
+          tbody.appendChild(tr);
+        }
+        // Projection row: year-end estimate (dimmed italic)
+        if (totalMonths - 1 > mData) {
+          const mProj = totalMonths - 1;
+          const yrP = startYear + Math.floor(mProj / 12);
+          const moP = (mProj % 12) + 1;
+          const tr = document.createElement("tr");
+          tr.style.cssText =
+            "background:#1a1a00; opacity:0.7; font-style:italic";
+          tr.innerHTML =
+            `<td>${yrP}/${moP.toString().padStart(2, "0")} est.</td>` +
+            allWealth
+              .map((w, i) => {
+                const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+                return `<td${cls}>${fmt(w[mProj])}</td>`;
+              })
+              .join("");
+          tbody.appendChild(tr);
         }
         // Insert crash years not already on a 5-year interval
         const crashOffsets = MARKET_EVENTS.filter((e) => e.type === "crash")
@@ -4239,6 +4256,7 @@
           `Rent growth pre-2015: ${lnk(lSrc.rentPre2015)}`,
           `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
           `Rent yields: estimated from ${lnk(lSrc.rentYield)}`,
+          `2026 projection: S&amp;P 500 &amp; NASDAQ consensus per <a href="https://www.bloomberg.com/markets/stocks" target="_blank">Bloomberg</a> Wall Street estimates; home prices per <a href="https://www.corelogic.com/intelligence/u-s-housing-market-tracker/" target="_blank">CoreLogic 2026 outlook</a>`,
         ];
         document.getElementById("sources-list").innerHTML = items
           .map((i) => `<li>${i}</li>`)
@@ -5354,6 +5372,17 @@
           ctx.fillText(startYear + yr, tx(m), H - 6);
         }
 
+        // Projection zone shading
+        const pxStart = tx(projStartM);
+        if (pxStart < PL + chartW) {
+          ctx.fillStyle = "rgba(255,220,80,0.06)";
+          ctx.fillRect(pxStart, PT, PL + chartW - pxStart, chartH);
+          ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+          ctx.fillStyle = "#665";
+          ctx.textAlign = "left";
+          ctx.fillText("EST.", pxStart + 3, PT + 10);
+        }
+
         // Lines
         for (let i = 0; i < SCENARIOS.length; i++) {
           if (hidden.has(i)) continue;
@@ -5361,16 +5390,29 @@
           const color = SCENARIOS[i].color;
           const lw = i === 0 ? 2 : 1.5;
 
-          // Solid line, animated with slider
-          ctx.setLineDash([]);
           ctx.strokeStyle = color;
           ctx.lineWidth = lw;
           ctx.lineJoin = "round";
+          const solidEnd = Math.min(projStartM, monthsToShow);
+          // Solid: historical portion
+          ctx.setLineDash([]);
           ctx.beginPath();
           ctx.moveTo(tx(0), ty(w[0]));
-          for (let m = 1; m <= monthsToShow && m < w.length; m++)
+          for (let m = 1; m <= solidEnd && m < w.length; m++)
             ctx.lineTo(tx(m), ty(w[m]));
           ctx.stroke();
+          // Dashed: projection portion
+          if (monthsToShow > solidEnd) {
+            ctx.setLineDash([4, 4]);
+            ctx.globalAlpha = 0.7;
+            ctx.beginPath();
+            ctx.moveTo(tx(solidEnd), ty(w[solidEnd]));
+            for (let m = solidEnd + 1; m <= monthsToShow && m < w.length; m++)
+              ctx.lineTo(tx(m), ty(w[m]));
+            ctx.stroke();
+            ctx.setLineDash([]);
+            ctx.globalAlpha = 1.0;
+          }
         }
 
         // Tip dots
@@ -5478,7 +5520,8 @@
       function updateLabel(mInt) {
         const yr = startYear + Math.floor((mInt - 1) / 12);
         const mo = ((mInt - 1) % 12) + 1;
-        yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}`;
+        const est = mInt > projStartM + 1 ? " est." : "";
+        yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
       }
 
       // ── Play / pause ──────────────────────────────────────────────────────────
@@ -5553,14 +5596,16 @@
       function rebuild() {
         allWealth = buildAllWealth(startYear);
         totalMonths = (endYear - startYear + 1) * 12;
-        curMonth = totalMonths;
+        projStartM =
+          (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
+        curMonth = Math.min(projStartM + 1, totalMonths);
         sliderEl.max = totalMonths;
-        sliderEl.value = totalMonths;
+        sliderEl.value = curMonth;
         updateAssumptions();
-        updateLabel(totalMonths);
+        updateLabel(curMonth);
         buildTable();
         syncTableCols();
-        draw(totalMonths - 1);
+        draw(curMonth - 1);
       }
 
       function setStartYear(yr) {
