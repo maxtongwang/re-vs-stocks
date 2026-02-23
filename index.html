@@ -5415,23 +5415,38 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range from full dataset — fixed scale prevents axis jumps during animation
+        // Y range: target computed from revealed data (0..fullM), lerped in log-space
+        // during playback so the ceiling rises smoothly as lines grow.
+        // Snaps instantly on slider drag / settings changes.
         let yMin = Infinity,
           yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          for (let m = 0; m < w.length; m++) {
+          for (let m = 0; m <= fullM && m < w.length; m++) {
             if (w[m] > yMax) yMax = w[m];
             if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
           }
         }
         if (!isFinite(yMin)) yMin = 50000;
-        // Floor: 2-sig-fig round-down of yMin*0.85 — keeps lines near bottom of chart
         const _loRaw = yMin * 0.85;
         const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
-        const yLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
-        const yHi = yMax * 1.1;
+        const targetYLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
+        const targetYHi = yMax * 1.1;
+        if (animYLo === null || !playing) {
+          animYLo = targetYLo;
+          animYHi = targetYHi;
+        } else {
+          const s = 0.08; // ~97% in ~37 frames (≈0.6 s at 60 fps)
+          animYLo = Math.exp(
+            Math.log(animYLo) + (Math.log(targetYLo) - Math.log(animYLo)) * s,
+          );
+          animYHi = Math.exp(
+            Math.log(animYHi) + (Math.log(targetYHi) - Math.log(animYHi)) * s,
+          );
+        }
+        const yLo = animYLo;
+        const yHi = animYHi;
         const tx = (m) => PL + (m / Math.max(totalMonths - 1, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
         const ty = (v) =>
@@ -5726,6 +5741,10 @@
         rafId = null,
         lastTs = null,
         speedMultiplier = 1;
+
+      // Y-axis lerp state — null means "snap on next draw"
+      let animYLo = null,
+        animYHi = null;
 
       const speedBtn = document.getElementById("speed-btn");
 
