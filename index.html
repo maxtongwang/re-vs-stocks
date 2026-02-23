@@ -978,31 +978,17 @@
             min-height: 70px;
           "
         >
-          <!-- count + type on same horizontal line -->
-          <div
-            style="
-              display: flex;
-              align-items: center;
-              gap: 4px;
-              flex-wrap: nowrap;
-            "
-          >
-            <div class="toggle-group">
-              <button class="toggle-btn active" id="btn-refi-0">0</button>
-              <button class="toggle-btn" id="btn-refi-1">1</button>
-              <button class="toggle-btn" id="btn-refi-2">2</button>
-              <button class="toggle-btn" id="btn-refi-3">3</button>
-            </div>
-            <div
-              class="toggle-group"
-              id="refi-type-group"
-              style="display: none"
-            >
-              <button class="toggle-btn active" id="btn-refi-rate">
-                Balance
-              </button>
-              <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
-            </div>
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-refi-0">0</button>
+            <button class="toggle-btn" id="btn-refi-1">1</button>
+            <button class="toggle-btn" id="btn-refi-2">2</button>
+            <button class="toggle-btn" id="btn-refi-3">3</button>
+          </div>
+          <div class="toggle-group" id="refi-type-group" style="display: none">
+            <button class="toggle-btn active" id="btn-refi-rate">
+              Balance
+            </button>
+            <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
           </div>
           <span
             id="refi-bal-tip"
@@ -4716,7 +4702,7 @@
         const s = STRINGS[lang];
         const lbl = {
           title: isZh ? "收益明细" : "Return Breakdown",
-          appreciation: isZh ? "价格涨幅" : "Appreciation",
+          appreciation: isZh ? "资产价值" : "Asset Value",
           dividends: isZh ? "股息" : "Dividends",
           rentIncome: isZh ? "租金收入" : "Rent Income",
           interest: isZh ? "利息支出" : "Interest Paid",
@@ -4863,9 +4849,10 @@
                   (Math.pow((INIT + reDc.appr) / INIT, 1 / years) - 1) *
                   100
                 ).toFixed(1);
+                const barVal = fmt(INIT + reDc.appr);
                 return isZh
-                  ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• ${fmt(price)} → ${fmt(propVal)} | +${appPct}% | 年化 ${rePriceCagr}%<br>&nbsp;&nbsp;· ${downPct}%首付（${fmt(INIT)}）= 年化 <strong style="color:#ccc">${reOnCapCagr}%</strong>（${leverage}x 杠杆）<br>• 杠杆双向：房价 −10% → 本金 <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong>`
-                  : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• ${fmt(price)} → ${fmt(propVal)} | +${appPct}% | ${rePriceCagr}%/yr CAGR<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:#ccc">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage)<br>• leverage cuts both ways: −10% property → <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong> on your capital`;
+                  ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• 首付 ${fmt(INIT)} + 升值 ${fmt(reDc.appr)} = <strong style="color:#ccc">${barVal}</strong> | 房价 ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}%首付（${fmt(INIT)}）= 年化 <strong style="color:#ccc">${reOnCapCagr}%</strong>（${leverage}x 杠杆，${rePriceCagr}%/年房价）<br>• 杠杆双向：房价 −10% → 本金 <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong>`
+                  : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• down ${fmt(INIT)} + gain ${fmt(reDc.appr)} = <strong style="color:#ccc">${barVal}</strong> | property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:#ccc">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage, ${rePriceCagr}%/yr on property)<br>• leverage cuts both ways: −10% property → <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong> on your capital`;
               },
             });
             if (!isPrimary && reDc.cumRent > 0) {
