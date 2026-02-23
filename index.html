@@ -667,10 +667,12 @@
         margin: 0;
         line-height: 1.7;
       }
-      /* Wide: reorder grid items so rows align across both columns.
-         Portrait keeps DOM order: Prop, Refi, Includes, Cashflow.
-         Landscape: Prop+Includes on row 1, Refi+Cashflow on row 2. */
+      /* Wide: exactly 2 columns; reorder so Prop+Includes share row 1,
+         Refi+Cashflow share row 2. Portrait (< 440px): 1 col, DOM order. */
       @media (min-width: 440px) {
+        #settings-grid {
+          grid-template-columns: 1fr 1fr;
+        }
         #sg-prop {
           order: 1;
         }
@@ -974,7 +976,7 @@
       id="settings-grid"
       style="
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        grid-template-columns: 1fr;
         gap: 5px 16px;
         font-size: 11px;
         line-height: 14px;
@@ -5696,23 +5698,30 @@
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
       }
 
-      // ── Play / pause ──────────────────────────────────────────────────────────
+      // ── Play state machine ────────────────────────────────────────────────────
+      // States: STOPPED | PLAYING
       let playing = false,
         rafId = null,
         lastTs = null,
         speedMultiplier = 1;
 
       const speedBtn = document.getElementById("speed-btn");
-      speedBtn.addEventListener("click", () => {
-        speedMultiplier = speedMultiplier === 1 ? 2 : 1;
-        speedBtn.classList.toggle("active", speedMultiplier === 2);
-        if (!playing) playBtn.click();
-      });
+
+      function startPlay() {
+        if (playing) return; // guard: no double RAF
+        if (curMonth >= totalMonths) curMonth = 1; // restart from beginning if at end
+        sliderEl.value = Math.round(curMonth);
+        playing = true;
+        lastTs = null;
+        playBtn.innerHTML = "⏸";
+        rafId = requestAnimationFrame(tick);
+      }
 
       function stopPlay() {
+        if (!playing && rafId === null) return; // guard: already stopped
         playing = false;
         playBtn.innerHTML = "&#9654;";
-        if (rafId) {
+        if (rafId !== null) {
           cancelAnimationFrame(rafId);
           rafId = null;
         }
@@ -5744,16 +5753,16 @@
       }
 
       playBtn.addEventListener("click", () => {
-        if (playing) {
-          stopPlay();
-          return;
-        }
-        if (curMonth >= totalMonths) curMonth = 1;
-        sliderEl.value = Math.round(curMonth);
-        playing = true;
-        playBtn.textContent = "⏸";
-        lastTs = null;
-        rafId = requestAnimationFrame(tick);
+        if (playing) stopPlay();
+        else startPlay();
+      });
+
+      // 2x toggle: only auto-play when turning ON and animation is not finished
+      speedBtn.addEventListener("click", () => {
+        const turningOn = speedMultiplier === 1;
+        speedMultiplier = turningOn ? 2 : 1;
+        speedBtn.classList.toggle("active", speedMultiplier === 2);
+        if (turningOn && !playing && curMonth < totalMonths) startPlay();
       });
 
       // ── Slider ────────────────────────────────────────────────────────────────
@@ -5834,9 +5843,15 @@
         });
 
       // ── Resize ────────────────────────────────────────────────────────────────
+      // Debounced: rotation fires many rapid events; only redraw after it settles
+      let resizeTimer = null;
       window.addEventListener("resize", () => {
-        resizeCanvas();
-        draw(curMonth - 1);
+        if (resizeTimer !== null) clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(() => {
+          resizeTimer = null;
+          resizeCanvas();
+          draw(curMonth - 1);
+        }, 80);
       });
 
       // ── Init ──────────────────────────────────────────────────────────────────
