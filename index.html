@@ -1641,7 +1641,7 @@
               nr > 0
                 ? `Refi: ${W(refiLabel + " " + (isLTV ? "(LTV)" : "(Balance)"))} · `
                 : "";
-            return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}<br>${line2}<br>${refiStr}Cash flow: ${W(mode)}`;
+            return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}<br>${line2}${refiStr ? `<br>${refiStr.replace(/ · $/, "")}` : ""}<br>Cash flow: ${W(mode)}`;
           },
           dynamicLine: (
             sy,
@@ -1819,7 +1819,7 @@
               nr > 0
                 ? `重贷：${W(refiLabel + (isLTV ? "（LTV）" : "（剩余贷款）"))} · `
                 : "";
-            return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}<br>${line2}<br>${refiStr}现金流：${W(mode)}`;
+            return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}<br>${line2}${refiStr ? `<br>${refiStr.replace(/ · $/, "")}` : ""}<br>现金流：${W(mode)}`;
           },
           dynamicLine: (
             sy,
