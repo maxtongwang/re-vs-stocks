@@ -1074,6 +1074,7 @@
       <div id="decomp-edu"></div>
     </div>
 
+    <hr style="border: none; border-top: 1px solid #222; margin: 24px 0 0" />
     <div class="note" id="note-section">
       <strong id="label-assm-dyn" role="heading" aria-level="2"
         >Assumptions (dynamic)</strong
@@ -3930,6 +3931,29 @@
               .join("");
           tbody.appendChild(tr);
         }
+        // Final row: add last data point when simulation doesn't end on a 5-yr boundary
+        // This ensures the table matches the max-slider value shown in callout / decomp
+        {
+          const lastFiveYrM = Math.min(
+            Math.floor(dur / 5) * 5 * 12,
+            totalMonths - 1,
+          );
+          const mFinal = totalMonths - 1;
+          if (lastFiveYrM < mFinal) {
+            const yrFinal = startYear + Math.floor(mFinal / 12);
+            const moFinal = (mFinal % 12) + 1;
+            const tr = document.createElement("tr");
+            tr.innerHTML =
+              `<td>${yrFinal}/${moFinal.toString().padStart(2, "0")}</td>` +
+              allWealth
+                .map((w, i) => {
+                  const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+                  return `<td${cls}>${fmt(w[mFinal])}</td>`;
+                })
+                .join("");
+            tbody.appendChild(tr);
+          }
+        }
         // Insert crash years not already on a 5-year interval
         const crashOffsets = MARKET_EVENTS.filter((e) => e.type === "crash")
           .map((e) => ({ offset: e.year - startYear, ev: e }))
@@ -4137,6 +4161,16 @@
         document.querySelectorAll(".leg-text").forEach((el, i) => {
           el.innerHTML = legLabels[i];
         });
+        // Override first legend label with the actual selected index name
+        {
+          const idxText =
+            document.getElementById("index-select")?.selectedOptions[0]?.text;
+          const firstLeg = document.querySelector(".leg-text");
+          if (idxText && firstLeg) {
+            const suffix = lang === "zh" ? "（总回报）" : " (total)";
+            firstLeg.innerHTML = idxText + suffix;
+          }
+        }
         document.getElementById("th-year").textContent = s.thYear;
         document.getElementById("label-assm-dyn").textContent = s.assmDyn;
         document.getElementById("label-assm-fix").textContent = s.assmFix;
