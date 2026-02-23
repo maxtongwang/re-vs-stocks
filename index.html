@@ -1635,7 +1635,8 @@
             const line2 = isPrimary
               ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
               : `Rent yield: ${W(ry + "%")} · Improvement: ${W(ip + "%")}`;
-            const refiLabel = actual < nr ? `${actual}/${nr}x ⚠` : `${nr}x`;
+            const refiLabel =
+              actual < nr ? `${actual}/${nr}x ⚠ skip: higher rates` : `${nr}x`;
             const refiStr =
               nr > 0
                 ? `Refi: ${W(refiLabel + " " + (isLTV ? "(LTV)" : "(Balance)"))} · `
@@ -1660,7 +1661,7 @@
             const skipped = nr - actual;
             const refiStr =
               nr > 0
-                ? `Refi: ${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}x ${isLTV ? "LTV" : "Balance"} ⚠ ${skipped} skipped — rates rose above locked rate</span>` : `${nr}x ${isLTV ? "LTV" : "Balance"} (${refis.map((r) => r.year).join(", ")})`} · `
+                ? `Refi: ${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}x ${isLTV ? "LTV" : "Balance"} ⚠ skip: higher rates</span>` : `${nr}x ${isLTV ? "LTV" : "Balance"} (${refis.map((r) => r.year).join(", ")})`} · `
                 : "";
             if (isPrimary) {
               return (
@@ -1812,7 +1813,8 @@
             const line2 = isPrimary
               ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
               : `租金回报率：${W(ry + "%")} · 建筑：${W(ip + "%")}`;
-            const refiLabel = actual < nr ? `${actual}/${nr}次 ⚠` : `${nr}次`;
+            const refiLabel =
+              actual < nr ? `${actual}/${nr}次 ⚠ 跳过：利率偏高` : `${nr}次`;
             const refiStr =
               nr > 0
                 ? `重贷：${W(refiLabel + (isLTV ? "（LTV）" : "（剩余贷款）"))} · `
@@ -1837,7 +1839,7 @@
             const skipped = nr - actual;
             const refiStr =
               nr > 0
-                ? `重贷：${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}次${isLTV ? "LTV" : "剩余贷款"} ⚠ ${skipped}次跳过——利率高于已锁定利率</span>` : `${nr}次${isLTV ? "LTV" : "剩余贷款"}（${refis.map((r) => r.year).join("、")}年）`} · `
+                ? `重贷：${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}次${isLTV ? "LTV" : "剩余贷款"} ⚠ 跳过：利率偏高</span>` : `${nr}次${isLTV ? "LTV" : "剩余贷款"}（${refis.map((r) => r.year).join("、")}年）`} · `
                 : "";
             if (isPrimary) {
               return (
