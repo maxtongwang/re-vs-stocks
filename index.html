@@ -4596,27 +4596,34 @@
           }
         }
 
-        // Each table scales against its own total — total gets 100%, items proportional
-        function buildTable(rows, headerLabel, headerColor, totalVal) {
+        // Scale = sum of positive item values per table.
+        // Positive bars grow left→right; negative bars grow right→left.
+        // Sum(positive bars) - sum(negative bars) = total bar width. ✓
+        function buildTable(rows, headerLabel, headerColor) {
           if (!rows.length) return "";
-          const scale = Math.abs(totalVal) || 1;
+          const positiveSum =
+            rows
+              .filter((r) => !r.total)
+              .reduce((s, r) => s + Math.max(0, r.val), 0) || 1;
           let h = `<table class="decomp-table"><thead><tr><td colspan="3" class="decomp-table-head" style="color:${headerColor}">${headerLabel}</td></tr></thead><tbody>`;
           rows.forEach((row) => {
+            const isNeg = row.val < 0;
             const w = Math.min(
               100,
-              Math.round((Math.abs(row.val) / scale) * 100),
+              Math.round((Math.abs(row.val) / positiveSum) * 100),
             );
             const opacity = row.total ? 1 : row.base ? 0.8 : 0.7;
+            const barPos = isNeg ? "left:auto;right:0" : "left:0";
             const bold = row.total ? ";font-weight:bold" : "";
-            const sign = !row.total && !row.base && row.val < 0 ? "−" : "";
+            const sign = !row.total && !row.base && isNeg ? "−" : "";
             const dispVal =
               row.total || row.base
                 ? fmt(row.val)
                 : `${sign}${fmt(Math.abs(row.val))}`;
             h += `<tr class="decomp-row" data-key="${row.key}">
               <td class="decomp-lbl" style="color:${row.color}${bold}">${row.label}</td>
-              <td class="decomp-bar-td"><div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:${opacity}"></div></div></td>
-              <td class="decomp-amt" style="color:${row.color}${bold}">${dispVal}</td>
+              <td class="decomp-bar-td"><div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:${opacity};${barPos}"></div></div></td>
+              <td class="decomp-amt" style="color:${row.color}${bold};text-align:${isNeg ? "right" : "left"}">${dispVal}</td>
             </tr>`;
           });
           h += `</tbody></table>`;
@@ -4629,8 +4636,8 @@
 
         barsEl.innerHTML =
           `<div id="decomp-grid">` +
-          buildTable(spRows, idxLabel, spColor, spWealth) +
-          (bestIdx >= 0 ? buildTable(reRows, reLabel, reColor, bestVal) : "") +
+          buildTable(spRows, idxLabel, spColor) +
+          (bestIdx >= 0 ? buildTable(reRows, reLabel, reColor) : "") +
           `</div>`;
 
         // Wire hover/click for educational content
