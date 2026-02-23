@@ -110,6 +110,31 @@ def sp500_price_for_year(year: int, api_key: str) -> float | None:
     return None
 
 
+def sp500_ytd_return(year: int, api_key: str) -> float | None:
+    """Return YTD price return for current year: (latest close / Dec 31 prev year) - 1."""
+    def year_end_price(y: int) -> float | None:
+        start = f"{y}-12-26"
+        end   = f"{y+1}-01-05"
+        data  = fetch_fmp(f"/v3/historical-price-full/%5EGSPC?from={start}&to={end}", api_key)
+        hist  = data.get("historical", [])
+        dec_prices = [h for h in hist if h["date"] <= f"{y}-12-31"]
+        return dec_prices[0]["adjClose"] if dec_prices else None
+
+    def latest_close() -> float | None:
+        today = datetime.utcnow()
+        start = (today - timedelta(days=10)).strftime("%Y-%m-%d")
+        end   = today.strftime("%Y-%m-%d")
+        data  = fetch_fmp(f"/v3/historical-price-full/%5EGSPC?from={start}&to={end}", api_key)
+        hist  = data.get("historical", [])
+        return hist[0]["adjClose"] if hist else None
+
+    p_start = year_end_price(year - 1)
+    p_end   = latest_close()
+    if p_start and p_end and p_start > 0:
+        return round((p_end / p_start) - 1, 4)
+    return None
+
+
 # ── Mortgage rate from Treasury (FMP) ────────────────────────────────────────
 
 def mortgage_rate_from_treasury(api_key: str) -> float | None:
@@ -215,8 +240,10 @@ def patch_loc_estimate(html: str, var_name: str, new_val: float, year: int) -> s
     return new_html
 
 
-def patch_html(html: str, sp500_return: float | None,
-               mort_rate: float | None, date: str) -> str:
+def patch_html(html: str, sp500_return: float | None, sp500_cur: float | None,
+               mort_rate: float | None, date: str,
+               data_through_year: int | None = None,
+               data_through_month: int | None = None) -> str:
 
     if sp500_return is not None:
         ret_str = str(sp500_return)
@@ -256,6 +283,23 @@ def patch_html(html: str, sp500_return: float | None,
             html,
         )
 
+    # Update current-year (live) S&P 500 YTD estimate
+    if sp500_cur is not None:
+        cur_str = str(sp500_cur)
+        html = re.sub(
+            r"(// SP500_CUR_START[^\n]*\n\s*)([-\d.]+)(,)(\s*// \d{4}[^\n]*)",
+            rf"\g<1>{cur_str}\g<3>\g<4>",
+            html,
+        )
+
+    # Update DATA_THROUGH marker
+    if data_through_year is not None and data_through_month is not None:
+        html = re.sub(
+            r"const DATA_THROUGH_YEAR = \d+, DATA_THROUGH_MONTH = \d+;[^\n]*// DATA_THROUGH_MARKER",
+            f"const DATA_THROUGH_YEAR = {data_through_year}, DATA_THROUGH_MONTH = {data_through_month}; // DATA_THROUGH_MARKER",
+            html,
+        )
+
     return html
 
 
@@ -285,10 +329,22 @@ def main():
     mort = mortgage_rate_from_treasury(fmp_key)
     print(f"  → {mort*100:.2f}%" if mort is not None else "  → fetch failed, skipping")
 
+    # ── FMP: current-year S&P 500 YTD estimate ────────────────────────────────
+    cur_year = int(date[:4])
+    cur_month = int(date[5:7]) - 1  # month BEFORE current (last complete month)
+    if cur_month == 0:
+        cur_month = 12
+        cur_year -= 1
+    print(f"Fetching S&P 500 {cur_year} YTD return from FMP…")
+    sp_cur = sp500_ytd_return(cur_year, fmp_key)
+    print(f"  → {sp_cur}" if sp_cur is not None else "  → fetch failed, skipping")
+
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
 
-    html = patch_html(html, sp_ret, mort, date)
+    html = patch_html(html, sp_ret, sp_cur, mort, date,
+                      data_through_year=cur_year,
+                      data_through_month=cur_month)
 
     # ── FRED: FHFA HPI annual returns for all locations ───────────────────────
     if fred_key:
@@ -317,7 +373,7 @@ def main():
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\nDone. date={date}, sp500_{est_year}={sp_ret}, mortgage={mort}")
+    print(f"\nDone. date={date}, sp500_{est_year}={sp_ret}, sp500_{cur_year}_ytd={sp_cur}, mortgage={mort}")
 
 
 if __name__ == "__main__":

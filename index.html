@@ -904,11 +904,11 @@
         type="range"
         id="end-year-slider"
         min="1971"
-        max="2025"
-        value="2025"
+        max="2026"
+        value="2026"
         step="1"
       />
-      <span class="val" id="end-year-val">2025</span>
+      <span class="val" id="end-year-val">2026</span>
     </div>
 
     <div class="ctrl-row">
@@ -1869,8 +1869,11 @@
       // ── Historical data (1970–2025, 56 entries) ──────────────────────────────────────
       // 2025 values are preliminary estimates
       const BASE_YEAR = 1970,
-        HIST_YEAR = 2025, // last year with real data
-        MAX_YEAR = 2025;
+        HIST_YEAR = 2026, // last year with real data
+        MAX_YEAR = 2026;
+      // DATA_THROUGH: most recent month with reliable data (auto-updated by script)
+      // prettier-ignore
+      const DATA_THROUGH_YEAR = 2026, DATA_THROUGH_MONTH = 1; // DATA_THROUGH_MARKER
       let INIT = 1000000;
       const AMORT_TERMS = 360;
 
@@ -1936,6 +1939,9 @@
         // SP500_2025_START (auto-updated monthly from FMP)
         0.1639, // 2025 (preliminary estimate)
         // SP500_2025_END
+        // SP500_CUR_START (auto-updated monthly — current year YTD estimate)
+        0.0, // 2026 (estimate)
+        // SP500_CUR_END
       ];
       // S&P 500 annual dividend yields — Macrotrends historical
       const SP500_DIV = [
@@ -1949,6 +1955,8 @@
         0.019, 0.021, 0.021, 0.019, 0.021, 0.019, 0.016, 0.013, 0.016, 0.015,
         0.013,
         // 2025 (estimate)
+        0.013,
+        // 2026 (estimate)
         0.013,
       ];
       // ── Location config: per-metro tax rates & property tax rules ──────────────
@@ -2627,6 +2635,8 @@
         0.0751, 0.0734,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const OC_RENT_GROWTH = [
         // 1970–1977 (BLS CUURA421SEHA — LA/OC metro)
@@ -2642,6 +2652,8 @@
         0.0656, 0.0742, 0.031, 0.0195, 0.0216, 0.093, 0.1028, 0.0638, 0.0033,
         // 2025 (estimate)
         0.02,
+        // 2026 (estimate)
+        0.02,
       ];
       const OC_RENT_YIELDS = [
         // 1970–1993 (similar to LA, slightly lower as OC premium)
@@ -2654,6 +2666,8 @@
         0.04, 0.038, 0.036, 0.035, 0.035, 0.035, 0.033, 0.029, 0.027, 0.03,
         0.031,
         // 2025 (estimate)
+        0.031,
+        // 2026 (estimate)
         0.031,
       ];
 
@@ -2675,6 +2689,8 @@
         0.054, 0.172, 0.081, 0.046, 0.057,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const LA_RENT_GROWTH = [
         // 1970–1977 (BLS CUURA421SEHA — LA metro)
@@ -2689,6 +2705,8 @@
         0.0656, 0.0742, 0.031, 0.0195, 0.0216, 0.093, 0.1028, 0.0638, 0.0033,
         // 2025 (estimate)
         0.02,
+        // 2026 (estimate)
+        0.02,
       ];
       const LA_RENT_YIELDS = [
         // 1970–1993
@@ -2701,6 +2719,8 @@
         0.044, 0.042, 0.04, 0.039, 0.039, 0.039, 0.037, 0.033, 0.031, 0.033,
         0.033,
         // 2025 (estimate)
+        0.033,
+        // 2026 (estimate)
         0.033,
       ];
 
@@ -2722,6 +2742,8 @@
         0.063, 0.206, 0.093, 0.077, 0.061,
         // 2025 (estimate)
         0.04,
+        // 2026 (estimate)
+        0.04,
       ];
       const SD_RENT_GROWTH = [
         // 1970–1977 (pre-1978 US national CPI rent estimates)
@@ -2736,6 +2758,8 @@
         0.0841, 0.0788, 0.0285, 0.0219, -0.0177, 0.1395, 0.1108, 0.088, 0.0047,
         // 2025 (estimate)
         0.025,
+        // 2026 (estimate)
+        0.025,
       ];
       const SD_RENT_YIELDS = [
         // 1970–1993
@@ -2747,6 +2771,8 @@
         0.022, 0.019, 0.019, 0.022, 0.03, 0.04, 0.045, 0.05, 0.047, 0.042, 0.04,
         0.038, 0.037, 0.036, 0.036, 0.036, 0.035, 0.03, 0.03, 0.033, 0.035,
         // 2025 (estimate)
+        0.035,
+        // 2026 (estimate)
         0.035,
       ];
 
@@ -2768,6 +2794,8 @@
         -0.04, 0.062, 0.076, 0.016, 0.029,
         // 2025 (estimate)
         0.025,
+        // 2026 (estimate)
+        0.025,
       ];
       const SF_RENT_GROWTH = [
         // 1970–2024 (BLS CUURA422SEHA — SF metro, complete uninterrupted series)
@@ -2780,6 +2808,8 @@
         0.0654, 0.0482, 0.0462, 0.0383, 0.0074, -0.0027, 0.0425, 0.0327, 0.0247,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const SF_RENT_YIELDS = [
         // 1970–1993 (SF already premium, lower yields)
@@ -2791,6 +2821,8 @@
         0.05, 0.058, 0.063, 0.065, 0.06, 0.053, 0.05, 0.046, 0.04, 0.035, 0.03,
         0.028, 0.026, 0.025, 0.025, 0.025, 0.024, 0.022, 0.022, 0.025, 0.026,
         // 2025 (estimate)
+        0.026,
+        // 2026 (estimate)
         0.026,
       ];
 
@@ -2813,6 +2845,8 @@
         0.065, 0.214, 0.209, 0.109, 0.088,
         // 2025 (estimate)
         0.04,
+        // 2026 (estimate)
+        0.04,
       ];
       const MIAMI_RENT_GROWTH = [
         // 1970–2024 (BLS CUURA320SEHA — Miami metro; pre-1978 est)
@@ -2823,6 +2857,8 @@
         0.068, 0.0336, -0.0227, 0.0104, 0.003, 0.0213, 0.0262, 0.0574, 0.0452,
         0.0581, 0.0335, 0.0355, 0.0273, 0.0268, 0.0371, 0.186, 0.1011, 0.0477,
         // 2025 (estimate)
+        0.01,
+        // 2026 (estimate)
         0.01,
       ];
       const MIAMI_RENT_YIELDS = [
@@ -2836,6 +2872,8 @@
         0.045, 0.042, 0.04, 0.04, 0.042, 0.044, 0.041, 0.034, 0.038, 0.048,
         0.05,
         // 2025 (estimate)
+        0.05,
+        // 2026 (estimate)
         0.05,
       ];
 
@@ -2857,6 +2895,8 @@
         0.049, 0.214, 0.149, 0.022, 0.04,
         // 2025 (estimate)
         0.02,
+        // 2026 (estimate)
+        0.02,
       ];
       const DFW_RENT_GROWTH = [
         // 1970–1977 (BLS CUURA316SEHA — Dallas metro)
@@ -2871,6 +2911,8 @@
         0.0618, 0.0514, 0.0313, 0.0435, 0.0041, 0.1895, 0.0633, 0.009, -0.01,
         // 2025 (estimate)
         0.01,
+        // 2026 (estimate)
+        0.01,
       ];
       const DFW_RENT_YIELDS = [
         // 1970–1993 (high TX yields)
@@ -2882,6 +2924,8 @@
         0.08, 0.082, 0.085, 0.09, 0.095, 0.095, 0.096, 0.095, 0.092, 0.09,
         0.088, 0.085, 0.082, 0.082, 0.082, 0.075, 0.062, 0.068, 0.072, 0.07,
         // 2025 (estimate)
+        0.068,
+        // 2026 (estimate)
         0.068,
       ];
 
@@ -2903,6 +2947,8 @@
         0.065, 0.177, 0.054, 0.024, 0.055,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const SEATTLE_RENT_GROWTH = [
         // 1970–1977 (BLS CUURA423SEHA — Seattle metro; negative in Boeing bust years)
@@ -2919,6 +2965,8 @@
         0.1067, 0.0644, -0.0004, 0.0346, 0.0234, 0.1563, 0.0268, 0.0364, 0.0086,
         // 2025 (estimate)
         0.02,
+        // 2026 (estimate)
+        0.02,
       ];
       const SEATTLE_RENT_YIELDS = [
         // 1970–1993 (Boeing bust → low yields early, then recovery)
@@ -2931,6 +2979,8 @@
         0.04, 0.037, 0.037, 0.035, 0.033, 0.031, 0.03, 0.026, 0.028, 0.032,
         0.033,
         // 2025 (estimate)
+        0.033,
+        // 2026 (estimate)
         0.033,
       ];
 
@@ -2952,6 +3002,8 @@
         0.11, 0.18, 0.05, 0.04, 0.05,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const NYC_RENT_GROWTH = [
         // 1970–1993 (same as NY statewide — BLS Northeast CPI-Rent dominated by NYC)
@@ -2963,6 +3015,8 @@
         0.03, 0.028, 0.025, 0.012, -0.015, 0.005, 0.015, 0.032, 0.045, 0.042,
         0.045, 0.04, 0.035, 0.025, 0.022, 0.02, 0.065, 0.055, 0.028, 0.032,
         // 2025 (estimate)
+        0.025,
+        // 2026 (estimate)
         0.025,
       ];
       const NYC_RENT_YIELDS = [
@@ -2977,6 +3031,8 @@
         0.038, 0.036, 0.035, 0.034, 0.034, 0.034, 0.032, 0.028, 0.033, 0.036,
         0.036,
         // 2025 (estimate)
+        0.036,
+        // 2026 (estimate)
         0.036,
       ];
 
@@ -2994,6 +3050,8 @@
         0.0575, 0.1995, 0.1302, 0.0212, 0.0369,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const TX_RENT_GROWTH = [
         // 1970–1993
@@ -3005,6 +3063,8 @@
         0.042, 0.038, 0.03, 0.025, 0.028, 0.03, 0.085, 0.06, 0.025, 0.03,
         // 2025 (estimate)
         0.025,
+        // 2026 (estimate)
+        0.025,
       ];
       const TX_RENT_YIELDS = [
         // 1970–1993 (higher than CA, more landlord-friendly)
@@ -3015,6 +3075,8 @@
         0.087, 0.087, 0.086, 0.09, 0.092, 0.09, 0.088, 0.088, 0.086, 0.085,
         0.084, 0.082, 0.08, 0.08, 0.08, 0.077, 0.07, 0.062, 0.064, 0.065,
         // 2025 (estimate)
+        0.065,
+        // 2026 (estimate)
         0.065,
       ];
 
@@ -3032,6 +3094,8 @@
         0.0742, 0.2479, 0.1818, 0.0491, 0.0391,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const FL_RENT_GROWTH = [
         // 1970–1993
@@ -3043,6 +3107,8 @@
         0.045, 0.042, 0.038, 0.028, 0.025, 0.028, 0.095, 0.068, 0.028, 0.03,
         // 2025 (estimate)
         0.028,
+        // 2026 (estimate)
+        0.028,
       ];
       const FL_RENT_YIELDS = [
         // 1970–1993
@@ -3053,6 +3119,8 @@
         0.038, 0.038, 0.04, 0.048, 0.058, 0.062, 0.065, 0.062, 0.058, 0.055,
         0.052, 0.05, 0.048, 0.05, 0.05, 0.048, 0.042, 0.048, 0.052, 0.052,
         // 2025 (estimate)
+        0.052,
+        // 2026 (estimate)
         0.052,
       ];
 
@@ -3071,6 +3139,8 @@
         0.0844, 0.2121, 0.0687, 0.0259, 0.051,
         // 2025 (estimate)
         0.04,
+        // 2026 (estimate)
+        0.04,
       ];
       const WA_RENT_GROWTH = [
         // 1970–1993
@@ -3081,6 +3151,8 @@
         0.028, 0.03, 0.038, 0.042, 0.01, -0.008, 0.005, 0.018, 0.038, 0.05,
         0.048, 0.052, 0.048, 0.04, 0.032, 0.03, 0.032, 0.09, 0.062, 0.025, 0.03,
         // 2025 (estimate)
+        0.025,
+        // 2026 (estimate)
         0.025,
       ];
       const WA_RENT_YIELDS = [
@@ -3093,6 +3165,8 @@
         0.055, 0.052, 0.05, 0.048, 0.048, 0.048, 0.046, 0.04, 0.044, 0.047,
         0.047,
         // 2025 (estimate)
+        0.047,
+        // 2026 (estimate)
         0.047,
       ];
 
@@ -3111,6 +3185,8 @@
         0.0571, 0.1388, 0.0998, 0.0765, 0.0775,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const NY_RENT_GROWTH = [
         // 1970–1993
@@ -3121,6 +3197,8 @@
         0.03, 0.028, 0.025, 0.012, -0.015, 0.005, 0.015, 0.032, 0.045, 0.042,
         0.045, 0.04, 0.035, 0.025, 0.022, 0.02, 0.065, 0.055, 0.028, 0.032,
         // 2025 (estimate)
+        0.025,
+        // 2026 (estimate)
         0.025,
       ];
       const NY_RENT_YIELDS = [
@@ -3133,6 +3211,8 @@
         0.036, 0.034, 0.034, 0.033, 0.034, 0.034, 0.032, 0.028, 0.032, 0.034,
         0.034,
         // 2025 (estimate)
+        0.034,
+        // 2026 (estimate)
         0.034,
       ];
 
@@ -3149,6 +3229,8 @@
         0.296,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
       const NASDAQ_DIV = [
         // 1970–1993
@@ -3161,6 +3243,8 @@
         0.007, 0.007, 0.007, 0.007, 0.008, 0.007, 0.006, 0.005, 0.007, 0.006,
         0.005,
         // 2025 (estimate)
+        0.005,
+        // 2026 (estimate)
         0.005,
       ];
 
@@ -3178,6 +3262,8 @@
         0.1481, 0.1808, -0.0461, -0.293, -0.034, 0.004,
         // 2025 (estimate)
         0.05,
+        // 2026 (estimate)
+        0.05,
       ];
       // Approximate 20-yr Treasury coupon/distribution yield at start of each year (income component)
       // Used to split TLT_TOTAL into price-only vs income for additive mode. Source: FRED DGS20.
@@ -3192,6 +3278,8 @@
         0.039, 0.025, 0.027, 0.029, 0.028, 0.031, 0.021, 0.016, 0.021, 0.039,
         0.045,
         // 2025 (estimate)
+        0.045,
+        // 2026 (estimate)
         0.045,
       ];
       // 60/40: 60% S&P 500 + 40% LT Treasuries (annual rebalance assumed).
@@ -3220,6 +3308,8 @@
         0.0342, 0.0543, 0.1922, 0.0671, 0.0356, 0.0468,
         // 2025 (estimate)
         0.03,
+        // 2026 (estimate)
+        0.03,
       ];
 
       // CA rent growth — BLS CPI-West-Urban (1970–2014), Zillow ZORI CA (2015+)
@@ -3233,6 +3323,8 @@
         0.06, 0.065, 0.055, 0.045, 0.038, 0.03, 0.012, 0.108, 0.075, 0.032,
         0.04,
         // 2025 (estimate)
+        0.038,
+        // 2026 (estimate)
         0.038,
       ];
 
@@ -3248,6 +3340,8 @@
         0.0366, 0.0398, 0.0417, 0.0385, 0.0365, 0.0399, 0.0454, 0.0394, 0.0311,
         0.0296, 0.0534, 0.0681, 0.0672,
         // 2025 (estimate)
+        0.068,
+        // 2026 (estimate)
         0.068,
         // PROJ_MORT_START (auto-updated monthly from FMP treasury)
       ];
@@ -3266,6 +3360,8 @@
         0.04,
         // 2025 (estimate)
         0.04,
+        // 2026 (estimate)
+        0.04,
       ];
 
       // US National home price appreciation — FHFA USSTHPI Q4-to-Q4; pre-1976 est
@@ -3282,6 +3378,8 @@
         0.0626, 0.1803, 0.1098, 0.0546, 0.0561,
         // 2025 (estimate)
         0.04,
+        // 2026 (estimate)
+        0.04,
       ];
       const NATIONAL_RENT_GROWTH = [
         // 1970–1993
@@ -3292,6 +3390,8 @@
         0.025, 0.032, 0.038, 0.04, 0.02, -0.005, 0.008, 0.02, 0.035, 0.04, 0.04,
         0.04, 0.035, 0.03, 0.025, 0.025, 0.025, 0.075, 0.055, 0.03, 0.032,
         // 2025 (estimate)
+        0.03,
+        // 2026 (estimate)
         0.03,
       ];
       const NATIONAL_RENT_YIELDS = [
@@ -3305,6 +3405,8 @@
         0.068, 0.067, 0.066, 0.065, 0.066, 0.066, 0.064, 0.06, 0.065, 0.068,
         0.068,
         // 2025 (estimate)
+        0.068,
+        // 2026 (estimate)
         0.068,
       ];
 
@@ -3810,7 +3912,7 @@
 
       // ── Mutable state ─────────────────────────────────────────────────────────
       let startYear = 1995;
-      let endYear = 2025;
+      let endYear = 2026;
       let reinvest = false;
       let improvPct = activeLocConfig.improvPct; // keep in sync with default location
       let isPrimary = false;
@@ -4243,7 +4345,7 @@
       function getShareParams() {
         const p = new URLSearchParams();
         if (startYear !== 1995) p.set("s", startYear);
-        if (endYear !== 2025) p.set("e", endYear);
+        if (endYear !== 2026) p.set("e", endYear);
         if (reinvest) p.set("m", "r");
         if (isPrimary) p.set("p", "1");
         if (numRefis > 0) p.set("r", numRefis);
@@ -5501,13 +5603,16 @@
 
       allWealth = buildAllWealth(startYear);
       totalMonths = (endYear - startYear + 1) * 12;
-      curMonth = totalMonths;
+      // Default slider to the most recent month with data, not necessarily year-end
+      const dataThroughM =
+        (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH;
+      curMonth = Math.min(dataThroughM, totalMonths);
       sliderEl.max = totalMonths;
-      sliderEl.value = totalMonths;
+      sliderEl.value = curMonth;
       resizeCanvas();
       applyLang();
-      updateLabel(totalMonths);
-      draw(totalMonths - 1);
+      updateLabel(curMonth);
+      draw(curMonth - 1);
 
       document.addEventListener("click", (e) => {
         const t = e.target.closest(".tip");
