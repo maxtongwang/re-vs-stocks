@@ -3658,14 +3658,10 @@
             }
           }
           // Refinance: always discard a queued entry when its scheduled month arrives
-          // (it can never fire later). Fire if rate is ≥1% below current AND ≥24mo gap.
+          // (it can never fire later). Fire if new rate is strictly lower AND ≥24mo gap.
           if (mort > 0 && refiQueue.length > 0 && refiQueue[0].m === m) {
             const refi = refiQueue.shift();
-            if (
-              rem > 0 &&
-              refi.rate <= currentRate - 0.01 &&
-              m - lastRefiMonth >= 24
-            ) {
+            if (rem > 0 && refi.rate < currentRate && m - lastRefiMonth >= 24) {
               let newLoan = rem; // rate-and-term: keep same balance
               if (useLTV) {
                 newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
@@ -5207,16 +5203,14 @@
           ctx.globalAlpha = 1.0;
         }
 
-        // Refi year markers — use fired ratePeriods so chart matches decomp edu
-        // allDecomp[2] = 50% Down (first leveraged scenario; fired refis identical across leverage levels)
-        const firedRefis = (allDecomp[2]?.ratePeriods ?? []).slice(1); // slice(1): skip original period
-        if (firedRefis.length > 0) {
+        // Refi year markers — driven by getRefis (same source as configured count)
+        if (numRefis > 0) {
+          const refis = getRefis(startYear, endYear, numRefis);
           const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
           let refiLabelIdx = 0;
-          for (const p of firedRefis) {
-            if (p.fromM > monthsToShow) continue;
-            const x = tx(p.fromM);
-            const refiYr = startYear + Math.floor(p.fromM / 12);
+          for (const refi of refis) {
+            if (refi.m > monthsToShow) continue;
+            const x = tx(refi.m);
             ctx.strokeStyle = "#666";
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);
@@ -5229,7 +5223,7 @@
             ctx.font = xLabelFont;
             ctx.textAlign = "center";
             const labelY = PT + 8 + (refiLabelIdx % 3) * 10;
-            ctx.fillText(`R${refiYr}`, x, labelY);
+            ctx.fillText(`R${refi.year}`, x, labelY);
             refiLabelIdx++;
           }
         }
