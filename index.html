@@ -749,15 +749,31 @@
 
     <div class="ctrl-row">
       <span id="label-improv">Improvement %:</span>
-      <input
-        type="range"
+      <select
         id="improv-slider"
-        min="10"
-        max="80"
-        value="40"
-        step="5"
-      />
-      <span class="val" id="improv-val">40%</span>
+        style="
+          flex: 1;
+          background: #111;
+          color: #888;
+          border: 1px solid #333;
+          padding: 2px 4px;
+          font-size: 11px;
+          font-family: monospace;
+        "
+      >
+        <option value="22">22% — NYC (dense urban)</option>
+        <option value="28">28% — SF Bay Area</option>
+        <option value="32">32% — LA Basin</option>
+        <option value="33">33% — San Diego</option>
+        <option value="35">35% — NY state</option>
+        <option value="38">38% — CA state avg</option>
+        <option value="40" selected>40% — OC / CA standard</option>
+        <option value="50">50% — WA state</option>
+        <option value="55">55% — FL / WA metro / National</option>
+        <option value="60">60% — TX state</option>
+        <option value="65">65% — FL coastal</option>
+        <option value="70">70% — DFW metro</option>
+      </select>
     </div>
 
     <!-- Shared 2-col grid: left=1fr, right=auto.
@@ -3383,7 +3399,6 @@
         const locImprov = Math.round(activeLocConfig.improvPct * 100);
         improvPct = activeLocConfig.improvPct;
         document.getElementById("improv-slider").value = locImprov;
-        document.getElementById("improv-val").textContent = locImprov + "%";
         SP500_ANN = iPrice.map((r, i) => r + iDiv[i]);
         spMonthlyAll = toMonthly(SP500_ANN);
         spPriceMonthlyAll = toMonthly(iPrice);
@@ -4158,7 +4173,13 @@
         if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
         if (p.has("i")) {
           const v = parseInt(p.get("i"));
-          if (v >= 10 && v <= 80 && v % 5 === 0) improvPct = v / 100;
+          if (v >= 10 && v <= 80) {
+            const opts = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
+            const snapped = opts.reduce((a, b) =>
+              Math.abs(b - v) < Math.abs(a - v) ? b : a,
+            );
+            improvPct = snapped / 100;
+          }
         }
         if (p.has("h")) {
           hidden.clear();
@@ -4835,9 +4856,8 @@
 
       document
         .getElementById("improv-slider")
-        .addEventListener("input", function () {
+        .addEventListener("change", function () {
           improvPct = parseInt(this.value) / 100;
-          document.getElementById("improv-val").textContent = this.value + "%";
           allWealth = buildAllWealth(startYear);
           updateAssumptions();
           buildTable();
@@ -4858,9 +4878,14 @@
       document.getElementById("start-year-val").textContent = startYear;
       document.getElementById("end-year-slider").value = endYear;
       document.getElementById("end-year-val").textContent = endYear;
-      const ipPct = Math.round(improvPct * 100);
+      const IMPROV_OPTS = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
+      const snapImprov = (pct) =>
+        IMPROV_OPTS.reduce((a, b) =>
+          Math.abs(b - pct) < Math.abs(a - pct) ? b : a,
+        );
+      const ipPct = snapImprov(Math.round(improvPct * 100));
+      improvPct = ipPct / 100;
       document.getElementById("improv-slider").value = ipPct;
-      document.getElementById("improv-val").textContent = ipPct + "%";
       document.getElementById("end-year-slider").min = startYear + 1;
       document.getElementById("start-year-slider").max = endYear - 1;
       if (reinvest) {
