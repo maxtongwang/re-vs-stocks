@@ -220,6 +220,10 @@
         color: #66ff66;
         background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%2366ff66'/%3E%3C/svg%3E");
       }
+      .abbr-wrap.hero-init .abbr-text {
+        color: #aaa;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23aaa'/%3E%3C/svg%3E");
+      }
       .abbr-sel {
         position: absolute;
         inset: 0;
@@ -675,7 +679,17 @@
         The Last Chart To Understand<br />Real Estate vs Stock Market
       </h1>
       <div class="hero-sub">
-        <span class="hero-amount">$100,000</span>
+        <span class="abbr-wrap hero-init">
+          <span class="abbr-text" id="init-abbr">$100k</span>
+          <select class="abbr-sel" id="init-select">
+            <option value="100000" selected>$100k</option>
+            <option value="200000">$200k</option>
+            <option value="500000">$500k</option>
+            <option value="1000000">$1M</option>
+            <option value="2000000">$2M</option>
+            <option value="5000000">$5M</option>
+          </select>
+        </span>
         <span class="hero-divider">·</span>
         <span class="abbr-wrap hero-sp">
           <span class="abbr-text" id="index-abbr">S&P 500</span>
@@ -1706,8 +1720,8 @@
         HIST_YEAR = 2025, // last year with real data
         PROJ_END_YEAR = 2045, // projection horizon (shown when refi > 0)
         MAX_YEAR = 2025;
-      const INIT = 100000,
-        AMORT_TERMS = 360;
+      let INIT = 100000;
+      const AMORT_TERMS = 360;
 
       // S&P 500 annual price returns — Macrotrends / CRSP
       const SP500_PRICE = [
@@ -4177,6 +4191,7 @@
         if (!inclTaxBenefits) p.set("tb", "0");
         if (!inclDepreciation) p.set("dep", "0");
         if (!inclCosts) p.set("cos", "0");
+        if (INIT !== 100000) p.set("c", INIT);
         return p.toString();
       }
 
@@ -4228,6 +4243,11 @@
         if (p.has("tb")) inclTaxBenefits = p.get("tb") !== "0";
         if (p.has("dep")) inclDepreciation = p.get("dep") !== "0";
         if (p.has("cos")) inclCosts = p.get("cos") !== "0";
+        if (p.has("c")) {
+          const cv = parseInt(p.get("c"));
+          if ([100000, 200000, 500000, 1000000, 2000000, 5000000].includes(cv))
+            INIT = cv;
+        }
       }
 
       document.addEventListener("click", (e) => {
@@ -4923,6 +4943,9 @@
       document.getElementById("start-year-val").textContent = startYear;
       document.getElementById("end-year-slider").value = endYear;
       document.getElementById("end-year-val").textContent = endYear;
+      document.getElementById("init-select").value = INIT;
+      document.getElementById("init-abbr").textContent =
+        INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "k";
       const IMPROV_OPTS = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
       const snapImprov = (pct) =>
         IMPROV_OPTS.reduce((a, b) =>
@@ -4980,6 +5003,17 @@
       document
         .getElementById("location-select")
         .addEventListener("change", refreshDatasets);
+      const INIT_OPTS = [100000, 200000, 500000, 1000000, 2000000, 5000000];
+      const fmtInitAbbr = (v) =>
+        v >= 1000000 ? "$" + v / 1000000 + "M" : "$" + v / 1000 + "k";
+      document
+        .getElementById("init-select")
+        .addEventListener("change", function () {
+          INIT = parseInt(this.value);
+          document.getElementById("init-abbr").textContent = fmtInitAbbr(INIT);
+          allWealth = buildAllWealth(startYear);
+          draw(curMonth - 1);
+        });
 
       allWealth = buildAllWealth(startYear);
       totalMonths = (endYear - startYear + 1) * 12;
