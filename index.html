@@ -4846,7 +4846,7 @@
                           const propAtPayoff = Math.round(
                             propValEnd * Math.pow(1 + propCagr, yearsRem),
                           );
-                          displayWealth = propAtPayoff + cfAtEnd;
+                          displayWealth = Math.max(propAtPayoff + cfAtEnd, 0);
                           const cagrPct = (propCagr * 100).toFixed(1);
                           wealthLabel = `projected wealth at payoff (${endYear} base + ${yearsRem}yr @${cagrPct}%/yr)`;
                           wealthLabelZh = `预测还清时财富（${endYear}年基础+${yearsRem}年@${cagrPct}%/年）`;
@@ -5375,12 +5375,21 @@
         // Projection zone shading
         const pxStart = tx(projStartM);
         if (pxStart < PL + chartW) {
-          ctx.fillStyle = "rgba(255,220,80,0.06)";
+          ctx.fillStyle = "rgba(255,220,80,0.10)";
           ctx.fillRect(pxStart, PT, PL + chartW - pxStart, chartH);
+          // Boundary line
+          ctx.strokeStyle = "rgba(255,200,60,0.35)";
+          ctx.lineWidth = 1;
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(pxStart, PT);
+          ctx.lineTo(pxStart, PT + chartH);
+          ctx.stroke();
+          ctx.setLineDash([]);
           ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
-          ctx.fillStyle = "#665";
+          ctx.fillStyle = "#998844";
           ctx.textAlign = "left";
-          ctx.fillText("EST.", pxStart + 3, PT + 10);
+          ctx.fillText("EST.", pxStart + 4, PT + 10);
         }
 
         // Lines
@@ -5431,7 +5440,7 @@
 
         // Chasing line-head labels (right of current endpoint)
         {
-          const hm = Math.min(monthsToShow - 1, totalMonths - 1);
+          const hm = Math.min(monthsToShow, totalMonths - 1);
           if (hm >= 0) {
             ctx.font = `${lfs}px monospace`;
             ctx.textAlign = "left";
@@ -5598,7 +5607,7 @@
         totalMonths = (endYear - startYear + 1) * 12;
         projStartM =
           (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
-        curMonth = Math.min(projStartM + 1, totalMonths);
+        curMonth = totalMonths;
         sliderEl.max = totalMonths;
         sliderEl.value = curMonth;
         updateAssumptions();
@@ -5748,10 +5757,9 @@
 
       allWealth = buildAllWealth(startYear);
       totalMonths = (endYear - startYear + 1) * 12;
-      // Default slider to the most recent month with data, not necessarily year-end
-      const dataThroughM =
-        (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH;
-      curMonth = Math.min(dataThroughM, totalMonths);
+      projStartM =
+        (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
+      curMonth = totalMonths;
       sliderEl.max = totalMonths;
       sliderEl.value = curMonth;
       resizeCanvas();
