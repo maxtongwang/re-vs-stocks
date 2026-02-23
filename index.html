@@ -4867,13 +4867,6 @@
                           const cagrPct = (propCagr * 100).toFixed(1);
                           wealthLabel = `projected wealth at payoff (${endYear} base + ${yearsRem}yr @${cagrPct}%/yr)`;
                           wealthLabelZh = `预测还清时财富（${endYear}年基础+${yearsRem}年@${cagrPct}%/年）`;
-                        } else {
-                          const payoffM = p.fromM + 360;
-                          displayWealth = allWealth[bestIdx][payoffM];
-                          wealthLabel = "simulated wealth at payoff";
-                          wealthLabelZh = "还清时模拟总财富";
-                        }
-                        if (isBeyondSim) {
                           const simDurYrs = Math.round(n / 12);
                           const partialInt = Math.round(
                             p.pmt * n - (p.loan - remAtEnd),
@@ -4881,6 +4874,11 @@
                           return isZh
                             ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${endYear}（模拟${simDurYrs}年，还清年${payoffYr}）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 模拟内利息（${simDurYrs}年）：${W(fmt(partialInt))} | 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabelZh}：${W(fmt(displayWealth))}`
                             : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${endYear} (${simDurYrs}yrs in sim, payoff ${payoffYr})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· sim interest (${simDurYrs}yrs): ${W(fmt(partialInt))} | full-term: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabel}: ${W(fmt(displayWealth))}`;
+                        } else {
+                          const payoffM = p.fromM + 360;
+                          displayWealth = allWealth[bestIdx][payoffM];
+                          wealthLabel = "simulated wealth at payoff";
+                          wealthLabelZh = "还清时模拟总财富";
                         }
                         return isZh
                           ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabelZh}：${W(fmt(displayWealth))}`
