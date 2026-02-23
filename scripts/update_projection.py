@@ -91,31 +91,36 @@ def fetch_fred(series_id: str, start: str, end: str, fred_key: str) -> dict:
 
 # ── S&P 500 annual price return (FMP) ────────────────────────────────────────
 
-def sp500_price_for_year(year: int, api_key: str) -> float | None:
-    """Return (close[Dec 31 year] / close[Dec 31 year-1]) - 1 from FMP."""
-    def year_end_price(y: int) -> float | None:
+def _annual_return(ticker: str, year: int, api_key: str) -> float | None:
+    """Return (adjClose[Dec 31 year] / adjClose[Dec 31 year-1]) - 1 from FMP."""
+    def year_end_close(y: int) -> float | None:
         start = f"{y}-12-26"
         end   = f"{y+1}-01-05"
-        data  = fetch_fmp(f"/v3/historical-price-full/%5EGSPC?from={start}&to={end}", api_key)
+        data  = fetch_fmp(f"/v3/historical-price-full/{ticker}?from={start}&to={end}", api_key)
         hist  = data.get("historical", [])
         if not hist:
             return None
         dec_prices = [h for h in hist if h["date"] <= f"{y}-12-31"]
         return dec_prices[0]["adjClose"] if dec_prices else None
 
-    p_start = year_end_price(year - 1)
-    p_end   = year_end_price(year)
+    p_start = year_end_close(year - 1)
+    p_end   = year_end_close(year)
     if p_start and p_end and p_start > 0:
         return round((p_end / p_start) - 1, 4)
     return None
 
 
-def sp500_ytd_return(year: int, api_key: str) -> float | None:
-    """Return YTD price return for current year: (latest close / Dec 31 prev year) - 1."""
-    def year_end_price(y: int) -> float | None:
+def sp500_price_for_year(year: int, api_key: str) -> float | None:
+    """Return S&P 500 price return for a completed year."""
+    return _annual_return("%5EGSPC", year, api_key)
+
+
+def _ytd_return(ticker: str, year: int, api_key: str) -> float | None:
+    """Generic YTD return: (latest close / Dec 31 prev year close) - 1."""
+    def year_end_close(y: int) -> float | None:
         start = f"{y}-12-26"
         end   = f"{y+1}-01-05"
-        data  = fetch_fmp(f"/v3/historical-price-full/%5EGSPC?from={start}&to={end}", api_key)
+        data  = fetch_fmp(f"/v3/historical-price-full/{ticker}?from={start}&to={end}", api_key)
         hist  = data.get("historical", [])
         dec_prices = [h for h in hist if h["date"] <= f"{y}-12-31"]
         return dec_prices[0]["adjClose"] if dec_prices else None
@@ -124,15 +129,30 @@ def sp500_ytd_return(year: int, api_key: str) -> float | None:
         today = datetime.utcnow()
         start = (today - timedelta(days=10)).strftime("%Y-%m-%d")
         end   = today.strftime("%Y-%m-%d")
-        data  = fetch_fmp(f"/v3/historical-price-full/%5EGSPC?from={start}&to={end}", api_key)
+        data  = fetch_fmp(f"/v3/historical-price-full/{ticker}?from={start}&to={end}", api_key)
         hist  = data.get("historical", [])
         return hist[0]["adjClose"] if hist else None
 
-    p_start = year_end_price(year - 1)
+    p_start = year_end_close(year - 1)
     p_end   = latest_close()
     if p_start and p_end and p_start > 0:
         return round((p_end / p_start) - 1, 4)
     return None
+
+
+def sp500_ytd_return(year: int, api_key: str) -> float | None:
+    """YTD price return for S&P 500 (^GSPC)."""
+    return _ytd_return("%5EGSPC", year, api_key)
+
+
+def nasdaq_ytd_return(year: int, api_key: str) -> float | None:
+    """YTD price return for NASDAQ Composite (^IXIC)."""
+    return _ytd_return("%5EIXIC", year, api_key)
+
+
+def tlt_ytd_return(year: int, api_key: str) -> float | None:
+    """YTD total return for TLT (iShares 20+ yr Treasury ETF, adjClose includes distributions)."""
+    return _ytd_return("TLT", year, api_key)
 
 
 # ── Mortgage rate from Treasury (FMP) ────────────────────────────────────────
@@ -240,18 +260,32 @@ def patch_loc_estimate(html: str, var_name: str, new_val: float, year: int) -> s
     return new_html
 
 
-def patch_html(html: str, sp500_return: float | None, sp500_cur: float | None,
+def _patch_marker(html: str, start_tag: str, new_val: float) -> str:
+    """Replace the value on the line immediately after // {start_tag}."""
+    val_str = str(new_val)
+    return re.sub(
+        rf"(// {re.escape(start_tag)}[^\n]*\n\s*)([-\d.]+)(,)(\s*//[^\n]*)",
+        rf"\g<1>{val_str}\g<3>\g<4>",
+        html,
+    )
+
+
+def patch_html(html: str,
+               sp500_return: float | None, sp500_cur: float | None,
+               nasdaq_return: float | None, nasdaq_cur: float | None,
+               tlt_return: float | None, tlt_cur: float | None,
                mort_rate: float | None, date: str,
                data_through_year: int | None = None,
                data_through_month: int | None = None) -> str:
 
     if sp500_return is not None:
-        ret_str = str(sp500_return)
-        html = re.sub(
-            r"(// SP500_2025_START[^\n]*\n\s*)([-\d.]+)(,)(\s*// 2025[^\n]*)",
-            rf"\g<1>{ret_str}\g<3>\g<4>",
-            html,
-        )
+        html = _patch_marker(html, "SP500_2025_START", sp500_return)
+
+    if nasdaq_return is not None:
+        html = _patch_marker(html, "NASDAQ_2025_START", nasdaq_return)
+
+    if tlt_return is not None:
+        html = _patch_marker(html, "TLT_2025_START", tlt_return)
 
     if mort_rate is not None:
         rates     = generate_glide(mort_rate)
@@ -283,14 +317,13 @@ def patch_html(html: str, sp500_return: float | None, sp500_cur: float | None,
             html,
         )
 
-    # Update current-year (live) S&P 500 YTD estimate
+    # Update current-year (live) YTD estimates — all three indices together
     if sp500_cur is not None:
-        cur_str = str(sp500_cur)
-        html = re.sub(
-            r"(// SP500_CUR_START[^\n]*\n\s*)([-\d.]+)(,)(\s*// \d{4}[^\n]*)",
-            rf"\g<1>{cur_str}\g<3>\g<4>",
-            html,
-        )
+        html = _patch_marker(html, "SP500_CUR_START", sp500_cur)
+    if nasdaq_cur is not None:
+        html = _patch_marker(html, "NASDAQ_CUR_START", nasdaq_cur)
+    if tlt_cur is not None:
+        html = _patch_marker(html, "TLT_CUR_START", tlt_cur)
 
     # Update DATA_THROUGH marker
     if data_through_year is not None and data_through_month is not None:
@@ -319,17 +352,25 @@ def main():
     date     = sys.argv[1] if len(sys.argv) > 1 else datetime.utcnow().strftime("%Y-%m")
     est_year = int(date[:4]) - 1   # e.g. running in 2026 → update 2025
 
-    # ── FMP: S&P 500 annual return ─────────────────────────────────────────────
+    # ── FMP: prior-year annual returns ────────────────────────────────────────
     print(f"Fetching S&P 500 {est_year} annual return from FMP…")
     sp_ret = sp500_price_for_year(est_year, fmp_key)
     print(f"  → {sp_ret}" if sp_ret is not None else "  → fetch failed, skipping")
+
+    print(f"Fetching NASDAQ {est_year} annual return from FMP…")
+    nasdaq_ret = _annual_return("%5EIXIC", est_year, fmp_key)
+    print(f"  → {nasdaq_ret}" if nasdaq_ret is not None else "  → fetch failed, skipping")
+
+    print(f"Fetching TLT {est_year} annual return from FMP…")
+    tlt_ret = _annual_return("TLT", est_year, fmp_key)
+    print(f"  → {tlt_ret}" if tlt_ret is not None else "  → fetch failed, skipping")
 
     # ── FMP: mortgage rate from Treasury ──────────────────────────────────────
     print("Fetching 10yr Treasury rate from FMP…")
     mort = mortgage_rate_from_treasury(fmp_key)
     print(f"  → {mort*100:.2f}%" if mort is not None else "  → fetch failed, skipping")
 
-    # ── FMP: current-year S&P 500 YTD estimate ────────────────────────────────
+    # ── FMP: current-year YTD estimates (all three indices together) ──────────
     cur_year = int(date[:4])
     cur_month = int(date[5:7]) - 1  # month BEFORE current (last complete month)
     if cur_month == 0:
@@ -339,10 +380,22 @@ def main():
     sp_cur = sp500_ytd_return(cur_year, fmp_key)
     print(f"  → {sp_cur}" if sp_cur is not None else "  → fetch failed, skipping")
 
+    print(f"Fetching NASDAQ {cur_year} YTD return from FMP…")
+    nasdaq_cur = nasdaq_ytd_return(cur_year, fmp_key)
+    print(f"  → {nasdaq_cur}" if nasdaq_cur is not None else "  → fetch failed, skipping")
+
+    print(f"Fetching TLT {cur_year} YTD return from FMP…")
+    tlt_cur = tlt_ytd_return(cur_year, fmp_key)
+    print(f"  → {tlt_cur}" if tlt_cur is not None else "  → fetch failed, skipping")
+
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
 
-    html = patch_html(html, sp_ret, sp_cur, mort, date,
+    html = patch_html(html,
+                      sp_ret, sp_cur,
+                      nasdaq_ret, nasdaq_cur,
+                      tlt_ret, tlt_cur,
+                      mort, date,
                       data_through_year=cur_year,
                       data_through_month=cur_month)
 
@@ -373,7 +426,9 @@ def main():
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
 
-    print(f"\nDone. date={date}, sp500_{est_year}={sp_ret}, sp500_{cur_year}_ytd={sp_cur}, mortgage={mort}")
+    print(f"\nDone. date={date}, mortgage={mort}")
+    print(f"  {est_year} annual: sp500={sp_ret}, nasdaq={nasdaq_ret}, tlt={tlt_ret}")
+    print(f"  {cur_year} YTD:    sp500={sp_cur}, nasdaq={nasdaq_cur}, tlt={tlt_cur}")
 
 
 if __name__ == "__main__":
