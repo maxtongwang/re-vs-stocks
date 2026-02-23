@@ -5720,10 +5720,10 @@
           }
         }
 
-        // Update communication elements
-        updateOutcomeCallout(monthsToShow);
-        updateLegendCagr(monthsToShow);
-        renderDecomp(monthsToShow);
+        // Update communication elements with integer month (array index safe)
+        updateOutcomeCallout(fullM);
+        updateLegendCagr(fullM);
+        renderDecomp(fullM);
       }
 
       // ── Year label ────────────────────────────────────────────────────────────
