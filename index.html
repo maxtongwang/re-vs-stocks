@@ -4419,7 +4419,7 @@
         const hrEl = document.getElementById("decomp-divider");
         if (!barsEl || !allDecomp.length) return;
 
-        const m = Math.min(monthsToShow - 1, allWealth[0].length - 1);
+        const m = Math.min(monthsToShow, allWealth[0].length - 1);
         if (m < 5) {
           barsEl.innerHTML = "";
           if (titleEl) titleEl.textContent = "";
