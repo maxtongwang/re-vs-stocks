@@ -4492,6 +4492,8 @@
             document.getElementById("refi-type-group").style.display = hasRefis
               ? "flex"
               : "none";
+            document.getElementById("refi-bal-tip").style.display =
+              hasRefis && !refiLTV ? "" : "none";
             if (!hasRefis)
               document.getElementById("row-ltv-pct").style.display = "none";
             else if (refiLTV)
@@ -5845,6 +5847,8 @@
             .classList.toggle("active", i === numRefis),
         );
         document.getElementById("refi-type-group").style.display = "flex";
+      } else {
+        document.getElementById("refi-bal-tip").style.display = "none";
       }
       if (refiLTV && numRefis > 0) {
         document.getElementById("btn-refi-ltv").classList.add("active");
