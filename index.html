@@ -657,6 +657,79 @@
         margin-left: 3px;
         letter-spacing: -0.2px;
       }
+      /* ── Return decomposition panel ─────────────────────────────────── */
+      #decomp-panel {
+        margin: 10px 0 6px;
+        font-family: monospace;
+      }
+      #decomp-title {
+        font-size: 10px;
+        color: #444;
+        margin-bottom: 6px;
+      }
+      .decomp-row {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin-bottom: 3px;
+        font-size: 10px;
+        cursor: pointer;
+        user-select: none;
+      }
+      .decomp-label {
+        color: #555;
+        min-width: 88px;
+        text-align: right;
+        transition: color 0.1s;
+        flex-shrink: 0;
+      }
+      .decomp-row:hover .decomp-label {
+        color: #ccc;
+      }
+      .decomp-row.active-edu .decomp-label {
+        color: #ccc;
+      }
+      .decomp-bar-track {
+        flex: 1;
+        height: 5px;
+        background: #1a1a1a;
+        border-radius: 2px;
+        position: relative;
+        overflow: visible;
+      }
+      .decomp-bar {
+        height: 5px;
+        border-radius: 2px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        transition: width 0.25s ease;
+      }
+      .decomp-val {
+        min-width: 70px;
+        text-align: left;
+        flex-shrink: 0;
+      }
+      #decomp-divider {
+        border: none;
+        border-top: 1px solid #222;
+        margin: 4px 0;
+      }
+      #decomp-total-row {
+        display: flex;
+        gap: 5px;
+        font-size: 10px;
+        align-items: center;
+      }
+      #decomp-edu {
+        font-size: 10px;
+        color: #555;
+        line-height: 1.65;
+        margin-top: 6px;
+        min-height: 16px;
+        border-left: 2px solid #222;
+        padding-left: 6px;
+      }
     </style>
   </head>
   <body>
@@ -899,10 +972,8 @@
             "
           >
             <button class="toggle-btn active" id="btn-incl-costs">Costs</button>
-            <span
-              id="label-costs-note"
-              style="color: #555; font-size: 9px; white-space: nowrap"
-              >(prop tax · ins 0.5% · maint 1%)</span
+            <span id="label-costs-note" style="color: #555; font-size: 9px"
+              >(tax · ins · maint · dep · int)</span
             >
           </div>
         </div>
@@ -982,6 +1053,13 @@
         </thead>
         <tbody id="table-body"></tbody>
       </table>
+    </div>
+
+    <div id="decomp-panel">
+      <div id="decomp-title"></div>
+      <div id="decomp-bars"></div>
+      <hr id="decomp-divider" />
+      <div id="decomp-edu"></div>
     </div>
 
     <div class="note" id="note-section">
@@ -1393,7 +1471,7 @@
           btnTaxBenefits: "Tax benefits",
           btnDepreciation: "Depreciation",
           btnCosts: "Costs",
-          labelCostsNote: "(prop tax · ins 0.5% · maint 1%)",
+          labelCostsNote: "(tax · ins · maint · dep · int)",
           legendLabels: [
             "S&P 500 (total)",
             "RE All Cash",
@@ -1563,7 +1641,7 @@
           btnTaxBenefits: "税务优惠",
           btnDepreciation: "折旧",
           btnCosts: "持有成本",
-          labelCostsNote: "（房产税 · 保险0.5% · 维护1%）",
+          labelCostsNote: "（税·保险·维护·折旧·利息）",
           legendLabels: [
             "S&P 500 (总回报)",
             "房产 全现金",
@@ -3500,9 +3578,11 @@
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
-        // Primary residences: no depreciation deduction (IRS rule); also respects inclDepreciation toggle
+        // Primary residences: no depreciation deduction (IRS rule); also respects inclDepreciation + inclCosts toggles
         const dep =
-          isPrimary || !inclDepreciation ? 0 : (price * improvPct) / 27.5 / 12;
+          isPrimary || !inclDepreciation || !inclCosts
+            ? 0
+            : (price * improvPct) / 27.5 / 12;
         let pv = price,
           rem = mort;
         let sched = mort > 0 ? amortize(mort, mortRate / 12) : [];
@@ -3515,6 +3595,12 @@
         const refiQueue = refis ? [...refis] : [];
         let lastRefiMonth = -Infinity; // tracks month of last refi (or purchase)
         const w = [];
+        // Decomp: cumulative component totals (additive basis, always — for education)
+        let cumRentD = 0,
+          cumIntD = 0,
+          cumCostsD = 0,
+          cumTaxD = 0;
+        const dComp = [];
         for (let m = 0; m < caM.length; m++) {
           // Apply appreciation first so LTV uses current value
           pv *= 1 + caM[m];
@@ -3588,6 +3674,19 @@
                 locCfg.taxRate;
           const netCF = gross + taxBenefit;
 
+          // Decomp: accumulate components (additive basis regardless of reinvest)
+          cumRentD += r;
+          cumIntD += int;
+          cumCostsD += t + ins + mai;
+          cumTaxD += taxBenefit;
+          dComp.push({
+            appr: Math.round(pv - price),
+            cumRent: Math.round(cumRentD),
+            cumInt: Math.round(cumIntD),
+            cumCosts: Math.round(cumCostsD),
+            cumTax: Math.round(cumTaxD),
+          });
+
           if (reinvest) {
             // Only compound positive pool at S&P rate.
             // Negative balance = deficit funded out-of-pocket, accumulates linearly.
@@ -3606,7 +3705,10 @@
           if (w[i] < floor) floor = w[i];
           if (floor < 0) w[i] = floor;
         }
-        return w;
+        return {
+          wealth: w,
+          decomp: { price, mort, down, mortRate, startYield, dComp },
+        };
       }
 
       // simSP: simulate S&P 500 wealth.
@@ -3615,24 +3717,31 @@
       function simSP(priceSlice, totalSlice, divSlice, reinvest) {
         if (reinvest) {
           let v = INIT;
-          const w = [];
+          const w = [],
+            dComp = [];
           for (const r of totalSlice) {
             v *= 1 + r;
             w.push(Math.round(v));
+            dComp.push({ appr: Math.round(v - INIT), cumDiv: 0 }); // divs embedded in total return
           }
-          return w;
+          return { wealth: w, decomp: { dComp } };
         } else {
           let v = INIT,
             divCash = 0;
-          const w = [];
+          const w = [],
+            dComp = [];
           for (let m = 0; m < priceSlice.length; m++) {
             v *= 1 + priceSlice[m];
             const annDiv =
               divSlice[Math.floor(m / 12)] ?? divSlice[divSlice.length - 1];
             divCash += v * (annDiv / 12);
             w.push(Math.round(v + divCash));
+            dComp.push({
+              appr: Math.round(v - INIT),
+              cumDiv: Math.round(divCash),
+            });
           }
-          return w;
+          return { wealth: w, decomp: { dComp } };
         }
       }
 
@@ -3650,7 +3759,7 @@
         const mr = MORTGAGE_RATES[i];
         const ry = activeCaRentYields[i];
         const refis = getRefis(yr, endYear, numRefis); // refis only in historical range
-        return [
+        const raw = [
           simSP(spP, sp, spD, reinvest),
           simRE(
             1,
@@ -3743,6 +3852,8 @@
             inclCosts,
           ),
         ];
+        allDecomp = raw.map((r) => r.decomp);
+        return raw.map((r) => r.wealth);
       }
 
       // ── Mutable state ─────────────────────────────────────────────────────────
@@ -3758,6 +3869,7 @@
       let refiLTV = false;
       let refiLTVPct = 0.75;
       let lang = "en";
+      let allDecomp = [];
       let allWealth = buildAllWealth(startYear);
       let totalMonths = (endYear - startYear + 1) * 12;
       let curMonth = totalMonths;
@@ -4087,7 +4199,18 @@
             if (key === "taxbenefit") inclTaxBenefits = !inclTaxBenefits;
             else if (key === "depreciation")
               inclDepreciation = !inclDepreciation;
-            else inclCosts = !inclCosts;
+            else {
+              // Costs is master toggle: controls all 5 items
+              inclCosts = !inclCosts;
+              inclTaxBenefits = inclCosts;
+              inclDepreciation = inclCosts;
+              document
+                .getElementById("btn-incl-taxbenefit")
+                .classList.toggle("active", inclCosts);
+              document
+                .getElementById("btn-incl-depreciation")
+                .classList.toggle("active", inclCosts);
+            }
             const val =
               key === "taxbenefit"
                 ? inclTaxBenefits
@@ -4286,6 +4409,243 @@
         applyLang();
         draw(curMonth - 1);
       });
+
+      // ── Return decomposition panel ────────────────────────────────────────────
+      let decompActiveRow = null;
+
+      function renderDecomp(monthsToShow) {
+        const titleEl = document.getElementById("decomp-title");
+        const barsEl = document.getElementById("decomp-bars");
+        const eduEl = document.getElementById("decomp-edu");
+        const hrEl = document.getElementById("decomp-divider");
+        if (!barsEl || !allDecomp.length) return;
+
+        const m = Math.min(monthsToShow - 1, allWealth[0].length - 1);
+        if (m < 5) {
+          barsEl.innerHTML = "";
+          if (titleEl) titleEl.textContent = "";
+          if (hrEl) hrEl.style.display = "none";
+          return;
+        }
+        if (hrEl) hrEl.style.display = "";
+
+        const years = (m + 1) / 12;
+        const yr = startYear + Math.floor(m / 12);
+        const mo = (m % 12) + 1;
+
+        // Find best visible RE scenario
+        let bestIdx = -1,
+          bestVal = -Infinity;
+        for (let i = 1; i < allWealth.length; i++) {
+          if (!hidden.has(i) && allWealth[i][m] > bestVal) {
+            bestVal = allWealth[i][m];
+            bestIdx = i;
+          }
+        }
+
+        const spWealth = allWealth[0][m];
+        const spDc = allDecomp[0]?.dComp?.[m];
+
+        if (titleEl) {
+          const scenLabel = bestIdx >= 0 ? SCENARIOS[bestIdx].label : "RE";
+          titleEl.innerHTML = `<span style="color:#888">Return Decomposition</span> · <span style="color:#666">${yr}/${mo.toString().padStart(2, "0")}</span>`;
+        }
+
+        // Build rows
+        const rows = [];
+
+        // S&P block
+        if (spDc != null) {
+          const spColor = "#4da6ff";
+          const idxLabel =
+            document.getElementById("index-select")?.selectedOptions[0]?.text ||
+            "S&P 500";
+          rows.push({
+            key: "sp-appr",
+            label: idxLabel,
+            val: INIT + spDc.appr,
+            base: true,
+            color: spColor,
+            edu: () => {
+              const pct = ((spDc.appr / INIT) * 100).toFixed(0);
+              return `<strong style="color:${spColor}">${idxLabel}</strong> grew from ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} (+${pct}% price). ${reinvest || spDc.cumDiv === 0 ? "Dividends compounded into total return." : `Plus ${fmt(spDc.cumDiv)} in dividends collected.`}`;
+            },
+          });
+          if (!reinvest && spDc.cumDiv > 0) {
+            rows.push({
+              key: "sp-div",
+              label: "Dividends",
+              val: spDc.cumDiv,
+              color: "#6688ff",
+              edu: () =>
+                `${fmt(spDc.cumDiv)} in dividends collected over ${years.toFixed(1)} yrs (additive, not reinvested). Toggle <em>Reinvested</em> above to compound these back into the market.`,
+            });
+          }
+          rows.push({
+            key: "sp-total",
+            label: "→ Total",
+            val: spWealth,
+            total: true,
+            color: spColor,
+            edu: null,
+          });
+        }
+
+        // RE block
+        if (bestIdx >= 0) {
+          const reDc = allDecomp[bestIdx]?.dComp?.[m];
+          const reColor = SCENARIOS[bestIdx].color;
+          const reLabel = SCENARIOS[bestIdx].label;
+          if (reDc != null) {
+            const { price, mort, down, mortRate, startYield } =
+              allDecomp[bestIdx];
+            const leverage = down > 0 ? (1 / down).toFixed(1) : "∞";
+            const appPct =
+              price > 0 ? ((reDc.appr / price) * 100).toFixed(0) : 0;
+            const yrs = years.toFixed(1);
+            const propVal = price + reDc.appr;
+
+            rows.push({
+              key: "re-appr",
+              label: reLabel,
+              val: INIT + reDc.appr,
+              base: true,
+              color: reColor,
+              edu: () =>
+                `<strong style="color:${reColor}">Appreciation</strong>: property grew ${appPct}% (${fmt(price)} → ${fmt(propVal)}). Your ${Math.round(down * 100)}% down payment controls 100% of the gain — <strong style="color:#ccc">${leverage}x leverage</strong> amplifies every % of appreciation.`,
+            });
+            if (!isPrimary && reDc.cumRent > 0) {
+              rows.push({
+                key: "re-rent",
+                label: "Rent income",
+                val: reDc.cumRent,
+                color: "#66ff99",
+                edu: () =>
+                  `<strong style="color:#66ff99">Rent income</strong>: ${fmt(reDc.cumRent)} collected over ${yrs} yrs at ${(startYield * 100).toFixed(1)}% initial yield. Rent grows with local market rates — toggle <em>Rental/Primary</em> above to see returns without it.`,
+              });
+            }
+            if (reDc.cumInt > 0) {
+              rows.push({
+                key: "re-int",
+                label: "Interest paid",
+                val: -reDc.cumInt,
+                color: "#ff5555",
+                edu: () =>
+                  `<strong style="color:#ff5555">Mortgage interest</strong>: ${fmt(reDc.cumInt)} paid over ${yrs} yrs at ${(mortRate * 100).toFixed(2)}% rate. This is the cost of leverage — without it you'd need ${fmt(price)} cash upfront instead of ${fmt(INIT)}.`,
+              });
+            }
+            if (reDc.cumCosts > 0) {
+              rows.push({
+                key: "re-costs",
+                label: "Costs",
+                val: -reDc.cumCosts,
+                color: "#ff8800",
+                edu: () =>
+                  `<strong style="color:#ff8800">Operating costs</strong>: ${fmt(reDc.cumCosts)} in property tax + insurance (0.5%/yr) + maintenance (1%/yr) over ${yrs} yrs. Costs scale with property value — toggle <em>Costs</em> above to see the impact.`,
+              });
+            }
+            if (inclTaxBenefits && reDc.cumTax !== 0) {
+              const taxColor = reDc.cumTax >= 0 ? "#ffff66" : "#ff6666";
+              rows.push({
+                key: "re-tax",
+                label: "Tax shield",
+                val: reDc.cumTax,
+                color: taxColor,
+                edu: () =>
+                  reDc.cumTax >= 0
+                    ? `<strong style="color:${taxColor}">Tax shield</strong>: saved ${fmt(reDc.cumTax)} via mortgage interest deduction${inclDepreciation ? " + depreciation" : ""}. Depreciation creates a paper loss on ${Math.round(improvPct * 100)}% of the property value (building) — reducing taxable income even when you're cash-flow positive.`
+                    : `<strong style="color:${taxColor}">Tax bill</strong>: owed ${fmt(-reDc.cumTax)} — rent income exceeded all deductions. Toggle <em>Tax benefits</em> or <em>Depreciation</em> above to isolate each component.`,
+              });
+            }
+            rows.push({
+              key: "re-total",
+              label: "→ Total",
+              val: bestVal,
+              total: true,
+              color: reColor,
+              edu: null,
+            });
+          }
+        }
+
+        // Scale bars to max absolute non-total value
+        const nonTotals = rows.filter((r) => !r.total && !r.base);
+        const maxAbs = Math.max(
+          ...nonTotals.map((r) => Math.abs(r.val)),
+          INIT,
+          1,
+        );
+
+        let html = "";
+        rows.forEach((row) => {
+          if (row.total) {
+            html += `<div class="decomp-row" data-key="${row.key}" style="margin-top:2px">
+              <span class="decomp-label" style="color:${row.color};font-weight:bold">${row.label}</span>
+              <div class="decomp-bar-track"></div>
+              <span class="decomp-val" style="color:${row.color};font-weight:bold">${fmt(row.val)}</span>
+            </div>`;
+          } else if (row.base) {
+            const w = Math.round((Math.abs(row.val) / maxAbs) * 100);
+            const sign = row.val >= 0 ? "+" : "";
+            const dispVal = row.base ? row.val : row.val; // base shows absolute
+            html += `<div class="decomp-row" data-key="${row.key}">
+              <span class="decomp-label" style="color:${row.color}">${row.label}</span>
+              <div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:0.8"></div></div>
+              <span class="decomp-val" style="color:${row.color}">${fmt(dispVal)}</span>
+            </div>`;
+          } else {
+            const w = Math.round((Math.abs(row.val) / maxAbs) * 100);
+            const sign = row.val >= 0 ? "+" : "−";
+            html += `<div class="decomp-row" data-key="${row.key}">
+              <span class="decomp-label" style="color:${row.color}">${row.label}</span>
+              <div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:0.7"></div></div>
+              <span class="decomp-val" style="color:${row.color}">${sign}${fmt(Math.abs(row.val))}</span>
+            </div>`;
+          }
+        });
+
+        barsEl.innerHTML = html;
+
+        // Wire hover/click for educational content
+        const eduMap = {};
+        rows.forEach((r) => {
+          if (r.edu) eduMap[r.key] = r.edu;
+        });
+        barsEl.querySelectorAll(".decomp-row").forEach((el) => {
+          const key = el.dataset.key;
+          if (!eduMap[key]) return;
+          const activate = () => {
+            barsEl
+              .querySelectorAll(".decomp-row")
+              .forEach((e) => e.classList.remove("active-edu"));
+            el.classList.add("active-edu");
+            if (eduEl) {
+              eduEl.innerHTML = eduMap[key]();
+              decompActiveRow = key;
+            }
+          };
+          el.addEventListener("mouseenter", activate);
+          el.addEventListener("click", activate);
+        });
+        barsEl.addEventListener("mouseleave", () => {
+          if (eduEl && decompActiveRow) {
+            eduEl.innerHTML = "";
+            decompActiveRow = null;
+          }
+          barsEl
+            .querySelectorAll(".decomp-row")
+            .forEach((e) => e.classList.remove("active-edu"));
+        });
+
+        // Restore active edu if row still exists
+        if (decompActiveRow && eduMap[decompActiveRow]) {
+          const el = barsEl.querySelector(`[data-key="${decompActiveRow}"]`);
+          if (el) {
+            el.classList.add("active-edu");
+            if (eduEl) eduEl.innerHTML = eduMap[decompActiveRow]();
+          }
+        }
+      }
 
       // ── Communication helpers ─────────────────────────────────────────────────
       function updateOutcomeCallout(monthsToShow) {
@@ -4784,6 +5144,7 @@
         // Update communication elements
         updateOutcomeCallout(monthsToShow);
         updateLegendCagr(monthsToShow);
+        renderDecomp(monthsToShow);
       }
 
       // ── Year label ────────────────────────────────────────────────────────────
