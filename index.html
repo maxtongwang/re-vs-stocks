@@ -3913,7 +3913,7 @@
         const checks = [];
         for (let y = 5; y <= dur; y += 5) checks.push(y);
         for (const yrs of checks) {
-          const m = yrs * 12 - 1;
+          const m = Math.min(yrs * 12, totalMonths - 1);
           if (m >= totalMonths) continue;
           const yr = startYear + yrs;
           const ev = crashEvByYear[yr];
@@ -3937,7 +3937,7 @@
             ({ offset }) => offset > 0 && offset <= dur && offset % 5 !== 0,
           );
         for (const { offset, ev } of crashOffsets) {
-          const m = offset * 12 - 1;
+          const m = Math.min(offset * 12, totalMonths - 1);
           if (m >= totalMonths) continue;
           const yr = startYear + offset;
           const evName = lang === "zh" ? ev.nameZh : ev.name;
@@ -3967,7 +3967,7 @@
           const projLen = allWealth[0].length;
           const firstProjYr = Math.ceil((endYear + 1) / 5) * 5;
           for (let yr = firstProjYr; yr <= PROJ_END_YEAR; yr += 5) {
-            const mOffset = (yr - startYear) * 12 - 1;
+            const mOffset = Math.min((yr - startYear) * 12, projLen - 1);
             if (mOffset >= projLen) break;
             const yrs = yr - startYear;
             const tr = document.createElement("tr");
