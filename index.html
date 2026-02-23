@@ -4867,19 +4867,19 @@
                             p.pmt * n - (p.loan - remAtEnd),
                           );
                           return isZh
-                            ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${endYear}（模拟${simDurYrs}年，还清年${payoffYr}）— 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;模拟内利息（${simDurYrs}年）：${W(fmt(partialInt))} | 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${wealthLabelZh}：${W(fmt(displayWealth))}`
-                            : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${endYear} (${simDurYrs}yrs in sim, payoff ${payoffYr}) — loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;sim interest (${simDurYrs}yrs): ${W(fmt(partialInt))} | full-term: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${wealthLabel}: ${W(fmt(displayWealth))}`;
+                            ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${endYear}（模拟${simDurYrs}年，还清年${payoffYr}）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 模拟内利息（${simDurYrs}年）：${W(fmt(partialInt))} | 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabelZh}：${W(fmt(displayWealth))}`
+                            : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${endYear} (${simDurYrs}yrs in sim, payoff ${payoffYr})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· sim interest (${simDurYrs}yrs): ${W(fmt(partialInt))} | full-term: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabel}: ${W(fmt(displayWealth))}`;
                         }
                         return isZh
-                          ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）— 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${wealthLabelZh}：${W(fmt(displayWealth))}`
-                          : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30yr) — loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full-term interest: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${wealthLabel}: ${W(fmt(displayWealth))}`;
+                          ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabelZh}：${W(fmt(displayWealth))}`
+                          : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30yr)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· full-term interest: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabel}: ${W(fmt(displayWealth))}`;
                       }
                       // Intermediate period: elapsed time between two refis
                       const pToYr = startYear + Math.floor(p.toM / 12);
                       const pDurYrs = Math.round((p.toM - p.fromM) / 12);
                       return isZh
-                        ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 贷款 ${fmt(p.loan)}，月供 ${fmt(p.pmt)}，利息 ${fmt(p.periodInt)}${cashOutNote}`
-                        : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — loan ${fmt(p.loan)}, ${fmt(p.pmt)}/mo, ${fmt(p.periodInt)} interest${cashOutNote}`;
+                        ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 利息 ${fmt(p.periodInt)}`
+                        : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${fmt(p.periodInt)} interest`;
                     });
                     const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
                     return isZh
