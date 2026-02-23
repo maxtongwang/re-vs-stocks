@@ -5755,7 +5755,7 @@
         totalMonths = (endYear - startYear + 1) * 12;
         projStartM =
           (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
-        curMonth = totalMonths;
+        curMonth = Math.min(projStartM + 1, totalMonths);
         sliderEl.max = totalMonths;
         sliderEl.value = curMonth;
         updateAssumptions();
