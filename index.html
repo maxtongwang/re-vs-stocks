@@ -820,44 +820,7 @@
         CA, TX, FL, WA, and NY.
       </p>
     </noscript>
-    <div class="hero" style="position: relative">
-      <div
-        style="
-          position: absolute;
-          top: 0;
-          right: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 4px;
-        "
-      >
-        <button
-          class="toggle-btn"
-          id="share-btn"
-          title="Copy share link"
-          style="font-size: 13px; padding: 2px 6px"
-        >
-          🔗
-        </button>
-        <select
-          id="lang-select"
-          title="Language"
-          style="
-            background: #1a1a1a;
-            border: 1px solid #444;
-            border-radius: 4px;
-            font-size: 16px;
-            cursor: pointer;
-            color: #fff;
-            padding: 1px 4px;
-            line-height: 1;
-          "
-        >
-          <option value="en">🇺🇸</option>
-          <option value="zh">🇨🇳</option>
-        </select>
-      </div>
+    <div class="hero">
       <h1 class="hero-title" id="hero-title">
         The Last Chart To Understand<br />Real Estate vs Stock Market
       </h1>
@@ -920,6 +883,40 @@
       dividends &amp; rent cash flow: additive
     </div>
 
+    <div
+      style="
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 5px;
+      "
+    >
+      <button
+        class="toggle-btn"
+        id="share-btn"
+        title="Copy share link"
+        style="font-size: 13px; padding: 2px 6px"
+      >
+        🔗
+      </button>
+      <select
+        id="lang-select"
+        title="Language"
+        style="
+          background: #1a1a1a;
+          border: 1px solid #444;
+          border-radius: 4px;
+          font-size: 16px;
+          cursor: pointer;
+          color: #fff;
+          padding: 1px 4px;
+        "
+      >
+        <option value="en">🇺🇸</option>
+        <option value="zh">🇨🇳</option>
+      </select>
+    </div>
     <div class="ctrl-row">
       <span id="label-start">Start:</span>
       <input
