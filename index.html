@@ -3570,6 +3570,13 @@
             w.push(Math.round(pv - rem + cf));
           }
         }
+        // Bankruptcy clamp: once wealth goes negative, it can deepen but never recover.
+        // Running minimum freezes at the worst point — no false comeback from insolvency.
+        let floor = 0;
+        for (let i = 0; i < w.length; i++) {
+          if (w[i] < floor) floor = w[i];
+          if (floor < 0) w[i] = floor;
+        }
         return w;
       }
 
