@@ -4472,10 +4472,10 @@
           title: isZh ? "收益分解" : "Return Decomposition",
           appreciation: isZh ? "价格涨幅" : "Appreciation",
           dividends: isZh ? "股息" : "Dividends",
-          rentIncome: isZh ? "租金收入" : "Rent income",
-          interest: isZh ? "利息支出" : "Interest paid",
-          costs: isZh ? "运营成本" : "Op. costs",
-          taxShield: isZh ? "税收影响" : "Tax impact",
+          rentIncome: isZh ? "租金收入" : "Rent Income",
+          interest: isZh ? "利息支出" : "Interest Paid",
+          costs: isZh ? "运营成本" : "Op. Costs",
+          taxShield: isZh ? "税务收益" : "Tax Benefits",
           total: isZh ? "→ 总计" : "→ Total",
         };
 
@@ -4546,7 +4546,25 @@
             val: spWealth,
             total: true,
             color: spColor,
-            edu: null,
+            edu: () => {
+              const spCagr = (
+                (Math.pow(Math.max(spWealth, 1) / INIT, 1 / years) - 1) *
+                100
+              ).toFixed(1);
+              const mult = (spWealth / INIT).toFixed(1);
+              const yrsStr = years.toFixed(1);
+              const modeNote =
+                reinvest || spDc?.cumDiv === 0
+                  ? isZh
+                    ? "再投资模式：股息自动复投，总回报含价格+股息复利"
+                    : "Reinvested: dividends compounded back into shares (total return)"
+                  : isZh
+                    ? `叠加模式：价格涨幅 + 股息 ${fmt(spDc?.cumDiv || 0)} 分开追踪`
+                    : `Additive: price gain + ${fmt(spDc?.cumDiv || 0)} dividends tracked separately`;
+              return isZh
+                ? `<strong style="color:${spColor}">→ 总计</strong>：${fmt(INIT)} 增长至 <strong style="color:#ccc">${fmt(spWealth)}</strong>（${mult}x，年化 ${spCagr}%，历时 ${yrsStr} 年）。<br>${modeNote}。<br>规则：标普500历史长期年化约10%（含再投资股息）。复利效应非线性——50年跑程中，后10年产生的财富往往超过前40年的总和。`
+                : `<strong style="color:${spColor}">→ Total</strong>: ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> — ${mult}x your money at <strong style="color:#ccc">${spCagr}%/yr</strong> over ${yrsStr}yrs.<br>${modeNote}.<br>Rule: S&P historically ~10%/yr with reinvestment. Compounding is nonlinear — in a 50yr run, the final 10 years typically generate more wealth than the first 40 combined.`;
+            },
           });
         }
 
@@ -4627,8 +4645,8 @@
                   const intAsPctPrice =
                     price > 0 ? ((reDc.cumInt / price) * 100).toFixed(0) : 0;
                   return isZh
-                    ? `<strong style="color:#ff5555">${lbl.interest}</strong>：${yrs}年内以 ${(mortRate * 100).toFixed(2)}% 利率支付 ${fmt(reDc.cumInt)}（月供 ${fmt(mortPmt)}；第一个月利息 ${fmt(initMonthlyInt)}）。<br>累计利息占购价的 <strong style="color:#ccc">${intAsPctPrice}%</strong>。等额还款前期以利息为主——本金积累缓慢，后期加速。<br>规则：这是 ${leverage}x 杠杆的成本。若无贷款需 ${fmt(price)} 全款，而非 ${fmt(INIT)} 首付。租赁物业的利息可税前抵扣（见税收影响行）——IRS实质上在补贴您的杠杆成本。`
-                    : `<strong style="color:#ff5555">${lbl.interest}</strong>: ${fmt(reDc.cumInt)} paid over ${yrs}yrs at ${(mortRate * 100).toFixed(2)}% (${fmt(mortPmt)}/mo payment; ${fmt(initMonthlyInt)}/mo was interest in month 1).<br>Total interest = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price. Amortization front-loads interest — early payments are mostly interest; principal builds slowly then accelerates toward payoff.<br>Rule: this is the explicit cost of ${leverage}x leverage. Without it you'd need ${fmt(price)} cash vs ${fmt(INIT)} down. On rentals, interest is tax-deductible (see Tax impact row) — the IRS effectively subsidizes your leverage cost.`;
+                    ? `<strong style="color:#ff5555">${lbl.interest}</strong>：${yrs}年内以 ${(mortRate * 100).toFixed(2)}% 利率支付 ${fmt(reDc.cumInt)}（月供 ${fmt(mortPmt)}；第一个月利息 ${fmt(initMonthlyInt)}）。<br>累计利息占购价的 <strong style="color:#ccc">${intAsPctPrice}%</strong>。等额还款前期以利息为主——本金积累缓慢，后期加速。<br>规则：这是 ${leverage}x 杠杆的成本。若无贷款需 ${fmt(price)} 全款，而非 ${fmt(INIT)} 首付。租赁物业的利息可税前抵扣（见税务收益行）——IRS实质上在补贴您的杠杆成本。`
+                    : `<strong style="color:#ff5555">${lbl.interest}</strong>: ${fmt(reDc.cumInt)} paid over ${yrs}yrs at ${(mortRate * 100).toFixed(2)}% (${fmt(mortPmt)}/mo payment; ${fmt(initMonthlyInt)}/mo was interest in month 1).<br>Total interest = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price. Amortization front-loads interest — early payments are mostly interest; principal builds slowly then accelerates toward payoff.<br>Rule: this is the explicit cost of ${leverage}x leverage. Without it you'd need ${fmt(price)} cash vs ${fmt(INIT)} down. On rentals, interest is tax-deductible (see Tax Benefits row) — the IRS effectively subsidizes your leverage cost.`;
                 },
               });
             }
@@ -4655,7 +4673,7 @@
                       : "—";
                   return isZh
                     ? `<strong style="color:#ff8800">${lbl.costs}</strong>：${yrs}年内共 ${fmt(reDc.cumCosts)}——起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年），随房产价值增长。<br>明细：${propTaxPct}% 房产税（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ 0.5%/年保险 + 1%/年维护 = ${totalCostPct}%/年。<br>规则：运营成本消耗租金收入的 <strong style="color:#ccc">${costsAsRentPct}%</strong>。即便租金涨幅滞后，成本仍随房产价值增长。切换<em>运营成本</em>可量化这三项对总回报的拖累。`
-                    : `<strong style="color:#ff8800">${lbl.costs}</strong>: ${fmt(reDc.cumCosts)} over ${yrs}yrs — started at ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr at purchase price), scaling up with property value.<br>Breakdown: ${propTaxPct}% prop tax (${activeLocConfig.propTaxNote ?? "varies by state"}) + 0.5%/yr insurance + 1%/yr maintenance = ${totalCostPct}%/yr of purchase price.<br>Rule: operating costs consumed <strong style="color:#ccc">${costsAsRentPct}%</strong> of gross rent. They scale with property value even when rent growth lags. Toggle <em>Op. costs</em> to isolate their drag on total return.`;
+                    : `<strong style="color:#ff8800">${lbl.costs}</strong>: ${fmt(reDc.cumCosts)} over ${yrs}yrs — started at ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr at purchase price), scaling up with property value.<br>Breakdown: ${propTaxPct}% prop tax (${activeLocConfig.propTaxNote ?? "varies by state"}) + 0.5%/yr insurance + 1%/yr maintenance = ${totalCostPct}%/yr of purchase price.<br>Rule: operating costs consumed <strong style="color:#ccc">${costsAsRentPct}%</strong> of gross rent. They scale with property value even when rent growth lags. Toggle <em>Op. Costs</em> to isolate their drag on total return.`;
                 },
               });
             }
@@ -4704,7 +4722,21 @@
               val: bestVal,
               total: true,
               color: reColor,
-              edu: null,
+              edu: () => {
+                const reCagr = (
+                  (Math.pow(Math.max(bestVal, 1) / INIT, 1 / years) - 1) *
+                  100
+                ).toFixed(1);
+                const mult = (bestVal / INIT).toFixed(1);
+                // Additive decomposition: wealth = (INIT + appr) + (cumRent - cumInt - cumCosts + cumTax)
+                const appreciationPart = Math.round(INIT + reDc.appr);
+                const cashFlowPart = Math.round(
+                  reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
+                );
+                return isZh
+                  ? `<strong style="color:${reColor}">→ 总计</strong>：${fmt(INIT)} 增长至 <strong style="color:#ccc">${fmt(bestVal)}</strong>（${mult}x，年化 ${reCagr}%，历时 ${yrs} 年）。<br>构成：本金+涨幅 ≈ ${fmt(appreciationPart)} + 净现金流（租金−利息−成本+税收）≈ ${fmt(cashFlowPart)}。<br>规则：点击上方各行拆解每项贡献。杠杆放大房价涨幅；租金与税收优惠决定现金流能否支撑整体回报。`
+                  : `<strong style="color:${reColor}">→ Total</strong>: ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> — ${mult}x your money at <strong style="color:#ccc">${reCagr}%/yr</strong> over ${yrs}yrs.<br>Capital + appreciation ≈ ${fmt(appreciationPart)} · Net cash flows (rent − interest − costs + tax) ≈ ${fmt(cashFlowPart)}.<br>Rule: click each row above to understand every component. Leverage magnified the price gain; rent and tax treatment determined whether cash flow supported or dragged on total return.`;
+              },
             });
           }
         }
