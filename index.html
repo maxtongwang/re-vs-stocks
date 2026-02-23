@@ -3657,48 +3657,48 @@
               ptax *= 1 + locCfg.propTaxAnnualIncrease;
             }
           }
-          // Refinance: fires only if new rate is ≥1% below current AND ≥24mo since last refi
-          if (
-            mort > 0 &&
-            refiQueue.length > 0 &&
-            refiQueue[0].m === m &&
-            rem > 0 &&
-            refiQueue[0].rate <= currentRate - 0.01 &&
-            m - lastRefiMonth >= 24
-          ) {
+          // Refinance: always discard a queued entry when its scheduled month arrives
+          // (it can never fire later). Fire if rate is ≥1% below current AND ≥24mo gap.
+          if (mort > 0 && refiQueue.length > 0 && refiQueue[0].m === m) {
             const refi = refiQueue.shift();
-            let newLoan = rem; // rate-and-term: keep same balance
-            if (useLTV) {
-              newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
-            }
-            // Close out current rate period before switching
-            const periodStartLoan =
-              mort > 0
-                ? ratePeriods.length === 0
-                  ? mort
-                  : (ratePeriods[ratePeriods.length - 1]?.newLoan ?? mort)
-                : 0;
-            ratePeriods.push({
-              rate: currentRate,
-              fromM: periodFromM,
-              toM: m,
-              periodInt: Math.round(periodIntD),
-              loan: Math.round(periodStartLoan), // loan during this period
-              pmt: calcPmt(periodStartLoan, currentRate),
-              newLoan: Math.round(newLoan), // loan starting next period (after cash-out if LTV)
-              cashOut: Math.max(0, Math.round(newLoan - rem)), // 0 unless LTV cash-out
-            });
-            periodFromM = m;
-            periodIntD = 0;
-            const cashOut = newLoan - rem;
-            sched = amortize(newLoan, refi.rate / 12);
-            schedOffset = m;
-            currentRate = refi.rate;
-            lastRefiMonth = m;
-            rem = newLoan; // starting principal for prevBal when si=0
-            if (cashOut > 0) {
-              if (reinvest) cfPool += cashOut;
-              else cf += cashOut;
+            if (
+              rem > 0 &&
+              refi.rate <= currentRate - 0.01 &&
+              m - lastRefiMonth >= 24
+            ) {
+              let newLoan = rem; // rate-and-term: keep same balance
+              if (useLTV) {
+                newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
+              }
+              // Close out current rate period before switching
+              const periodStartLoan =
+                mort > 0
+                  ? ratePeriods.length === 0
+                    ? mort
+                    : (ratePeriods[ratePeriods.length - 1]?.newLoan ?? mort)
+                  : 0;
+              ratePeriods.push({
+                rate: currentRate,
+                fromM: periodFromM,
+                toM: m,
+                periodInt: Math.round(periodIntD),
+                loan: Math.round(periodStartLoan), // loan during this period
+                pmt: calcPmt(periodStartLoan, currentRate),
+                newLoan: Math.round(newLoan), // loan starting next period (after cash-out if LTV)
+                cashOut: Math.max(0, Math.round(newLoan - rem)), // 0 unless LTV cash-out
+              });
+              periodFromM = m;
+              periodIntD = 0;
+              const cashOut = newLoan - rem;
+              sched = amortize(newLoan, refi.rate / 12);
+              schedOffset = m;
+              currentRate = refi.rate;
+              lastRefiMonth = m;
+              rem = newLoan; // starting principal for prevBal when si=0
+              if (cashOut > 0) {
+                if (reinvest) cfPool += cashOut;
+                else cf += cashOut;
+              }
             }
           }
           // Primary: r=0 (no rent income). Rental: actual rent collected.
