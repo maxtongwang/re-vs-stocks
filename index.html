@@ -956,9 +956,8 @@
     <div
       style="
         display: grid;
-        grid-template-columns: 1fr auto;
-        row-gap: 5px;
-        column-gap: 8px;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 5px 16px;
         font-size: 11px;
         line-height: 14px;
         color: #888;
@@ -966,137 +965,136 @@
         align-items: start;
       "
     >
-      <!-- row 1 left: Prop -->
-      <div style="display: flex; align-items: center; gap: 8px; height: 24px">
-        <span id="label-propmode">Prop:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-rental">Rental</button>
-          <button class="toggle-btn" id="btn-primary">Primary</button>
-        </div>
-      </div>
-      <!-- row 1 right: empty placeholder so row 3 Lang stays aligned -->
-      <div></div>
-      <!-- row 2: Refi — spans both columns -->
-      <div
-        style="
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-          grid-column: 1 / -1;
-        "
-      >
-        <span
-          id="label-refi"
-          style="height: 24px; display: flex; align-items: center"
-          >Refi:</span
-        >
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 0;
-          "
-        >
+      <!-- col 1: Prop + Refi -->
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <!-- Prop -->
+        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
+          <span id="label-propmode">Prop:</span>
           <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-refi-0">0</button>
-            <button class="toggle-btn" id="btn-refi-1">1</button>
-            <button class="toggle-btn" id="btn-refi-2">2</button>
-            <button class="toggle-btn" id="btn-refi-3">3</button>
+            <button class="toggle-btn active" id="btn-rental">Rental</button>
+            <button class="toggle-btn" id="btn-primary">Primary</button>
           </div>
-          <div class="toggle-group" id="refi-type-group" style="display: none">
-            <button class="toggle-btn active" id="btn-refi-rate">
-              Balance
-            </button>
-            <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
-          </div>
+        </div>
+        <!-- Refi -->
+        <div style="display: flex; align-items: flex-start; gap: 8px">
           <span
-            id="refi-bal-tip"
-            style="
-              font-size: 10px;
-              color: #aaa;
-              line-height: 13px;
-              padding-left: 2px;
-              display: none;
-            "
-          ></span>
-          <!-- LTV row: full width since refi spans panel -->
-          <div
-            id="row-ltv-pct"
-            style="display: none; flex-direction: column; gap: 2px"
+            id="label-refi"
+            style="height: 24px; display: flex; align-items: center"
+            >Refi:</span
           >
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              gap: 5px;
+              flex: 1;
+              min-width: 0;
+            "
+          >
+            <div class="toggle-group">
+              <button class="toggle-btn active" id="btn-refi-0">0</button>
+              <button class="toggle-btn" id="btn-refi-1">1</button>
+              <button class="toggle-btn" id="btn-refi-2">2</button>
+              <button class="toggle-btn" id="btn-refi-3">3</button>
+            </div>
             <div
-              style="display: flex; align-items: center; gap: 8px; height: 24px"
+              class="toggle-group"
+              id="refi-type-group"
+              style="display: none"
             >
-              <span id="label-ltv-pct">LTV %:</span>
-              <input
-                type="range"
-                id="ltv-pct-slider"
-                min="50"
-                max="80"
-                step="5"
-                value="75"
-                style="flex: 1"
-              />
-              <span class="val" id="ltv-pct-val">75%</span>
+              <button class="toggle-btn active" id="btn-refi-rate">
+                Balance
+              </button>
+              <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
             </div>
             <span
-              id="ltv-tip-line"
+              id="refi-bal-tip"
               style="
                 font-size: 10px;
                 color: #aaa;
                 line-height: 13px;
                 padding-left: 2px;
+                display: none;
               "
             ></span>
-          </div>
-        </div>
-      </div>
-      <!-- row 3: Includes — spans both columns -->
-      <div
-        style="
-          display: flex;
-          align-items: flex-start;
-          gap: 8px;
-          grid-column: 1 / -1;
-        "
-      >
-        <span id="label-includes" style="line-height: 22px">Includes:</span>
-        <div class="toggle-group" style="align-items: flex-start">
-          <button class="toggle-btn active" id="btn-incl-taxbenefit">
-            Tax benefits
-          </button>
-          <button class="toggle-btn active" id="btn-incl-depreciation">
-            Depreciation
-          </button>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 3px;
-            "
-          >
-            <button class="toggle-btn active" id="btn-incl-costs">
-              Op. Costs
-            </button>
-            <span id="label-costs-note" style="color: #555; font-size: 9px"
-              >(tax · ins · maint)</span
+            <div
+              id="row-ltv-pct"
+              style="display: none; flex-direction: column; gap: 2px"
             >
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 8px;
+                  height: 24px;
+                "
+              >
+                <span id="label-ltv-pct">LTV %:</span>
+                <input
+                  type="range"
+                  id="ltv-pct-slider"
+                  min="50"
+                  max="80"
+                  step="5"
+                  value="75"
+                  style="flex: 1"
+                />
+                <span class="val" id="ltv-pct-val">75%</span>
+              </div>
+              <span
+                id="ltv-tip-line"
+                style="
+                  font-size: 10px;
+                  color: #aaa;
+                  line-height: 13px;
+                  padding-left: 2px;
+                "
+              ></span>
+            </div>
           </div>
         </div>
       </div>
-      <!-- row 3 left: Cash flow -->
-      <div style="display: flex; align-items: center; gap: 8px; height: 24px">
-        <span id="label-cashflow">Cash flow:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-additive">Additive</button>
-          <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
+
+      <!-- col 2: Includes + Cash flow -->
+      <div style="display: flex; flex-direction: column; gap: 5px">
+        <!-- Includes -->
+        <div style="display: flex; align-items: flex-start; gap: 8px">
+          <span id="label-includes" style="line-height: 22px">Includes:</span>
+          <div class="toggle-group" style="align-items: flex-start">
+            <button class="toggle-btn active" id="btn-incl-taxbenefit">
+              Tax benefits
+            </button>
+            <button class="toggle-btn active" id="btn-incl-depreciation">
+              Depreciation
+            </button>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 3px;
+              "
+            >
+              <button class="toggle-btn active" id="btn-incl-costs">
+                Op. Costs
+              </button>
+              <span id="label-costs-note" style="color: #555; font-size: 9px"
+                >(tax · ins · maint)</span
+              >
+            </div>
+          </div>
+        </div>
+        <!-- Cash flow -->
+        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
+          <span id="label-cashflow">Cash flow:</span>
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-additive">
+              Additive
+            </button>
+            <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
+          </div>
         </div>
       </div>
-      <!-- row 3 right: empty -->
-      <div></div>
     </div>
 
     <div id="mode-desc">
