@@ -1606,14 +1606,16 @@
             isPrimary,
             nr,
             isLTV,
+            actual = nr,
           ) => {
             const W = (s) => `<strong style="color:#fff">${s}</strong>`;
             const line2 = isPrimary
               ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
               : `Rent yield: ${W(ry + "%")} · Improvement: ${W(ip + "%")}`;
+            const refiLabel = actual < nr ? `${actual}/${nr}x ⚠` : `${nr}x`;
             const refiStr =
               nr > 0
-                ? `Refi: ${W(nr + "x " + (isLTV ? "(LTV)" : "(Bal)"))} · `
+                ? `Refi: ${W(refiLabel + " " + (isLTV ? "(LTV)" : "(Bal)"))} · `
                 : "";
             return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}<br>${line2}<br>${refiStr}Cash flow: ${W(mode)}`;
           },
@@ -1630,10 +1632,12 @@
             nr,
             refis,
             isLTV,
+            actual = nr,
           ) => {
+            const skipped = nr - actual;
             const refiStr =
               nr > 0
-                ? `Refi: ${nr}x ${isLTV ? "LTV" : "Bal"} (${refis.map((r) => r.year).join(", ")}) · `
+                ? `Refi: ${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}x ${isLTV ? "LTV" : "Bal"} ⚠ ${skipped} skipped — rates rose above locked rate</span>` : `${nr}x ${isLTV ? "LTV" : "Bal"} (${refis.map((r) => r.year).join(", ")})`} · `
                 : "";
             if (isPrimary) {
               return (
@@ -1767,14 +1771,16 @@
             isPrimary,
             nr,
             isLTV,
+            actual = nr,
           ) => {
             const W = (s) => `<strong style="color:#fff">${s}</strong>`;
             const line2 = isPrimary
               ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
               : `租金回报率：${W(ry + "%")} · 建筑：${W(ip + "%")}`;
+            const refiLabel = actual < nr ? `${actual}/${nr}次 ⚠` : `${nr}次`;
             const refiStr =
               nr > 0
-                ? `重贷：${W(nr + "次" + (isLTV ? "（LTV）" : "（余额）"))} · `
+                ? `重贷：${W(refiLabel + (isLTV ? "（LTV）" : "（余额）"))} · `
                 : "";
             return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}<br>${line2}<br>${refiStr}现金流：${W(mode)}`;
           },
@@ -1791,10 +1797,12 @@
             nr,
             refis,
             isLTV,
+            actual = nr,
           ) => {
+            const skipped = nr - actual;
             const refiStr =
               nr > 0
-                ? `重贷：${nr}次${isLTV ? "LTV" : "余额"}（${refis.map((r) => r.year).join("、")}年） · `
+                ? `重贷：${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}次${isLTV ? "LTV" : "余额"} ⚠ ${skipped}次跳过——利率高于已锁定利率</span>` : `${nr}次${isLTV ? "LTV" : "余额"}（${refis.map((r) => r.year).join("、")}年）`} · `
                 : "";
             if (isPrimary) {
               return (
@@ -1967,7 +1975,7 @@
           propTaxAnnualIncrease: 0.02,
           taxRate: 0.44,
           improvPct: 0.4,
-          typicalYieldRange: [0.030, 0.050],
+          typicalYieldRange: [0.03, 0.05],
           propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
           propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
           taxNote: "44% (35% fed + 9.3% CA)",
@@ -2052,7 +2060,7 @@
           propTaxAnnualIncrease: 0.02,
           taxRate: 0.44,
           improvPct: 0.33,
-          typicalYieldRange: [0.030, 0.050],
+          typicalYieldRange: [0.03, 0.05],
           propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
           propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
           taxNote: "44% (35% fed + 9.3% CA)",
@@ -2094,7 +2102,7 @@
           propTaxAnnualIncrease: 0.02,
           taxRate: 0.44,
           improvPct: 0.38,
-          typicalYieldRange: [0.030, 0.050],
+          typicalYieldRange: [0.03, 0.05],
           propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
           propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
           taxNote: "44% (35% fed + 9.3% CA)",
@@ -2442,7 +2450,7 @@
           propTaxAnnualCap: 0.1,
           taxRate: 0.35,
           improvPct: 0.65,
-          typicalYieldRange: [0.050, 0.070],
+          typicalYieldRange: [0.05, 0.07],
           propTaxNote:
             "FL Save Our Homes: ~1.0% of assessed value; non-homestead rental capped +10%/yr",
           propTaxNoteZh:
@@ -3651,26 +3659,41 @@
         return s;
       }
 
-      // getRefis: pick n years with lowest mortgage rates in (sy, ey], sorted by month.
-      // Enforces ≥2yr gap between any two selected years (consistent with simRE ≥24mo check).
-      // Returns [{m: relMonthIdx, rate, year}, ...] Only applies if new rate < current rate.
+      // getRefis: pick up to n years where refinancing is financially rational in (sy, ey].
+      // Rules: (1) each refi rate must be strictly below the initial purchase rate AND below
+      // the rate locked in by every chronologically prior selected refi; (2) ≥2yr gap between
+      // any two selected years.  Returns ≤ n entries — fewer when the rate environment never
+      // offered enough improvements (e.g. buying near a rate trough, rates rising thereafter).
       function getRefis(sy, ey, n) {
         if (n === 0 || sy >= ey) return [];
+        const purchaseRate = MORTGAGE_RATES[sy - BASE_YEAR];
         const candidates = [];
         for (let y = sy + 1; y <= ey; y++) {
-          candidates.push({
-            m: (y - sy) * 12,
-            rate: MORTGAGE_RATES[y - BASE_YEAR],
-            year: y,
-          });
+          const rate = MORTGAGE_RATES[y - BASE_YEAR];
+          if (rate < purchaseRate)
+            // only years that could ever beat the original rate
+            candidates.push({ m: (y - sy) * 12, rate, year: y });
         }
-        // Sort cheapest first, then greedily pick up to n with ≥2yr gap between any pair
+        if (candidates.length === 0) return [];
+        // Sort cheapest first, then greedily pick up to n with:
+        //   (a) ≥2yr gap between all pairs
+        //   (b) chronologically the rates must be strictly decreasing
+        //       (can't refi from 2.96% → 3.94%; that would never fire)
         candidates.sort((a, b) => a.rate - b.rate);
         const selected = [];
         for (const c of candidates) {
           if (selected.length >= n) break;
-          if (selected.every((s) => Math.abs(s.year - c.year) >= 2))
-            selected.push(c);
+          if (!selected.every((s) => Math.abs(s.year - c.year) >= 2)) continue;
+          // Verify the trial sequence is chronologically rate-decreasing
+          const trial = [...selected, c].sort((a, b) => a.year - b.year);
+          let ok = true;
+          for (let i = 1; i < trial.length; i++) {
+            if (trial[i].rate >= trial[i - 1].rate) {
+              ok = false;
+              break;
+            }
+          }
+          if (ok) selected.push(c);
         }
         return selected.sort((a, b) => a.m - b.m);
       }
@@ -4218,6 +4241,7 @@
         const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
 
         const refis = getRefis(startYear, endYear, numRefis);
+        const actualRefis = refis.length;
 
         document.getElementById("assumptions-line").innerHTML =
           s.assumptionsLine(
@@ -4231,6 +4255,7 @@
             isPrimary,
             numRefis,
             refiLTV,
+            actualRefis,
           );
 
         document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
@@ -4246,6 +4271,7 @@
           numRefis,
           refis,
           refiLTV,
+          actualRefis,
         );
 
         document.getElementById("fixed-assumptions").innerHTML = s
@@ -5376,7 +5402,7 @@
           ctx.fillText(fmt(v), PL - 3, y + 4);
         }
 
-        // Refi year markers — driven by getRefis (same source as configured count)
+        // Refi year markers — only years that actually fire (getRefis filters out rate-rising years)
         if (numRefis > 0) {
           const refis = getRefis(startYear, endYear, numRefis);
           const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
