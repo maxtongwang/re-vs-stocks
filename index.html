@@ -291,7 +291,8 @@
       #label-improv {
         min-width: 92px;
       }
-      #label-cashflow {
+      #label-cashflow,
+      #label-includes {
         min-width: 74px;
       }
       #label-propmode {
@@ -865,28 +866,30 @@
       <div
         style="
           display: flex;
-          align-items: center;
-          gap: 8px;
+          flex-direction: column;
+          gap: 4px;
           grid-column: 1 / -1;
-          flex-wrap: wrap;
-          min-height: 24px;
         "
       >
-        <span id="label-includes">Includes:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-incl-taxbenefit">
-            Tax benefits
-          </button>
-          <button class="toggle-btn active" id="btn-incl-depreciation">
-            Depreciation
-          </button>
-          <button class="toggle-btn active" id="btn-incl-costs">Costs</button>
+        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
+          <span id="label-includes">Includes:</span>
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-incl-taxbenefit">
+              Tax benefits
+            </button>
+            <button class="toggle-btn active" id="btn-incl-depreciation">
+              Depreciation
+            </button>
+            <button class="toggle-btn active" id="btn-incl-costs">Costs</button>
+          </div>
         </div>
-        <span
-          id="label-costs-note"
-          style="color: #555; font-size: 9px; white-space: nowrap"
-          >(prop tax · ins 0.5% · maint 1%)</span
-        >
+        <div style="padding-left: 82px">
+          <span
+            id="label-costs-note"
+            style="color: #555; font-size: 9px; white-space: nowrap"
+            >(prop tax · ins 0.5% · maint 1%)</span
+          >
+        </div>
       </div>
     </div>
 
