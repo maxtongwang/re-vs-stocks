@@ -3963,13 +3963,18 @@
       // reinvest=false: price-only compounding + dividends accumulate additively as cash
       function simSP(priceSlice, totalSlice, divSlice, reinvest) {
         if (reinvest) {
-          let v = INIT;
+          let v = INIT,
+            vP = INIT;
           const w = [],
             dComp = [];
-          for (const r of totalSlice) {
-            v *= 1 + r;
+          for (let m = 0; m < totalSlice.length; m++) {
+            v *= 1 + totalSlice[m];
+            vP *= 1 + priceSlice[m];
             w.push(Math.round(v));
-            dComp.push({ appr: Math.round(v - INIT), cumDiv: 0 }); // divs embedded in total return
+            dComp.push({
+              appr: Math.round(vP - INIT), // price-only gain
+              cumDiv: Math.round(v - vP), // extra growth from reinvesting dividends
+            });
           }
           return { wealth: w, decomp: { dComp } };
         } else {
@@ -4766,28 +4771,27 @@
                 100
               ).toFixed(1);
               return isZh
-                ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | 年化 ${spCagr}% | ${yrs}年<br>&nbsp;&nbsp;· ${reinvest || spDc.cumDiv === 0 ? `再投资：股息~${W("1.4%/年")}复利计入（总回报）` : `仅价格涨幅，股息单独追踪（${fmt(spDc.cumDiv)}）`}<br>• 历史均值 ${W("~10%/年")}；单年 ${W("±30–40%")}<br>&nbsp;&nbsp;· 复利非线性：每次翻倍基数更大，增速加快`
-                : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | ${spCagr}%/yr CAGR | ${yrs}yrs<br>&nbsp;&nbsp;· ${reinvest || spDc.cumDiv === 0 ? `Reinvested: dividends ~${W("1.4%/yr")} compounded in (total return)` : `Price only — dividends tracked separately (${fmt(spDc.cumDiv)})`}<br>• hist. avg ${W("~10%/yr")}; single yrs ${W("±30–40%")}<br>&nbsp;&nbsp;· compounding nonlinear: each doubling grows from a larger base`;
+                ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | 年化 ${spCagr}% | ${yrs}年（仅价格）<br>• 历史均值 ${W("~10%/年")}；单年 ${W("±30–40%")}<br>&nbsp;&nbsp;· 复利非线性：每次翻倍基数更大，增速加快`
+                : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | ${spCagr}%/yr CAGR | ${yrs}yrs (price only)<br>• hist. avg ${W("~10%/yr")}; single yrs ${W("±30–40%")}<br>&nbsp;&nbsp;· compounding nonlinear: each doubling grows from a larger base`;
             },
           });
           spRows.push({
             key: "sp-div",
             label: lbl.dividends,
-            val: reinvest ? 0 : spDc.cumDiv,
+            val: spDc.cumDiv,
             color: "#6688ff",
             edu: () => {
-              if (reinvest || spDc.cumDiv === 0) {
-                return isZh
-                  ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• 股息 ~${W("1.3–2%/年")}自动复投 → 计入总回报，不单独列示<br>&nbsp;&nbsp;· 切换<em>累加模式</em>可提取为现金追踪<br>• 总回报 ${W("~10%/年")} vs 价格回报 ${W("~7–8%/年")}：差额 = 再投资股息`
-                  : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• dividends ~${W("1.3–2%/yr")} compounded back → embedded in total return bar<br>&nbsp;&nbsp;· switch to <em>Additive</em> to extract as cash<br>• total return ${W("~10%/yr")} vs price-only ${W("~7–8%/yr")}: difference = reinvested dividends`;
-              }
               const avgDivYield = (
                 (spDc.cumDiv / (INIT * years)) *
                 100
               ).toFixed(1);
               return isZh
-                ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} | 累加模式，现金收取<br>&nbsp;&nbsp;· 标普股息率 ~${W("1.3–2%/年")}；再投资模式自动买入（含低价时）<br>• 公司利润直接分配 — 切换<em>再投资</em>对比差异`
-                : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
+                ? reinvest
+                  ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• 再投资额外增长 ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} 贡献<br>&nbsp;&nbsp;· 股息买入更多份额 → 复利滚雪球，含低价加仓<br>• 总回报 ${W("~10%/年")} vs 仅价格 ${W("~7–8%/年")}：差额 = 再投资红利`
+                  : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} | 累加模式，现金收取<br>&nbsp;&nbsp;· 标普股息率 ~${W("1.3–2%/年")}；再投资模式自动买入（含低价时）<br>• 公司利润直接分配 — 切换<em>再投资</em>对比差异`
+                : reinvest
+                  ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• reinvestment growth ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} contribution<br>&nbsp;&nbsp;· dividends buy more shares → compounds (incl. buying dips)<br>• total return ${W("~10%/yr")} vs price-only ${W("~7–8%/yr")}: difference = reinvested dividends`
+                  : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
             },
           });
           spRows.push({
