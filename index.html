@@ -5384,6 +5384,9 @@
         const W = cW,
           H = cH;
         if (W === 0) return;
+        // Sub-month interpolation for smooth animation
+        const fullM = Math.floor(monthsToShow);
+        const frac = monthsToShow - fullM;
         ctx.fillStyle = "#0f0f0f";
         ctx.fillRect(0, 0, W, H);
         // Compute right padding to fit chasing labels
@@ -5419,10 +5422,10 @@
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          for (let m = 0; m <= monthsToShow && m < w.length; m++) {
+          for (let m = 0; m <= fullM && m < w.length; m++) {
             if (w[m] > yMax) yMax = w[m];
           }
-          for (let m = 0; m <= monthsToShow && m < w.length; m++) {
+          for (let m = 0; m <= fullM && m < w.length; m++) {
             if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
           }
         }
@@ -5472,7 +5475,7 @@
           const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
           let refiLabelIdx = 0;
           for (const refi of refis) {
-            if (refi.m > monthsToShow) continue;
+            if (refi.m > fullM) continue;
             const x = tx(refi.m);
             ctx.strokeStyle = "#666";
             ctx.lineWidth = 1;
@@ -5499,7 +5502,7 @@
         for (const ev of MARKET_EVENTS) {
           if (!ev.chartLine) continue;
           const evM = (ev.year - startYear) * 12;
-          if (evM <= 0 || evM >= monthsToShow) continue;
+          if (evM <= 0 || evM >= fullM) continue;
           const ex = tx(evM);
           const isCrash = ev.type === "crash";
           ctx.strokeStyle = isCrash ? "#883333" : "#886622";
@@ -5568,53 +5571,74 @@
           ctx.strokeStyle = color;
           ctx.lineWidth = lw;
           ctx.lineJoin = "round";
-          const solidEnd = Math.min(projStartM, monthsToShow);
-          // Solid: historical portion
+          const solidEnd = Math.min(projStartM, fullM);
+          // Solid: historical portion (up to fullM or projStartM, whichever first)
           ctx.setLineDash([]);
           ctx.beginPath();
           ctx.moveTo(tx(0), ty(w[0]));
           for (let m = 1; m <= solidEnd && m < w.length; m++)
             ctx.lineTo(tx(m), ty(w[m]));
+          // Fractional leading edge in solid zone
+          if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
+            ctx.lineTo(
+              tx(fullM + frac),
+              ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+            );
           ctx.stroke();
           // Dashed: projection portion
-          if (monthsToShow > solidEnd) {
+          const inDashZone =
+            fullM > projStartM || (fullM === projStartM && frac > 0);
+          if (inDashZone) {
             ctx.setLineDash([4, 4]);
             ctx.globalAlpha = 0.7;
             ctx.beginPath();
             ctx.moveTo(tx(solidEnd), ty(w[solidEnd]));
-            for (let m = solidEnd + 1; m <= monthsToShow && m < w.length; m++)
+            for (let m = solidEnd + 1; m <= fullM && m < w.length; m++)
               ctx.lineTo(tx(m), ty(w[m]));
+            // Fractional leading edge in dash zone
+            if (frac > 0 && fullM + 1 < w.length)
+              ctx.lineTo(
+                tx(fullM + frac),
+                ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+              );
             ctx.stroke();
             ctx.setLineDash([]);
             ctx.globalAlpha = 1.0;
           }
         }
 
-        // Tip dots
+        // Tip dots (interpolated for smooth movement)
         if (monthsToShow > 1) {
           for (let i = 0; i < SCENARIOS.length; i++) {
             if (hidden.has(i)) continue;
             const w = allWealth[i];
-            // Tip dot
-            const hm = Math.min(monthsToShow, w.length - 1);
+            const hm = Math.min(fullM, w.length - 1);
+            const canInterp = frac > 0 && fullM + 1 < w.length;
+            const dotX = canInterp ? tx(fullM + frac) : tx(hm);
+            const dotY = canInterp
+              ? ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]))
+              : ty(w[hm]);
             ctx.fillStyle = SCENARIOS[i].color;
             ctx.beginPath();
-            ctx.arc(tx(hm), ty(w[hm]), 3, 0, Math.PI * 2);
+            ctx.arc(dotX, dotY, 3, 0, Math.PI * 2);
             ctx.fill();
           }
         }
 
-        // Chasing line-head labels (right of current endpoint)
+        // Chasing line-head labels (right of current endpoint, interpolated)
         {
-          const hm = Math.min(monthsToShow, totalMonths - 1);
+          const hm = Math.min(fullM, totalMonths - 1);
+          const canInterp = frac > 0 && hm + 1 < allWealth[0].length;
           if (hm >= 0) {
             ctx.font = `${lfs}px monospace`;
             ctx.textAlign = "left";
-            const items = SCENARIOS.map((s, i) => ({
-              s,
-              i,
-              v: allWealth[i][hm],
-            }))
+            const items = SCENARIOS.map((s, i) => {
+              const v0 = allWealth[i][hm];
+              const v = canInterp
+                ? v0 + frac * (allWealth[i][hm + 1] - v0)
+                : v0;
+              return { s, i, v };
+            })
               .filter(({ i }) => !hidden.has(i))
               .sort((a, b) => b.v - a.v);
             const minGap = lfs * 2 + 4;
@@ -5636,7 +5660,7 @@
             // Clamp top
             for (let k = 0; k < positions.length; k++)
               if (positions[k] < PT + lfs) positions[k] = PT + lfs;
-            const lx = tx(hm) + 6;
+            const lx = (canInterp ? tx(fullM + frac) : tx(hm)) + 6;
             items.forEach(({ s, i, v }, k) => {
               ctx.fillStyle = s.color;
               ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
@@ -5648,7 +5672,7 @@
         // Annotate when any visible scenario is below the chart floor (negative equity)
         {
           let hasFloored = false;
-          const mCheck = monthsToShow;
+          const mCheck = fullM;
           outer: for (let i = 0; i < allWealth.length; i++) {
             if (hidden.has(i)) continue;
             for (let m = 0; m <= mCheck && m < allWealth[i].length; m++) {
@@ -5745,7 +5769,7 @@
         const m = Math.round(curMonth);
         sliderEl.value = m;
         updateLabel(m);
-        draw(m - 1);
+        draw(curMonth - 1); // float → sub-month interpolation in draw()
         if (curMonth >= totalMonths) {
           stopPlay();
           return;
