@@ -3683,8 +3683,9 @@
               fromM: periodFromM,
               toM: m,
               periodInt: Math.round(periodIntD),
+              loan: Math.round(periodStartLoan), // loan during this period
               pmt: calcPmt(periodStartLoan, currentRate),
-              newLoan: Math.round(newLoan), // actual new loan after cash-out (= rem for rate-and-term)
+              newLoan: Math.round(newLoan), // loan starting next period (after cash-out if LTV)
               cashOut: Math.max(0, Math.round(newLoan - rem)), // 0 unless LTV cash-out
             });
             periodFromM = m;
@@ -3762,6 +3763,7 @@
           fromM: periodFromM,
           toM: caM.length,
           periodInt: Math.round(periodIntD),
+          loan: finalPeriodLoan, // loan during this period
           pmt: calcPmt(finalPeriodLoan, currentRate),
           newLoan: finalPeriodLoan,
           cashOut: 0,
@@ -4743,8 +4745,8 @@
                                 ? "再融资"
                                 : "refi";
                         return isZh
-                          ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 贷款 ${fmt(p.newLoan)}，月供 ${fmt(p.pmt)}，利息 ${fmt(p.periodInt)}${cashOutNote}`
-                          : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — loan ${fmt(p.newLoan)}, ${fmt(p.pmt)}/mo, ${fmt(p.periodInt)} interest${cashOutNote}`;
+                          ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 贷款 ${fmt(p.loan)}，月供 ${fmt(p.pmt)}，利息 ${fmt(p.periodInt)}${cashOutNote}`
+                          : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — loan ${fmt(p.loan)}, ${fmt(p.pmt)}/mo, ${fmt(p.periodInt)} interest${cashOutNote}`;
                       });
                     const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
                     return isZh
