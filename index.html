@@ -704,12 +704,14 @@
       .decomp-bar-td {
         width: 80px;
         max-width: 80px;
-        overflow: hidden;
-        position: relative;
+        vertical-align: middle;
+      }
+      .decomp-bar-track {
         height: 5px;
         background: #1a1a1a;
         border-radius: 2px;
-        vertical-align: middle;
+        position: relative;
+        overflow: hidden;
       }
       .decomp-bar {
         height: 5px;
@@ -4618,7 +4620,7 @@
               const w = Math.round((Math.abs(row.val) / maxAbs) * 100);
               h += `<tr class="decomp-row" data-key="${row.key}">
                 <td class="decomp-lbl" style="color:${row.color}">${row.label}</td>
-                <td class="decomp-bar-td"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:0.8"></div></td>
+                <td class="decomp-bar-td"><div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:0.8"></div></div></td>
                 <td class="decomp-amt" style="color:${row.color}">${fmt(row.val)}</td>
               </tr>`;
             } else {
@@ -4626,7 +4628,7 @@
               const sign = row.val >= 0 ? "+" : "−";
               h += `<tr class="decomp-row" data-key="${row.key}">
                 <td class="decomp-lbl" style="color:${row.color}">${row.label}</td>
-                <td class="decomp-bar-td"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:0.7"></div></td>
+                <td class="decomp-bar-td"><div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:0.7"></div></div></td>
                 <td class="decomp-amt" style="color:${row.color}">${sign}${fmt(Math.abs(row.val))}</td>
               </tr>`;
             }
