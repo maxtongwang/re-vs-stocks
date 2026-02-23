@@ -4543,6 +4543,7 @@
           interest: isZh ? "利息支出" : "Interest Paid",
           costs: isZh ? "运营成本" : "Op. Costs",
           taxShield: isZh ? "税务收益" : "Tax Benefits",
+          taxBill: isZh ? "税务负担" : "Tax Bill",
           total: isZh ? "→ 总计" : "→ Total",
         };
 
@@ -4800,7 +4801,7 @@
               const taxColor = reDc.cumTax >= 0 ? "#ffff66" : "#ff6666";
               reRows.push({
                 key: "re-tax",
-                label: lbl.taxShield,
+                label: reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill,
                 val: reDc.cumTax,
                 color: taxColor,
                 edu: () => {
