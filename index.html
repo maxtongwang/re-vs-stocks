@@ -4714,37 +4714,50 @@
                     price > 0 ? ((reDc.cumInt / price) * 100).toFixed(0) : 0;
                   if (ratePeriods.length > 1) {
                     // Multi-rate (refi) — show per-period breakdown
-                    const periodLines = ratePeriods
-                      .filter((p) => p.toM > p.fromM)
-                      .map((p, i) => {
-                        const pDurYrs = Math.round((p.toM - p.fromM) / 12);
-                        const pFromYr = startYear + Math.floor(p.fromM / 12);
-                        const pToYr = Math.min(
-                          startYear + Math.floor(p.toM / 12),
-                          yr,
+                    const filteredPeriods = ratePeriods.filter(
+                      (p) => p.toM > p.fromM,
+                    );
+                    const periodLines = filteredPeriods.map((p, i) => {
+                      const pFromYr = startYear + Math.floor(p.fromM / 12);
+                      const isLastPeriod = i === filteredPeriods.length - 1;
+                      const cashOutNote =
+                        p.cashOut > 0
+                          ? isZh
+                            ? `，套现 ${W(fmt(p.cashOut))}（再投资）`
+                            : `, ${W("+" + fmt(p.cashOut) + " cash-out")} reinvested`
+                          : "";
+                      const tag =
+                        i === 0
+                          ? isZh
+                            ? "原始"
+                            : "original"
+                          : p.cashOut > 0
+                            ? isZh
+                              ? "套现再融资"
+                              : "cash-out refi"
+                            : isZh
+                              ? "再融资"
+                              : "refi";
+                      if (isLastPeriod) {
+                        // Last period: 30yr term, payoff may be in the future
+                        const payoffYr = pFromYr + 30;
+                        const fullTermInt = Math.round(p.pmt * 360 - p.loan);
+                        const payoffM = Math.min(
+                          p.fromM + 360,
+                          allWealth[bestIdx].length - 1,
                         );
-                        const cashOutNote =
-                          p.cashOut > 0
-                            ? isZh
-                              ? `，套现 ${W(fmt(p.cashOut))}（再投资）`
-                              : `, ${W("+" + fmt(p.cashOut) + " cash-out")} reinvested`
-                            : "";
-                        const tag =
-                          i === 0
-                            ? isZh
-                              ? "原始"
-                              : "original"
-                            : p.cashOut > 0
-                              ? isZh
-                                ? "套现再融资"
-                                : "cash-out refi"
-                              : isZh
-                                ? "再融资"
-                                : "refi";
+                        const payoffWealth = allWealth[bestIdx][payoffM];
                         return isZh
-                          ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 贷款 ${fmt(p.loan)}，月供 ${fmt(p.pmt)}，利息 ${fmt(p.periodInt)}${cashOutNote}`
-                          : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — loan ${fmt(p.loan)}, ${fmt(p.pmt)}/mo, ${fmt(p.periodInt)} interest${cashOutNote}`;
-                      });
+                          ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年期）— 贷款 ${fmt(p.loan)}，月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;全期利息：${W(fmt(fullTermInt))} · 还清时模拟总财富：${W(fmt(payoffWealth))}`
+                          : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30 yr) — loan ${fmt(p.loan)}, ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;Full-term interest: ${W(fmt(fullTermInt))} · Simulated wealth at payoff: ${W(fmt(payoffWealth))}`;
+                      }
+                      // Intermediate period: elapsed time between two refis
+                      const pToYr = startYear + Math.floor(p.toM / 12);
+                      const pDurYrs = Math.round((p.toM - p.fromM) / 12);
+                      return isZh
+                        ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 贷款 ${fmt(p.loan)}，月供 ${fmt(p.pmt)}，利息 ${fmt(p.periodInt)}${cashOutNote}`
+                        : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — loan ${fmt(p.loan)}, ${fmt(p.pmt)}/mo, ${fmt(p.periodInt)} interest${cashOutNote}`;
+                    });
                     const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
                     return isZh
                       ? `<strong style="color:#ff5555">${lbl.interest}</strong>：${yrs}年共支付 ${fmt(reDc.cumInt)}，占购价 <strong style="color:#ccc">${intAsPctPrice}%</strong>。<br><strong style="color:#ccc">利率分段明细：</strong><br>${periodLines.join("<br>")}<br>规则：每次再融资以新利率重新计算剩余本金，月供与摊销重置。${hasCashOut ? "套现再融资将超出还款额的权益提取为现金并再投资，同时增加贷款余额和未来利息支出。" : ""}租赁物业所有利息均可税前抵扣（见税务收益行）。`
