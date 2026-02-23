@@ -4784,9 +4784,22 @@
                     reDc.cumCosts > 0
                       ? ((reDc.cumRent / reDc.cumCosts) * 100).toFixed(0)
                       : "∞";
+                  const yieldPct = (startYield * 100).toFixed(1);
+                  const yieldCtx =
+                    startYield < 0.035
+                      ? isZh
+                        ? `低回报率——${startYear}年房价已超租金涨幅`
+                        : `low — prices outpaced rents entering ${startYear}`
+                      : startYield > 0.055
+                        ? isZh
+                          ? `高回报率——${startYear}年租金相对房价较高`
+                          : `high — rents strong relative to prices in ${startYear}`
+                        : isZh
+                          ? `${startYear}年市场典型水平`
+                          : `typical market rate for ${startYear}`;
                   return isZh
-                    ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W((startYield * 100).toFixed(1) + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:#ccc">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W((startYield * 100).toFixed(1) + "%")}回报率反映1970s低房价；当今 ~${W("4–6%")}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率压缩；早期买家受益最大`
-                    : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W((startYield * 100).toFixed(1) + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:#ccc">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W((startYield * 100).toFixed(1) + "%")} yield = 1970s low prices; today ~${W("4–6%")}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses; early buyers benefit most`;
+                    ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:#ccc">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩`
+                    : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:#ccc">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time`;
                 },
               });
             }
