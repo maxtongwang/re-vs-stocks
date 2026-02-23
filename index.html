@@ -4795,8 +4795,8 @@
                           ? `高回报率——${startYear}年租金相对房价较高`
                           : `high — rents strong relative to prices in ${startYear}`
                         : isZh
-                          ? `${startYear}年市场典型水平（3.5–5.5%区间）`
-                          : `typical market rate for ${startYear} (3.5–5.5% range)`;
+                          ? `典型市场回报率区间（3.5–5.5%）`
+                          : `within typical market range (3.5–5.5%)`;
                   return isZh
                     ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:#ccc">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩`
                     : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:#ccc">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time`;
