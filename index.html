@@ -1540,9 +1540,9 @@
               : `Rent yield: ${W(ry + "%")} · Improvement: ${W(ip + "%")}`;
             const refiStr =
               nr > 0
-                ? ` · Refi: ${W(nr + "x " + (isLTV ? "(LTV)" : "(Bal)"))}`
+                ? `Refi: ${W(nr + "x " + (isLTV ? "(LTV)" : "(Bal)"))} · `
                 : "";
-            return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}${refiStr}<br>${line2}<br>Cash flow: ${W(mode)}`;
+            return `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}<br>${line2}<br>${refiStr}Cash flow: ${W(mode)}`;
           },
           dynamicLine: (
             sy,
@@ -1712,9 +1712,9 @@
               : `租金回报率：${W(ry + "%")} · 建筑：${W(ip + "%")}`;
             const refiStr =
               nr > 0
-                ? ` · 重贷：${W(nr + "次" + (isLTV ? "（LTV）" : "（余额）"))}`
+                ? `重贷：${W(nr + "次" + (isLTV ? "（LTV）" : "（余额）"))} · `
                 : "";
-            return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}${refiStr}<br>${line2}<br>现金流：${W(mode)}`;
+            return `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}<br>${line2}<br>${refiStr}现金流：${W(mode)}`;
           },
           dynamicLine: (
             sy,
