@@ -369,7 +369,7 @@
         min-width: 36px;
       }
       #refi-type-group {
-        display: none;
+        visibility: hidden;
       }
       #row-ltv-pct {
         display: none;
@@ -990,6 +990,7 @@
               color: #aaa;
               line-height: 13px;
               padding-left: 2px;
+              visibility: hidden;
             "
           ></span>
         </div>
@@ -998,7 +999,8 @@
       <div
         id="row-ltv-pct"
         style="
-          display: none;
+          display: flex;
+          visibility: hidden;
           grid-column: 1 / -1;
           flex-direction: column;
           gap: 2px;
@@ -4491,15 +4493,12 @@
                 .classList.toggle("active", i === n),
             );
             const hasRefis = n > 0;
-            document.getElementById("refi-type-group").style.display = hasRefis
-              ? "flex"
-              : "none";
-            document.getElementById("refi-bal-tip").style.display =
-              hasRefis && !refiLTV ? "" : "none";
-            if (!hasRefis)
-              document.getElementById("row-ltv-pct").style.display = "none";
-            else if (refiLTV)
-              document.getElementById("row-ltv-pct").style.display = "flex";
+            document.getElementById("refi-type-group").style.visibility =
+              hasRefis ? "visible" : "hidden";
+            document.getElementById("refi-bal-tip").style.visibility =
+              hasRefis && !refiLTV ? "visible" : "hidden";
+            document.getElementById("row-ltv-pct").style.visibility =
+              hasRefis && refiLTV ? "visible" : "hidden";
             allWealth = buildAllWealth(startYear);
             updateAssumptions();
             buildTable();
@@ -4512,8 +4511,8 @@
       document.getElementById("btn-refi-rate").addEventListener("click", () => {
         if (!refiLTV) return;
         refiLTV = false;
-        document.getElementById("row-ltv-pct").style.display = "none";
-        document.getElementById("refi-bal-tip").style.display = "";
+        document.getElementById("row-ltv-pct").style.visibility = "hidden";
+        document.getElementById("refi-bal-tip").style.visibility = "visible";
         document.getElementById("btn-refi-rate").classList.add("active");
         document.getElementById("btn-refi-ltv").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -4525,8 +4524,8 @@
       document.getElementById("btn-refi-ltv").addEventListener("click", () => {
         if (refiLTV) return;
         refiLTV = true;
-        document.getElementById("row-ltv-pct").style.display = "flex";
-        document.getElementById("refi-bal-tip").style.display = "none";
+        document.getElementById("row-ltv-pct").style.visibility = "visible";
+        document.getElementById("refi-bal-tip").style.visibility = "hidden";
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -5848,14 +5847,14 @@
             .getElementById(`btn-refi-${i}`)
             .classList.toggle("active", i === numRefis),
         );
-        document.getElementById("refi-type-group").style.display = "flex";
-      } else {
-        document.getElementById("refi-bal-tip").style.display = "none";
+        document.getElementById("refi-type-group").style.visibility = "visible";
+        if (!refiLTV)
+          document.getElementById("refi-bal-tip").style.visibility = "visible";
       }
       if (refiLTV && numRefis > 0) {
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
-        document.getElementById("row-ltv-pct").style.display = "flex";
+        document.getElementById("row-ltv-pct").style.visibility = "visible";
         const ltvPctInit = Math.round(refiLTVPct * 100);
         document.getElementById("ltv-pct-slider").value = ltvPctInit;
         document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
