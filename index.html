@@ -4693,14 +4693,15 @@
 
         // Locale labels
         const isZh = lang === "zh";
+        const s = STRINGS[lang];
         const lbl = {
           title: isZh ? "收益明细" : "Return Breakdown",
           appreciation: isZh ? "价格涨幅" : "Appreciation",
           dividends: isZh ? "股息" : "Dividends",
           rentIncome: isZh ? "租金收入" : "Rent Income",
           interest: isZh ? "利息支出" : "Interest Paid",
-          costs: isZh ? "运营成本" : "Op. Costs",
-          taxShield: isZh ? "税务收益" : "Tax Benefits",
+          costs: s.btnCosts,
+          taxShield: s.btnTaxBenefits,
           taxBill: isZh ? "税务负担" : "Tax Bill",
           total: isZh ? "→ 总计" : "→ Total",
         };
