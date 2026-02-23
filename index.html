@@ -1077,8 +1077,8 @@
       <div id="decomp-title"></div>
       <div id="decomp-bars"></div>
       <hr id="decomp-divider" />
-      <div id="decomp-edu"></div>
       <div id="decomp-hint"></div>
+      <div id="decomp-edu"></div>
     </div>
 
     <hr style="border: none; border-top: 1px solid #222; margin: 24px 0 0" />
@@ -4511,6 +4511,7 @@
         const reRows = [];
 
         // S&P rows
+        const yrs = years.toFixed(1);
         if (spDc != null) {
           const spColor = "#4da6ff";
           spRows.push({
@@ -4819,8 +4820,8 @@
         });
         const hintEl = document.getElementById("decomp-hint");
         const hint = isZh
-          ? `<span style="color:#444">↑ 悬停或点击行查看说明</span>`
-          : `<span style="color:#444">↑ hover or click a row to explore</span>`;
+          ? `<span style="color:#fff">↑ 悬停或点击行查看说明</span>`
+          : `<span style="color:#fff">↑ hover or click a row to explore</span>`;
         if (hintEl) hintEl.innerHTML = hint;
 
         barsEl.addEventListener("mouseleave", () => {
