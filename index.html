@@ -4991,7 +4991,8 @@
         ctx.fillRect(0, 0, W, H);
         // Compute right padding to fit chasing labels
         const chartLegLabels = [
-          "S&P 500",
+          document.getElementById("index-select")?.selectedOptions[0]?.text ||
+            "S&P 500",
           "All Cash",
           "50% Down",
           "20% Down",
