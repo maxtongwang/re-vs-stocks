@@ -4662,23 +4662,29 @@
           el.addEventListener("mouseenter", activate);
           el.addEventListener("click", activate);
         });
+        const hint = isZh
+          ? `<span style="color:#333">← 悬停或点击行查看说明</span>`
+          : `<span style="color:#333">← hover or click a row to explore</span>`;
+
         barsEl.addEventListener("mouseleave", () => {
-          if (eduEl && decompActiveRow) {
-            eduEl.innerHTML = "";
-            decompActiveRow = null;
-          }
+          decompActiveRow = null;
           barsEl
             .querySelectorAll(".decomp-row")
             .forEach((e) => e.classList.remove("active-edu"));
+          if (eduEl) eduEl.innerHTML = hint;
         });
 
-        // Restore active edu if row still exists
+        // Restore active edu if row still exists, otherwise show hint
         if (decompActiveRow && eduMap[decompActiveRow]) {
           const el = barsEl.querySelector(`[data-key="${decompActiveRow}"]`);
           if (el) {
             el.classList.add("active-edu");
             if (eduEl) eduEl.innerHTML = eduMap[decompActiveRow]();
+          } else {
+            if (eduEl) eduEl.innerHTML = hint;
           }
+        } else {
+          if (eduEl) eduEl.innerHTML = hint;
         }
       }
 
