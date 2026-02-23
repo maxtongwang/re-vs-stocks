@@ -680,12 +680,12 @@
       </h1>
       <div class="hero-sub">
         <span class="abbr-wrap hero-init">
-          <span class="abbr-text" id="init-abbr">$100k</span>
+          <span class="abbr-text" id="init-abbr">$1M</span>
           <select class="abbr-sel" id="init-select">
-            <option value="100000" selected>$100k</option>
+            <option value="100000">$100k</option>
             <option value="200000">$200k</option>
             <option value="500000">$500k</option>
-            <option value="1000000">$1M</option>
+            <option value="1000000" selected>$1M</option>
             <option value="2000000">$2M</option>
             <option value="5000000">$5M</option>
           </select>
@@ -1718,7 +1718,7 @@
         HIST_YEAR = 2025, // last year with real data
         PROJ_END_YEAR = 2045, // projection horizon (shown when refi > 0)
         MAX_YEAR = 2025;
-      let INIT = 100000;
+      let INIT = 1000000;
       const AMORT_TERMS = 360;
 
       // S&P 500 annual price returns — Macrotrends / CRSP
@@ -4328,7 +4328,7 @@
           bestReVal > spVal
             ? `<strong>${aheadFn(((bestReVal / spVal - 1) * 100).toFixed(0), true)}</strong>`
             : `<strong>${aheadFn(((spVal / bestReVal - 1) * 100).toFixed(0), false)}</strong>`;
-        el.innerHTML = `· ${idxLabel}: ${spStr}<br>· ${reLabel}: ${reStr} — ${winner}`;
+        el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:right;padding-right:5px;white-space:nowrap;color:#777">· ${idxLabel}:</td><td>${spStr}</td></tr><tr><td style="text-align:right;padding-right:5px;white-space:nowrap;color:#777">· ${reLabel}:</td><td>${reStr} — ${winner}</td></tr></table>`;
       }
 
       function updateLegendCagr(monthsToShow) {
