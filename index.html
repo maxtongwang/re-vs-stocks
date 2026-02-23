@@ -3672,20 +3672,20 @@
               newLoan = Math.max(rem, pv * ltvPct); // cash-out to LTV if equity available
             }
             // Close out current rate period before switching
+            const periodStartLoan =
+              mort > 0
+                ? ratePeriods.length === 0
+                  ? mort
+                  : (ratePeriods[ratePeriods.length - 1]?.newLoan ?? mort)
+                : 0;
             ratePeriods.push({
               rate: currentRate,
               fromM: periodFromM,
               toM: m,
               periodInt: Math.round(periodIntD),
-              pmt: calcPmt(
-                mort > 0
-                  ? ratePeriods.length === 0
-                    ? mort
-                    : (ratePeriods[ratePeriods.length - 1]?.newLoan ?? mort)
-                  : 0,
-                currentRate,
-              ),
-              newLoan: Math.round(rem),
+              pmt: calcPmt(periodStartLoan, currentRate),
+              newLoan: Math.round(newLoan), // actual new loan after cash-out (= rem for rate-and-term)
+              cashOut: Math.max(0, Math.round(newLoan - rem)), // 0 unless LTV cash-out
             });
             periodFromM = m;
             periodIntD = 0;
@@ -3764,6 +3764,7 @@
           periodInt: Math.round(periodIntD),
           pmt: calcPmt(finalPeriodLoan, currentRate),
           newLoan: finalPeriodLoan,
+          cashOut: 0,
         });
         // Bankruptcy clamp: once wealth goes negative, it can deepen but never recover.
         // Running minimum freezes at the worst point — no false comeback from insolvency.
@@ -4723,21 +4724,32 @@
                           startYear + Math.floor(p.toM / 12),
                           yr,
                         );
+                        const cashOutNote =
+                          p.cashOut > 0
+                            ? isZh
+                              ? `，套现 ${W(fmt(p.cashOut))}（再投资）`
+                              : `, ${W("+" + fmt(p.cashOut) + " cash-out")} reinvested`
+                            : "";
                         const tag =
                           i === 0
                             ? isZh
                               ? "原始"
                               : "original"
-                            : isZh
-                              ? "再融资"
-                              : "refi";
+                            : p.cashOut > 0
+                              ? isZh
+                                ? "套现再融资"
+                                : "cash-out refi"
+                              : isZh
+                                ? "再融资"
+                                : "refi";
                         return isZh
-                          ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 利息 ${fmt(p.periodInt)}，月供 ${fmt(p.pmt)}`
-                          : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — ${fmt(p.periodInt)} interest, ${fmt(p.pmt)}/mo`;
+                          ? `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）— 贷款 ${fmt(p.newLoan)}，月供 ${fmt(p.pmt)}，利息 ${fmt(p.periodInt)}${cashOutNote}`
+                          : `&nbsp;&nbsp;• ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs) — loan ${fmt(p.newLoan)}, ${fmt(p.pmt)}/mo, ${fmt(p.periodInt)} interest${cashOutNote}`;
                       });
+                    const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
                     return isZh
-                      ? `<strong style="color:#ff5555">${lbl.interest}</strong>：${yrs}年共支付 ${fmt(reDc.cumInt)}，占购价 <strong style="color:#ccc">${intAsPctPrice}%</strong>。<br><strong style="color:#ccc">利率分段明细：</strong><br>${periodLines.join("<br>")}<br>规则：每次再融资以新利率重新计算剩余本金，前期利息占比仍偏高。累计利息通常为购价的1–2倍。租赁物业所有利息均可税前抵扣（见税务收益行）。`
-                      : `<strong style="color:#ff5555">${lbl.interest}</strong>: ${fmt(reDc.cumInt)} total over ${yrs}yrs = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price.<br><strong style="color:#ccc">Rate history by period:</strong><br>${periodLines.join("<br>")}<br>Rule: each refi resets amortization on the remaining balance at the new rate — early months of each new loan are still interest-heavy. On rentals, all interest is ${W("tax-deductible")} (see Tax Benefits row) regardless of rate.`;
+                      ? `<strong style="color:#ff5555">${lbl.interest}</strong>：${yrs}年共支付 ${fmt(reDc.cumInt)}，占购价 <strong style="color:#ccc">${intAsPctPrice}%</strong>。<br><strong style="color:#ccc">利率分段明细：</strong><br>${periodLines.join("<br>")}<br>规则：每次再融资以新利率重新计算剩余本金，月供与摊销重置。${hasCashOut ? "套现再融资将超出还款额的权益提取为现金并再投资，同时增加贷款余额和未来利息支出。" : ""}租赁物业所有利息均可税前抵扣（见税务收益行）。`
+                      : `<strong style="color:#ff5555">${lbl.interest}</strong>: ${fmt(reDc.cumInt)} total over ${yrs}yrs = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price.<br><strong style="color:#ccc">Rate history by period:</strong><br>${periodLines.join("<br>")}<br>Rule: each refi resets the amortization schedule on the new balance at the new rate.${hasCashOut ? ` Cash-out refis pull equity above the payoff amount as investable cash — increasing the loan balance and future interest owed.` : ""} On rentals, all interest is ${W("tax-deductible")} (see Tax Benefits row) regardless of rate.`;
                   }
                   // Single rate (no refis)
                   const mortPmt =
