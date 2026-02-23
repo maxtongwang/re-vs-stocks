@@ -4328,7 +4328,7 @@
           bestReVal > spVal
             ? `<strong>${aheadFn(((bestReVal / spVal - 1) * 100).toFixed(0), true)}</strong>`
             : `<strong>${aheadFn(((spVal / bestReVal - 1) * 100).toFixed(0), false)}</strong>`;
-        el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:right;padding-right:5px;white-space:nowrap;color:#777">· ${idxLabel}:</td><td>${spStr}</td></tr><tr><td style="text-align:right;padding-right:5px;white-space:nowrap;color:#777">· ${reLabel}:</td><td>${reStr} — ${winner}</td></tr></table>`;
+        el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:#777">· ${idxLabel}:</td><td style="text-align:left">${spStr}</td></tr><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:#777">· ${reLabel}:</td><td style="text-align:left">${reStr} — ${winner}</td></tr></table>`;
       }
 
       function updateLegendCagr(monthsToShow) {
@@ -4760,8 +4760,8 @@
             ctx.textAlign = "center";
             const floorLabel =
               lang === "zh"
-                ? "▼ 部分曲线低于图表底部（净财富为负）"
-                : "▼ some lines below chart floor — negative wealth";
+                ? "已破产。过度杠杆导致负净值。图表停留于最大亏损点。"
+                : "Bankrupted. Overleverage Caused Negative Equity. Chart Stayed at Max Deficit.";
             const labelX = PL + chartW / 2;
             // Sit above x-axis year labels: baseline H-6, font 7-9px → tops ~H-15
             const yLabelFontSize = Math.max(7, Math.min(9, W / 55));
