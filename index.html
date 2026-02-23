@@ -369,7 +369,7 @@
         min-width: 36px;
       }
       #refi-type-group {
-        visibility: hidden;
+        display: none;
       }
       #row-ltv-pct {
         display: none;
@@ -952,7 +952,7 @@
         line-height: 14px;
         color: #888;
         margin-bottom: 5px;
-        align-items: center;
+        align-items: start;
       "
     >
       <!-- row 1 left: Prop -->
@@ -970,18 +970,39 @@
           style="height: 24px; display: flex; align-items: center"
           >Refi:</span
         >
-        <div style="display: flex; flex-direction: column; gap: 5px">
-          <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-refi-0">0</button>
-            <button class="toggle-btn" id="btn-refi-1">1</button>
-            <button class="toggle-btn" id="btn-refi-2">2</button>
-            <button class="toggle-btn" id="btn-refi-3">3</button>
-          </div>
-          <div class="toggle-group" id="refi-type-group">
-            <button class="toggle-btn active" id="btn-refi-rate">
-              Balance
-            </button>
-            <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            min-height: 70px;
+          "
+        >
+          <!-- count + type on same horizontal line -->
+          <div
+            style="
+              display: flex;
+              align-items: center;
+              gap: 4px;
+              flex-wrap: nowrap;
+            "
+          >
+            <div class="toggle-group">
+              <button class="toggle-btn active" id="btn-refi-0">0</button>
+              <button class="toggle-btn" id="btn-refi-1">1</button>
+              <button class="toggle-btn" id="btn-refi-2">2</button>
+              <button class="toggle-btn" id="btn-refi-3">3</button>
+            </div>
+            <div
+              class="toggle-group"
+              id="refi-type-group"
+              style="display: none"
+            >
+              <button class="toggle-btn active" id="btn-refi-rate">
+                Balance
+              </button>
+              <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
+            </div>
           </div>
           <span
             id="refi-bal-tip"
@@ -990,44 +1011,40 @@
               color: #aaa;
               line-height: 13px;
               padding-left: 2px;
-              visibility: hidden;
+              display: none;
             "
           ></span>
+          <!-- LTV row: inside refi column, hidden by default -->
+          <div
+            id="row-ltv-pct"
+            style="display: none; flex-direction: column; gap: 2px"
+          >
+            <div
+              style="display: flex; align-items: center; gap: 8px; height: 24px"
+            >
+              <span id="label-ltv-pct">LTV %:</span>
+              <input
+                type="range"
+                id="ltv-pct-slider"
+                min="50"
+                max="80"
+                step="5"
+                value="75"
+                style="flex: 1; min-width: 80px"
+              />
+              <span class="val" id="ltv-pct-val">75%</span>
+            </div>
+            <span
+              id="ltv-tip-line"
+              style="
+                font-size: 10px;
+                color: #fff;
+                line-height: 13px;
+                padding-left: 2px;
+              "
+            ></span>
+          </div>
         </div>
-      </div>
-      <!-- LTV row: spans both columns, hidden by default -->
-      <div
-        id="row-ltv-pct"
-        style="
-          display: flex;
-          visibility: hidden;
-          grid-column: 1 / -1;
-          flex-direction: column;
-          gap: 2px;
-        "
-      >
-        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
-          <span id="label-ltv-pct">LTV %:</span>
-          <input
-            type="range"
-            id="ltv-pct-slider"
-            min="50"
-            max="80"
-            step="5"
-            value="75"
-            style="flex: 1"
-          />
-          <span class="val" id="ltv-pct-val">75%</span>
-        </div>
-        <span
-          id="ltv-tip-line"
-          style="
-            font-size: 10px;
-            color: #fff;
-            line-height: 13px;
-            padding-left: 2px;
-          "
-        ></span>
       </div>
       <!-- row 2: Includes — spans both columns -->
       <div
@@ -1578,6 +1595,7 @@
           btnRefiBalance: "Balance",
           labelIncludes: "Includes:",
           btnTaxBenefits: "Tax Benefits",
+          btnTaxBill: "Tax Bill",
           btnDepreciation: "Depreciation",
           btnCosts: "Op. Costs",
           labelCostsNote: "(tax · ins · maint)",
@@ -1757,6 +1775,7 @@
           btnRefiBalance: "剩余贷款",
           labelIncludes: "计入：",
           btnTaxBenefits: "税务优惠",
+          btnTaxBill: "税务负担",
           btnDepreciation: "折旧",
           btnCosts: "运营成本",
           labelCostsNote: "（税·保险·维护）",
@@ -4493,12 +4512,13 @@
                 .classList.toggle("active", i === n),
             );
             const hasRefis = n > 0;
-            document.getElementById("refi-type-group").style.visibility =
-              hasRefis ? "visible" : "hidden";
-            document.getElementById("refi-bal-tip").style.visibility =
-              hasRefis && !refiLTV ? "visible" : "hidden";
-            document.getElementById("row-ltv-pct").style.visibility =
-              hasRefis && refiLTV ? "visible" : "hidden";
+            document.getElementById("refi-type-group").style.display = hasRefis
+              ? "flex"
+              : "none";
+            document.getElementById("refi-bal-tip").style.display =
+              hasRefis && !refiLTV ? "" : "none";
+            document.getElementById("row-ltv-pct").style.display =
+              hasRefis && refiLTV ? "flex" : "none";
             allWealth = buildAllWealth(startYear);
             updateAssumptions();
             buildTable();
@@ -4511,8 +4531,8 @@
       document.getElementById("btn-refi-rate").addEventListener("click", () => {
         if (!refiLTV) return;
         refiLTV = false;
-        document.getElementById("row-ltv-pct").style.visibility = "hidden";
-        document.getElementById("refi-bal-tip").style.visibility = "visible";
+        document.getElementById("row-ltv-pct").style.display = "none";
+        document.getElementById("refi-bal-tip").style.display = "";
         document.getElementById("btn-refi-rate").classList.add("active");
         document.getElementById("btn-refi-ltv").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -4524,8 +4544,8 @@
       document.getElementById("btn-refi-ltv").addEventListener("click", () => {
         if (refiLTV) return;
         refiLTV = true;
-        document.getElementById("row-ltv-pct").style.visibility = "visible";
-        document.getElementById("refi-bal-tip").style.visibility = "hidden";
+        document.getElementById("row-ltv-pct").style.display = "flex";
+        document.getElementById("refi-bal-tip").style.display = "none";
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
         allWealth = buildAllWealth(startYear);
@@ -4808,6 +4828,11 @@
           const reColor = SCENARIOS[bestIdx].color;
           const reLabel = SCENARIOS[bestIdx].label;
           if (reDc != null) {
+            // Update includes button label to reflect current tax outcome
+            const taxBtnEl = document.getElementById("btn-incl-taxbenefit");
+            if (taxBtnEl)
+              taxBtnEl.textContent =
+                reDc.cumTax >= 0 ? s.btnTaxBenefits : s.btnTaxBill;
             const {
               price,
               mort,
@@ -5848,14 +5873,14 @@
             .getElementById(`btn-refi-${i}`)
             .classList.toggle("active", i === numRefis),
         );
-        document.getElementById("refi-type-group").style.visibility = "visible";
+        document.getElementById("refi-type-group").style.display = "flex";
         if (!refiLTV)
-          document.getElementById("refi-bal-tip").style.visibility = "visible";
+          document.getElementById("refi-bal-tip").style.display = "";
       }
       if (refiLTV && numRefis > 0) {
         document.getElementById("btn-refi-ltv").classList.add("active");
         document.getElementById("btn-refi-rate").classList.remove("active");
-        document.getElementById("row-ltv-pct").style.visibility = "visible";
+        document.getElementById("row-ltv-pct").style.display = "flex";
         const ltvPctInit = Math.round(refiLTVPct * 100);
         document.getElementById("ltv-pct-slider").value = ltvPctInit;
         document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
