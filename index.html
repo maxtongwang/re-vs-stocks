@@ -4058,6 +4058,8 @@
         );
         const checks = [];
         for (let y = 5; y <= dur; y += 5) checks.push(y);
+        // Compute mData here so 5-yr loop can detect data-cutoff coincidence
+        const mData = projStartM;
         for (const yrs of checks) {
           const m = Math.min(yrs * 12, totalMonths - 1);
           if (m >= totalMonths) continue;
@@ -4066,8 +4068,12 @@
           const tr = document.createElement("tr");
           if (ev) tr.style.background = "#1a0000";
           const evName = ev ? (lang === "zh" ? ev.nameZh : ev.name) : null;
+          // When this 5-yr row coincides with the actual data cutoff, include the month
+          const isCutoff = m === mData && !ev;
+          const mo = (m % 12) + 1;
+          const cutoffLabel = `Yr ${yrs} (${yr}/${mo.toString().padStart(2, "0")})`;
           tr.innerHTML =
-            `<td>${ev ? s.crashRowLabel(yr, evName) : s.tableRowLabel(yrs, yr)}</td>` +
+            `<td>${ev ? s.crashRowLabel(yr, evName) : isCutoff ? cutoffLabel : s.tableRowLabel(yrs, yr)}</td>` +
             allWealth
               .map((w, i) => {
                 const cls = hidden.has(i) ? ' class="col-hidden"' : "";
@@ -4076,8 +4082,6 @@
               .join("");
           tbody.appendChild(tr);
         }
-        // Primary final row: last actual data month
-        const mData = projStartM; // 0-based index of Jan 2026
         const lastFiveYrM = Math.min(
           Math.floor(dur / 5) * 5 * 12,
           totalMonths - 1,
