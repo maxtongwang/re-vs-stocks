@@ -5420,8 +5420,8 @@
           }
         }
 
-        // Primary mode: annotate when any visible scenario is below the chart floor
-        if (isPrimary) {
+        // Annotate when any visible scenario is below the chart floor (negative equity)
+        {
           let hasFloored = false;
           const mCheck = Math.min(monthsToShow, histBoundaryM);
           outer: for (let i = 0; i < allWealth.length; i++) {
