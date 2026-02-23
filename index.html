@@ -4824,25 +4824,29 @@
           : `<span style="color:#fff">↑ hover or click a row to explore</span>`;
         if (hintEl) hintEl.innerHTML = hint;
 
+        const defaultEdu = isZh
+          ? `<strong style="color:#888">收益分解</strong>将总财富拆分为各组成部分：价格涨幅（通过杠杆放大）、现金流（租金或股息）、成本与税收影响。每根条形代表该部分对最终财富的贡献——正值叠加，负值抵消。悬停任意行，查看该项背后的具体计算逻辑与投资规律。`
+          : `<strong style="color:#888">Return Decomposition</strong> breaks total wealth into its sources: price appreciation (amplified by leverage), cash flows (rent or dividends), costs, and tax treatment. Each bar shows that component's contribution to final wealth — positive bars add up, negative bars drag. Hover any row to see the math and rules behind it.`;
+
         barsEl.addEventListener("mouseleave", () => {
           decompActiveRow = null;
           barsEl
             .querySelectorAll(".decomp-row")
             .forEach((e) => e.classList.remove("active-edu"));
-          if (eduEl) eduEl.innerHTML = "";
+          if (eduEl) eduEl.innerHTML = defaultEdu;
         });
 
-        // Restore active edu if row still exists, otherwise clear
+        // Restore active edu if row still exists, otherwise show default
         if (decompActiveRow && eduMap[decompActiveRow]) {
           const el = barsEl.querySelector(`[data-key="${decompActiveRow}"]`);
           if (el) {
             el.classList.add("active-edu");
             if (eduEl) eduEl.innerHTML = eduMap[decompActiveRow]();
           } else {
-            if (eduEl) eduEl.innerHTML = "";
+            if (eduEl) eduEl.innerHTML = defaultEdu;
           }
         } else {
-          if (eduEl) eduEl.innerHTML = "";
+          if (eduEl) eduEl.innerHTML = defaultEdu;
         }
       }
 
