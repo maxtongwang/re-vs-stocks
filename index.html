@@ -845,6 +845,33 @@
           🔗
         </button>
       </div>
+      <!-- row 3: Includes — spans both columns -->
+      <div
+        style="
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          grid-column: 1 / -1;
+          flex-wrap: wrap;
+          min-height: 24px;
+        "
+      >
+        <span id="label-includes">Includes:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-incl-taxbenefit">
+            Tax benefits
+          </button>
+          <button class="toggle-btn active" id="btn-incl-depreciation">
+            Depreciation
+          </button>
+          <button class="toggle-btn active" id="btn-incl-costs">Costs</button>
+        </div>
+        <span
+          id="label-costs-note"
+          style="color: #555; font-size: 9px; white-space: nowrap"
+          >(prop tax · ins 0.5% · maint 1%)</span
+        >
+      </div>
     </div>
 
     <div id="mode-desc">
@@ -1327,6 +1354,11 @@
           btnReinvest: "Reinvested",
           btnRental: "Rental",
           btnPrimary: "Primary",
+          labelIncludes: "Includes:",
+          btnTaxBenefits: "Tax benefits",
+          btnDepreciation: "Depreciation",
+          btnCosts: "Costs",
+          labelCostsNote: "(prop tax · ins 0.5% · maint 1%)",
           legendLabels: [
             "S&P 500 (total)",
             "RE All Cash",
@@ -1492,6 +1524,11 @@
           btnReinvest: "复投",
           btnRental: "出租",
           btnPrimary: "自住",
+          labelIncludes: "计入：",
+          btnTaxBenefits: "税务优惠",
+          btnDepreciation: "折旧",
+          btnCosts: "持有成本",
+          labelCostsNote: "（房产税 · 保险0.5% · 维护1%）",
           legendLabels: [
             "S&P 500 (总回报)",
             "房产 全现金",
@@ -3416,11 +3453,15 @@
         useLTV,
         ltvPct,
         locCfg,
+        inclTaxBenefits = true,
+        inclDepreciation = true,
+        inclCosts = true,
       ) {
         const price = INIT / down,
           mort = price * (1 - down);
-        // Primary residences: no depreciation deduction (IRS rule)
-        const dep = isPrimary ? 0 : (price * improvPct) / 27.5 / 12;
+        // Primary residences: no depreciation deduction (IRS rule); also respects inclDepreciation toggle
+        const dep =
+          isPrimary || !inclDepreciation ? 0 : (price * improvPct) / 27.5 / 12;
         let pv = price,
           rem = mort;
         let sched = mort > 0 ? amortize(mort, mortRate / 12) : [];
@@ -3472,9 +3513,9 @@
           }
           // Primary: r=0 (no rent income). Rental: actual rent collected.
           const r = isPrimary ? 0 : rent / 12;
-          const t = ptax / 12,
-            ins = (pv * 0.005) / 12,
-            mai = (pv * 0.01) / 12;
+          const t = inclCosts ? ptax / 12 : 0,
+            ins = inclCosts ? (pv * 0.005) / 12 : 0,
+            mai = inclCosts ? (pv * 0.01) / 12 : 0;
           let int = 0,
             prin = 0;
           const si = m - schedOffset;
@@ -3488,9 +3529,11 @@
           // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
           // Primary: standard deduction assumed ($29,200 MFJ 2024) — mortgage interest provides
           // no incremental tax benefit for most homeowners; taxBenefit = 0.
-          const taxBenefit = isPrimary
-            ? 0
-            : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) * locCfg.taxRate;
+          const taxBenefit =
+            isPrimary || !inclTaxBenefits
+              ? 0
+              : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) *
+                locCfg.taxRate;
           const netCF = gross + taxBenefit;
 
           if (reinvest) {
@@ -3564,6 +3607,9 @@
             refiLTV,
             refiLTVPct,
             activeLocConfig,
+            inclTaxBenefits,
+            inclDepreciation,
+            inclCosts,
           ),
           simRE(
             0.5,
@@ -3579,6 +3625,9 @@
             refiLTV,
             refiLTVPct,
             activeLocConfig,
+            inclTaxBenefits,
+            inclDepreciation,
+            inclCosts,
           ),
           simRE(
             0.2,
@@ -3594,6 +3643,9 @@
             refiLTV,
             refiLTVPct,
             activeLocConfig,
+            inclTaxBenefits,
+            inclDepreciation,
+            inclCosts,
           ),
           simRE(
             0.1,
@@ -3609,6 +3661,9 @@
             refiLTV,
             refiLTVPct,
             activeLocConfig,
+            inclTaxBenefits,
+            inclDepreciation,
+            inclCosts,
           ),
           simRE(
             0.035,
@@ -3624,6 +3679,9 @@
             refiLTV,
             refiLTVPct,
             activeLocConfig,
+            inclTaxBenefits,
+            inclDepreciation,
+            inclCosts,
           ),
         ];
       }
@@ -3634,6 +3692,9 @@
       let reinvest = false;
       let improvPct = 0.4;
       let isPrimary = false;
+      let inclTaxBenefits = true,
+        inclDepreciation = true,
+        inclCosts = true;
       let numRefis = 0;
       let refiLTV = false;
       let refiLTVPct = 0.75;
@@ -3883,6 +3944,14 @@
         document.getElementById("btn-reinvest").textContent = s.btnReinvest;
         document.getElementById("btn-rental").textContent = s.btnRental;
         document.getElementById("btn-primary").textContent = s.btnPrimary;
+        document.getElementById("label-includes").textContent = s.labelIncludes;
+        document.getElementById("btn-incl-taxbenefit").textContent =
+          s.btnTaxBenefits;
+        document.getElementById("btn-incl-depreciation").textContent =
+          s.btnDepreciation;
+        document.getElementById("btn-incl-costs").textContent = s.btnCosts;
+        document.getElementById("label-costs-note").textContent =
+          s.labelCostsNote;
         const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
         document.querySelectorAll(".leg-text").forEach((el, i) => {
           el.innerHTML = legLabels[i];
@@ -3949,6 +4018,29 @@
         allWealth = buildAllWealth(startYear);
         applyLang();
         draw(curMonth - 1);
+      });
+
+      // ── Includes toggles ─────────────────────────────────────────────────────
+      ["taxbenefit", "depreciation", "costs"].forEach((key) => {
+        document
+          .getElementById(`btn-incl-${key}`)
+          .addEventListener("click", () => {
+            if (key === "taxbenefit") inclTaxBenefits = !inclTaxBenefits;
+            else if (key === "depreciation")
+              inclDepreciation = !inclDepreciation;
+            else inclCosts = !inclCosts;
+            const val =
+              key === "taxbenefit"
+                ? inclTaxBenefits
+                : key === "depreciation"
+                  ? inclDepreciation
+                  : inclCosts;
+            document
+              .getElementById(`btn-incl-${key}`)
+              .classList.toggle("active", val);
+            allWealth = buildAllWealth(startYear);
+            draw(curMonth - 1);
+          });
       });
 
       // ── Refi count toggle ────────────────────────────────────────────────────
@@ -4035,6 +4127,9 @@
         const hArr = [...hidden].sort((a, b) => a - b);
         const isDefault = hArr.length === 2 && hArr[0] === 4 && hArr[1] === 5;
         if (!isDefault) p.set("h", hArr.join(","));
+        if (!inclTaxBenefits) p.set("tb", "0");
+        if (!inclDepreciation) p.set("dep", "0");
+        if (!inclCosts) p.set("cos", "0");
         return p.toString();
       }
 
@@ -4077,6 +4172,9 @@
                 if (i >= 0 && i < 6) hidden.add(i);
               });
         }
+        if (p.has("tb")) inclTaxBenefits = p.get("tb") !== "0";
+        if (p.has("dep")) inclDepreciation = p.get("dep") !== "0";
+        if (p.has("cos")) inclCosts = p.get("cos") !== "0";
       }
 
       document.getElementById("share-btn").addEventListener("click", () => {
@@ -4545,12 +4643,23 @@
               .sort((a, b) => b.v - a.v);
             const minGap = lfs * 2 + 4;
             const positions = items.map(({ v }) => ty(v));
+            // Forward pass: push down to resolve top-overlaps
             for (let k = 1; k < positions.length; k++)
               if (positions[k] < positions[k - 1] + minGap)
                 positions[k] = positions[k - 1] + minGap;
-            for (let k = positions.length - 1; k >= 0; k--)
-              if (positions[k] > PT + chartH - lfs)
-                positions[k] = PT + chartH - lfs;
+            // Clamp bottom, then backward pass: push up to resolve bottom-overflow
+            const yBottom = PT + chartH - lfs;
+            for (let k = positions.length - 1; k >= 0; k--) {
+              if (positions[k] > yBottom) positions[k] = yBottom;
+              if (
+                k < positions.length - 1 &&
+                positions[k] > positions[k + 1] - minGap
+              )
+                positions[k] = positions[k + 1] - minGap;
+            }
+            // Clamp top
+            for (let k = 0; k < positions.length; k++)
+              if (positions[k] < PT + lfs) positions[k] = PT + lfs;
             const lx = tx(hm) + 6;
             items.forEach(({ s, i, v }, k) => {
               ctx.fillStyle = s.color;
@@ -4583,7 +4692,7 @@
               lang === "zh"
                 ? "▼ 部分曲线低于图表底部（净财富为负）"
                 : "▼ some lines below chart floor — negative wealth (costs > equity)";
-            ctx.fillText(floorLabel, PL + chartW / 2, PT + chartH - 3);
+            ctx.fillText(floorLabel, PL + chartW / 2, H - 3);
             ctx.globalAlpha = 1.0;
           }
         }
@@ -4782,6 +4891,16 @@
         document.getElementById("btn-lang-" + lang).classList.add("active");
         document.getElementById("btn-lang-en").classList.remove("active");
       }
+      if (!inclTaxBenefits)
+        document
+          .getElementById("btn-incl-taxbenefit")
+          .classList.remove("active");
+      if (!inclDepreciation)
+        document
+          .getElementById("btn-incl-depreciation")
+          .classList.remove("active");
+      if (!inclCosts)
+        document.getElementById("btn-incl-costs").classList.remove("active");
       document.querySelectorAll(".leg-item").forEach((item) => {
         item.classList.toggle("hidden", hidden.has(parseInt(item.dataset.idx)));
       });
