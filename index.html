@@ -4493,8 +4493,8 @@
               color: "#6688ff",
               edu: () =>
                 isZh
-                  ? `${fmt(spDc.cumDiv)} 在 ${years.toFixed(1)} 年内收取股息（累加模式，未再投资）。切换至<em>再投资</em>可将股息复利回市场。`
-                  : `${fmt(spDc.cumDiv)} in dividends collected over ${years.toFixed(1)} yrs (additive, not reinvested). Toggle <em>Reinvested</em> above to compound these back into the market.`,
+                  ? `<strong style="color:#6688ff">股息</strong>：${years.toFixed(1)} 年内收取 ${fmt(spDc.cumDiv)}（累加模式，未再投资）。切换至<em>再投资</em>可将股息复利回市场。`
+                  : `<strong style="color:#6688ff">Dividends</strong>: ${fmt(spDc.cumDiv)} collected over ${years.toFixed(1)} yrs (additive, not reinvested). Toggle <em>Reinvested</em> above to compound these back into the market.`,
             });
           }
           spRows.push({
