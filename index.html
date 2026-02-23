@@ -4532,7 +4532,7 @@
         // Locale labels
         const isZh = lang === "zh";
         const lbl = {
-          title: isZh ? "收益分解" : "Return Decomposition",
+          title: isZh ? "收益明细" : "Return Breakdown",
           appreciation: isZh ? "价格涨幅" : "Appreciation",
           dividends: isZh ? "股息" : "Dividends",
           rentIncome: isZh ? "租金收入" : "Rent Income",
@@ -4587,8 +4587,8 @@
                 100
               ).toFixed(1);
               return isZh
-                ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} 增长至 ${fmt(INIT + spDc.appr)}（+${pct}%，年化 ${spCagr}%，历时 ${yrs} 年）<br>&nbsp;&nbsp;· ${reinvest || spDc.cumDiv === 0 ? `再投资模式：股息（约${W("1.4%/年")}均值）复利计入总回报，非现金分发` : `仅含价格增长，股息单独追踪（${fmt(spDc.cumDiv)}）`}<br>• 标普500历史长期年化约${W("~10%")}<br>&nbsp;&nbsp;· 单年可波动${W("±30–40%")}<br>&nbsp;&nbsp;· 复利效应非线性——每次翻倍基数更大，加速增长`
-                : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} (+${pct}%, ${spCagr}%/yr CAGR over ${yrs}yrs)<br>&nbsp;&nbsp;· ${reinvest || spDc.cumDiv === 0 ? `Reinvested: dividends (${W("~1.4%/yr avg")}) compound back into shares — total return, not just price` : `Price-only gain — dividends tracked separately (${fmt(spDc.cumDiv)})`}<br>• S&P historically averages ${W("~10%/yr")} total over 20+ years<br>&nbsp;&nbsp;· Individual years can swing ${W("±30–40%")}<br>&nbsp;&nbsp;· Compounding is nonlinear — each doubling applies to a larger base`;
+                ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | 年化 ${spCagr}% | ${yrs}年<br>&nbsp;&nbsp;· ${reinvest || spDc.cumDiv === 0 ? `再投资：股息~${W("1.4%/年")}复利计入（总回报）` : `仅价格涨幅，股息单独追踪（${fmt(spDc.cumDiv)}）`}<br>• 历史均值 ${W("~10%/年")}；单年 ${W("±30–40%")}<br>&nbsp;&nbsp;· 复利非线性：每次翻倍基数更大，增速加快`
+                : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | ${spCagr}%/yr CAGR | ${yrs}yrs<br>&nbsp;&nbsp;· ${reinvest || spDc.cumDiv === 0 ? `Reinvested: dividends ~${W("1.4%/yr")} compounded in (total return)` : `Price only — dividends tracked separately (${fmt(spDc.cumDiv)})`}<br>• hist. avg ${W("~10%/yr")}; single yrs ${W("±30–40%")}<br>&nbsp;&nbsp;· compounding nonlinear: each doubling grows from a larger base`;
             },
           });
           spRows.push({
@@ -4599,16 +4599,16 @@
             edu: () => {
               if (reinvest || spDc.cumDiv === 0) {
                 return isZh
-                  ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• 再投资模式：股息（约${W("1.3–2%/年")}）自动复投，计入总回报，不单独列示<br>&nbsp;&nbsp;· 切换至<em>累加模式</em>可将股息提取为现金单独追踪<br>• 股息再投资是总回报（${W("~10%/年")}）高于价格回报（${W("~7–8%/年")}）的关键原因`
-                  : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• Reinvested mode: dividends (${W("~1.3–2%/yr")}) compound back into shares — embedded in total return bar, not shown separately<br>&nbsp;&nbsp;· Switch to <em>Additive</em> mode to extract as cash and track here<br>• Reinvesting dividends is why S&P total return (${W("~10%/yr")}) beats price-only (${W("~7–8%/yr")}) over decades`;
+                  ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• 股息 ~${W("1.3–2%/年")}自动复投 → 计入总回报，不单独列示<br>&nbsp;&nbsp;· 切换<em>累加模式</em>可提取为现金追踪<br>• 总回报 ${W("~10%/年")} vs 价格回报 ${W("~7–8%/年")}：差额 = 再投资股息`
+                  : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• dividends ~${W("1.3–2%/yr")} compounded back → embedded in total return bar<br>&nbsp;&nbsp;· switch to <em>Additive</em> to extract as cash<br>• total return ${W("~10%/yr")} vs price-only ${W("~7–8%/yr")}: difference = reinvested dividends`;
               }
               const avgDivYield = (
                 (spDc.cumDiv / (INIT * years)) *
                 100
               ).toFixed(1);
               return isZh
-                ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${yrs}年内收取 ${fmt(spDc.cumDiv)}（累加模式，均值约${W(avgDivYield + "%/年")}）<br>&nbsp;&nbsp;· 标普500股息率通常在${W("1.3–2%")}之间<br>&nbsp;&nbsp;· 累加模式下股息以现金收取；再投资模式下自动买入更多份额，在低价时买入复利效果更强<br>• 股息是公司对利润的直接分配，是否再投资是长期财富积累的重要变量<br>&nbsp;&nbsp;· 切换上方<em>再投资</em>可对比差异`
-                : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} collected over ${yrs}yrs in additive mode (${W("~" + avgDivYield + "%/yr avg")} on initial capital)<br>&nbsp;&nbsp;· S&P dividend yield typically ${W("1.3–2%/yr")} — collected as cash in additive mode<br>&nbsp;&nbsp;· In <em>Reinvested</em> mode, dividends buy more shares including during dips — compounding more powerfully<br>• Dividends are real profit-sharing from the companies in the index<br>&nbsp;&nbsp;· Toggle above to compare Reinvested vs Additive`;
+                ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} | 累加模式，现金收取<br>&nbsp;&nbsp;· 标普股息率 ~${W("1.3–2%/年")}；再投资模式自动买入（含低价时）<br>• 公司利润直接分配 — 切换<em>再投资</em>对比差异`
+                : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
             },
           });
           spRows.push({
@@ -4633,8 +4633,8 @@
                     ? `叠加模式：价格涨幅 + 股息 ${fmt(spDc?.cumDiv || 0)} 分开追踪`
                     : `Additive: price gain + ${fmt(spDc?.cumDiv || 0)} dividends tracked separately`;
               return isZh
-                ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} 增长至 <strong style="color:#ccc">${fmt(spWealth)}</strong>（${mult}x，年化 ${spCagr}%，历时 ${yrsStr} 年）<br>&nbsp;&nbsp;· ${modeNote}<br>• 标普500历史长期年化约10%（含再投资股息）<br>&nbsp;&nbsp;· 复利效应非线性——50年跑程中，后10年产生的财富往往超过前40年的总和`
-                : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> — ${mult}x at <strong style="color:#ccc">${spCagr}%/yr</strong> over ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• S&P historically ~10%/yr with reinvestment<br>&nbsp;&nbsp;· Compounding is nonlinear — in a 50yr run, the final 10 years generate more wealth than the first 40 combined`;
+                ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> | ${mult}x | 年化 <strong style="color:#ccc">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
+                : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> | ${mult}x | <strong style="color:#ccc">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
             },
           });
         }
@@ -4676,8 +4676,8 @@
                   100
                 ).toFixed(1);
                 return isZh
-                  ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• 房产 ${fmt(price)} → ${fmt(propVal)}（+${appPct}%，年化 ${rePriceCagr}%）<br>&nbsp;&nbsp;· ${downPct}% 首付（${fmt(INIT)}）捕获全部涨幅：年化回报 <strong style="color:#ccc">${reOnCapCagr}%</strong>（${leverage}x 杠杆）<br>• 杠杆双向放大<br>&nbsp;&nbsp;· 若房价下跌10%，${downPct}%首付将损失 <strong style="color:#ff5555">${(10 / down).toFixed(0)}%</strong> 本金`
-                  : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• Property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%, ${rePriceCagr}%/yr CAGR)<br>&nbsp;&nbsp;· Your ${downPct}% down (${fmt(INIT)}) captures 100% of that gain: <strong style="color:#ccc">${reOnCapCagr}%/yr CAGR on your capital</strong><br>&nbsp;&nbsp;· ${leverage}x leverage doing the work<br>• Leverage amplifies both ways<br>&nbsp;&nbsp;· If property dropped 10%, your ${downPct}% down loses <strong style="color:#ff5555">${(10 / down).toFixed(0)}%</strong> of invested capital`;
+                  ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• ${fmt(price)} → ${fmt(propVal)} | +${appPct}% | 年化 ${rePriceCagr}%<br>&nbsp;&nbsp;· ${downPct}%首付（${fmt(INIT)}）= 年化 <strong style="color:#ccc">${reOnCapCagr}%</strong>（${leverage}x 杠杆）<br>• 杠杆双向：房价 −10% → 本金 <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong>`
+                  : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• ${fmt(price)} → ${fmt(propVal)} | +${appPct}% | ${rePriceCagr}%/yr CAGR<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:#ccc">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage)<br>• leverage cuts both ways: −10% property → <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong> on your capital`;
               },
             });
             if (!isPrimary && reDc.cumRent > 0) {
@@ -4698,8 +4698,8 @@
                       ? ((reDc.cumRent / reDc.cumCosts) * 100).toFixed(0)
                       : "∞";
                   return isZh
-                    ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${yrs}年内收取 ${fmt(reDc.cumRent)}（起始 ${fmt(initMonthlyRent)}/月，${W((startYield * 100).toFixed(1) + "%初始回报率")}；均值 ${fmt(avgMonthlyRent)}/月）<br>&nbsp;&nbsp;· 租金覆盖利息 <strong style="color:#ccc">${rentToIntPct}%</strong><br>&nbsp;&nbsp;· 覆盖运营成本 <strong style="color:#ccc">${rentToCostsPct}%</strong>，差额由现金流（正或负）承担<br>• ${W((startYield * 100).toFixed(1) + "%")}初始回报率反映1970年代低房价历史；当今高成本市场通常仅${W("4–6%")}<br>&nbsp;&nbsp;· 随着房价涨幅超过租金涨幅，回报率逐渐压缩——早期杠杆买家受益最大`
-                    : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} over ${yrs}yrs — started ${fmt(initMonthlyRent)}/mo (${W((startYield * 100).toFixed(1) + "% initial yield")}), averaged ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· Covered <strong style="color:#ccc">${rentToIntPct}%</strong> of interest paid<br>&nbsp;&nbsp;· Covered <strong style="color:#ccc">${rentToCostsPct}%</strong> of operating costs — gap paid out of pocket or offset by equity<br>• ${W((startYield * 100).toFixed(1) + "%")} initial yield reflects historically low prices; today's high-cost markets: ${W("4–6%")}<br>&nbsp;&nbsp;· As prices outpace rent growth, yields compress — early leveraged buyers benefit most`;
+                    ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W((startYield * 100).toFixed(1) + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:#ccc">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W((startYield * 100).toFixed(1) + "%")}回报率反映1970s低房价；当今 ~${W("4–6%")}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率压缩；早期买家受益最大`
+                    : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W((startYield * 100).toFixed(1) + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:#ccc">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W((startYield * 100).toFixed(1) + "%")} yield = 1970s low prices; today ~${W("4–6%")}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses; early buyers benefit most`;
                 },
               });
             }
@@ -4748,8 +4748,8 @@
                         );
                         const payoffWealth = allWealth[bestIdx][payoffM];
                         return isZh
-                          ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年期）— 贷款 ${fmt(p.loan)}，月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;全期利息：${W(fmt(fullTermInt))} · 还清时模拟总财富：${W(fmt(payoffWealth))}`
-                          : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30 yr) — loan ${fmt(p.loan)}, ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Full-term interest: ${W(fmt(fullTermInt))} · Simulated wealth at payoff: ${W(fmt(payoffWealth))}`;
+                          ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）— 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;还清时模拟总财富：${W(fmt(payoffWealth))}`
+                          : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30yr) — loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full-term interest: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simulated wealth at payoff: ${W(fmt(payoffWealth))}`;
                       }
                       // Intermediate period: elapsed time between two refis
                       const pToYr = startYear + Math.floor(p.toM / 12);
@@ -4760,8 +4760,8 @@
                     });
                     const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
                     return isZh
-                      ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${yrs}年共支付 ${fmt(reDc.cumInt)}，占购价 <strong style="color:#ccc">${intAsPctPrice}%</strong><br>• 利率分段明细：<br>${periodLines.join("<br>")}<br>• 每次再融资以新利率重新计算剩余本金，月供与摊销重置${hasCashOut ? "<br>&nbsp;&nbsp;· 套现再融资将超出还款额的权益提取为现金并再投资，同时增加贷款余额和未来利息支出" : ""}<br>&nbsp;&nbsp;· 租赁物业所有利息均可税前抵扣（见税务收益行）`
-                      : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} total over ${yrs}yrs = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price<br>• Rate history by period:<br>${periodLines.join("<br>")}<br>• Each refi resets the amortization schedule on the new balance at the new rate${hasCashOut ? "<br>&nbsp;&nbsp;· Cash-out refis pull equity above payoff amount as investable cash — increasing loan balance and future interest owed" : ""}<br>&nbsp;&nbsp;· On rentals: all interest is ${W("tax-deductible")} regardless of rate`;
+                      ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• 共 ${fmt(reDc.cumInt)} | 购价 <strong style="color:#ccc">${intAsPctPrice}%</strong> | ${yrs}年<br>• 利率分段：<br>${periodLines.join("<br>")}<br>• 每次再融资：余额 × 新利率 → 摊销重置${hasCashOut ? "<br>&nbsp;&nbsp;· 套现：权益 → 现金 + 贷款增加 + 未来利息增加" : ""}<br>&nbsp;&nbsp;· 租赁：利息全额可抵税`
+                      : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} total | <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price | ${yrs}yrs<br>• Rate history by period:<br>${periodLines.join("<br>")}<br>• each refi: new balance × new rate → amortization resets${hasCashOut ? "<br>&nbsp;&nbsp;· cash-out: equity → cash + higher loan + more future interest" : ""}<br>&nbsp;&nbsp;· rental: all interest ${W("tax-deductible")}`;
                   }
                   // Single rate (no refis)
                   const mortPmt =
@@ -4774,8 +4774,8 @@
                       : 0;
                   const initMonthlyInt = Math.round((mort * mortRate) / 12);
                   return isZh
-                    ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} paid over ${yrs}yrs at ${W((mortRate * 100).toFixed(2) + "%")}（30年固定）<br>&nbsp;&nbsp;· 月供 ${fmt(mortPmt)}，第一个月利息 ${fmt(initMonthlyInt)}<br>&nbsp;&nbsp;· 累计利息占购价的 <strong style="color:#ccc">${intAsPctPrice}%</strong><br>• 等额还款前期以利息为主，本金积累缓慢，后期加速<br>&nbsp;&nbsp;· 这是 ${leverage}x 杠杆的成本（全款需 ${fmt(price)}，首付仅 ${fmt(INIT)}）<br>&nbsp;&nbsp;· 租赁物业的利息可税前抵扣（见税务收益行）`
-                    : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} paid over ${yrs}yrs at ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")})<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo payment — ${fmt(initMonthlyInt)}/mo was interest in month 1<br>&nbsp;&nbsp;· Total = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price<br>• Amortization front-loads interest — principal builds slowly then accelerates toward payoff<br>&nbsp;&nbsp;· Cost of ${leverage}x leverage: needed ${fmt(price)} cash vs ${fmt(INIT)} down<br>&nbsp;&nbsp;· On rentals: interest is ${W("tax-deductible")} (see Tax Benefits row)`;
+                    ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")}（30年固定）| ${yrs}年<br>&nbsp;&nbsp;· 月供 ${fmt(mortPmt)} | 首月利息 ${fmt(initMonthlyInt)} | 累计 = 购价 <strong style="color:#ccc">${intAsPctPrice}%</strong><br>• 等额还款前期利息为主，本金后期加速<br>&nbsp;&nbsp;· ${leverage}x 杠杆成本：全款需 ${fmt(price)} vs 首付 ${fmt(INIT)}<br>&nbsp;&nbsp;· 租赁：利息可抵税 → 见税务收益行`
+                    : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")}) | ${yrs}yrs<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo | month-1 interest = ${fmt(initMonthlyInt)} | total = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price<br>• amortization front-loads interest; principal accelerates near payoff<br>&nbsp;&nbsp;· ${leverage}x leverage cost: ${fmt(price)} cash needed vs ${fmt(INIT)} down<br>&nbsp;&nbsp;· rental: interest ${W("tax-deductible")} → see Tax Benefits`;
                 },
               });
             }
@@ -4801,8 +4801,8 @@
                       ? ((reDc.cumCosts / reDc.cumRent) * 100).toFixed(0)
                       : "—";
                   return isZh
-                    ? `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${yrs}年内共 ${fmt(reDc.cumCosts)}，起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年），随房产价值增长<br>• 明细：${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%/年保险")} + ${W("1%/年维护")} = ${W(totalCostPct + "%/年")}<br>&nbsp;&nbsp;· 运营成本消耗租金收入的 <strong style="color:#ccc">${costsAsRentPct}%</strong><br>&nbsp;&nbsp;· 即便租金涨幅滞后，成本仍随房产价值增长<br>• 切换<em>运营成本</em>可量化这三项对总回报的拖累`
-                    : `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} over ${yrs}yrs — started ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr), scaling up with property value<br>• Breakdown: ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5%/yr insurance")} + ${W("1%/yr maintenance")} = ${W(totalCostPct + "%/yr")}<br>&nbsp;&nbsp;· Consumed <strong style="color:#ccc">${costsAsRentPct}%</strong> of gross rent<br>&nbsp;&nbsp;· Scales with property value even when rent growth lags<br>• Toggle <em>Op. Costs</em> to isolate their drag on total return`;
+                    ? `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年")}<br>&nbsp;&nbsp;· = 租金收入 <strong style="color:#ccc">${costsAsRentPct}%</strong>；随房产价值增长，即便租金滞后<br>• 切换<em>运营成本</em>可量化拖累`
+                    : `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr")}<br>&nbsp;&nbsp;· = <strong style="color:#ccc">${costsAsRentPct}%</strong> of gross rent; scales with property value even when rent lags<br>• toggle <em>Op. Costs</em> to isolate drag`;
                 },
               });
             }
@@ -4835,12 +4835,12 @@
                   );
                   if (reDc.cumTax >= 0) {
                     return isZh
-                      ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• ${yrs}年内通过利息抵扣${inclDepreciation ? "+折旧" : ""}节省税款 ${fmt(reDc.cumTax)}（${W(taxRatePct + "%边际税率")}）<br>• 第一个月测算：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → 税务收益约 ${fmt(initMonthlyTaxBen)}/月（${fmt(initMonthlyTaxBen * 12)}/年）${inclDepreciation ? `<br>• 折旧：${fmt(price)}×${W(Math.round(improvPct * 100) + "%")}÷${W("27.5年")} = ${fmt(annualDep)}/年账面亏损<br>&nbsp;&nbsp;· 不花现金却可抵税<br>&nbsp;&nbsp;· 注意：出售时需按${W("25%税率")}追缴折旧税${isPrimary ? "" : "（1031置换至下套房产除外）"}` : `<br>• 开启<em>折旧</em>可叠加建筑物摊销抵扣（IRS ${W("27.5年直线法")}），进一步提升税盾效果`}`
-                      : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• Saved ${fmt(reDc.cumTax)} in taxes over ${yrs}yrs via interest deduction${inclDepreciation ? " + depreciation" : ""} at ${W(taxRatePct + "% marginal rate")}<br>• Month-1: rent − interest − costs${inclDepreciation ? " − depreciation" : ""} = taxable income → ~${fmt(initMonthlyTaxBen)}/mo (${fmt(initMonthlyTaxBen * 12)}/yr) benefit${inclDepreciation ? `<br>• Depreciation: ${fmt(price)}×${W(Math.round(improvPct * 100) + "%")}÷${W("27.5yr")} = ${fmt(annualDep)}/yr write-off (non-cash deduction)<br>&nbsp;&nbsp;· IRS lets you deduct building "wear" without spending a dollar<br>&nbsp;&nbsp;· <em>Caution: recaptured at ${W("25% rate")} on sale${isPrimary ? "" : " — unless 1031 exchange to next property"}</em>` : `<br>• Enable <em>Depreciation</em> to add the 27.5yr straight-line write-off (IRS)<br>&nbsp;&nbsp;· Reduces taxes via non-cash paper loss`}`;
+                      ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• 节税 ${fmt(reDc.cumTax)} | 利息${inclDepreciation ? "+折旧" : ""}抵扣 | ${W(taxRatePct + "%边际税率")} | ${yrs}年<br>• 首月：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → ~${fmt(initMonthlyTaxBen)}/月税收收益${inclDepreciation ? `<br>• 折旧：${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5年")} = ${fmt(annualDep)}/年账面亏损（不花钱）<br>&nbsp;&nbsp;· 出售时 ${W("25%")} 追缴${isPrimary ? "" : "（1031置换除外）"}` : `<br>• 开启<em>折旧</em>：${fmt(price)} × X% ÷ 27.5年 = 账面亏损，进一步减税`}`
+                      : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• saved ${fmt(reDc.cumTax)} | interest${inclDepreciation ? " + depreciation" : ""} deduction | ${W(taxRatePct + "% marginal rate")} | ${yrs}yrs<br>• mo-1: rent − interest − costs${inclDepreciation ? " − dep" : ""} = taxable → ~${fmt(initMonthlyTaxBen)}/mo benefit${inclDepreciation ? `<br>• depreciation: ${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5yr")} = ${fmt(annualDep)}/yr write-off (non-cash)<br>&nbsp;&nbsp;· recaptured at ${W("25%")} on sale${isPrimary ? "" : " — unless 1031 exchange"}` : `<br>• enable <em>Depreciation</em>: non-cash write-off reduces taxable income further`}`;
                   } else {
                     return isZh
-                      ? `<strong style="color:${taxColor}">税务负担</strong><br>• 需缴纳 ${fmt(-reDc.cumTax)}——租金收入累计超过所有可抵扣项（利息+成本${inclDepreciation ? "+折旧" : ""}）<br>&nbsp;&nbsp;· 这发生在房产高度盈利时：即使抵扣全部费用后仍有净应税收入<br>&nbsp;&nbsp;· 以${W(taxRatePct + "%边际税率")}计，每$1净租金利润需缴税${W(taxRatePct + "¢")}<br>• 切换<em>税务优惠</em>可完全移除此项<br>&nbsp;&nbsp;· 或切换<em>折旧</em>加回建筑摊销亏损，以抵消应税收入、缩小税务账单`
-                      : `<strong style="color:${taxColor}">Tax Bill</strong><br>• Owed ${fmt(-reDc.cumTax)} — cumulative rent exceeded all deductions (interest + costs${inclDepreciation ? " + depreciation" : ""})<br>&nbsp;&nbsp;· Happens when the property is strongly profitable: net taxable income remains after all write-offs<br>&nbsp;&nbsp;· At ${W(taxRatePct + "% marginal rate")}, every $1 net rental profit costs ${W(taxRatePct + "¢")} in tax<br>• Toggle <em>Tax Benefits</em> to remove this entirely<br>&nbsp;&nbsp;· Or <em>Depreciation</em> to add back the write-off and shrink taxable income`;
+                      ? `<strong style="color:${taxColor}">税务负担</strong><br>• 应缴 ${fmt(-reDc.cumTax)} | 租金 > 利息+成本${inclDepreciation ? "+折旧" : ""} → 净应税收入<br>&nbsp;&nbsp;· ${W(taxRatePct + "%边际税率")} → 每$1利润 = ${W(taxRatePct + "¢")}税<br>• 切换<em>税务优惠</em>可移除；或开启<em>折旧</em>加回亏损抵税`
+                      : `<strong style="color:${taxColor}">Tax Bill</strong><br>• owed ${fmt(-reDc.cumTax)} | rent > interest + costs${inclDepreciation ? " + depreciation" : ""} → net taxable income<br>&nbsp;&nbsp;· ${W(taxRatePct + "% marginal rate")} → every $1 profit = ${W(taxRatePct + "¢")} tax<br>• toggle <em>Tax Benefits</em> to remove; or <em>Depreciation</em> to add write-off back`;
                   }
                 },
               });
@@ -4863,8 +4863,8 @@
                   reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
                 );
                 return isZh
-                  ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} 增长至 <strong style="color:#ccc">${fmt(bestVal)}</strong>（${mult}x，年化 ${reCagr}%，历时 ${yrs} 年）<br>&nbsp;&nbsp;· 本金+涨幅 ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· 净现金流（租金−利息−成本+税收）≈ ${fmt(cashFlowPart)}<br>• 杠杆放大房价涨幅；租金与税收优惠决定现金流能否支撑整体回报<br>&nbsp;&nbsp;· 点击上方各行可拆解每项贡献`
-                  : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> — ${mult}x at <strong style="color:#ccc">${reCagr}%/yr</strong> over ${yrs}yrs<br>&nbsp;&nbsp;· Capital + appreciation ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· Net cash flows (rent − interest − costs + tax) ≈ ${fmt(cashFlowPart)}<br>• Leverage magnified the price gain; rent and tax treatment determined cash flow direction<br>&nbsp;&nbsp;· Click each row above to understand every component`;
+                  ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> | ${mult}x | 年化 <strong style="color:#ccc">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· 现金流（租金−利息−成本+税收）≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；租金+税收决定现金流方向<br>&nbsp;&nbsp;· 点击各行查看明细`
+                  : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> | ${mult}x | <strong style="color:#ccc">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· cash flows (rent − interest − costs + tax) ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; rent + tax → cash flow direction<br>&nbsp;&nbsp;· click rows for breakdown`;
               },
             });
           }
@@ -4940,8 +4940,8 @@
         if (hintEl) hintEl.innerHTML = hint;
 
         const defaultEdu = isZh
-          ? `<strong style="color:#888">收益分解</strong>将总财富拆分为各组成部分：价格涨幅（通过杠杆放大）、现金流（租金或股息）、成本与税收影响。每根条形代表该部分对最终财富的贡献——正值叠加，负值抵消。悬停任意行，查看该项背后的具体计算逻辑与投资规律。`
-          : `<strong style="color:#888">Return Decomposition</strong> breaks total wealth into its sources: price appreciation (amplified by leverage), cash flows (rent or dividends), costs, and tax treatment. Each bar shows that component's contribution to final wealth — positive bars add up, negative bars drag. Hover any row to see the math and rules behind it.`;
+          ? `<strong style="color:#888">收益明细</strong>：涨幅（杠杆放大）、现金流、成本、税收 → 正值叠加，负值抵消。悬停行查看计算逻辑。`
+          : `<strong style="color:#888">Return Breakdown</strong>: appreciation (leverage-amplified) + cash flows + costs + tax → positive adds, negative drags. Hover a row for the math.`;
 
         barsEl.addEventListener("mouseleave", () => {
           decompActiveRow = null;
