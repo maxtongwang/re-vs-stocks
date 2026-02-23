@@ -667,6 +667,23 @@
         margin: 0;
         line-height: 1.7;
       }
+      /* Wide: reorder grid items so rows align across both columns.
+         Portrait keeps DOM order: Prop, Refi, Includes, Cashflow.
+         Landscape: Prop+Includes on row 1, Refi+Cashflow on row 2. */
+      @media (min-width: 440px) {
+        #sg-prop {
+          order: 1;
+        }
+        #sg-incl {
+          order: 2;
+        }
+        #sg-refi {
+          order: 3;
+        }
+        #sg-cf {
+          order: 4;
+        }
+      }
       .tip {
         position: relative;
       }
@@ -954,6 +971,7 @@
     <!-- Shared 2-col grid: left=1fr, right=auto.
          Both right cells start at the same x so Refi: and Lang: left-edges align. -->
     <div
+      id="settings-grid"
       style="
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -965,126 +983,124 @@
         align-items: start;
       "
     >
-      <!-- col 1: Prop + Refi -->
-      <div style="display: flex; flex-direction: column; gap: 5px">
-        <!-- Prop -->
-        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
-          <span id="label-propmode">Prop:</span>
-          <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-rental">Rental</button>
-            <button class="toggle-btn" id="btn-primary">Primary</button>
-          </div>
+      <!-- Prop -->
+      <div
+        id="sg-prop"
+        style="display: flex; align-items: center; gap: 8px; height: 24px"
+      >
+        <span id="label-propmode">Prop:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-rental">Rental</button>
+          <button class="toggle-btn" id="btn-primary">Primary</button>
         </div>
-        <!-- Refi -->
-        <div style="display: flex; align-items: flex-start; gap: 8px">
+      </div>
+
+      <!-- Refi -->
+      <div
+        id="sg-refi"
+        style="display: flex; align-items: flex-start; gap: 8px"
+      >
+        <span
+          id="label-refi"
+          style="height: 24px; display: flex; align-items: center"
+          >Refi:</span
+        >
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            flex: 1;
+            min-width: 0;
+          "
+        >
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-refi-0">0</button>
+            <button class="toggle-btn" id="btn-refi-1">1</button>
+            <button class="toggle-btn" id="btn-refi-2">2</button>
+            <button class="toggle-btn" id="btn-refi-3">3</button>
+          </div>
+          <div class="toggle-group" id="refi-type-group" style="display: none">
+            <button class="toggle-btn active" id="btn-refi-rate">
+              Balance
+            </button>
+            <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
+          </div>
           <span
-            id="label-refi"
-            style="height: 24px; display: flex; align-items: center"
-            >Refi:</span
-          >
-          <div
+            id="refi-bal-tip"
             style="
-              display: flex;
-              flex-direction: column;
-              gap: 5px;
-              flex: 1;
-              min-width: 0;
+              font-size: 10px;
+              color: #aaa;
+              line-height: 13px;
+              padding-left: 2px;
+              display: none;
             "
+          ></span>
+          <div
+            id="row-ltv-pct"
+            style="display: none; flex-direction: column; gap: 2px"
           >
-            <div class="toggle-group">
-              <button class="toggle-btn active" id="btn-refi-0">0</button>
-              <button class="toggle-btn" id="btn-refi-1">1</button>
-              <button class="toggle-btn" id="btn-refi-2">2</button>
-              <button class="toggle-btn" id="btn-refi-3">3</button>
-            </div>
             <div
-              class="toggle-group"
-              id="refi-type-group"
-              style="display: none"
+              style="display: flex; align-items: center; gap: 8px; height: 24px"
             >
-              <button class="toggle-btn active" id="btn-refi-rate">
-                Balance
-              </button>
-              <button class="toggle-btn" id="btn-refi-ltv">LTV</button>
+              <span id="label-ltv-pct">LTV %:</span>
+              <input
+                type="range"
+                id="ltv-pct-slider"
+                min="50"
+                max="80"
+                step="5"
+                value="75"
+                style="flex: 1"
+              />
+              <span class="val" id="ltv-pct-val">75%</span>
             </div>
             <span
-              id="refi-bal-tip"
+              id="ltv-tip-line"
               style="
                 font-size: 10px;
                 color: #aaa;
                 line-height: 13px;
                 padding-left: 2px;
-                display: none;
               "
             ></span>
-            <div
-              id="row-ltv-pct"
-              style="display: none; flex-direction: column; gap: 2px"
-            >
-              <div
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 8px;
-                  height: 24px;
-                "
-              >
-                <span id="label-ltv-pct">LTV %:</span>
-                <input
-                  type="range"
-                  id="ltv-pct-slider"
-                  min="50"
-                  max="80"
-                  step="5"
-                  value="75"
-                  style="flex: 1"
-                />
-                <span class="val" id="ltv-pct-val">75%</span>
-              </div>
-              <span
-                id="ltv-tip-line"
-                style="
-                  font-size: 10px;
-                  color: #aaa;
-                  line-height: 13px;
-                  padding-left: 2px;
-                "
-              ></span>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- col 2: Includes + Cash flow -->
-      <div style="display: flex; flex-direction: column; gap: 5px">
-        <!-- Includes -->
-        <div style="display: flex; align-items: flex-start; gap: 8px">
-          <span id="label-includes" style="line-height: 22px">Includes:</span>
-          <div class="toggle-group" style="align-items: flex-start">
-            <button class="toggle-btn active" id="btn-incl-taxbenefit">
-              Tax benefits
+      <!-- Includes -->
+      <div
+        id="sg-incl"
+        style="display: flex; align-items: flex-start; gap: 8px"
+      >
+        <span id="label-includes" style="line-height: 22px">Includes:</span>
+        <div class="toggle-group" style="align-items: flex-start">
+          <button class="toggle-btn active" id="btn-incl-taxbenefit">
+            Tax benefits
+          </button>
+          <button class="toggle-btn active" id="btn-incl-depreciation">
+            Depreciation
+          </button>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 3px;
+            "
+          >
+            <button class="toggle-btn active" id="btn-incl-costs">
+              Op. Costs
             </button>
-            <button class="toggle-btn active" id="btn-incl-depreciation">
-              Depreciation
-            </button>
-            <div
-              style="
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                gap: 3px;
-              "
+            <span id="label-costs-note" style="color: #555; font-size: 9px"
+              >(tax · ins · maint)</span
             >
-              <button class="toggle-btn active" id="btn-incl-costs">
-                Op. Costs
-              </button>
-              <span id="label-costs-note" style="color: #555; font-size: 9px"
-                >(tax · ins · maint)</span
-              >
-            </div>
           </div>
         </div>
-        <!-- Cash flow -->
+      </div>
+
+      <!-- Cash flow -->
+      <div id="sg-cf" style="display: flex; flex-direction: column; gap: 3px">
         <div style="display: flex; align-items: center; gap: 8px; height: 24px">
           <span id="label-cashflow">Cash flow:</span>
           <div class="toggle-group">
