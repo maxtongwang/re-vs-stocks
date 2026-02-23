@@ -963,8 +963,17 @@
           <button class="toggle-btn" id="btn-primary">Primary</button>
         </div>
       </div>
-      <!-- row 1 right: Refi -->
-      <div style="display: flex; align-items: flex-start; gap: 8px">
+      <!-- row 1 right: empty placeholder so row 3 Lang stays aligned -->
+      <div></div>
+      <!-- row 2: Refi — spans both columns -->
+      <div
+        style="
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          grid-column: 1 / -1;
+        "
+      >
         <span
           id="label-refi"
           style="height: 24px; display: flex; align-items: center"
@@ -975,7 +984,8 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
-            min-height: 70px;
+            flex: 1;
+            min-width: 0;
           "
         >
           <div class="toggle-group">
@@ -1000,7 +1010,7 @@
               display: none;
             "
           ></span>
-          <!-- LTV row: inside refi column, hidden by default -->
+          <!-- LTV row: full width since refi spans panel -->
           <div
             id="row-ltv-pct"
             style="display: none; flex-direction: column; gap: 2px"
@@ -1016,7 +1026,7 @@
                 max="80"
                 step="5"
                 value="75"
-                style="flex: 1; min-width: 80px"
+                style="flex: 1"
               />
               <span class="val" id="ltv-pct-val">75%</span>
             </div>
@@ -1032,7 +1042,7 @@
           </div>
         </div>
       </div>
-      <!-- row 2: Includes — spans both columns -->
+      <!-- row 3: Includes — spans both columns -->
       <div
         style="
           display: flex;
