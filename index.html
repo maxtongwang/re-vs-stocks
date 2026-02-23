@@ -4060,9 +4060,14 @@
         for (let y = 5; y <= dur; y += 5) checks.push(y);
         // Compute mData here so 5-yr loop can detect data-cutoff coincidence
         const mData = projStartM;
+        // Last 5-yr mark that doesn't get capped (yrs*12 < totalMonths)
+        let lastValidFiveYrM = 0;
         for (const yrs of checks) {
-          const m = Math.min(yrs * 12, totalMonths - 1);
-          if (m >= totalMonths) continue;
+          // Skip rows where the true year-end extends past the simulation —
+          // those would show a wrong future year label AND duplicate the projection row
+          if (yrs * 12 >= totalMonths) continue;
+          const m = yrs * 12; // not capped
+          if (m > lastValidFiveYrM) lastValidFiveYrM = m;
           const yr = startYear + yrs;
           const ev = crashEvByYear[yr];
           const tr = document.createElement("tr");
@@ -4082,11 +4087,7 @@
               .join("");
           tbody.appendChild(tr);
         }
-        const lastFiveYrM = Math.min(
-          Math.floor(dur / 5) * 5 * 12,
-          totalMonths - 1,
-        );
-        if (lastFiveYrM < mData) {
+        if (lastValidFiveYrM < mData) {
           const yrF = startYear + Math.floor(mData / 12);
           const moF = (mData % 12) + 1;
           const tr = document.createElement("tr");
