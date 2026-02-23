@@ -1534,12 +1534,15 @@
             nr,
             isLTV,
           ) => {
+            const W = (s) => `<strong style="color:#fff">${s}</strong>`;
             const line2 = isPrimary
               ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
-              : `Rent yield: ${ry}% · Improvement: ${ip}%`;
+              : `Rent yield: ${W(ry + "%")} · Improvement: ${W(ip + "%")}`;
             const refiStr =
-              nr > 0 ? ` · Refi: ${nr}x ${isLTV ? "(LTV)" : "(Bal)"}` : "";
-            return `${sy}–${ey} · ${yrs} yrs · Mortgage: ${mr}%${refiStr}<br>${line2}<br>Cash flow: ${mode}`;
+              nr > 0
+                ? ` · Refi: ${W(nr + "x " + (isLTV ? "(LTV)" : "(Bal)"))}`
+                : "";
+            return `${W(sy + "–" + ey)} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")}${refiStr}<br>${line2}<br>Cash flow: ${W(mode)}`;
           },
           dynamicLine: (
             sy,
@@ -1703,12 +1706,15 @@
             nr,
             isLTV,
           ) => {
+            const W = (s) => `<strong style="color:#fff">${s}</strong>`;
             const line2 = isPrimary
               ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
-              : `租金回报率：${ry}% · 建筑：${ip}%`;
+              : `租金回报率：${W(ry + "%")} · 建筑：${W(ip + "%")}`;
             const refiStr =
-              nr > 0 ? ` · 重贷：${nr}次${isLTV ? "（LTV）" : "（余额）"}` : "";
-            return `${sy}–${ey} · ${yrs}年 · 房贷：${mr}%${refiStr}<br>${line2}<br>现金流：${mode}`;
+              nr > 0
+                ? ` · 重贷：${W(nr + "次" + (isLTV ? "（LTV）" : "（余额）"))}`
+                : "";
+            return `${W(sy + "–" + ey)} · ${W(yrs + "年")} · 房贷：${W(mr + "%")}${refiStr}<br>${line2}<br>现金流：${W(mode)}`;
           },
           dynamicLine: (
             sy,
