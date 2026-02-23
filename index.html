@@ -5415,16 +5415,21 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range: target from tip values at fullM only — prevents historical lows
-        // from collapsing the floor. Ceiling rises as lines grow; lerped in log-space.
-        // Snaps instantly on slider drag / settings changes.
-        let yMin = Infinity,
-          yMax = 200000;
+        // Y range hybrid:
+        //   yMax — running historical peak (0..fullM): ceiling tracks highest ever reached
+        //   yMin — current tip only (w[fullM]): floor stays near where lines are now,
+        //          not dragged down by early high-leverage dips in history
+        // Both lerped in log-space during playback; snap on slider/settings.
+        let yMax = 200000,
+          yMin = Infinity;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          const v = w[Math.min(fullM, w.length - 1)];
-          if (v > yMax) yMax = v;
+          const tipM = Math.min(fullM, w.length - 1);
+          // yMax: scan history
+          for (let m = 0; m <= tipM; m++) if (w[m] > yMax) yMax = w[m];
+          // yMin: tip only
+          const v = w[tipM];
           if (v > 1000 && v < yMin) yMin = v;
         }
         if (!isFinite(yMin)) yMin = 50000;
