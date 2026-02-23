@@ -5415,17 +5415,14 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range (log scale)
-        // yMax: full range for stable top bound; yMin: revealed data only for tight bottom
+        // Y range from full dataset — fixed scale prevents axis jumps during animation
         let yMin = Infinity,
           yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          for (let m = 0; m <= fullM && m < w.length; m++) {
+          for (let m = 0; m < w.length; m++) {
             if (w[m] > yMax) yMax = w[m];
-          }
-          for (let m = 0; m <= fullM && m < w.length; m++) {
             if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
           }
         }
