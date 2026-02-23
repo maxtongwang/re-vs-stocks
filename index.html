@@ -667,8 +667,10 @@
         margin: 0;
         line-height: 1.7;
       }
-      /* Wide: exactly 2 columns; reorder so Prop+Includes share row 1,
-         Refi+Cashflow share row 2. Portrait (< 440px): 1 col, DOM order. */
+      /* Default: 1 column (portrait). Wide: 2 columns with row alignment. */
+      #settings-grid {
+        grid-template-columns: 1fr;
+      }
       @media (min-width: 440px) {
         #settings-grid {
           grid-template-columns: 1fr 1fr;
@@ -976,7 +978,6 @@
       id="settings-grid"
       style="
         display: grid;
-        grid-template-columns: 1fr;
         gap: 5px 16px;
         font-size: 11px;
         line-height: 14px;
