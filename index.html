@@ -657,6 +657,10 @@
       .tip[data-tip].open::after {
         opacity: 1;
       }
+      .tip-right[data-tip]::after {
+        left: 0;
+        transform: none;
+      }
       .leg-cagr {
         font-size: 9px;
         color: #444;
@@ -858,7 +862,7 @@
     </div>
 
     <div class="ctrl-row">
-      <span id="label-improv" class="tip">Improvement %:</span>
+      <span id="label-improv" class="tip tip-right">Improvement %:</span>
       <select
         id="improv-slider"
         style="
@@ -4538,14 +4542,53 @@
                         // Last period: 30yr term, payoff may be in the future
                         const payoffYr = pFromYr + 30;
                         const fullTermInt = Math.round(p.pmt * 360 - p.loan);
-                        const payoffM = Math.min(
-                          p.fromM + 360,
-                          allWealth[bestIdx].length - 1,
-                        );
-                        const payoffWealth = allWealth[bestIdx][payoffM];
+                        const simEnd = allWealth[bestIdx].length - 1;
+                        const isBeyondSim = p.fromM + 360 > simEnd;
+                        let displayWealth, wealthLabel, wealthLabelZh;
+                        if (isBeyondSim) {
+                          // Project forward: use historical property CAGR to extrapolate
+                          const endDc = allDecomp[bestIdx].dComp[simEnd];
+                          const propValEnd = price + endDc.appr;
+                          const simYears = (simEnd + 1) / 12;
+                          const propCagr =
+                            price > 0
+                              ? Math.pow(propValEnd / price, 1 / simYears) - 1
+                              : 0;
+                          const yearsRem = payoffYr - endYear;
+                          // Remaining loan at sim end via amortization formula
+                          const n = simEnd - p.fromM;
+                          const r = p.rate / 12;
+                          const remAtEnd =
+                            r > 0 && n < 360
+                              ? Math.max(
+                                  0,
+                                  Math.round(
+                                    (p.loan *
+                                      (Math.pow(1 + r, 360) -
+                                        Math.pow(1 + r, n))) /
+                                      (Math.pow(1 + r, 360) - 1),
+                                  ),
+                                )
+                              : 0;
+                          const cfAtEnd =
+                            allWealth[bestIdx][simEnd] -
+                            (propValEnd - remAtEnd);
+                          const propAtPayoff = Math.round(
+                            propValEnd * Math.pow(1 + propCagr, yearsRem),
+                          );
+                          displayWealth = propAtPayoff + cfAtEnd;
+                          const cagrPct = (propCagr * 100).toFixed(1);
+                          wealthLabel = `projected wealth at payoff (${endYear} base + ${yearsRem}yr @${cagrPct}%/yr)`;
+                          wealthLabelZh = `预测还清时财富（${endYear}年基础+${yearsRem}年@${cagrPct}%/年）`;
+                        } else {
+                          const payoffM = p.fromM + 360;
+                          displayWealth = allWealth[bestIdx][payoffM];
+                          wealthLabel = "simulated wealth at payoff";
+                          wealthLabelZh = "还清时模拟总财富";
+                        }
                         return isZh
-                          ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）— 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;还清时模拟总财富：${W(fmt(payoffWealth))}`
-                          : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30yr) — loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full-term interest: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;simulated wealth at payoff: ${W(fmt(payoffWealth))}`;
+                          ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）— 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${wealthLabelZh}：${W(fmt(displayWealth))}`
+                          : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30yr) — loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;full-term interest: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;${wealthLabel}: ${W(fmt(displayWealth))}`;
                       }
                       // Intermediate period: elapsed time between two refis
                       const pToYr = startYear + Math.floor(p.toM / 12);
