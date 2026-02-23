@@ -1560,15 +1560,15 @@
           ) => {
             const refiStr =
               nr > 0
-                ? ` · Refi: ${nr}x ${isLTV ? "LTV" : "Bal"} (${refis.map((r) => r.year).join(", ")})`
+                ? `Refi: ${nr}x ${isLTV ? "LTV" : "Bal"} (${refis.map((r) => r.year).join(", ")}) · `
                 : "";
             if (isPrimary) {
               return (
                 `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
                 `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
                 `Primary: no rent income · std. deduction (no mortgage interest benefit) · no depreciation` +
-                refiStr +
                 `<br>` +
+                refiStr +
                 `<strong style="color:#ccc">${mode}</strong>`
               );
             }
@@ -1577,8 +1577,8 @@
               `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
               `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
               `Improv <strong style="color:#ccc">${ip}%</strong>` +
-              refiStr +
               `<br>` +
+              refiStr +
               `<strong style="color:#ccc">${mode}</strong>`
             );
           },
@@ -1732,15 +1732,15 @@
           ) => {
             const refiStr =
               nr > 0
-                ? ` · 重贷：${nr}次${isLTV ? "LTV" : "余额"}（${refis.map((r) => r.year).join("、")}年）`
+                ? `重贷：${nr}次${isLTV ? "LTV" : "余额"}（${refis.map((r) => r.year).join("、")}年） · `
                 : "";
             if (isPrimary) {
               return (
                 `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
                 `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
                 `自住：无租金收入 · 标准扣除额（无房贷利息抵税） · 无折旧` +
-                refiStr +
                 `<br>` +
+                refiStr +
                 `<strong style="color:#ccc">${mode}</strong>`
               );
             }
@@ -1749,8 +1749,8 @@
               `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
               `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍) · ` +
               `建筑 <strong style="color:#ccc">${ip}%</strong>` +
-              refiStr +
               `<br>` +
+              refiStr +
               `<strong style="color:#ccc">${mode}</strong>`
             );
           },
