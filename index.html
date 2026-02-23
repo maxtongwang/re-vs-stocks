@@ -4481,8 +4481,8 @@
             edu: () => {
               const pct = ((spDc.appr / INIT) * 100).toFixed(0);
               return isZh
-                ? `<strong style="color:${spColor}">${idxLabel}</strong> 从 ${fmt(INIT)} 增长至 ${fmt(INIT + spDc.appr)}（价格 +${pct}%）。${reinvest || spDc.cumDiv === 0 ? "股息已复利计入总回报。" : `另外收到 ${fmt(spDc.cumDiv)} 股息。`}`
-                : `<strong style="color:${spColor}">${idxLabel}</strong> grew from ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} (+${pct}% price). ${reinvest || spDc.cumDiv === 0 ? "Dividends compounded into total return." : `Plus ${fmt(spDc.cumDiv)} in dividends collected.`}`;
+                ? `<strong style="color:${spColor}">${lbl.appreciation}</strong> 从 ${fmt(INIT)} 增长至 ${fmt(INIT + spDc.appr)}（价格 +${pct}%）。${reinvest || spDc.cumDiv === 0 ? "股息已复利计入总回报。" : `另外收到 ${fmt(spDc.cumDiv)} 股息。`}`
+                : `<strong style="color:${spColor}">${lbl.appreciation}</strong>: grew from ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} (+${pct}% price). ${reinvest || spDc.cumDiv === 0 ? "Dividends compounded into total return." : `Plus ${fmt(spDc.cumDiv)} in dividends collected.`}`;
             },
           });
           if (!reinvest && spDc.cumDiv > 0) {
