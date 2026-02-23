@@ -4106,6 +4106,7 @@
           const mProj = totalMonths - 1;
           const yrP = startYear + Math.floor(mProj / 12);
           const moP = (mProj % 12) + 1;
+          const projYrs = (mProj - mData) / 12; // fraction of year (e.g. 11/12)
           const tr = document.createElement("tr");
           tr.style.cssText =
             "background:#1a1a00; opacity:0.7; font-style:italic";
@@ -4114,7 +4115,15 @@
             allWealth
               .map((w, i) => {
                 const cls = hidden.has(i) ? ' class="col-hidden"' : "";
-                return `<td${cls}>${fmt(w[mProj])}</td>`;
+                const base = w[mData];
+                const proj = w[mProj];
+                let pctStr = "";
+                if (base > 0 && projYrs > 0) {
+                  const cagr = (Math.pow(proj / base, 1 / projYrs) - 1) * 100;
+                  const sign = cagr >= 0 ? "+" : "";
+                  pctStr = `<br><span style="font-size:0.85em;opacity:0.8">${sign}${cagr.toFixed(0)}%/yr</span>`;
+                }
+                return `<td${cls}>${fmt(proj)}${pctStr}</td>`;
               })
               .join("");
           tbody.appendChild(tr);
