@@ -968,8 +968,8 @@ function renderDecomp(monthsToShow) {
               ? `叠加模式：价格涨幅 + 股息 ${fmt(spDc?.cumDiv || 0)} 分开追踪`
               : `Additive: price gain + ${fmt(spDc?.cumDiv || 0)} dividends tracked separately`;
         return isZh
-          ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spNetWealth)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
-          : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spNetWealth)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
+          ? `<strong style="color:${spColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spNetWealth)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
+          : `<strong style="color:${spColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spNetWealth)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
       },
     });
   }
@@ -1353,8 +1353,8 @@ function renderDecomp(monthsToShow) {
             reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
           );
           return isZh
-            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${W(fmt(cashFlowPart))}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
-            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${W(fmt(cashFlowPart))}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
+            ? `<strong style="color:${reColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${W(fmt(cashFlowPart))}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
+            : `<strong style="color:${reColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${W(fmt(cashFlowPart))}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
         },
       });
     }

@@ -79,6 +79,8 @@ function refreshDatasets() {
   const idxKey = document.getElementById("index-select").value;
   const locKey = getLocKey();
   updateSelectAbbr();
+  const thS0 = document.getElementById("th-s0");
+  if (thS0) thS0.textContent = SELECT_ABBR[idxKey] || idxKey;
   const iPrice =
     idxKey === "nasdaq"
       ? NASDAQ_PRICE
