@@ -315,11 +315,17 @@ canvas {
   background: var(--btn-active-bg);
 }
 .legend {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  margin-top: 10px;
+}
+.legend-col {
   display: grid;
   grid-template-columns: 14px max-content 1fr;
   column-gap: 6px;
   row-gap: 4px;
-  margin-top: 10px;
   width: fit-content;
 }
 #leader-bar {
