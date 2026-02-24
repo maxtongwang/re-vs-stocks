@@ -4290,7 +4290,6 @@
           hidden.add(idx);
           item.classList.add("hidden");
         }
-        computeYRange();
         syncTableCols();
         draw(curMonth - 1);
       });
@@ -5735,29 +5734,6 @@
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
       }
 
-      // ── Y-axis range cache (set in rebuild, stable for full animation) ──────────
-      let cachedYLo = 1000,
-        cachedYHi = 10000000;
-
-      function computeYRange() {
-        let yMax = 1000,
-          yMin = Infinity;
-        for (let i = 0; i < allWealth.length; i++) {
-          if (hidden.has(i)) continue;
-          const w = allWealth[i];
-          for (let m = 0; m < w.length; m++) {
-            const v = w[m];
-            if (v > 0) {
-              if (v > yMax) yMax = v;
-              if (v < yMin) yMin = v;
-            }
-          }
-        }
-        if (!isFinite(yMin) || yMin <= 0) yMin = yMax * 0.1;
-        cachedYLo = yMin * 0.5;
-        cachedYHi = yMax * 1.1;
-      }
-
       // ── Play state machine ────────────────────────────────────────────────────
       // States: STOPPED | PLAYING
       let playing = false,
@@ -5842,7 +5818,6 @@
         curMonth = Math.min(projStartM + 1, totalMonths);
         sliderEl.max = totalMonths;
         sliderEl.value = curMonth;
-        computeYRange();
         updateAssumptions();
         updateLabel(curMonth);
         buildTable();
