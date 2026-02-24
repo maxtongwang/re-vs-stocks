@@ -329,7 +329,6 @@ function applyLang() {
     s.btnDepreciation;
   document.getElementById("btn-incl-costs").textContent = s.btnCosts;
   document.getElementById("btn-incl-costs").dataset.tip = s.tipCosts;
-  document.getElementById("label-costs-note").textContent = s.labelCostsNote;
   const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
   document.querySelectorAll(".leg-text").forEach((el, i) => {
     el.innerHTML = legLabels[i];

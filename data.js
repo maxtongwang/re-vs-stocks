@@ -123,7 +123,6 @@ const STRINGS = {
     btnTaxBill: "Tax Bill",
     btnDepreciation: "Depreciation",
     btnCosts: "Op. Costs",
-    labelCostsNote: "(tax · ins · maint)",
     tipCosts:
       "Property tax (location-specific rate).\nInsurance: 0.5%/yr of current value.\nMaintenance: 1%/yr of current value.",
     legendLabels: [
@@ -304,7 +303,6 @@ const STRINGS = {
     btnTaxBill: "税务负担",
     btnDepreciation: "折旧",
     btnCosts: "运营成本",
-    labelCostsNote: "（税·保险·维护）",
     tipCosts:
       "房产税（税率因地区而异）。\n保险：房产现值0.5%/年。\n维护费：房产现值1%/年。",
     legendLabels: [
