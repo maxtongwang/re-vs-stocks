@@ -174,7 +174,8 @@ const STRINGS = {
       isLTV,
       actual = nr,
     ) => {
-      const W = (s) => `<strong style="color:#fff">${s}</strong>`;
+      const W = (s) =>
+        `<strong style="color:${getCSSVar("--decomp-hi")}">${s}</strong>`;
       const line2 = isPrimary
         ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
         : `Rent yield: ${W(ry + "%")} · Improvement: ${W(ip + "%")}`;
@@ -204,26 +205,26 @@ const STRINGS = {
       const skipped = nr - actual;
       const refiStr =
         nr > 0
-          ? `Refi: ${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}x ${isLTV ? "LTV" : "Balance"} ⚠ skip: higher rates</span>` : `${nr}x ${isLTV ? "LTV" : "Balance"} (${refis.map((r) => r.year).join(", ")})`} · `
+          ? `Refi: ${actual < nr ? `<span style="color:${getCSSVar("--warn")}">${actual}/${nr}x ${isLTV ? "LTV" : "Balance"} ⚠ skip: higher rates</span>` : `${nr}x ${isLTV ? "LTV" : "Balance"} (${refis.map((r) => r.year).join(", ")})`} · `
           : "";
       if (isPrimary) {
         return (
-          `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
-          `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
+          `<strong style="color:${getCSSVar("--decomp-hi")}">${sy}–${ey}</strong> (${yrs}yr) · ` +
+          `Mort <strong style="color:${getCSSVar("--decomp-hi")}">${mr}%</strong> · ` +
           `Primary: no rent income · std. deduction (no mortgage interest benefit) · no depreciation` +
           `<br>` +
           refiStr +
-          `<strong style="color:#ccc">${mode}</strong>`
+          `<strong style="color:${getCSSVar("--decomp-hi")}">${mode}</strong>`
         );
       }
       return (
-        `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}yr) · ` +
-        `Mort <strong style="color:#ccc">${mr}%</strong> · ` +
-        `Yield <strong style="color:#ccc">${ry}%</strong> (≈${p2r}x) · ` +
-        `Improv <strong style="color:#ccc">${ip}%</strong>` +
+        `<strong style="color:${getCSSVar("--decomp-hi")}">${sy}–${ey}</strong> (${yrs}yr) · ` +
+        `Mort <strong style="color:${getCSSVar("--decomp-hi")}">${mr}%</strong> · ` +
+        `Yield <strong style="color:${getCSSVar("--decomp-hi")}">${ry}%</strong> (≈${p2r}x) · ` +
+        `Improv <strong style="color:${getCSSVar("--decomp-hi")}">${ip}%</strong>` +
         `<br>` +
         refiStr +
-        `<strong style="color:#ccc">${mode}</strong>`
+        `<strong style="color:${getCSSVar("--decomp-hi")}">${mode}</strong>`
       );
     },
     tableRowLabel: (yrs, yr) => `Yr ${yrs} (${yr})`,
@@ -352,7 +353,8 @@ const STRINGS = {
       isLTV,
       actual = nr,
     ) => {
-      const W = (s) => `<strong style="color:#fff">${s}</strong>`;
+      const W = (s) =>
+        `<strong style="color:${getCSSVar("--decomp-hi")}">${s}</strong>`;
       const line2 = isPrimary
         ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
         : `租金回报率：${W(ry + "%")} · 建筑：${W(ip + "%")}`;
@@ -382,26 +384,26 @@ const STRINGS = {
       const skipped = nr - actual;
       const refiStr =
         nr > 0
-          ? `重贷：${actual < nr ? `<span style="color:#f5a623">${actual}/${nr}次${isLTV ? "LTV" : "剩余贷款"} ⚠ 跳过：利率偏高</span>` : `${nr}次${isLTV ? "LTV" : "剩余贷款"}（${refis.map((r) => r.year).join("、")}年）`} · `
+          ? `重贷：${actual < nr ? `<span style="color:${getCSSVar("--warn")}">${actual}/${nr}次${isLTV ? "LTV" : "剩余贷款"} ⚠ 跳过：利率偏高</span>` : `${nr}次${isLTV ? "LTV" : "剩余贷款"}（${refis.map((r) => r.year).join("、")}年）`} · `
           : "";
       if (isPrimary) {
         return (
-          `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
-          `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
+          `<strong style="color:${getCSSVar("--decomp-hi")}">${sy}–${ey}</strong> (${yrs}年) · ` +
+          `房贷 <strong style="color:${getCSSVar("--decomp-hi")}">${mr}%</strong> · ` +
           `自住：无租金收入 · 标准扣除额（无房贷利息抵税） · 无折旧` +
           `<br>` +
           refiStr +
-          `<strong style="color:#ccc">${mode}</strong>`
+          `<strong style="color:${getCSSVar("--decomp-hi")}">${mode}</strong>`
         );
       }
       return (
-        `<strong style="color:#ccc">${sy}–${ey}</strong> (${yrs}年) · ` +
-        `房贷 <strong style="color:#ccc">${mr}%</strong> · ` +
-        `回报率 <strong style="color:#ccc">${ry}%</strong> (≈${p2r}倍) · ` +
-        `建筑 <strong style="color:#ccc">${ip}%</strong>` +
+        `<strong style="color:${getCSSVar("--decomp-hi")}">${sy}–${ey}</strong> (${yrs}年) · ` +
+        `房贷 <strong style="color:${getCSSVar("--decomp-hi")}">${mr}%</strong> · ` +
+        `回报率 <strong style="color:${getCSSVar("--decomp-hi")}">${ry}%</strong> (≈${p2r}倍) · ` +
+        `建筑 <strong style="color:${getCSSVar("--decomp-hi")}">${ip}%</strong>` +
         `<br>` +
         refiStr +
-        `<strong style="color:#ccc">${mode}</strong>`
+        `<strong style="color:${getCSSVar("--decomp-hi")}">${mode}</strong>`
       );
     },
     tableRowLabel: (yrs, yr) => `第${yrs}年 (${yr})`,

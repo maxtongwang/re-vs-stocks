@@ -95,6 +95,7 @@
   --decomp-tax-neg: #cc3333;
   --decomp-hi: #d4d4d4;
   --outcome-label: #6a6a6a;
+  --warn: #f5a623;
 
   /* ── Scenario line / dot colors — VS Code palette ── */
   --color-s0: #4ec9b0; /* S&P 500 — teal */
@@ -195,6 +196,7 @@
   --decomp-tax-neg: #c02020;
   --decomp-hi: #222222;
   --outcome-label: #666666;
+  --warn: #b86800;
 
   /* ── Scenario line / dot colors — readable on light bg ── */
   --color-s0: #1e6bc4; /* S&P 500 */
