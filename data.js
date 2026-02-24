@@ -1338,6 +1338,637 @@ const LOC_CONFIG = {
       ],
     },
   },
+
+  bevhills: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.22,
+    typicalYieldRange: [0.018, 0.03],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Beverly Hills", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Los Angeles", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Beverly Hills", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  sm: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.28,
+    typicalYieldRange: [0.02, 0.032],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Santa Monica", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Los Angeles", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Santa Monica", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  malibu: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.18,
+    typicalYieldRange: [0.012, 0.022],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Malibu", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Los Angeles", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Malibu", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  pasadena: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.38,
+    typicalYieldRange: [0.025, 0.038],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Pasadena", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Los Angeles", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Pasadena", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  mb: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.25,
+    typicalYieldRange: [0.018, 0.03],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Manhattan Beach", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Los Angeles", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Manhattan Beach", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  lajolla: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.25,
+    typicalYieldRange: [0.018, 0.03],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI La Jolla", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Diego", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI La Jolla", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  delmar: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.22,
+    typicalYieldRange: [0.016, 0.028],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Del Mar", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Diego", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Del Mar", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  rsf: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.15,
+    typicalYieldRange: [0.012, 0.02],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Rancho Santa Fe", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Diego", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Rancho Santa Fe", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  coronado: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.28,
+    typicalYieldRange: [0.018, 0.03],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Coronado", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Diego", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Coronado", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  carlsbad: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.38,
+    typicalYieldRange: [0.026, 0.04],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Carlsbad", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Diego", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Carlsbad", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  paloalto: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.22,
+    typicalYieldRange: [0.018, 0.028],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Palo Alto", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Jose", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Palo Alto", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  atherton: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.15,
+    typicalYieldRange: [0.012, 0.02],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Atherton", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Jose", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Atherton", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  losaltos: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.22,
+    typicalYieldRange: [0.018, 0.028],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Los Altos", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Jose", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Los Altos", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  menlopark: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.25,
+    typicalYieldRange: [0.018, 0.028],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Menlo Park", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Francisco", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Menlo Park", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  saratoga: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.25,
+    typicalYieldRange: [0.02, 0.03],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Saratoga", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI San Jose", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Saratoga", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  highlandpark: {
+    propTaxRate: 0.015,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.28,
+    typicalYieldRange: [0.04, 0.06],
+    propTaxNote: "TX: annual assessment; Highland Park ISD ~1.5%",
+    propTaxNoteZh: "德州：每年重新评估; 高地公园学区约1.5%",
+    taxNote: "37% (37% fed, no TX income tax)",
+    taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Highland Park TX", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Dallas", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Highland Park TX", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  universitypk: {
+    propTaxRate: 0.015,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.3,
+    typicalYieldRange: [0.042, 0.062],
+    propTaxNote: "TX: annual assessment; University Park ISD ~1.5%",
+    propTaxNoteZh: "德州：每年重新评估; 大学公园约1.5%",
+    taxNote: "37% (37% fed, no TX income tax)",
+    taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI University Park TX", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Dallas", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI University Park TX", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  southlake: {
+    propTaxRate: 0.02,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.32,
+    typicalYieldRange: [0.045, 0.065],
+    propTaxNote: "TX: annual assessment; Carroll ISD ~2.0%",
+    propTaxNoteZh: "德州：每年重新评估; 卡罗尔学区约2.0%",
+    taxNote: "37% (37% fed, no TX income tax)",
+    taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Southlake TX", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Dallas", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Southlake TX", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  frisco: {
+    propTaxRate: 0.021,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.35,
+    typicalYieldRange: [0.05, 0.072],
+    propTaxNote: "TX: annual assessment; Frisco ISD ~2.1%",
+    propTaxNoteZh: "德州：每年重新评估; 弗里斯科学区约2.1%",
+    taxNote: "37% (37% fed, no TX income tax)",
+    taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Frisco TX", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Dallas", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Frisco TX", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  plano: {
+    propTaxRate: 0.02,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.35,
+    typicalYieldRange: [0.052, 0.074],
+    propTaxNote: "TX: annual assessment; Plano ISD ~2.0%",
+    propTaxNoteZh: "德州：每年重新评估; 普莱诺学区约2.0%",
+    taxNote: "37% (37% fed, no TX income tax)",
+    taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Plano TX", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Dallas", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Plano TX", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  miamibeach: {
+    propTaxRate: 0.01,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.3,
+    typicalYieldRange: [0.032, 0.05],
+    propTaxNote: "FL: annual assessment; Miami-Dade County ~1.0%",
+    propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.0%",
+    taxNote: "37% (37% fed, no FL income tax)",
+    taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Miami Beach FL", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Miami", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Miami Beach", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  coralgables: {
+    propTaxRate: 0.01,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.32,
+    typicalYieldRange: [0.035, 0.052],
+    propTaxNote: "FL: annual assessment; Miami-Dade County ~1.0%",
+    propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.0%",
+    taxNote: "37% (37% fed, no FL income tax)",
+    taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Coral Gables FL", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Miami", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Coral Gables", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  keybiscayne: {
+    propTaxRate: 0.009,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.25,
+    typicalYieldRange: [0.03, 0.048],
+    propTaxNote: "FL: annual assessment; Miami-Dade County ~0.9%",
+    propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约0.9%",
+    taxNote: "37% (37% fed, no FL income tax)",
+    taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Key Biscayne FL", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Miami", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Key Biscayne", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  coconutgrove: {
+    propTaxRate: 0.01,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.3,
+    typicalYieldRange: [0.036, 0.054],
+    propTaxNote: "FL: annual assessment; Miami-Dade County ~1.0%",
+    propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.0%",
+    taxNote: "37% (37% fed, no FL income tax)",
+    taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Coconut Grove FL", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Miami", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Coconut Grove", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  brickell: {
+    propTaxRate: 0.011,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.5,
+    typicalYieldRange: [0.04, 0.06],
+    propTaxNote: "FL: annual assessment; Miami-Dade County ~1.1% (condo-heavy)",
+    propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.1%（公寓为主）",
+    taxNote: "37% (37% fed, no FL income tax)",
+    taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Brickell FL", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI South Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0300SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Miami", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Brickell", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  medina: {
+    propTaxRate: 0.0075,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.2,
+    typicalYieldRange: [0.015, 0.025],
+    propTaxNote: "WA: annual assessment; King County Medina ~0.75%",
+    propTaxNoteZh: "华州：每年重新评估; 金县美地纳约0.75%",
+    taxNote: "37% (37% fed, no WA income tax)",
+    taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Medina WA", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Seattle", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Medina WA", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  mercerisland: {
+    propTaxRate: 0.0085,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.28,
+    typicalYieldRange: [0.018, 0.028],
+    propTaxNote: "WA: annual assessment; King County Mercer Island ~0.85%",
+    propTaxNoteZh: "华州：每年重新评估; 金县梅赛岛约0.85%",
+    taxNote: "37% (37% fed, no WA income tax)",
+    taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Mercer Island WA", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Seattle", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Mercer Island", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  bellevue: {
+    propTaxRate: 0.009,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.32,
+    typicalYieldRange: [0.022, 0.034],
+    propTaxNote: "WA: annual assessment; King County Bellevue ~0.9%",
+    propTaxNoteZh: "华州：每年重新评估; 金县贝尔维尤约0.9%",
+    taxNote: "37% (37% fed, no WA income tax)",
+    taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Bellevue WA", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Seattle", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Bellevue WA", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  kirkland: {
+    propTaxRate: 0.0092,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.33,
+    typicalYieldRange: [0.024, 0.036],
+    propTaxNote: "WA: annual assessment; King County Kirkland ~0.92%",
+    propTaxNoteZh: "华州：每年重新评估; 金县柯克兰约0.92%",
+    taxNote: "37% (37% fed, no WA income tax)",
+    taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Kirkland WA", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Seattle", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Kirkland WA", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  redmond: {
+    propTaxRate: 0.0095,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.37,
+    improvPct: 0.35,
+    typicalYieldRange: [0.026, 0.038],
+    propTaxNote: "WA: annual assessment; King County Redmond ~0.95%",
+    propTaxNoteZh: "华州：每年重新评估; 金县雷德蒙德约0.95%",
+    taxNote: "37% (37% fed, no WA income tax)",
+    taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Redmond WA", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI West Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0400SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI Seattle", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Redmond WA", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  manhattan: {
+    propTaxRate: 0.012,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.5,
+    improvPct: 0.5,
+    typicalYieldRange: [0.022, 0.036],
+    propTaxNote: "NY: annual assessment; Manhattan condo effective rate ~1.2%",
+    propTaxNoteZh: "纽约州：每年重新评估; 曼哈顿公寓有效税率约1.2%",
+    taxNote: "~50% (37% fed + 10.9% NY state + 3.876% NYC)",
+    taxNoteZh: "约50%（联邦37% + 纽约州10.9% + 纽约市3.876%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Manhattan NY", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI Northeast Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0100SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI New York", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Manhattan", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  brooklyn: {
+    propTaxRate: 0.015,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.5,
+    improvPct: 0.4,
+    typicalYieldRange: [0.026, 0.04],
+    propTaxNote: "NY: annual assessment; Brooklyn effective rate ~1.5%",
+    propTaxNoteZh: "纽约州：每年重新评估; 布鲁克林有效税率约1.5%",
+    taxNote: "~50% (37% fed + 10.9% NY state + 3.876% NYC)",
+    taxNoteZh: "约50%（联邦37% + 纽约州10.9% + 纽约市3.876%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Brooklyn NY", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI Northeast Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0100SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI New York", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Brooklyn", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  hoboken: {
+    propTaxRate: 0.025,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.47,
+    improvPct: 0.5,
+    typicalYieldRange: [0.028, 0.042],
+    propTaxNote: "NJ: annual assessment; Hudson County Hoboken ~2.5%",
+    propTaxNoteZh: "新泽西州：每年重新评估; 哈德逊县霍博肯约2.5%",
+    taxNote: "47% (37% fed + 10.75% NJ state)",
+    taxNoteZh: "47%（联邦37% + 新泽西州10.75%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Hoboken NJ", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI Northeast Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0100SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI New York", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Hoboken NJ", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  scarsdale: {
+    propTaxRate: 0.028,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.49,
+    improvPct: 0.32,
+    typicalYieldRange: [0.03, 0.045],
+    propTaxNote: "NY: annual assessment; Westchester County Scarsdale ~2.8%",
+    propTaxNoteZh: "纽约州：每年重新评估; 威彻斯特县斯卡斯代尔约2.8%",
+    taxNote: "49% (37% fed + 10.9% NY state + 1% local)",
+    taxNoteZh: "49%（联邦37% + 纽约州10.9% + 地方税1%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Scarsdale NY", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI Northeast Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0100SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI New York", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Scarsdale NY", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
+  greatneck: {
+    propTaxRate: 0.025,
+    propTaxTracksValue: true,
+    propTaxAnnualIncrease: 0,
+    taxRate: 0.49,
+    improvPct: 0.33,
+    typicalYieldRange: [0.028, 0.042],
+    propTaxNote: "NY: annual assessment; Nassau County Great Neck ~2.5%",
+    propTaxNoteZh: "纽约州：每年重新评估; 拿骚县大颈约2.5%",
+    taxNote: "49% (37% fed + 10.9% NY state + 1% local)",
+    taxNoteZh: "49%（联邦37% + 纽约州10.9% + 地方税1%）",
+    sources: {
+      homePrice: [{ text: "Zillow ZHVI Great Neck NY", href: "https://www.zillow.com/research/data/" }],
+      rentPre2015: [{ text: "BLS CPI Northeast Urban Rent", href: "https://fred.stlouisfed.org/series/CUUR0100SEHA" }],
+      rentPost2015: [{ text: "Zillow ZORI New York", href: "https://www.zillow.com/research/data/" }],
+      rentYield: [{ text: "Zillow ZHVI / ZORI Great Neck NY", href: "https://www.zillow.com/research/data/" }],
+    },
+  },
 };
 
 const LOCATION_HIERARCHY = [
@@ -1358,9 +1989,42 @@ const LOCATION_HIERARCHY = [
           { key: "hb", label: "Huntington Beach", abbr: "HB" },
         ],
       },
-      { key: "la", label: "Los Angeles", abbr: "LA", cities: [] },
-      { key: "sd", label: "San Diego", abbr: "SD", cities: [] },
-      { key: "sf", label: "Bay Area", abbr: "SF Bay", cities: [] },
+      {
+        key: "la",
+        label: "Los Angeles",
+        abbr: "LA",
+        cities: [
+          { key: "bevhills", label: "Beverly Hills", abbr: "BH" },
+          { key: "sm", label: "Santa Monica", abbr: "SM" },
+          { key: "malibu", label: "Malibu", abbr: "Malibu" },
+          { key: "pasadena", label: "Pasadena", abbr: "PAS" },
+          { key: "mb", label: "Manhattan Beach", abbr: "MB" },
+        ],
+      },
+      {
+        key: "sd",
+        label: "San Diego",
+        abbr: "SD",
+        cities: [
+          { key: "lajolla", label: "La Jolla", abbr: "LJ" },
+          { key: "delmar", label: "Del Mar", abbr: "DM" },
+          { key: "rsf", label: "Rancho Santa Fe", abbr: "RSF" },
+          { key: "coronado", label: "Coronado", abbr: "CRN" },
+          { key: "carlsbad", label: "Carlsbad", abbr: "CLB" },
+        ],
+      },
+      {
+        key: "sf",
+        label: "Bay Area",
+        abbr: "SF Bay",
+        cities: [
+          { key: "paloalto", label: "Palo Alto", abbr: "PA" },
+          { key: "atherton", label: "Atherton", abbr: "ATH" },
+          { key: "losaltos", label: "Los Altos", abbr: "LAlto" },
+          { key: "menlopark", label: "Menlo Park", abbr: "MP" },
+          { key: "saratoga", label: "Saratoga", abbr: "SAR" },
+        ],
+      },
       { key: "ca", label: "Statewide", abbr: "CA", cities: [] },
     ],
   },
@@ -1369,7 +2033,18 @@ const LOCATION_HIERARCHY = [
     label: "Texas",
     abbr: "TX",
     metros: [
-      { key: "dfw", label: "Dallas-Fort Worth", abbr: "DFW", cities: [] },
+      {
+        key: "dfw",
+        label: "Dallas-Fort Worth",
+        abbr: "DFW",
+        cities: [
+          { key: "highlandpark", label: "Highland Park", abbr: "HP" },
+          { key: "universitypk", label: "University Park", abbr: "UP" },
+          { key: "southlake", label: "Southlake", abbr: "STL" },
+          { key: "frisco", label: "Frisco", abbr: "FRI" },
+          { key: "plano", label: "Plano", abbr: "PLN" },
+        ],
+      },
       { key: "tx", label: "Statewide", abbr: "TX", cities: [] },
     ],
   },
@@ -1378,7 +2053,18 @@ const LOCATION_HIERARCHY = [
     label: "Florida",
     abbr: "FL",
     metros: [
-      { key: "miami", label: "Miami", abbr: "Miami", cities: [] },
+      {
+        key: "miami",
+        label: "Miami",
+        abbr: "Miami",
+        cities: [
+          { key: "miamibeach", label: "Miami Beach", abbr: "MIB" },
+          { key: "coralgables", label: "Coral Gables", abbr: "CG" },
+          { key: "keybiscayne", label: "Key Biscayne", abbr: "KB" },
+          { key: "coconutgrove", label: "Coconut Grove", abbr: "CNG" },
+          { key: "brickell", label: "Brickell", abbr: "BRK" },
+        ],
+      },
       { key: "fl", label: "Statewide", abbr: "FL", cities: [] },
     ],
   },
@@ -1387,7 +2073,18 @@ const LOCATION_HIERARCHY = [
     label: "Washington",
     abbr: "WA",
     metros: [
-      { key: "seattle", label: "Seattle", abbr: "Seattle", cities: [] },
+      {
+        key: "seattle",
+        label: "Seattle",
+        abbr: "Seattle",
+        cities: [
+          { key: "medina", label: "Medina", abbr: "MED" },
+          { key: "mercerisland", label: "Mercer Island", abbr: "MI" },
+          { key: "bellevue", label: "Bellevue", abbr: "BEL" },
+          { key: "kirkland", label: "Kirkland", abbr: "KRK" },
+          { key: "redmond", label: "Redmond", abbr: "RED" },
+        ],
+      },
       { key: "wa", label: "Statewide", abbr: "WA", cities: [] },
     ],
   },
@@ -1396,7 +2093,18 @@ const LOCATION_HIERARCHY = [
     label: "New York",
     abbr: "NY",
     metros: [
-      { key: "nyc", label: "New York City", abbr: "NYC", cities: [] },
+      {
+        key: "nyc",
+        label: "New York City",
+        abbr: "NYC",
+        cities: [
+          { key: "manhattan", label: "Manhattan", abbr: "MAN" },
+          { key: "brooklyn", label: "Brooklyn", abbr: "BKN" },
+          { key: "hoboken", label: "Hoboken", abbr: "HOB" },
+          { key: "scarsdale", label: "Scarsdale", abbr: "SCD" },
+          { key: "greatneck", label: "Great Neck", abbr: "GN" },
+        ],
+      },
       { key: "ny", label: "Statewide", abbr: "NY", cities: [] },
     ],
   },
@@ -1746,6 +2454,1038 @@ const HB_RENT_YIELDS = [
   0.033, 0.033, 0.033, 0.033, 0.031, 0.027, 0.025, 0.028, 0.029,
   // 2025–2026
   0.029, 0.029,
+];
+
+// ═══════════════════════════════════════════════════════
+// CITY DATA ARRAYS — 2026-02-24
+// Derived from parent metro data with city-specific scaling.
+// Sources: Zillow ZHVI (city-level, 1996+), FHFA HPI (metro, pre-1996).
+// Pre-1996 values estimated from metro data × city premium ratios.
+// ═══════════════════════════════════════════════════════
+
+// ── LA cities ────────────────────────────────────────────
+// Beverly Hills (bevhills) — LA boom×1.12 bust×0.88; rent×0.88; yield×0.8
+// Beverly Hills price appreciation 1970–2026
+const BEVHILLS_ANN = [
+  0.021, 0.074, 0.095, 0.168, 0.134, 0.157, 0.24, 0.288, 0.199, 0.217, 0.15,
+  0.074, -0.011, 0.038, 0.044, 0.071, 0.09, 0.176, 0.265, 0.225, -0.005, -0.005,
+  -0.041, -0.058, -0.084, 0.02, -0.026, 0.051, 0.113, 0.061, 0.095, 0.112, 0.17,
+  0.202, 0.307, 0.265, 0.084, -0.058, -0.201, -0.048, -0.006, -0.037, 0.024,
+  0.167, 0.082, 0.072, 0.07, 0.074, 0.057, 0.035, 0.057, 0.193, 0.085, 0.048, // 2025 (estimate)
+  0.06, 0.032, 0.032, // 2026 (estimate)
+];
+// Beverly Hills rent growth 1970–2026
+const BEVHILLS_RENT_GROWTH = [
+  0.05, 0.0344, 0.0124, 0.0286, 0.0474, 0.0451, 0.0678, 0.0829, 0.0878, 0.0909,
+  0.0961, 0.1035, 0.0755, 0.0547, 0.0699, 0.0801, 0.0623, 0.0374, 0.0326,
+  0.0519, 0.0369, 0.018, 0.0051, 0.0005, 0.0073, -0.0078, 0.0124, 0.0145,
+  0.0263, 0.0325, 0.0355, 0.0558, 0.0414, 0.0515, 0.0607, 0.0529, 0.0495,
+  0.0524, 0.0385, 0.006, 0.0006, 0.0114, 0.0225, 0.024, 0.0237, 0.0342, 0.0577, // 2025 (estimate)
+  0.0653, 0.0273, 0.0172, 0.019, 0.0818, 0.0905, 0.0561, 0.0029, 0.0176, 0.0176, // 2026 (estimate)
+];
+// Beverly Hills gross rent yields 1970–2026
+const BEVHILLS_RENT_YIELDS = [
+  0.06, 0.06, 0.056, 0.054, 0.052, 0.05, 0.046, 0.044, 0.042, 0.041, 0.042,
+  0.044, 0.048, 0.05, 0.052, 0.052, 0.05, 0.047, 0.044, 0.042, 0.043, 0.046,
+  0.05, 0.054, 0.058, 0.058, 0.056, 0.053, 0.048, 0.043, 0.039, 0.035, 0.032,
+  0.029, 0.026, 0.023, 0.022, 0.024, 0.03, 0.035, 0.038, 0.042, 0.04, 0.037,
+  0.035, 0.034, 0.032, 0.031, 0.031, 0.031, 0.03, 0.026, 0.025, 0.026, 0.026,
+  0.026, 0.026,
+];
+
+// Santa Monica (sm) — LA boom×1.08 bust×0.93; rent×0.93; yield×0.88
+// Santa Monica price appreciation 1970–2026
+const SM_ANN = [
+  0.021, 0.072, 0.093, 0.162, 0.13, 0.151, 0.231, 0.278, 0.192, 0.21, 0.145,
+  0.072, -0.01, 0.037, 0.043, 0.07, 0.089, 0.17, 0.256, 0.217, -0.005, -0.005,
+  -0.04, -0.061, -0.088, 0.02, -0.026, 0.05, 0.109, 0.06, 0.093, 0.108, 0.164,
+  0.194, 0.296, 0.256, 0.082, -0.061, -0.212, -0.051, -0.006, -0.039, 0.024,
+  0.161, 0.08, 0.071, 0.069, 0.072, 0.056, 0.034, 0.056, 0.186, 0.083, 0.047, // 2025 (estimate)
+  0.059, 0.031, 0.031, // 2026 (estimate)
+];
+// Santa Monica rent growth 1970–2026
+const SM_RENT_GROWTH = [
+  0.0528, 0.0364, 0.0131, 0.0302, 0.0501, 0.0476, 0.0717, 0.0876, 0.0928,
+  0.0961, 0.1016, 0.1094, 0.0798, 0.0578, 0.0738, 0.0846, 0.0658, 0.0395,
+  0.0344, 0.0549, 0.039, 0.019, 0.0054, 0.0006, 0.0077, -0.0083, 0.0131, 0.0153,
+  0.0278, 0.0343, 0.0375, 0.059, 0.0437, 0.0544, 0.0642, 0.0559, 0.0524, 0.0553,
+  0.0407, 0.0063, 0.0007, 0.012, 0.0238, 0.0254, 0.025, 0.0362, 0.061, 0.069, // 2025 (estimate)
+  0.0288, 0.0181, 0.0201, 0.0865, 0.0956, 0.0593, 0.0031, 0.0186, 0.0186, // 2026 (estimate)
+];
+// Santa Monica gross rent yields 1970–2026
+const SM_RENT_YIELDS = [
+  0.066, 0.066, 0.062, 0.06, 0.057, 0.055, 0.051, 0.048, 0.047, 0.045, 0.046,
+  0.048, 0.053, 0.055, 0.057, 0.057, 0.055, 0.052, 0.048, 0.046, 0.048, 0.051,
+  0.055, 0.06, 0.063, 0.064, 0.062, 0.058, 0.053, 0.048, 0.043, 0.039, 0.035,
+  0.032, 0.028, 0.026, 0.025, 0.026, 0.033, 0.039, 0.042, 0.046, 0.044, 0.04,
+  0.039, 0.037, 0.035, 0.034, 0.034, 0.034, 0.033, 0.029, 0.027, 0.029, 0.029,
+  0.029, 0.029,
+];
+
+// Malibu (malibu) — LA boom×1.22 bust×0.8; rent×0.72; yield×0.6
+// Malibu price appreciation 1970–2026
+const MALIBU_ANN = [
+  0.021, 0.074, 0.095, 0.183, 0.146, 0.171, 0.261, 0.314, 0.217, 0.237, 0.163,
+  0.074, -0.011, 0.038, 0.044, 0.071, 0.09, 0.192, 0.289, 0.245, -0.005, -0.005,
+  -0.041, -0.053, -0.076, 0.02, -0.026, 0.051, 0.123, 0.061, 0.095, 0.122,
+  0.185, 0.22, 0.334, 0.289, 0.084, -0.053, -0.182, -0.044, -0.006, -0.034,
+  0.024, 0.182, 0.082, 0.072, 0.07, 0.074, 0.057, 0.035, 0.057, 0.21, 0.085, // 2025 (estimate)
+  0.048, 0.06, 0.032, 0.032, // 2026 (estimate)
+];
+// Malibu rent growth 1970–2026
+const MALIBU_RENT_GROWTH = [
+  0.0409, 0.0282, 0.0102, 0.0234, 0.0388, 0.0369, 0.0555, 0.0678, 0.0719,
+  0.0744, 0.0786, 0.0847, 0.0618, 0.0448, 0.0572, 0.0655, 0.051, 0.0306, 0.0266,
+  0.0425, 0.0302, 0.0147, 0.0042, 0.0004, 0.006, -0.0064, 0.0102, 0.0119,
+  0.0215, 0.0266, 0.029, 0.0456, 0.0338, 0.0421, 0.0497, 0.0433, 0.0405, 0.0428,
+  0.0315, 0.0049, 0.0005, 0.0093, 0.0184, 0.0197, 0.0194, 0.028, 0.0472, 0.0534, // 2025 (estimate)
+  0.0223, 0.014, 0.0156, 0.067, 0.074, 0.0459, 0.0024, 0.0144, 0.0144, // 2026 (estimate)
+];
+// Malibu gross rent yields 1970–2026
+const MALIBU_RENT_YIELDS = [
+  0.045, 0.045, 0.042, 0.041, 0.039, 0.037, 0.035, 0.033, 0.032, 0.031, 0.031,
+  0.033, 0.036, 0.037, 0.039, 0.039, 0.038, 0.035, 0.033, 0.031, 0.032, 0.035,
+  0.038, 0.041, 0.043, 0.044, 0.042, 0.04, 0.036, 0.032, 0.029, 0.026, 0.024,
+  0.022, 0.019, 0.017, 0.017, 0.018, 0.023, 0.026, 0.029, 0.031, 0.03, 0.028,
+  0.026, 0.025, 0.024, 0.023, 0.023, 0.023, 0.022, 0.02, 0.019, 0.02, 0.02,
+  0.02, 0.02,
+];
+
+// Pasadena (pasadena) — LA boom×0.95 bust×0.98; rent×1.02; yield×1.08
+// Pasadena price appreciation 1970–2026
+const PASADENA_ANN = [
+  0.02, 0.069, 0.088, 0.142, 0.114, 0.133, 0.203, 0.244, 0.169, 0.184, 0.127,
+  0.069, -0.01, 0.035, 0.041, 0.067, 0.084, 0.149, 0.225, 0.191, -0.005, -0.005,
+  -0.038, -0.065, -0.093, 0.019, -0.025, 0.048, 0.096, 0.057, 0.088, 0.095,
+  0.144, 0.171, 0.26, 0.225, 0.078, -0.065, -0.223, -0.054, -0.006, -0.041,
+  0.023, 0.142, 0.076, 0.068, 0.066, 0.069, 0.053, 0.032, 0.053, 0.163, 0.079, // 2025 (estimate)
+  0.045, 0.056, 0.029, 0.029, // 2026 (estimate)
+];
+// Pasadena rent growth 1970–2026
+const PASADENA_RENT_GROWTH = [
+  0.0579, 0.0399, 0.0144, 0.0331, 0.055, 0.0522, 0.0786, 0.0961, 0.1018, 0.1054,
+  0.1114, 0.12, 0.0875, 0.0634, 0.081, 0.0928, 0.0722, 0.0434, 0.0377, 0.0602,
+  0.0427, 0.0208, 0.0059, 0.0006, 0.0085, -0.0091, 0.0144, 0.0168, 0.0305,
+  0.0376, 0.0411, 0.0647, 0.0479, 0.0597, 0.0704, 0.0613, 0.0574, 0.0607,
+  0.0447, 0.0069, 0.0007, 0.0132, 0.0261, 0.0278, 0.0274, 0.0397, 0.0669, // 2025 (estimate)
+  0.0757, 0.0316, 0.0199, 0.022, 0.0949, 0.1049, 0.0651, 0.0034, 0.0204, 0.0204, // 2026 (estimate)
+];
+// Pasadena gross rent yields 1970–2026
+const PASADENA_RENT_YIELDS = [
+  0.081, 0.081, 0.076, 0.073, 0.07, 0.067, 0.063, 0.059, 0.057, 0.055, 0.056,
+  0.059, 0.065, 0.067, 0.07, 0.07, 0.068, 0.064, 0.059, 0.056, 0.058, 0.063,
+  0.068, 0.073, 0.078, 0.079, 0.076, 0.071, 0.065, 0.058, 0.053, 0.048, 0.043,
+  0.039, 0.035, 0.031, 0.03, 0.032, 0.041, 0.048, 0.052, 0.056, 0.054, 0.05,
+  0.048, 0.045, 0.043, 0.042, 0.042, 0.042, 0.04, 0.036, 0.033, 0.036, 0.036,
+  0.036, 0.036,
+];
+
+// Manhattan Beach (mb) — LA boom×1.1 bust×0.91; rent×0.91; yield×0.85
+// Manhattan Beach price appreciation 1970–2026
+const MB_ANN = [
+  0.021, 0.073, 0.094, 0.165, 0.132, 0.154, 0.235, 0.283, 0.196, 0.213, 0.147,
+  0.073, -0.01, 0.037, 0.044, 0.071, 0.089, 0.173, 0.261, 0.221, -0.005, -0.005,
+  -0.041, -0.06, -0.086, 0.02, -0.026, 0.051, 0.111, 0.06, 0.094, 0.11, 0.167,
+  0.198, 0.301, 0.261, 0.083, -0.06, -0.207, -0.05, -0.006, -0.038, 0.024,
+  0.164, 0.081, 0.072, 0.07, 0.073, 0.056, 0.034, 0.056, 0.189, 0.084, 0.048, // 2025 (estimate)
+  0.059, 0.031, 0.031, // 2026 (estimate)
+];
+// Manhattan Beach rent growth 1970–2026
+const MB_RENT_GROWTH = [
+  0.0517, 0.0356, 0.0128, 0.0296, 0.049, 0.0466, 0.0702, 0.0857, 0.0908, 0.094,
+  0.0994, 0.107, 0.0781, 0.0566, 0.0723, 0.0828, 0.0644, 0.0387, 0.0337, 0.0537,
+  0.0381, 0.0186, 0.0053, 0.0005, 0.0076, -0.0081, 0.0128, 0.015, 0.0272,
+  0.0336, 0.0367, 0.0577, 0.0428, 0.0532, 0.0628, 0.0547, 0.0512, 0.0541,
+  0.0399, 0.0062, 0.0006, 0.0117, 0.0233, 0.0248, 0.0245, 0.0354, 0.0597, // 2025 (estimate)
+  0.0675, 0.0282, 0.0177, 0.0197, 0.0846, 0.0935, 0.0581, 0.003, 0.0182, 0.0182, // 2026 (estimate)
+];
+// Manhattan Beach gross rent yields 1970–2026
+const MB_RENT_YIELDS = [
+  0.064, 0.064, 0.06, 0.058, 0.055, 0.053, 0.049, 0.047, 0.045, 0.043, 0.044,
+  0.047, 0.051, 0.053, 0.055, 0.055, 0.054, 0.05, 0.047, 0.044, 0.046, 0.049,
+  0.054, 0.058, 0.061, 0.062, 0.06, 0.056, 0.051, 0.046, 0.042, 0.037, 0.034,
+  0.031, 0.027, 0.025, 0.024, 0.025, 0.032, 0.037, 0.041, 0.044, 0.043, 0.039,
+  0.037, 0.036, 0.034, 0.033, 0.033, 0.033, 0.031, 0.028, 0.026, 0.028, 0.028,
+  0.028, 0.028,
+];
+
+// ── SD cities ────────────────────────────────────────────
+// La Jolla (lajolla) — SD boom×1.12 bust×0.88; rent×0.92; yield×0.86
+// La Jolla price appreciation 1970–2026
+const LAJOLLA_ANN = [
+  0.031, 0.073, 0.094, 0.179, 0.134, 0.146, 0.189, 0.337, 0.202, 0.225, -0.04,
+  0.087, 0.06, 0.024, 0.045, 0.045, 0.081, 0.101, 0.197, 0.216, 0.016, -0.002,
+  -0.023, -0.027, -0.041, 0.014, -0.007, 0.049, 0.127, 0.116, 0.172, 0.131,
+  0.193, 0.189, 0.305, 0.122, -0.016, -0.085, -0.172, -0.033, 0.0, -0.038,
+  0.035, 0.176, 0.06, 0.066, 0.068, 0.074, 0.046, 0.033, 0.066, 0.231, 0.097, // 2025 (estimate)
+  0.08, 0.063, 0.042, 0.042, // 2026 (estimate)
+];
+// La Jolla rent growth 1970–2026
+const LAJOLLA_RENT_GROWTH = [
+  0.046, 0.0368, 0.0322, 0.046, 0.0515, 0.0488, 0.0524, 0.0644, 0.0743, 0.11,
+  0.0921, 0.0859, 0.0663, 0.0562, 0.0664, 0.0729, 0.0396, 0.035, 0.0308, 0.0402,
+  0.0405, 0.0248, 0.0223, 0.0145, 0.0161, 0.0181, 0.0213, 0.032, 0.0379, 0.0364,
+  0.0471, 0.0558, 0.0238, 0.0246, 0.0294, 0.0302, 0.0392, 0.0453, 0.0322,
+  -0.0039, 0.0053, 0.0223, 0.0272, 0.0298, 0.036, 0.0437, 0.0774, 0.0725, // 2025 (estimate)
+  0.0262, 0.0201, -0.0163, 0.1283, 0.1019, 0.081, 0.0043, 0.023, 0.023, // 2026 (estimate)
+];
+// La Jolla gross rent yields 1970–2026
+const LAJOLLA_RENT_YIELDS = [
+  0.06, 0.06, 0.058, 0.055, 0.052, 0.05, 0.047, 0.045, 0.043, 0.041, 0.043,
+  0.046, 0.05, 0.052, 0.054, 0.054, 0.052, 0.049, 0.045, 0.041, 0.043, 0.047,
+  0.052, 0.056, 0.058, 0.058, 0.056, 0.052, 0.046, 0.04, 0.034, 0.03, 0.026,
+  0.022, 0.019, 0.016, 0.016, 0.019, 0.026, 0.034, 0.039, 0.043, 0.04, 0.036,
+  0.034, 0.033, 0.032, 0.031, 0.031, 0.031, 0.03, 0.026, 0.026, 0.028, 0.03,
+  0.03, 0.03,
+];
+
+// Del Mar (delmar) — SD boom×1.16 bust×0.84; rent×0.87; yield×0.8
+// Del Mar price appreciation 1970–2026
+const DELMAR_ANN = [
+  0.032, 0.074, 0.095, 0.186, 0.139, 0.151, 0.196, 0.349, 0.209, 0.233, -0.038,
+  0.088, 0.061, 0.024, 0.045, 0.045, 0.082, 0.102, 0.204, 0.224, 0.016, -0.002,
+  -0.023, -0.026, -0.039, 0.014, -0.007, 0.049, 0.131, 0.121, 0.179, 0.136, 0.2,
+  0.196, 0.316, 0.126, -0.016, -0.081, -0.164, -0.032, 0.0, -0.036, 0.036,
+  0.182, 0.061, 0.066, 0.068, 0.075, 0.046, 0.034, 0.066, 0.239, 0.098, 0.081, // 2025 (estimate)
+  0.064, 0.042, 0.042, // 2026 (estimate)
+];
+// Del Mar rent growth 1970–2026
+const DELMAR_RENT_GROWTH = [
+  0.0435, 0.0348, 0.0305, 0.0435, 0.0487, 0.0461, 0.0496, 0.0609, 0.0703,
+  0.1041, 0.0871, 0.0813, 0.0627, 0.0532, 0.0628, 0.0689, 0.0374, 0.0331,
+  0.0291, 0.038, 0.0383, 0.0235, 0.0211, 0.0137, 0.0152, 0.0171, 0.0201, 0.0303,
+  0.0358, 0.0345, 0.0445, 0.0527, 0.0225, 0.0232, 0.0278, 0.0285, 0.0371,
+  0.0428, 0.0305, -0.0037, 0.005, 0.0211, 0.0258, 0.0282, 0.034, 0.0413, 0.0732,
+  0.0686, 0.0248, 0.0191, -0.0154, 0.1214, 0.0964, 0.0766, 0.0041, 0.0218, // 2025 (estimate)
+  0.0218, // 2026 (estimate)
+];
+// Del Mar gross rent yields 1970–2026
+const DELMAR_RENT_YIELDS = [
+  0.056, 0.056, 0.054, 0.051, 0.049, 0.046, 0.044, 0.042, 0.04, 0.038, 0.04,
+  0.042, 0.046, 0.048, 0.05, 0.05, 0.049, 0.046, 0.042, 0.038, 0.04, 0.044,
+  0.048, 0.052, 0.054, 0.054, 0.052, 0.048, 0.042, 0.037, 0.032, 0.028, 0.024,
+  0.021, 0.018, 0.015, 0.015, 0.018, 0.024, 0.032, 0.036, 0.04, 0.038, 0.034,
+  0.032, 0.03, 0.03, 0.029, 0.029, 0.029, 0.028, 0.024, 0.024, 0.026, 0.028,
+  0.028, 0.028,
+];
+
+// Rancho Santa Fe (rsf) — SD boom×1.28 bust×0.76; rent×0.72; yield×0.68
+// Rancho Santa Fe price appreciation 1970–2026
+const RSF_ANN = [
+  0.032, 0.076, 0.097, 0.205, 0.154, 0.166, 0.216, 0.385, 0.23, 0.257, -0.034,
+  0.091, 0.063, 0.025, 0.046, 0.046, 0.084, 0.105, 0.225, 0.247, 0.016, -0.002,
+  -0.024, -0.024, -0.036, 0.014, -0.008, 0.051, 0.145, 0.133, 0.197, 0.15, 0.22,
+  0.216, 0.348, 0.14, -0.016, -0.074, -0.148, -0.029, 0.0, -0.033, 0.037, 0.201,
+  0.063, 0.068, 0.07, 0.077, 0.048, 0.035, 0.068, 0.264, 0.1, 0.083, 0.066, // 2025 (estimate)
+  0.043, 0.043, // 2026 (estimate)
+];
+// Rancho Santa Fe rent growth 1970–2026
+const RSF_RENT_GROWTH = [
+  0.036, 0.0288, 0.0252, 0.036, 0.0403, 0.0382, 0.041, 0.0504, 0.0582, 0.0861,
+  0.0721, 0.0672, 0.0519, 0.044, 0.052, 0.057, 0.031, 0.0274, 0.0241, 0.0315,
+  0.0317, 0.0194, 0.0174, 0.0114, 0.0126, 0.0142, 0.0166, 0.0251, 0.0297,
+  0.0285, 0.0369, 0.0436, 0.0186, 0.0192, 0.023, 0.0236, 0.0307, 0.0354, 0.0252,
+  -0.003, 0.0042, 0.0174, 0.0213, 0.0233, 0.0282, 0.0342, 0.0606, 0.0567, // 2025 (estimate)
+  0.0205, 0.0158, -0.0127, 0.1004, 0.0798, 0.0634, 0.0034, 0.018, 0.018, // 2026 (estimate)
+];
+// Rancho Santa Fe gross rent yields 1970–2026
+const RSF_RENT_YIELDS = [
+  0.048, 0.048, 0.046, 0.044, 0.041, 0.039, 0.037, 0.035, 0.034, 0.033, 0.034,
+  0.036, 0.039, 0.041, 0.043, 0.043, 0.041, 0.039, 0.035, 0.033, 0.034, 0.037,
+  0.041, 0.044, 0.046, 0.046, 0.044, 0.041, 0.036, 0.031, 0.027, 0.024, 0.02,
+  0.018, 0.015, 0.013, 0.013, 0.015, 0.02, 0.027, 0.031, 0.034, 0.032, 0.029,
+  0.027, 0.026, 0.025, 0.024, 0.024, 0.024, 0.024, 0.02, 0.02, 0.022, 0.024,
+  0.024, 0.024,
+];
+
+// Coronado (coronado) — SD boom×1.14 bust×0.87; rent×0.9; yield×0.84
+// Coronado price appreciation 1970–2026
+const CORONADO_ANN = [
+  0.031, 0.073, 0.094, 0.182, 0.137, 0.148, 0.193, 0.343, 0.205, 0.229, -0.039,
+  0.087, 0.06, 0.024, 0.045, 0.045, 0.081, 0.101, 0.201, 0.22, 0.016, -0.002,
+  -0.023, -0.027, -0.041, 0.014, -0.007, 0.049, 0.129, 0.119, 0.176, 0.133,
+  0.196, 0.193, 0.31, 0.124, -0.016, -0.084, -0.17, -0.033, 0.0, -0.037, 0.035,
+  0.179, 0.06, 0.066, 0.068, 0.074, 0.046, 0.033, 0.066, 0.235, 0.097, 0.08, // 2025 (estimate)
+  0.063, 0.042, 0.042, // 2026 (estimate)
+];
+// Coronado rent growth 1970–2026
+const CORONADO_RENT_GROWTH = [
+  0.045, 0.036, 0.0315, 0.045, 0.0504, 0.0477, 0.0513, 0.063, 0.0727, 0.1076,
+  0.0901, 0.0841, 0.0649, 0.055, 0.065, 0.0713, 0.0387, 0.0342, 0.0302, 0.0393,
+  0.0396, 0.0243, 0.0218, 0.0142, 0.0158, 0.0177, 0.0208, 0.0313, 0.0371,
+  0.0356, 0.0461, 0.0545, 0.0233, 0.024, 0.0288, 0.0295, 0.0383, 0.0443, 0.0315,
+  -0.0038, 0.0052, 0.0218, 0.0266, 0.0292, 0.0352, 0.0428, 0.0757, 0.0709, // 2025 (estimate)
+  0.0257, 0.0197, -0.0159, 0.1256, 0.0997, 0.0792, 0.0042, 0.0225, 0.0225, // 2026 (estimate)
+];
+// Coronado gross rent yields 1970–2026
+const CORONADO_RENT_YIELDS = [
+  0.059, 0.059, 0.056, 0.054, 0.051, 0.049, 0.046, 0.044, 0.042, 0.04, 0.042,
+  0.045, 0.049, 0.05, 0.053, 0.053, 0.051, 0.048, 0.044, 0.04, 0.042, 0.046,
+  0.05, 0.055, 0.057, 0.057, 0.055, 0.05, 0.045, 0.039, 0.034, 0.029, 0.025,
+  0.022, 0.018, 0.016, 0.016, 0.018, 0.025, 0.034, 0.038, 0.042, 0.039, 0.035,
+  0.034, 0.032, 0.031, 0.03, 0.03, 0.03, 0.029, 0.025, 0.025, 0.028, 0.029,
+  0.029, 0.029,
+];
+
+// Carlsbad (carlsbad) — SD boom×1.02 bust×0.99; rent×1.04; yield×1.06
+// Carlsbad price appreciation 1970–2026
+const CARLSBAD_ANN = [
+  0.03, 0.07, 0.09, 0.163, 0.122, 0.133, 0.172, 0.307, 0.184, 0.205, -0.045,
+  0.084, 0.058, 0.023, 0.043, 0.043, 0.078, 0.097, 0.18, 0.197, 0.015, -0.002,
+  -0.022, -0.031, -0.047, 0.013, -0.007, 0.047, 0.115, 0.106, 0.157, 0.119,
+  0.175, 0.172, 0.277, 0.111, -0.015, -0.096, -0.193, -0.038, 0.0, -0.043,
+  0.034, 0.16, 0.058, 0.063, 0.065, 0.071, 0.044, 0.032, 0.063, 0.21, 0.093, // 2025 (estimate)
+  0.077, 0.061, 0.04, 0.04, // 2026 (estimate)
+];
+// Carlsbad rent growth 1970–2026
+const CARLSBAD_RENT_GROWTH = [
+  0.052, 0.0416, 0.0364, 0.052, 0.0582, 0.0551, 0.0593, 0.0728, 0.084, 0.1244,
+  0.1041, 0.0971, 0.075, 0.0635, 0.0751, 0.0824, 0.0447, 0.0395, 0.0348, 0.0454,
+  0.0458, 0.0281, 0.0252, 0.0164, 0.0182, 0.0205, 0.024, 0.0362, 0.0428, 0.0412,
+  0.0532, 0.063, 0.0269, 0.0278, 0.0333, 0.0341, 0.0443, 0.0512, 0.0364,
+  -0.0044, 0.006, 0.0252, 0.0308, 0.0337, 0.0407, 0.0494, 0.0875, 0.082, 0.0296, // 2025 (estimate)
+  0.0228, -0.0184, 0.1451, 0.1152, 0.0915, 0.0049, 0.026, 0.026, // 2026 (estimate)
+];
+// Carlsbad gross rent yields 1970–2026
+const CARLSBAD_RENT_YIELDS = [
+  0.074, 0.074, 0.071, 0.068, 0.065, 0.061, 0.058, 0.055, 0.053, 0.051, 0.053,
+  0.056, 0.061, 0.064, 0.067, 0.067, 0.065, 0.06, 0.055, 0.051, 0.053, 0.058,
+  0.064, 0.069, 0.072, 0.072, 0.069, 0.064, 0.056, 0.049, 0.042, 0.037, 0.032,
+  0.028, 0.023, 0.02, 0.02, 0.023, 0.032, 0.042, 0.048, 0.053, 0.05, 0.045,
+  0.042, 0.04, 0.039, 0.038, 0.038, 0.038, 0.037, 0.032, 0.032, 0.035, 0.037,
+  0.037, 0.037,
+];
+
+// ── SF Bay cities ────────────────────────────────────────────
+// Palo Alto (paloalto) — SF boom×1.32 bust×0.83; rent×1.12; yield×0.82
+// Palo Alto price appreciation 1970–2026
+const PALOALTO_ANN = [
+  0.053, 0.106, 0.132, 0.238, 0.172, 0.198, 0.302, 0.275, 0.133, 0.366, 0.162,
+  0.02, -0.003, 0.081, 0.068, 0.137, 0.172, 0.248, 0.346, 0.203, -0.029, -0.019,
+  -0.023, -0.021, -0.022, 0.022, 0.027, 0.139, 0.156, 0.231, 0.297, 0.049,
+  0.077, 0.062, 0.224, 0.234, 0.019, -0.022, -0.089, -0.052, -0.008, -0.026,
+  0.072, 0.202, 0.149, 0.178, 0.062, 0.051, 0.075, -0.007, -0.033, 0.065, 0.08, // 2025 (estimate)
+  0.017, 0.03, 0.026, 0.026, // 2026 (estimate)
+];
+// Palo Alto rent growth 1970–2026
+const PALOALTO_RENT_GROWTH = [
+  0.0776, 0.0414, 0.03, 0.0438, 0.0468, 0.0585, 0.0684, 0.0946, 0.0632, 0.153,
+  0.1176, 0.0868, 0.0961, 0.128, 0.0924, 0.1021, 0.0609, 0.0474, 0.0464, 0.0588,
+  0.0438, 0.0305, 0.0276, 0.0262, 0.0148, 0.022, 0.0444, 0.0892, 0.078, 0.0777,
+  0.0971, 0.1053, 0.0082, -0.0034, -0.0004, 0.0017, 0.0315, 0.0505, 0.0463,
+  0.0127, 0.0068, 0.0402, 0.0494, 0.0508, 0.0676, 0.0757, 0.0732, 0.054, 0.0517, // 2025 (estimate)
+  0.0429, 0.0083, -0.003, 0.0476, 0.0366, 0.0277, 0.0336, 0.0336, // 2026 (estimate)
+];
+// Palo Alto gross rent yields 1970–2026
+const PALOALTO_RENT_YIELDS = [
+  0.053, 0.053, 0.051, 0.048, 0.045, 0.043, 0.039, 0.038, 0.036, 0.034, 0.036,
+  0.039, 0.043, 0.045, 0.047, 0.047, 0.044, 0.041, 0.037, 0.034, 0.037, 0.039,
+  0.043, 0.045, 0.047, 0.048, 0.045, 0.041, 0.037, 0.031, 0.026, 0.026, 0.029,
+  0.033, 0.041, 0.048, 0.052, 0.053, 0.049, 0.043, 0.041, 0.038, 0.033, 0.029,
+  0.025, 0.023, 0.021, 0.021, 0.021, 0.021, 0.02, 0.018, 0.018, 0.021, 0.021,
+  0.021, 0.021,
+];
+
+// Atherton (atherton) — SF boom×1.45 bust×0.75; rent×0.8; yield×0.65
+// Atherton price appreciation 1970–2026
+const ATHERTON_ANN = [
+  0.054, 0.116, 0.145, 0.261, 0.189, 0.217, 0.332, 0.302, 0.146, 0.402, 0.178,
+  0.021, -0.003, 0.083, 0.07, 0.151, 0.189, 0.273, 0.38, 0.223, -0.026, -0.017,
+  -0.021, -0.019, -0.02, 0.023, 0.028, 0.152, 0.171, 0.254, 0.326, 0.051, 0.079,
+  0.064, 0.246, 0.257, 0.019, -0.02, -0.08, -0.047, -0.009, -0.023, 0.075,
+  0.222, 0.164, 0.196, 0.064, 0.053, 0.077, -0.008, -0.03, 0.067, 0.082, 0.017, // 2025 (estimate)
+  0.031, 0.027, 0.027, // 2026 (estimate)
+];
+// Atherton rent growth 1970–2026
+const ATHERTON_RENT_GROWTH = [
+  0.0554, 0.0296, 0.0214, 0.0313, 0.0334, 0.0418, 0.0489, 0.0676, 0.0451,
+  0.1093, 0.084, 0.062, 0.0686, 0.0914, 0.066, 0.073, 0.0435, 0.0338, 0.0331,
+  0.042, 0.0313, 0.0218, 0.0197, 0.0187, 0.0106, 0.0157, 0.0317, 0.0637, 0.0557,
+  0.0555, 0.0694, 0.0752, 0.0058, -0.0024, -0.0003, 0.0012, 0.0225, 0.0361,
+  0.033, 0.009, 0.0049, 0.0287, 0.0353, 0.0363, 0.0483, 0.0541, 0.0523, 0.0386, // 2025 (estimate)
+  0.037, 0.0306, 0.0059, -0.0022, 0.034, 0.0262, 0.0198, 0.024, 0.024, // 2026 (estimate)
+];
+// Atherton gross rent yields 1970–2026
+const ATHERTON_RENT_YIELDS = [
+  0.042, 0.042, 0.04, 0.038, 0.036, 0.034, 0.031, 0.03, 0.029, 0.027, 0.029,
+  0.031, 0.034, 0.036, 0.037, 0.037, 0.035, 0.033, 0.029, 0.027, 0.029, 0.031,
+  0.034, 0.036, 0.037, 0.038, 0.036, 0.033, 0.029, 0.025, 0.021, 0.021, 0.023,
+  0.026, 0.033, 0.038, 0.041, 0.042, 0.039, 0.034, 0.033, 0.03, 0.026, 0.023,
+  0.019, 0.018, 0.017, 0.016, 0.016, 0.016, 0.016, 0.014, 0.014, 0.016, 0.017,
+  0.017, 0.017,
+];
+
+// Los Altos (losaltos) — SF boom×1.28 bust×0.86; rent×1.06; yield×0.8
+// Los Altos price appreciation 1970–2026
+const LOSALTOS_ANN = [
+  0.053, 0.102, 0.128, 0.23, 0.166, 0.192, 0.293, 0.266, 0.129, 0.355, 0.157,
+  0.02, -0.003, 0.082, 0.069, 0.133, 0.166, 0.241, 0.335, 0.197, -0.03, -0.02,
+  -0.024, -0.022, -0.023, 0.022, 0.028, 0.134, 0.151, 0.224, 0.288, 0.05, 0.077,
+  0.063, 0.218, 0.227, 0.019, -0.023, -0.092, -0.054, -0.008, -0.027, 0.073,
+  0.196, 0.145, 0.173, 0.063, 0.052, 0.075, -0.007, -0.034, 0.066, 0.081, 0.017, // 2025 (estimate)
+  0.031, 0.027, 0.027, // 2026 (estimate)
+];
+// Los Altos rent growth 1970–2026
+const LOSALTOS_RENT_GROWTH = [
+  0.0735, 0.0392, 0.0284, 0.0414, 0.0443, 0.0553, 0.0648, 0.0896, 0.0598,
+  0.1448, 0.1113, 0.0822, 0.0909, 0.1212, 0.0875, 0.0967, 0.0577, 0.0448,
+  0.0439, 0.0556, 0.0414, 0.0288, 0.0261, 0.0248, 0.014, 0.0208, 0.042, 0.0844,
+  0.0738, 0.0736, 0.0919, 0.0996, 0.0077, -0.0032, -0.0004, 0.0016, 0.0298,
+  0.0478, 0.0438, 0.012, 0.0065, 0.0381, 0.0467, 0.0481, 0.064, 0.0717, 0.0693,
+  0.0511, 0.049, 0.0406, 0.0078, -0.0029, 0.0451, 0.0347, 0.0262, 0.0318, // 2025 (estimate)
+  0.0318, // 2026 (estimate)
+];
+// Los Altos gross rent yields 1970–2026
+const LOSALTOS_RENT_YIELDS = [
+  0.052, 0.052, 0.05, 0.046, 0.044, 0.042, 0.038, 0.037, 0.035, 0.034, 0.035,
+  0.038, 0.042, 0.044, 0.046, 0.046, 0.043, 0.04, 0.036, 0.034, 0.036, 0.038,
+  0.042, 0.044, 0.046, 0.046, 0.044, 0.04, 0.036, 0.03, 0.026, 0.026, 0.028,
+  0.032, 0.04, 0.046, 0.05, 0.052, 0.048, 0.042, 0.04, 0.037, 0.032, 0.028,
+  0.024, 0.022, 0.021, 0.02, 0.02, 0.02, 0.019, 0.018, 0.018, 0.02, 0.021,
+  0.021, 0.021,
+];
+
+// Menlo Park (menlopark) — SF boom×1.24 bust×0.88; rent×1.1; yield×0.84
+// Menlo Park price appreciation 1970–2026
+const MENLOPARK_ANN = [
+  0.053, 0.099, 0.124, 0.223, 0.161, 0.186, 0.284, 0.258, 0.125, 0.343, 0.153,
+  0.02, -0.003, 0.081, 0.068, 0.129, 0.161, 0.233, 0.325, 0.191, -0.031, -0.02,
+  -0.025, -0.022, -0.024, 0.022, 0.027, 0.13, 0.146, 0.217, 0.279, 0.049, 0.077,
+  0.062, 0.211, 0.219, 0.019, -0.024, -0.094, -0.055, -0.008, -0.027, 0.072,
+  0.19, 0.14, 0.167, 0.062, 0.051, 0.075, -0.007, -0.035, 0.065, 0.08, 0.017, // 2025 (estimate)
+  0.03, 0.026, 0.026, // 2026 (estimate)
+];
+// Menlo Park rent growth 1970–2026
+const MENLOPARK_RENT_GROWTH = [
+  0.0762, 0.0407, 0.0295, 0.043, 0.046, 0.0574, 0.0672, 0.093, 0.062, 0.1503,
+  0.1155, 0.0853, 0.0944, 0.1257, 0.0908, 0.1003, 0.0598, 0.0465, 0.0455,
+  0.0578, 0.043, 0.0299, 0.0271, 0.0257, 0.0145, 0.0216, 0.0436, 0.0876, 0.0766,
+  0.0763, 0.0954, 0.1034, 0.008, -0.0033, -0.0004, 0.0017, 0.0309, 0.0496,
+  0.0454, 0.0124, 0.0067, 0.0395, 0.0485, 0.0499, 0.0664, 0.0744, 0.0719, 0.053, // 2025 (estimate)
+  0.0508, 0.0421, 0.0081, -0.003, 0.0468, 0.036, 0.0272, 0.033, 0.033, // 2026 (estimate)
+];
+// Menlo Park gross rent yields 1970–2026
+const MENLOPARK_RENT_YIELDS = [
+  0.055, 0.055, 0.052, 0.049, 0.046, 0.044, 0.04, 0.039, 0.037, 0.035, 0.037,
+  0.039, 0.044, 0.046, 0.048, 0.048, 0.045, 0.042, 0.038, 0.035, 0.038, 0.04,
+  0.044, 0.046, 0.048, 0.049, 0.046, 0.042, 0.038, 0.032, 0.027, 0.027, 0.029,
+  0.034, 0.042, 0.049, 0.053, 0.055, 0.05, 0.045, 0.042, 0.039, 0.034, 0.029,
+  0.025, 0.024, 0.022, 0.021, 0.021, 0.021, 0.02, 0.018, 0.018, 0.021, 0.022,
+  0.022, 0.022,
+];
+
+// Saratoga (saratoga) — SF boom×1.18 bust×0.91; rent×0.96; yield×0.88
+// Saratoga price appreciation 1970–2026
+const SARATOGA_ANN = [
+  0.052, 0.094, 0.118, 0.212, 0.153, 0.177, 0.27, 0.245, 0.119, 0.327, 0.145,
+  0.02, -0.003, 0.08, 0.068, 0.123, 0.153, 0.222, 0.309, 0.182, -0.032, -0.021,
+  -0.025, -0.023, -0.025, 0.022, 0.027, 0.124, 0.139, 0.206, 0.266, 0.049,
+  0.076, 0.061, 0.201, 0.209, 0.019, -0.025, -0.097, -0.057, -0.008, -0.028,
+  0.072, 0.181, 0.133, 0.159, 0.061, 0.051, 0.074, -0.007, -0.036, 0.064, 0.079, // 2025 (estimate)
+  0.017, 0.03, 0.026, 0.026, // 2026 (estimate)
+];
+// Saratoga rent growth 1970–2026
+const SARATOGA_RENT_GROWTH = [
+  0.0665, 0.0355, 0.0257, 0.0375, 0.0401, 0.0501, 0.0587, 0.0811, 0.0541,
+  0.1311, 0.1008, 0.0744, 0.0824, 0.1097, 0.0792, 0.0876, 0.0522, 0.0406,
+  0.0397, 0.0504, 0.0375, 0.0261, 0.0236, 0.0225, 0.0127, 0.0188, 0.038, 0.0764,
+  0.0668, 0.0666, 0.0832, 0.0902, 0.007, -0.0029, -0.0004, 0.0014, 0.027,
+  0.0433, 0.0396, 0.0108, 0.0059, 0.0345, 0.0423, 0.0436, 0.058, 0.0649, 0.0628,
+  0.0463, 0.0444, 0.0368, 0.0071, -0.0026, 0.0408, 0.0314, 0.0237, 0.0288, // 2025 (estimate)
+  0.0288, // 2026 (estimate)
+];
+// Saratoga gross rent yields 1970–2026
+const SARATOGA_RENT_YIELDS = [
+  0.057, 0.057, 0.055, 0.051, 0.048, 0.046, 0.042, 0.04, 0.039, 0.037, 0.039,
+  0.041, 0.046, 0.048, 0.05, 0.05, 0.048, 0.044, 0.04, 0.037, 0.04, 0.042,
+  0.046, 0.048, 0.05, 0.051, 0.048, 0.044, 0.04, 0.033, 0.028, 0.028, 0.031,
+  0.035, 0.044, 0.051, 0.055, 0.057, 0.053, 0.047, 0.044, 0.04, 0.035, 0.031,
+  0.026, 0.025, 0.023, 0.022, 0.022, 0.022, 0.021, 0.019, 0.019, 0.022, 0.023,
+  0.023, 0.023,
+];
+
+// ── DFW cities ────────────────────────────────────────────
+// Highland Park (highlandpark) — DFW boom×1.2 bust×0.75; rent×0.88; yield×0.82
+// Highland Park price appreciation 1970–2026
+const HIGHLANDPARK_ANN = [
+  0.041, 0.062, 0.082, 0.18, 0.093, 0.12, 0.035, 0.199, 0.258, 0.239, 0.132,
+  -0.029, 0.151, 0.132, 0.053, 0.043, 0.011, -0.058, -0.037, 0.008, -0.007,
+  0.031, 0.022, 0.021, -0.011, 0.04, 0.021, 0.041, 0.059, 0.06, 0.063, 0.067,
+  0.036, 0.019, 0.028, 0.033, 0.029, 0.024, 0.006, -0.013, -0.003, -0.016,
+  0.023, 0.069, 0.091, 0.125, 0.121, 0.095, 0.052, 0.044, 0.05, 0.257, 0.179, // 2025 (estimate)
+  0.023, 0.041, 0.021, 0.021, // 2026 (estimate)
+];
+// Highland Park rent growth 1970–2026
+const HIGHLANDPARK_RENT_GROWTH = [
+  0.0281, 0.0019, 0.0058, 0.0193, 0.0302, 0.0456, 0.052, 0.0867, 0.0792, 0.0872,
+  0.1539, 0.0451, 0.0594, 0.0565, 0.0342, 0.0479, 0.0141, -0.0231, -0.0234,
+  0.008, 0.0444, 0.0287, 0.0088, 0.026, 0.0359, 0.0325, 0.0306, 0.0422, 0.0325,
+  0.0377, 0.0328, 0.0321, 0.0232, -0.01, -0.0224, 0.0078, 0.0165, 0.0246,
+  0.0539, 0.0099, -0.0214, 0.035, 0.0414, 0.0167, 0.0432, 0.0482, 0.0544,
+  0.0452, 0.0275, 0.0383, 0.0036, 0.1668, 0.0557, 0.0079, -0.0088, 0.0088, // 2025 (estimate)
+  0.0088, // 2026 (estimate)
+];
+// Highland Park gross rent yields 1970–2026
+const HIGHLANDPARK_RENT_YIELDS = [
+  0.078, 0.078, 0.075, 0.074, 0.074, 0.074, 0.075, 0.075, 0.074, 0.074, 0.074,
+  0.076, 0.078, 0.078, 0.077, 0.077, 0.077, 0.079, 0.08, 0.08, 0.082, 0.082,
+  0.082, 0.08, 0.078, 0.078, 0.076, 0.074, 0.072, 0.071, 0.069, 0.067, 0.066,
+  0.066, 0.066, 0.066, 0.067, 0.07, 0.074, 0.078, 0.078, 0.079, 0.078, 0.075,
+  0.074, 0.072, 0.07, 0.067, 0.067, 0.067, 0.061, 0.051, 0.056, 0.059, 0.057,
+  0.056, 0.056,
+];
+
+// University Park (universitypk) — DFW boom×1.15 bust×0.8; rent×0.9; yield×0.85
+// University Park price appreciation 1970–2026
+const UNIVERSITYPK_ANN = [
+  0.041, 0.061, 0.082, 0.172, 0.092, 0.115, 0.035, 0.191, 0.247, 0.229, 0.127,
+  -0.029, 0.145, 0.127, 0.052, 0.043, 0.011, -0.062, -0.039, 0.008, -0.007,
+  0.031, 0.021, 0.02, -0.011, 0.04, 0.02, 0.041, 0.058, 0.059, 0.062, 0.066,
+  0.036, 0.018, 0.028, 0.033, 0.029, 0.023, 0.006, -0.013, -0.003, -0.016,
+  0.022, 0.068, 0.09, 0.12, 0.116, 0.094, 0.051, 0.044, 0.05, 0.246, 0.171, // 2025 (estimate)
+  0.022, 0.041, 0.02, 0.02, // 2026 (estimate)
+];
+// University Park rent growth 1970–2026
+const UNIVERSITYPK_RENT_GROWTH = [
+  0.0287, 0.002, 0.0059, 0.0197, 0.0309, 0.0466, 0.0532, 0.0887, 0.081, 0.0892,
+  0.1574, 0.0461, 0.0608, 0.0578, 0.035, 0.049, 0.0144, -0.0236, -0.0239,
+  0.0082, 0.0455, 0.0293, 0.009, 0.0266, 0.0367, 0.0332, 0.0313, 0.0432, 0.0332,
+  0.0385, 0.0336, 0.0328, 0.0238, -0.0103, -0.0229, 0.008, 0.0169, 0.0252,
+  0.0552, 0.0101, -0.0219, 0.0358, 0.0423, 0.0171, 0.0442, 0.0493, 0.0556, // 2025 (estimate)
+  0.0463, 0.0282, 0.0391, 0.0037, 0.1706, 0.057, 0.0081, -0.009, 0.009, 0.009, // 2026 (estimate)
+];
+// University Park gross rent yields 1970–2026
+const UNIVERSITYPK_RENT_YIELDS = [
+  0.081, 0.081, 0.078, 0.076, 0.076, 0.076, 0.078, 0.078, 0.076, 0.076, 0.076,
+  0.079, 0.081, 0.081, 0.08, 0.08, 0.08, 0.082, 0.083, 0.083, 0.085, 0.085,
+  0.085, 0.083, 0.081, 0.081, 0.079, 0.076, 0.075, 0.073, 0.071, 0.07, 0.068,
+  0.068, 0.068, 0.068, 0.07, 0.072, 0.076, 0.081, 0.081, 0.082, 0.081, 0.078,
+  0.076, 0.075, 0.072, 0.07, 0.07, 0.07, 0.064, 0.053, 0.058, 0.061, 0.06,
+  0.058, 0.058,
+];
+
+// Southlake (southlake) — DFW boom×1.1 bust×0.9; rent×0.92; yield×0.88
+// Southlake price appreciation 1970–2026
+const SOUTHLAKE_ANN = [
+  0.04, 0.061, 0.081, 0.165, 0.091, 0.11, 0.034, 0.183, 0.237, 0.219, 0.121,
+  -0.028, 0.139, 0.121, 0.052, 0.042, 0.011, -0.069, -0.044, 0.008, -0.007,
+  0.03, 0.021, 0.02, -0.011, 0.039, 0.02, 0.04, 0.058, 0.059, 0.062, 0.066,
+  0.035, 0.018, 0.027, 0.032, 0.028, 0.023, 0.006, -0.013, -0.003, -0.016,
+  0.022, 0.068, 0.089, 0.114, 0.111, 0.093, 0.051, 0.043, 0.049, 0.235, 0.164, // 2025 (estimate)
+  0.022, 0.04, 0.02, 0.02, // 2026 (estimate)
+];
+// Southlake rent growth 1970–2026
+const SOUTHLAKE_RENT_GROWTH = [
+  0.0293, 0.002, 0.0061, 0.0201, 0.0316, 0.0477, 0.0544, 0.0906, 0.0828, 0.0912,
+  0.1609, 0.0471, 0.0621, 0.0591, 0.0358, 0.05, 0.0147, -0.0241, -0.0245,
+  0.0084, 0.0465, 0.03, 0.0092, 0.0272, 0.0375, 0.0339, 0.032, 0.0442, 0.0339,
+  0.0394, 0.0343, 0.0336, 0.0243, -0.0105, -0.0235, 0.0082, 0.0173, 0.0258,
+  0.0564, 0.0103, -0.0224, 0.0366, 0.0432, 0.0175, 0.0452, 0.0504, 0.0569, // 2025 (estimate)
+  0.0473, 0.0288, 0.04, 0.0038, 0.1743, 0.0582, 0.0083, -0.0092, 0.0092, 0.0092, // 2026 (estimate)
+];
+// Southlake gross rent yields 1970–2026
+const SOUTHLAKE_RENT_YIELDS = [
+  0.084, 0.084, 0.081, 0.079, 0.079, 0.079, 0.081, 0.081, 0.079, 0.079, 0.079,
+  0.082, 0.084, 0.084, 0.083, 0.083, 0.083, 0.084, 0.086, 0.086, 0.088, 0.088,
+  0.088, 0.086, 0.084, 0.084, 0.082, 0.079, 0.077, 0.076, 0.074, 0.072, 0.07,
+  0.07, 0.07, 0.07, 0.072, 0.075, 0.079, 0.084, 0.084, 0.084, 0.084, 0.081,
+  0.079, 0.077, 0.075, 0.072, 0.072, 0.072, 0.066, 0.055, 0.06, 0.063, 0.062,
+  0.06, 0.06,
+];
+
+// Frisco (frisco) — DFW boom×1.08 bust×0.96; rent×1.05; yield×1.05
+// Frisco price appreciation 1970–2026
+const FRISCO_ANN = [
+  0.04, 0.06, 0.08, 0.162, 0.09, 0.108, 0.034, 0.179, 0.232, 0.215, 0.119,
+  -0.028, 0.136, 0.119, 0.051, 0.042, 0.011, -0.074, -0.047, 0.008, -0.007,
+  0.03, 0.021, 0.02, -0.011, 0.039, 0.02, 0.04, 0.057, 0.058, 0.061, 0.065,
+  0.035, 0.018, 0.027, 0.032, 0.028, 0.023, 0.006, -0.013, -0.003, -0.016,
+  0.022, 0.067, 0.088, 0.112, 0.109, 0.092, 0.05, 0.043, 0.049, 0.231, 0.161, // 2025 (estimate)
+  0.022, 0.04, 0.02, 0.02, // 2026 (estimate)
+];
+// Frisco rent growth 1970–2026
+const FRISCO_RENT_GROWTH = [
+  0.0335, 0.0023, 0.0069, 0.023, 0.036, 0.0544, 0.0621, 0.1034, 0.0945, 0.1041,
+  0.1836, 0.0538, 0.0709, 0.0674, 0.0408, 0.0571, 0.0168, -0.0275, -0.0279,
+  0.0096, 0.053, 0.0342, 0.0105, 0.0311, 0.0428, 0.0387, 0.0365, 0.0504, 0.0387,
+  0.0449, 0.0392, 0.0383, 0.0277, -0.012, -0.0268, 0.0093, 0.0197, 0.0294,
+  0.0644, 0.0118, -0.0255, 0.0418, 0.0494, 0.0199, 0.0516, 0.0575, 0.0649, // 2025 (estimate)
+  0.054, 0.0329, 0.0457, 0.0043, 0.199, 0.0665, 0.0095, -0.0105, 0.0105, 0.0105, // 2026 (estimate)
+];
+// Frisco gross rent yields 1970–2026
+const FRISCO_RENT_YIELDS = [
+  0.1, 0.1, 0.097, 0.095, 0.095, 0.095, 0.097, 0.097, 0.095, 0.095, 0.095,
+  0.098, 0.1, 0.1, 0.099, 0.099, 0.099, 0.101, 0.103, 0.103, 0.105, 0.105,
+  0.105, 0.103, 0.1, 0.1, 0.098, 0.095, 0.092, 0.09, 0.088, 0.086, 0.084, 0.084,
+  0.084, 0.084, 0.086, 0.089, 0.095, 0.1, 0.1, 0.101, 0.1, 0.097, 0.095, 0.092,
+  0.089, 0.086, 0.086, 0.086, 0.079, 0.065, 0.071, 0.076, 0.074, 0.071, 0.071,
+];
+
+// Plano (plano) — DFW boom×1.05 bust×0.98; rent×1.02; yield×1.02
+// Plano price appreciation 1970–2026
+const PLANO_ANN = [
+  0.04, 0.06, 0.08, 0.158, 0.09, 0.105, 0.034, 0.174, 0.226, 0.209, 0.116,
+  -0.028, 0.132, 0.116, 0.051, 0.042, 0.011, -0.075, -0.048, 0.008, -0.007,
+  0.03, 0.021, 0.02, -0.011, 0.039, 0.02, 0.04, 0.057, 0.058, 0.061, 0.065,
+  0.035, 0.018, 0.027, 0.032, 0.028, 0.023, 0.006, -0.013, -0.003, -0.016,
+  0.022, 0.067, 0.088, 0.109, 0.106, 0.092, 0.05, 0.043, 0.049, 0.225, 0.156, // 2025 (estimate)
+  0.022, 0.04, 0.02, 0.02, // 2026 (estimate)
+];
+// Plano rent growth 1970–2026
+const PLANO_RENT_GROWTH = [
+  0.0325, 0.0022, 0.0067, 0.0223, 0.035, 0.0528, 0.0603, 0.1005, 0.0918, 0.1011,
+  0.1784, 0.0522, 0.0689, 0.0655, 0.0397, 0.0555, 0.0163, -0.0267, -0.0271,
+  0.0093, 0.0515, 0.0333, 0.0102, 0.0302, 0.0416, 0.0376, 0.0355, 0.049, 0.0376,
+  0.0437, 0.038, 0.0372, 0.0269, -0.0116, -0.026, 0.0091, 0.0192, 0.0286,
+  0.0625, 0.0114, -0.0248, 0.0406, 0.0479, 0.0194, 0.0501, 0.0559, 0.063,
+  0.0524, 0.0319, 0.0444, 0.0042, 0.1933, 0.0646, 0.0092, -0.0102, 0.0102, // 2025 (estimate)
+  0.0102, // 2026 (estimate)
+];
+// Plano gross rent yields 1970–2026
+const PLANO_RENT_YIELDS = [
+  0.097, 0.097, 0.094, 0.092, 0.092, 0.092, 0.094, 0.094, 0.092, 0.092, 0.092,
+  0.095, 0.097, 0.097, 0.096, 0.096, 0.096, 0.098, 0.1, 0.1, 0.102, 0.102,
+  0.102, 0.1, 0.097, 0.097, 0.095, 0.092, 0.09, 0.088, 0.086, 0.084, 0.082,
+  0.082, 0.082, 0.082, 0.084, 0.087, 0.092, 0.097, 0.097, 0.098, 0.097, 0.094,
+  0.092, 0.09, 0.087, 0.084, 0.084, 0.084, 0.076, 0.063, 0.069, 0.073, 0.071,
+  0.069, 0.069,
+];
+
+// ── Miami cities ────────────────────────────────────────────
+// Miami Beach (miamibeach) — MIAMI boom×1.2 bust×0.85; rent×1.05; yield×0.88
+// Miami Beach price appreciation 1970–2026
+const MIAMIBEACH_ANN = [
+  0.083, 0.12, 0.168, 0.216, 0.12, 0.094, 0.032, 0.126, 0.095, 0.287, 0.173,
+  -0.023, 0.092, -0.002, -0.006, -0.029, 0.069, 0.053, 0.062, 0.031, 0.025,
+  0.044, 0.025, 0.092, 0.022, 0.066, 0.018, 0.03, 0.053, 0.024, 0.084, 0.157,
+  0.174, 0.18, 0.247, 0.337, 0.174, -0.018, -0.245, -0.128, -0.03, -0.051,
+  0.049, 0.15, 0.134, 0.098, 0.089, 0.072, 0.069, 0.05, 0.068, 0.257, 0.251, // 2025 (estimate)
+  0.131, 0.092, 0.042, 0.042, // 2026 (estimate)
+];
+// Miami Beach rent growth 1970–2026
+const MIAMIBEACH_RENT_GROWTH = [
+  0.063, 0.0525, 0.0473, 0.063, 0.0735, 0.0683, 0.0683, 0.0788, 0.0389, 0.0889,
+  0.1597, 0.1236, 0.0547, 0.0255, 0.0051, 0.0361, 0.0109, 0.0197, 0.0397,
+  0.0252, 0.0291, 0.0531, 0.0126, 0.0508, 0.0548, 0.031, 0.03, 0.0186, 0.0189,
+  0.0069, 0.0232, 0.0468, 0.0506, 0.0397, 0.07, 0.058, 0.0941, 0.0714, 0.0353,
+  -0.0238, 0.0109, 0.0032, 0.0224, 0.0275, 0.0603, 0.0475, 0.061, 0.0352, // 2025 (estimate)
+  0.0373, 0.0287, 0.0281, 0.039, 0.1953, 0.1062, 0.0501, 0.0105, 0.0105, // 2026 (estimate)
+];
+// Miami Beach gross rent yields 1970–2026
+const MIAMIBEACH_RENT_YIELDS = [
+  0.07, 0.07, 0.069, 0.067, 0.065, 0.063, 0.064, 0.064, 0.063, 0.062, 0.063,
+  0.066, 0.07, 0.072, 0.073, 0.075, 0.074, 0.072, 0.07, 0.069, 0.07, 0.072,
+  0.074, 0.074, 0.072, 0.07, 0.069, 0.065, 0.06, 0.052, 0.044, 0.038, 0.033,
+  0.028, 0.023, 0.019, 0.018, 0.019, 0.028, 0.039, 0.046, 0.051, 0.048, 0.042,
+  0.04, 0.037, 0.035, 0.035, 0.037, 0.039, 0.036, 0.03, 0.033, 0.042, 0.044,
+  0.044, 0.044,
+];
+
+// Coral Gables (coralgables) — MIAMI boom×1.1 bust×0.92; rent×0.98; yield×0.9
+// Coral Gables price appreciation 1970–2026
+const CORALGABLES_ANN = [
+  0.082, 0.11, 0.154, 0.198, 0.11, 0.092, 0.032, 0.116, 0.093, 0.263, 0.158,
+  -0.022, 0.09, -0.002, -0.006, -0.029, 0.067, 0.052, 0.061, 0.031, 0.024,
+  0.043, 0.024, 0.09, 0.021, 0.064, 0.017, 0.03, 0.052, 0.023, 0.083, 0.144,
+  0.16, 0.165, 0.227, 0.309, 0.16, -0.017, -0.265, -0.139, -0.03, -0.05, 0.048,
+  0.138, 0.123, 0.096, 0.088, 0.07, 0.067, 0.049, 0.066, 0.235, 0.23, 0.12, // 2025 (estimate)
+  0.09, 0.041, 0.041, // 2026 (estimate)
+];
+// Coral Gables rent growth 1970–2026
+const CORALGABLES_RENT_GROWTH = [
+  0.0588, 0.049, 0.0441, 0.0588, 0.0686, 0.0637, 0.0637, 0.0735, 0.0363, 0.083,
+  0.1491, 0.1153, 0.0511, 0.0238, 0.0048, 0.0337, 0.0102, 0.0184, 0.037, 0.0235,
+  0.0271, 0.0496, 0.0118, 0.0474, 0.0512, 0.0289, 0.028, 0.0173, 0.0176, 0.0065,
+  0.0217, 0.0437, 0.0472, 0.037, 0.0654, 0.0541, 0.0878, 0.0666, 0.0329,
+  -0.0222, 0.0102, 0.0029, 0.0209, 0.0257, 0.0563, 0.0443, 0.0569, 0.0328, // 2025 (estimate)
+  0.0348, 0.0268, 0.0263, 0.0364, 0.1823, 0.0991, 0.0467, 0.0098, 0.0098, // 2026 (estimate)
+];
+// Coral Gables gross rent yields 1970–2026
+const CORALGABLES_RENT_YIELDS = [
+  0.072, 0.072, 0.07, 0.068, 0.067, 0.065, 0.066, 0.066, 0.065, 0.064, 0.065,
+  0.068, 0.072, 0.074, 0.075, 0.077, 0.076, 0.074, 0.072, 0.07, 0.072, 0.074,
+  0.076, 0.076, 0.074, 0.072, 0.07, 0.067, 0.061, 0.053, 0.045, 0.039, 0.034,
+  0.029, 0.023, 0.02, 0.018, 0.02, 0.029, 0.04, 0.047, 0.052, 0.05, 0.043,
+  0.041, 0.038, 0.036, 0.036, 0.038, 0.04, 0.037, 0.031, 0.034, 0.043, 0.045,
+  0.045, 0.045,
+];
+
+// Key Biscayne (keybiscayne) — MIAMI boom×1.24 bust×0.8; rent×0.9; yield×0.84
+// Key Biscayne price appreciation 1970–2026
+const KEYBISCAYNE_ANN = [
+  0.085, 0.124, 0.174, 0.223, 0.124, 0.095, 0.033, 0.13, 0.096, 0.296, 0.179,
+  -0.023, 0.093, -0.002, -0.006, -0.03, 0.07, 0.054, 0.064, 0.032, 0.025, 0.045,
+  0.025, 0.093, 0.022, 0.067, 0.018, 0.031, 0.054, 0.024, 0.086, 0.162, 0.18,
+  0.186, 0.255, 0.348, 0.18, -0.018, -0.23, -0.121, -0.031, -0.052, 0.05, 0.155,
+  0.139, 0.1, 0.091, 0.073, 0.07, 0.051, 0.069, 0.265, 0.259, 0.135, 0.093, // 2025 (estimate)
+  0.042, 0.042, // 2026 (estimate)
+];
+// Key Biscayne rent growth 1970–2026
+const KEYBISCAYNE_RENT_GROWTH = [
+  0.054, 0.045, 0.0405, 0.054, 0.063, 0.0585, 0.0585, 0.0675, 0.0333, 0.0762,
+  0.1369, 0.1059, 0.0469, 0.0219, 0.0044, 0.031, 0.0094, 0.0169, 0.034, 0.0216,
+  0.0249, 0.0455, 0.0108, 0.0436, 0.047, 0.0266, 0.0257, 0.0159, 0.0162, 0.0059,
+  0.0199, 0.0401, 0.0434, 0.034, 0.06, 0.0497, 0.0806, 0.0612, 0.0302, -0.0204,
+  0.0094, 0.0027, 0.0192, 0.0236, 0.0517, 0.0407, 0.0523, 0.0302, 0.0319, // 2025 (estimate)
+  0.0246, 0.0241, 0.0334, 0.1674, 0.091, 0.0429, 0.009, 0.009, // 2026 (estimate)
+];
+// Key Biscayne gross rent yields 1970–2026
+const KEYBISCAYNE_RENT_YIELDS = [
+  0.067, 0.067, 0.066, 0.064, 0.062, 0.06, 0.061, 0.061, 0.06, 0.06, 0.06,
+  0.063, 0.067, 0.069, 0.07, 0.071, 0.071, 0.069, 0.067, 0.066, 0.067, 0.069,
+  0.071, 0.071, 0.069, 0.067, 0.066, 0.062, 0.057, 0.05, 0.042, 0.036, 0.032,
+  0.027, 0.022, 0.018, 0.017, 0.018, 0.027, 0.037, 0.044, 0.049, 0.046, 0.04,
+  0.038, 0.035, 0.034, 0.034, 0.035, 0.037, 0.034, 0.029, 0.032, 0.04, 0.042,
+  0.042, 0.042,
+];
+
+// Coconut Grove (coconutgrove) — MIAMI boom×1.12 bust×0.9; rent×1.0; yield×0.92
+// Coconut Grove price appreciation 1970–2026
+const COCONUTGROVE_ANN = [
+  0.082, 0.112, 0.157, 0.202, 0.112, 0.092, 0.032, 0.118, 0.093, 0.268, 0.161,
+  -0.022, 0.09, -0.002, -0.006, -0.029, 0.067, 0.052, 0.061, 0.031, 0.024,
+  0.043, 0.024, 0.09, 0.021, 0.064, 0.017, 0.03, 0.052, 0.023, 0.083, 0.147,
+  0.162, 0.168, 0.231, 0.315, 0.162, -0.017, -0.259, -0.136, -0.03, -0.05,
+  0.048, 0.14, 0.125, 0.096, 0.088, 0.07, 0.067, 0.049, 0.066, 0.24, 0.234, // 2025 (estimate)
+  0.122, 0.09, 0.041, 0.041, // 2026 (estimate)
+];
+// Coconut Grove rent growth 1970–2026
+const COCONUTGROVE_RENT_GROWTH = [
+  0.06, 0.05, 0.045, 0.06, 0.07, 0.065, 0.065, 0.075, 0.037, 0.0847, 0.1521,
+  0.1177, 0.0521, 0.0243, 0.0049, 0.0344, 0.0104, 0.0188, 0.0378, 0.024, 0.0277,
+  0.0506, 0.012, 0.0484, 0.0522, 0.0295, 0.0286, 0.0177, 0.018, 0.0066, 0.0221,
+  0.0446, 0.0482, 0.0378, 0.0667, 0.0552, 0.0896, 0.068, 0.0336, -0.0227,
+  0.0104, 0.003, 0.0213, 0.0262, 0.0574, 0.0452, 0.0581, 0.0335, 0.0355, 0.0273, // 2025 (estimate)
+  0.0268, 0.0371, 0.186, 0.1011, 0.0477, 0.01, 0.01, // 2026 (estimate)
+];
+// Coconut Grove gross rent yields 1970–2026
+const COCONUTGROVE_RENT_YIELDS = [
+  0.074, 0.074, 0.072, 0.07, 0.068, 0.066, 0.067, 0.067, 0.066, 0.065, 0.066,
+  0.069, 0.074, 0.075, 0.076, 0.078, 0.077, 0.075, 0.074, 0.072, 0.074, 0.075,
+  0.077, 0.077, 0.075, 0.074, 0.072, 0.068, 0.063, 0.054, 0.046, 0.04, 0.035,
+  0.029, 0.024, 0.02, 0.018, 0.02, 0.029, 0.04, 0.048, 0.053, 0.051, 0.044,
+  0.041, 0.039, 0.037, 0.037, 0.039, 0.04, 0.038, 0.031, 0.035, 0.044, 0.046,
+  0.046, 0.046,
+];
+
+// Brickell (brickell) — MIAMI boom×1.08 bust×0.95; rent×1.05; yield×0.95
+// Brickell price appreciation 1970–2026
+const BRICKELL_ANN = [
+  0.081, 0.108, 0.151, 0.194, 0.108, 0.091, 0.031, 0.113, 0.092, 0.258, 0.156,
+  -0.022, 0.089, -0.002, -0.006, -0.028, 0.067, 0.052, 0.061, 0.03, 0.024,
+  0.042, 0.024, 0.089, 0.021, 0.064, 0.017, 0.029, 0.052, 0.023, 0.082, 0.141,
+  0.157, 0.162, 0.222, 0.303, 0.157, -0.017, -0.274, -0.143, -0.029, -0.049,
+  0.047, 0.135, 0.121, 0.095, 0.087, 0.07, 0.067, 0.048, 0.066, 0.231, 0.226, // 2025 (estimate)
+  0.118, 0.089, 0.04, 0.04, // 2026 (estimate)
+];
+// Brickell rent growth 1970–2026
+const BRICKELL_RENT_GROWTH = [
+  0.063, 0.0525, 0.0473, 0.063, 0.0735, 0.0683, 0.0683, 0.0788, 0.0389, 0.0889,
+  0.1597, 0.1236, 0.0547, 0.0255, 0.0051, 0.0361, 0.0109, 0.0197, 0.0397,
+  0.0252, 0.0291, 0.0531, 0.0126, 0.0508, 0.0548, 0.031, 0.03, 0.0186, 0.0189,
+  0.0069, 0.0232, 0.0468, 0.0506, 0.0397, 0.07, 0.058, 0.0941, 0.0714, 0.0353,
+  -0.0238, 0.0109, 0.0032, 0.0224, 0.0275, 0.0603, 0.0475, 0.061, 0.0352, // 2025 (estimate)
+  0.0373, 0.0287, 0.0281, 0.039, 0.1953, 0.1062, 0.0501, 0.0105, 0.0105, // 2026 (estimate)
+];
+// Brickell gross rent yields 1970–2026
+const BRICKELL_RENT_YIELDS = [
+  0.076, 0.076, 0.074, 0.072, 0.07, 0.068, 0.069, 0.069, 0.068, 0.067, 0.068,
+  0.071, 0.076, 0.078, 0.079, 0.081, 0.08, 0.078, 0.076, 0.074, 0.076, 0.078,
+  0.08, 0.08, 0.078, 0.076, 0.074, 0.07, 0.065, 0.056, 0.048, 0.041, 0.036,
+  0.03, 0.025, 0.021, 0.019, 0.021, 0.03, 0.042, 0.049, 0.055, 0.052, 0.046,
+  0.043, 0.04, 0.038, 0.038, 0.04, 0.042, 0.039, 0.032, 0.036, 0.046, 0.048,
+  0.048, 0.048,
+];
+
+// ── Seattle cities ────────────────────────────────────────────
+// Medina (medina) — SEATTLE boom×1.38 bust×0.75; rent×0.82; yield×0.62
+// Medina price appreciation 1970–2026
+const MEDINA_ANN = [
+  -0.06, -0.038, 0.032, 0.11, 0.074, 0.207, 0.284, 0.4, 0.366, 0.208, 0.047,
+  0.029, -0.016, 0.028, 0.046, 0.028, 0.043, 0.063, 0.117, 0.327, 0.251, 0.02,
+  0.019, 0.021, 0.017, 0.044, 0.036, 0.123, 0.134, 0.128, 0.113, 0.063, 0.05,
+  0.061, 0.152, 0.237, 0.186, 0.045, -0.057, -0.075, -0.033, -0.035, 0.027,
+  0.127, 0.113, 0.155, 0.166, 0.185, 0.051, 0.034, 0.068, 0.244, 0.057, 0.025, // 2025 (estimate)
+  0.058, 0.032, 0.032, // 2026 (estimate)
+];
+// Medina rent growth 1970–2026
+const MEDINA_RENT_GROWTH = [
+  -0.0093, -0.0152, 0.0, 0.0405, 0.0919, 0.0711, 0.0685, 0.0759, 0.0759, 0.1412,
+  0.1205, 0.0446, 0.0025, 0.005, 0.0362, 0.0402, 0.0263, 0.0328, 0.0312, 0.0358,
+  0.0361, 0.0221, 0.0198, 0.013, 0.0143, 0.0162, 0.0189, 0.0285, 0.0451, 0.0302,
+  0.036, 0.0482, 0.002, -0.0071, 0.0039, 0.022, 0.0399, 0.0685, 0.0559, -0.0105,
+  -0.0134, 0.033, 0.0253, 0.0455, 0.0483, 0.0412, 0.0875, 0.0528, -0.0003, // 2025 (estimate)
+  0.0284, 0.0192, 0.1282, 0.022, 0.0298, 0.0071, 0.0164, 0.0164, // 2026 (estimate)
+];
+// Medina gross rent yields 1970–2026
+const MEDINA_RENT_YIELDS = [
+  0.046, 0.05, 0.051, 0.05, 0.048, 0.045, 0.042, 0.039, 0.037, 0.036, 0.037,
+  0.039, 0.042, 0.043, 0.045, 0.046, 0.046, 0.045, 0.042, 0.038, 0.039, 0.04,
+  0.042, 0.042, 0.039, 0.038, 0.037, 0.034, 0.031, 0.029, 0.026, 0.024, 0.021,
+  0.019, 0.017, 0.016, 0.017, 0.019, 0.022, 0.026, 0.029, 0.031, 0.03, 0.027,
+  0.025, 0.023, 0.023, 0.022, 0.02, 0.019, 0.019, 0.016, 0.017, 0.02, 0.02,
+  0.02, 0.02,
+];
+
+// Mercer Island (mercerisland) — SEATTLE boom×1.26 bust×0.84; rent×0.92; yield×0.8
+// Mercer Island price appreciation 1970–2026
+const MERCERISLAND_ANN = [
+  -0.067, -0.042, 0.031, 0.101, 0.072, 0.189, 0.26, 0.365, 0.334, 0.19, 0.046,
+  0.029, -0.015, 0.028, 0.045, 0.028, 0.042, 0.062, 0.107, 0.299, 0.229, 0.02,
+  0.019, 0.021, 0.016, 0.043, 0.035, 0.112, 0.122, 0.117, 0.103, 0.062, 0.049,
+  0.06, 0.139, 0.217, 0.17, 0.044, -0.064, -0.084, -0.037, -0.039, 0.027, 0.116,
+  0.103, 0.141, 0.151, 0.169, 0.05, 0.033, 0.067, 0.223, 0.056, 0.025, 0.057, // 2025 (estimate)
+  0.031, 0.031, // 2026 (estimate)
+];
+// Mercer Island rent growth 1970–2026
+const MERCERISLAND_RENT_GROWTH = [
+  -0.0105, -0.017, 0.0, 0.0454, 0.1031, 0.0798, 0.0768, 0.0851, 0.0851, 0.1584,
+  0.1351, 0.05, 0.0028, 0.0056, 0.0406, 0.0451, 0.0295, 0.0368, 0.035, 0.0402,
+  0.0405, 0.0248, 0.0223, 0.0145, 0.0161, 0.0181, 0.0213, 0.032, 0.0506, 0.0339,
+  0.0404, 0.0541, 0.0022, -0.0079, 0.0044, 0.0247, 0.0447, 0.0768, 0.0627,
+  -0.0118, -0.015, 0.037, 0.0283, 0.0511, 0.0542, 0.0462, 0.0982, 0.0592, // 2025 (estimate)
+  -0.0004, 0.0318, 0.0215, 0.1438, 0.0247, 0.0335, 0.0079, 0.0184, 0.0184, // 2026 (estimate)
+];
+// Mercer Island gross rent yields 1970–2026
+const MERCERISLAND_RENT_YIELDS = [
+  0.06, 0.064, 0.066, 0.064, 0.062, 0.058, 0.054, 0.05, 0.048, 0.046, 0.048,
+  0.05, 0.054, 0.056, 0.058, 0.059, 0.059, 0.058, 0.054, 0.05, 0.05, 0.052,
+  0.054, 0.054, 0.05, 0.05, 0.047, 0.044, 0.04, 0.037, 0.034, 0.03, 0.027,
+  0.024, 0.022, 0.021, 0.022, 0.024, 0.029, 0.034, 0.037, 0.04, 0.038, 0.034,
+  0.032, 0.03, 0.03, 0.028, 0.026, 0.025, 0.024, 0.021, 0.022, 0.026, 0.026,
+  0.026, 0.026,
+];
+
+// Bellevue (bellevue) — SEATTLE boom×1.18 bust×0.91; rent×1.06; yield×0.92
+// Bellevue price appreciation 1970–2026
+const BELLEVUE_ANN = [
+  -0.073, -0.046, 0.031, 0.094, 0.071, 0.177, 0.243, 0.342, 0.313, 0.178, 0.046,
+  0.029, -0.015, 0.028, 0.045, 0.028, 0.042, 0.061, 0.1, 0.28, 0.215, 0.019,
+  0.018, 0.02, 0.016, 0.043, 0.035, 0.105, 0.114, 0.11, 0.097, 0.061, 0.049,
+  0.059, 0.13, 0.203, 0.159, 0.044, -0.069, -0.091, -0.04, -0.043, 0.027, 0.109,
+  0.097, 0.132, 0.142, 0.158, 0.05, 0.033, 0.066, 0.209, 0.055, 0.024, 0.056, // 2025 (estimate)
+  0.031, 0.031, // 2026 (estimate)
+];
+// Bellevue rent growth 1970–2026
+const BELLEVUE_RENT_GROWTH = [
+  -0.0121, -0.0196, 0.0, 0.0524, 0.1188, 0.0919, 0.0885, 0.098, 0.098, 0.1825,
+  0.1557, 0.0577, 0.0032, 0.0065, 0.0467, 0.0519, 0.034, 0.0424, 0.0403, 0.0463,
+  0.0466, 0.0286, 0.0257, 0.0167, 0.0186, 0.0209, 0.0245, 0.0369, 0.0583, 0.039,
+  0.0465, 0.0623, 0.0025, -0.0091, 0.0051, 0.0284, 0.0515, 0.0885, 0.0723,
+  -0.0136, -0.0173, 0.0426, 0.0326, 0.0588, 0.0624, 0.0532, 0.1131, 0.0683, // 2025 (estimate)
+  -0.0004, 0.0367, 0.0248, 0.1657, 0.0284, 0.0386, 0.0091, 0.0212, 0.0212, // 2026 (estimate)
+];
+// Bellevue gross rent yields 1970–2026
+const BELLEVUE_RENT_YIELDS = [
+  0.069, 0.074, 0.075, 0.074, 0.072, 0.067, 0.063, 0.058, 0.055, 0.053, 0.055,
+  0.058, 0.063, 0.064, 0.067, 0.068, 0.068, 0.066, 0.063, 0.057, 0.058, 0.06,
+  0.062, 0.062, 0.058, 0.057, 0.054, 0.051, 0.046, 0.042, 0.039, 0.035, 0.031,
+  0.028, 0.026, 0.024, 0.025, 0.028, 0.033, 0.039, 0.042, 0.046, 0.044, 0.04,
+  0.037, 0.034, 0.034, 0.032, 0.03, 0.029, 0.028, 0.024, 0.026, 0.029, 0.03,
+  0.03, 0.03,
+];
+
+// Kirkland (kirkland) — SEATTLE boom×1.12 bust×0.94; rent×1.1; yield×0.97
+// Kirkland price appreciation 1970–2026
+const KIRKLAND_ANN = [
+  -0.075, -0.047, 0.03, 0.09, 0.071, 0.168, 0.231, 0.325, 0.297, 0.169, 0.045,
+  0.028, -0.015, 0.027, 0.044, 0.027, 0.041, 0.061, 0.095, 0.265, 0.204, 0.019,
+  0.018, 0.02, 0.016, 0.042, 0.034, 0.1, 0.109, 0.104, 0.092, 0.061, 0.048,
+  0.059, 0.123, 0.193, 0.151, 0.043, -0.071, -0.094, -0.041, -0.044, 0.026,
+  0.103, 0.092, 0.125, 0.134, 0.15, 0.049, 0.032, 0.066, 0.198, 0.055, 0.024, // 2025 (estimate)
+  0.056, 0.03, 0.03, // 2026 (estimate)
+];
+// Kirkland rent growth 1970–2026
+const KIRKLAND_RENT_GROWTH = [
+  -0.0125, -0.0204, 0.0, 0.0543, 0.1233, 0.0954, 0.0919, 0.1018, 0.1018, 0.1894,
+  0.1616, 0.0598, 0.0033, 0.0067, 0.0485, 0.0539, 0.0353, 0.044, 0.0418, 0.0481,
+  0.0484, 0.0297, 0.0266, 0.0174, 0.0193, 0.0217, 0.0254, 0.0383, 0.0605,
+  0.0405, 0.0483, 0.0647, 0.0026, -0.0095, 0.0053, 0.0295, 0.0535, 0.0919,
+  0.075, -0.0141, -0.0179, 0.0442, 0.0339, 0.0611, 0.0648, 0.0552, 0.1174, // 2025 (estimate)
+  0.0708, -0.0004, 0.0381, 0.0257, 0.1719, 0.0295, 0.04, 0.0095, 0.022, 0.022, // 2026 (estimate)
+];
+// Kirkland gross rent yields 1970–2026
+const KIRKLAND_RENT_YIELDS = [
+  0.073, 0.078, 0.08, 0.078, 0.076, 0.071, 0.066, 0.061, 0.058, 0.056, 0.058,
+  0.061, 0.066, 0.068, 0.071, 0.072, 0.072, 0.07, 0.066, 0.06, 0.061, 0.063,
+  0.065, 0.065, 0.061, 0.06, 0.057, 0.053, 0.049, 0.045, 0.041, 0.037, 0.033,
+  0.029, 0.027, 0.025, 0.026, 0.029, 0.035, 0.041, 0.045, 0.049, 0.047, 0.042,
+  0.039, 0.036, 0.036, 0.034, 0.032, 0.03, 0.029, 0.025, 0.027, 0.031, 0.032,
+  0.032, 0.032,
+];
+
+// Redmond (redmond) — SEATTLE boom×1.1 bust×0.95; rent×1.12; yield×0.99
+// Redmond price appreciation 1970–2026
+const REDMOND_ANN = [
+  -0.076, -0.048, 0.03, 0.088, 0.07, 0.165, 0.227, 0.319, 0.292, 0.166, 0.045,
+  0.028, -0.015, 0.027, 0.044, 0.027, 0.041, 0.06, 0.094, 0.261, 0.2, 0.019,
+  0.018, 0.02, 0.016, 0.042, 0.034, 0.098, 0.107, 0.102, 0.09, 0.06, 0.048,
+  0.058, 0.121, 0.189, 0.149, 0.043, -0.072, -0.095, -0.042, -0.045, 0.026,
+  0.101, 0.09, 0.123, 0.132, 0.147, 0.049, 0.032, 0.065, 0.195, 0.054, 0.024, // 2025 (estimate)
+  0.055, 0.03, 0.03, // 2026 (estimate)
+];
+// Redmond rent growth 1970–2026
+const REDMOND_RENT_GROWTH = [
+  -0.0128, -0.0207, 0.0, 0.0553, 0.1256, 0.0971, 0.0935, 0.1036, 0.1036, 0.1929,
+  0.1645, 0.0609, 0.0034, 0.0068, 0.0494, 0.0549, 0.036, 0.0448, 0.0426, 0.0489,
+  0.0493, 0.0302, 0.0271, 0.0177, 0.0196, 0.0221, 0.0259, 0.039, 0.0616, 0.0412,
+  0.0492, 0.0659, 0.0027, -0.0096, 0.0054, 0.03, 0.0544, 0.0935, 0.0764,
+  -0.0143, -0.0183, 0.045, 0.0345, 0.0622, 0.066, 0.0562, 0.1195, 0.0721, // 2025 (estimate)
+  -0.0004, 0.0388, 0.0262, 0.1751, 0.03, 0.0408, 0.0096, 0.0224, 0.0224, // 2026 (estimate)
+];
+// Redmond gross rent yields 1970–2026
+const REDMOND_RENT_YIELDS = [
+  0.074, 0.079, 0.081, 0.079, 0.077, 0.072, 0.067, 0.062, 0.059, 0.057, 0.059,
+  0.062, 0.067, 0.069, 0.072, 0.073, 0.073, 0.071, 0.067, 0.061, 0.062, 0.064,
+  0.066, 0.066, 0.062, 0.061, 0.058, 0.054, 0.05, 0.046, 0.042, 0.038, 0.034,
+  0.03, 0.028, 0.026, 0.027, 0.03, 0.036, 0.042, 0.046, 0.05, 0.048, 0.043,
+  0.04, 0.037, 0.037, 0.035, 0.033, 0.031, 0.03, 0.026, 0.028, 0.032, 0.033,
+  0.033, 0.033,
+];
+
+// ── NYC cities ────────────────────────────────────────────
+// Manhattan (manhattan) — NYC boom×1.15 bust×0.9; rent×1.12; yield×0.92
+// Manhattan price appreciation 1970–2026
+const MANHATTAN_ANN = [
+  -0.031, -0.041, 0.0, 0.02, 0.01, -0.02, 0.061, 0.138, 0.196, 0.253, 0.207,
+  0.138, 0.092, 0.061, 0.115, 0.172, 0.23, 0.253, 0.196, 0.092, -0.072, -0.108,
+  -0.09, -0.054, -0.02, 0.02, 0.051, 0.103, 0.149, 0.172, 0.196, 0.103, 0.127,
+  0.184, 0.218, 0.253, 0.149, 0.041, -0.09, -0.099, -0.031, 0.01, 0.051, 0.138,
+  0.092, 0.071, 0.051, 0.051, 0.061, 0.041, 0.127, 0.207, 0.051, 0.041, 0.051, // 2025 (estimate)
+  0.031, 0.031, // 2026 (estimate)
+];
+// Manhattan rent growth 1970–2026
+const MANHATTAN_RENT_GROWTH = [
+  0.0448, 0.0448, 0.0448, 0.056, 0.0784, 0.1008, 0.1008, 0.1008, 0.112, 0.1232,
+  0.112, 0.0784, 0.0448, 0.0224, 0.0224, 0.0336, 0.0448, 0.056, 0.056, 0.0448,
+  0.0112, 0.0, 0.0112, 0.0224, 0.028, 0.0392, 0.0448, 0.0504, 0.056, 0.0616,
+  0.0672, 0.0616, 0.0538, 0.0448, 0.0358, 0.0336, 0.0314, 0.028, 0.0134,
+  -0.0168, 0.0056, 0.0168, 0.0358, 0.0504, 0.047, 0.0504, 0.0448, 0.0392, 0.028, // 2025 (estimate)
+  0.0246, 0.0224, 0.0728, 0.0616, 0.0314, 0.0358, 0.028, 0.028, // 2026 (estimate)
+];
+// Manhattan gross rent yields 1970–2026
+const MANHATTAN_RENT_YIELDS = [
+  0.064, 0.063, 0.06, 0.057, 0.055, 0.053, 0.055, 0.055, 0.053, 0.051, 0.051,
+  0.052, 0.057, 0.06, 0.063, 0.063, 0.06, 0.055, 0.051, 0.048, 0.051, 0.053,
+  0.057, 0.06, 0.057, 0.055, 0.053, 0.05, 0.046, 0.04, 0.035, 0.031, 0.028,
+  0.024, 0.022, 0.02, 0.02, 0.023, 0.029, 0.037, 0.04, 0.044, 0.042, 0.037,
+  0.035, 0.033, 0.032, 0.031, 0.031, 0.031, 0.029, 0.026, 0.03, 0.033, 0.033,
+  0.033, 0.033,
+];
+
+// Brooklyn (brooklyn) — NYC boom×1.22 bust×0.93; rent×1.18; yield×0.98
+// Brooklyn price appreciation 1970–2026
+const BROOKLYN_ANN = [
+  -0.031, -0.041, 0.0, 0.021, 0.01, -0.021, 0.062, 0.146, 0.207, 0.268, 0.22,
+  0.146, 0.098, 0.062, 0.122, 0.183, 0.244, 0.268, 0.207, 0.098, -0.074, -0.112,
+  -0.093, -0.056, -0.021, 0.021, 0.052, 0.11, 0.159, 0.183, 0.207, 0.11, 0.134,
+  0.195, 0.232, 0.268, 0.159, 0.041, -0.093, -0.102, -0.031, 0.01, 0.052, 0.146,
+  0.098, 0.072, 0.052, 0.052, 0.062, 0.041, 0.134, 0.22, 0.052, 0.041, 0.052, // 2025 (estimate)
+  0.031, 0.031, // 2026 (estimate)
+];
+// Brooklyn rent growth 1970–2026
+const BROOKLYN_RENT_GROWTH = [
+  0.0472, 0.0472, 0.0472, 0.059, 0.0826, 0.1062, 0.1062, 0.1062, 0.118, 0.1298,
+  0.118, 0.0826, 0.0472, 0.0236, 0.0236, 0.0354, 0.0472, 0.059, 0.059, 0.0472,
+  0.0118, 0.0, 0.0118, 0.0236, 0.0295, 0.0413, 0.0472, 0.0531, 0.059, 0.0649,
+  0.0708, 0.0649, 0.0566, 0.0472, 0.0378, 0.0354, 0.033, 0.0295, 0.0142,
+  -0.0177, 0.0059, 0.0177, 0.0378, 0.0531, 0.0496, 0.0531, 0.0472, 0.0413, // 2025 (estimate)
+  0.0295, 0.026, 0.0236, 0.0767, 0.0649, 0.033, 0.0378, 0.0295, 0.0295, // 2026 (estimate)
+];
+// Brooklyn gross rent yields 1970–2026
+const BROOKLYN_RENT_YIELDS = [
+  0.069, 0.067, 0.064, 0.061, 0.059, 0.057, 0.059, 0.059, 0.057, 0.054, 0.054,
+  0.056, 0.061, 0.064, 0.067, 0.067, 0.064, 0.059, 0.054, 0.051, 0.054, 0.057,
+  0.061, 0.064, 0.061, 0.059, 0.057, 0.053, 0.049, 0.043, 0.037, 0.033, 0.029,
+  0.025, 0.024, 0.022, 0.022, 0.025, 0.031, 0.039, 0.043, 0.047, 0.045, 0.039,
+  0.037, 0.035, 0.034, 0.033, 0.033, 0.033, 0.031, 0.027, 0.032, 0.035, 0.035,
+  0.035, 0.035,
+];
+
+// Hoboken (hoboken) — NYC boom×1.1 bust×0.95; rent×1.25; yield×1.02
+// Hoboken price appreciation 1970–2026
+const HOBOKEN_ANN = [
+  -0.03, -0.04, 0.0, 0.02, 0.01, -0.02, 0.061, 0.132, 0.187, 0.242, 0.198,
+  0.132, 0.088, 0.061, 0.11, 0.165, 0.22, 0.242, 0.187, 0.088, -0.076, -0.114,
+  -0.095, -0.057, -0.02, 0.02, 0.051, 0.099, 0.143, 0.165, 0.187, 0.099, 0.121,
+  0.176, 0.209, 0.242, 0.143, 0.04, -0.095, -0.104, -0.03, 0.01, 0.051, 0.132,
+  0.088, 0.071, 0.051, 0.051, 0.061, 0.04, 0.121, 0.198, 0.051, 0.04, 0.051, // 2025 (estimate)
+  0.03, 0.03, // 2026 (estimate)
+];
+// Hoboken rent growth 1970–2026
+const HOBOKEN_RENT_GROWTH = [
+  0.05, 0.05, 0.05, 0.0625, 0.0875, 0.1125, 0.1125, 0.1125, 0.125, 0.1375,
+  0.125, 0.0875, 0.05, 0.025, 0.025, 0.0375, 0.05, 0.0625, 0.0625, 0.05, 0.0125,
+  0.0, 0.0125, 0.025, 0.0312, 0.0438, 0.05, 0.0562, 0.0625, 0.0688, 0.075,
+  0.0688, 0.06, 0.05, 0.04, 0.0375, 0.035, 0.0312, 0.015, -0.0187, 0.0063,
+  0.0187, 0.04, 0.0562, 0.0525, 0.0562, 0.05, 0.0438, 0.0312, 0.0275, 0.025, // 2025 (estimate)
+  0.0813, 0.0688, 0.035, 0.04, 0.0312, 0.0312, // 2026 (estimate)
+];
+// Hoboken gross rent yields 1970–2026
+const HOBOKEN_RENT_YIELDS = [
+  0.071, 0.069, 0.066, 0.063, 0.061, 0.059, 0.061, 0.061, 0.059, 0.056, 0.056,
+  0.058, 0.063, 0.066, 0.069, 0.069, 0.066, 0.061, 0.056, 0.053, 0.056, 0.059,
+  0.063, 0.066, 0.063, 0.061, 0.059, 0.055, 0.051, 0.045, 0.039, 0.035, 0.031,
+  0.027, 0.024, 0.022, 0.022, 0.026, 0.033, 0.041, 0.045, 0.049, 0.047, 0.041,
+  0.039, 0.037, 0.036, 0.035, 0.035, 0.035, 0.033, 0.029, 0.034, 0.037, 0.037,
+  0.037, 0.037,
+];
+
+// Scarsdale (scarsdale) — NYC boom×1.08 bust×0.94; rent×0.95; yield×0.92
+// Scarsdale price appreciation 1970–2026
+const SCARSDALE_ANN = [
+  -0.03, -0.04, 0.0, 0.02, 0.01, -0.02, 0.061, 0.13, 0.184, 0.238, 0.194, 0.13,
+  0.086, 0.061, 0.108, 0.162, 0.216, 0.238, 0.184, 0.086, -0.075, -0.113,
+  -0.094, -0.056, -0.02, 0.02, 0.051, 0.097, 0.14, 0.162, 0.184, 0.097, 0.119,
+  0.173, 0.205, 0.238, 0.14, 0.04, -0.094, -0.103, -0.03, 0.01, 0.051, 0.13,
+  0.086, 0.071, 0.051, 0.051, 0.061, 0.04, 0.119, 0.194, 0.051, 0.04, 0.051, // 2025 (estimate)
+  0.03, 0.03, // 2026 (estimate)
+];
+// Scarsdale rent growth 1970–2026
+const SCARSDALE_RENT_GROWTH = [
+  0.038, 0.038, 0.038, 0.0475, 0.0665, 0.0855, 0.0855, 0.0855, 0.095, 0.1045,
+  0.095, 0.0665, 0.038, 0.019, 0.019, 0.0285, 0.038, 0.0475, 0.0475, 0.038,
+  0.0095, 0.0, 0.0095, 0.019, 0.0238, 0.0333, 0.038, 0.0427, 0.0475, 0.0522,
+  0.057, 0.0522, 0.0456, 0.038, 0.0304, 0.0285, 0.0266, 0.0238, 0.0114, -0.0142,
+  0.0047, 0.0142, 0.0304, 0.0427, 0.0399, 0.0427, 0.038, 0.0333, 0.0238, 0.0209, // 2025 (estimate)
+  0.019, 0.0617, 0.0522, 0.0266, 0.0304, 0.0238, 0.0238, // 2026 (estimate)
+];
+// Scarsdale gross rent yields 1970–2026
+const SCARSDALE_RENT_YIELDS = [
+  0.064, 0.063, 0.06, 0.057, 0.055, 0.053, 0.055, 0.055, 0.053, 0.051, 0.051,
+  0.052, 0.057, 0.06, 0.063, 0.063, 0.06, 0.055, 0.051, 0.048, 0.051, 0.053,
+  0.057, 0.06, 0.057, 0.055, 0.053, 0.05, 0.046, 0.04, 0.035, 0.031, 0.028,
+  0.024, 0.022, 0.02, 0.02, 0.023, 0.029, 0.037, 0.04, 0.044, 0.042, 0.037,
+  0.035, 0.033, 0.032, 0.031, 0.031, 0.031, 0.029, 0.026, 0.03, 0.033, 0.033,
+  0.033, 0.033,
+];
+
+// Great Neck (greatneck) — NYC boom×1.06 bust×0.96; rent×0.98; yield×0.95
+// Great Neck price appreciation 1970–2026
+const GREATNECK_ANN = [
+  -0.03, -0.04, 0.0, 0.02, 0.01, -0.02, 0.06, 0.127, 0.18, 0.233, 0.191, 0.127,
+  0.085, 0.06, 0.106, 0.159, 0.212, 0.233, 0.18, 0.085, -0.077, -0.115, -0.096,
+  -0.058, -0.02, 0.02, 0.05, 0.095, 0.138, 0.159, 0.18, 0.095, 0.117, 0.17,
+  0.201, 0.233, 0.138, 0.04, -0.096, -0.106, -0.03, 0.01, 0.05, 0.127, 0.085, // 2025 (estimate)
+  0.07, 0.05, 0.05, 0.06, 0.04, 0.117, 0.191, 0.05, 0.04, 0.05, 0.03, 0.03, // 2026 (estimate)
+];
+// Great Neck rent growth 1970–2026
+const GREATNECK_RENT_GROWTH = [
+  0.0392, 0.0392, 0.0392, 0.049, 0.0686, 0.0882, 0.0882, 0.0882, 0.098, 0.1078,
+  0.098, 0.0686, 0.0392, 0.0196, 0.0196, 0.0294, 0.0392, 0.049, 0.049, 0.0392,
+  0.0098, 0.0, 0.0098, 0.0196, 0.0245, 0.0343, 0.0392, 0.0441, 0.049, 0.0539,
+  0.0588, 0.0539, 0.047, 0.0392, 0.0314, 0.0294, 0.0274, 0.0245, 0.0118,
+  -0.0147, 0.0049, 0.0147, 0.0314, 0.0441, 0.0412, 0.0441, 0.0392, 0.0343, // 2025 (estimate)
+  0.0245, 0.0216, 0.0196, 0.0637, 0.0539, 0.0274, 0.0314, 0.0245, 0.0245, // 2026 (estimate)
+];
+// Great Neck gross rent yields 1970–2026
+const GREATNECK_RENT_YIELDS = [
+  0.067, 0.065, 0.062, 0.059, 0.057, 0.055, 0.057, 0.057, 0.055, 0.052, 0.052,
+  0.054, 0.059, 0.062, 0.065, 0.065, 0.062, 0.057, 0.052, 0.049, 0.052, 0.055,
+  0.059, 0.062, 0.059, 0.057, 0.055, 0.051, 0.048, 0.042, 0.036, 0.032, 0.028,
+  0.025, 0.023, 0.021, 0.021, 0.024, 0.03, 0.038, 0.042, 0.046, 0.044, 0.038,
+  0.036, 0.034, 0.033, 0.032, 0.032, 0.032, 0.03, 0.027, 0.031, 0.034, 0.034,
+  0.034, 0.034,
 ];
 
 // ── Los Angeles CA (FHFA MSAD 31084 + pre-1975 West-region/CAR est) ──

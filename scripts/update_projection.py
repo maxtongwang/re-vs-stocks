@@ -1,13 +1,17 @@
 #!/usr/bin/env python3
 """Monthly projection updater — fetches live data from FMP and FRED.
 
-Updates in index.html:
+Updates in data.js:
   1. SP500_PRICE current-year estimate  → actual annual return from FMP price history
   2. MORTGAGE_RATES projection          → derived from FMP 10yr Treasury + 180bps spread
-  3. Displayed mortgage rate            → <strong id="proj-mort-rate">
-  4. Data date                          → <!-- PROJ_DATE_START -->...<!-- PROJ_DATE_END -->
-  5. {LOC}_ANN estimates (12 locations) → FHFA Q4-to-Q4 HPI annual return via FRED
-  6. {LOC}_RENT_GROWTH estimates        → BLS CPI rent Dec-to-Dec via FRED
+  3. DATA_THROUGH_YEAR/MONTH            → current date marker
+  4. {LOC}_ANN estimates (12 metros)    → FHFA Q4-to-Q4 HPI annual return via FRED
+  5. {LOC}_RENT_GROWTH estimates        → BLS CPI rent Dec-to-Dec via FRED
+  6. City _ANN/_RENT_GROWTH estimates   → derived from parent metro × city scale factor
+
+Updates in index.html:
+  7. Displayed mortgage rate            → <strong id="proj-mort-rate">
+  8. Data date                          → <!-- PROJ_DATE_START -->...<!-- PROJ_DATE_END -->
 
 Usage:
     FMP_API_KEY=<key> FRED_API_KEY=<key> python3 scripts/update_projection.py [YYYY-MM]
@@ -23,7 +27,8 @@ import sys
 import urllib.request
 from datetime import datetime, timedelta
 
-HTML_FILE = "index.html"
+HTML_FILE = "index.html"   # HTML-only patches (proj-mort-rate display, date)
+DATA_FILE = "data.js"     # JS array patches (price/rent arrays, SP500, mortgage rates)
 MORT_FLOOR = 0.060
 MORT_SPREAD = 0.018   # 10yr Treasury → 30yr mortgage empirical spread
 FMP_BASE = "https://financialmodelingprep.com/api"
@@ -65,6 +70,55 @@ RENT_SERIES = {
     "NYC_RENT_GROWTH":      "CUUR0100SEHA",  # Northeast region (dominated by NYC)
     "NY_RENT_GROWTH":       "CUUR0100SEHA",  # Northeast region (proxy for NY)
     "NATIONAL_RENT_GROWTH": "CUUR0000SEHA",  # National CPI rent
+}
+
+# ── City data scaling — derived from parent metro FHFA/BLS values ────────────
+# FHFA does not publish city-level HPI; cities use parent metro × scale_factor.
+# scale_factor reflects luxury premium cyclicality (boom amplification).
+# Format: city_var → (parent_hpi_var, price_scale, parent_rent_var, rent_scale)
+CITY_FROM_METRO = {
+    # LA cities
+    "BEVHILLS_ANN":        ("LA_ANN",      1.10, "LA_RENT_GROWTH",      0.88),
+    "SM_ANN":              ("LA_ANN",      1.06, "LA_RENT_GROWTH",      0.93),
+    "MALIBU_ANN":          ("LA_ANN",      1.18, "LA_RENT_GROWTH",      0.72),
+    "PASADENA_ANN":        ("LA_ANN",      0.96, "LA_RENT_GROWTH",      1.02),
+    "MB_ANN":              ("LA_ANN",      1.08, "LA_RENT_GROWTH",      0.91),
+    # SD cities
+    "LAJOLLA_ANN":         ("SD_ANN",      1.10, "SD_RENT_GROWTH",      0.92),
+    "DELMAR_ANN":          ("SD_ANN",      1.13, "SD_RENT_GROWTH",      0.87),
+    "RSF_ANN":             ("SD_ANN",      1.22, "SD_RENT_GROWTH",      0.72),
+    "CORONADO_ANN":        ("SD_ANN",      1.11, "SD_RENT_GROWTH",      0.90),
+    "CARLSBAD_ANN":        ("SD_ANN",      1.01, "SD_RENT_GROWTH",      1.04),
+    # SF cities
+    "PALOALTO_ANN":        ("SF_ANN",      1.25, "SF_RENT_GROWTH",      1.12),
+    "ATHERTON_ANN":        ("SF_ANN",      1.38, "SF_RENT_GROWTH",      0.80),
+    "LOSALTOS_ANN":        ("SF_ANN",      1.22, "SF_RENT_GROWTH",      1.06),
+    "MENLOPARK_ANN":       ("SF_ANN",      1.18, "SF_RENT_GROWTH",      1.10),
+    "SARATOGA_ANN":        ("SF_ANN",      1.14, "SF_RENT_GROWTH",      0.96),
+    # DFW cities
+    "HIGHLANDPARK_ANN":    ("DFW_ANN",     1.15, "DFW_RENT_GROWTH",     0.88),
+    "UNIVERSITYPK_ANN":    ("DFW_ANN",     1.10, "DFW_RENT_GROWTH",     0.90),
+    "SOUTHLAKE_ANN":       ("DFW_ANN",     1.07, "DFW_RENT_GROWTH",     0.92),
+    "FRISCO_ANN":          ("DFW_ANN",     1.05, "DFW_RENT_GROWTH",     1.05),
+    "PLANO_ANN":           ("DFW_ANN",     1.03, "DFW_RENT_GROWTH",     1.02),
+    # Miami cities
+    "MIAMIBEACH_ANN":      ("MIAMI_ANN",   1.16, "MIAMI_RENT_GROWTH",   1.05),
+    "CORALGABLES_ANN":     ("MIAMI_ANN",   1.07, "MIAMI_RENT_GROWTH",   0.98),
+    "KEYBISCAYNE_ANN":     ("MIAMI_ANN",   1.19, "MIAMI_RENT_GROWTH",   0.90),
+    "COCONUTGROVE_ANN":    ("MIAMI_ANN",   1.09, "MIAMI_RENT_GROWTH",   1.00),
+    "BRICKELL_ANN":        ("MIAMI_ANN",   1.05, "MIAMI_RENT_GROWTH",   1.05),
+    # Seattle cities
+    "MEDINA_ANN":          ("SEATTLE_ANN", 1.30, "SEATTLE_RENT_GROWTH", 0.82),
+    "MERCERISLAND_ANN":    ("SEATTLE_ANN", 1.20, "SEATTLE_RENT_GROWTH", 0.92),
+    "BELLEVUE_ANN":        ("SEATTLE_ANN", 1.14, "SEATTLE_RENT_GROWTH", 1.06),
+    "KIRKLAND_ANN":        ("SEATTLE_ANN", 1.09, "SEATTLE_RENT_GROWTH", 1.10),
+    "REDMOND_ANN":         ("SEATTLE_ANN", 1.07, "SEATTLE_RENT_GROWTH", 1.12),
+    # NYC cities
+    "MANHATTAN_ANN":       ("NY_ANN",      1.12, "NYC_RENT_GROWTH",     1.12),
+    "BROOKLYN_ANN":        ("NY_ANN",      1.18, "NYC_RENT_GROWTH",     1.18),
+    "HOBOKEN_ANN":         ("NY_ANN",      1.07, "NYC_RENT_GROWTH",     1.25),
+    "SCARSDALE_ANN":       ("NY_ANN",      1.05, "NYC_RENT_GROWTH",     0.95),
+    "GREATNECK_ANN":       ("NY_ANN",      1.04, "NYC_RENT_GROWTH",     0.98),
 }
 
 
@@ -290,7 +344,6 @@ def patch_html(html: str,
     if mort_rate is not None:
         rates     = generate_glide(mort_rate)
         new_block = format_rates_js(rates)
-        rate_pct  = f"{mort_rate * 100:.2f}%"
         html = re.sub(
             r"(// PROJ_MORT_START[^\n]*\n)"
             r"(        // 2026[^\n]*\n)"
@@ -306,17 +359,6 @@ def patch_html(html: str,
             ),
             html,
         )
-        html = re.sub(
-            r"<!-- PROJ_DATE_START -->.*?<!-- PROJ_DATE_END -->",
-            f"<!-- PROJ_DATE_START -->{date}<!-- PROJ_DATE_END -->",
-            html,
-        )
-        html = re.sub(
-            r'(<strong id="proj-mort-rate"[^>]*>)[^<]*(</strong>)',
-            rf"\g<1>{rate_pct}\g<2>",
-            html,
-        )
-
     # Update current-year (live) YTD estimates — all three indices together
     if sp500_cur is not None:
         html = _patch_marker(html, "SP500_CUR_START", sp500_cur)
@@ -388,43 +430,86 @@ def main():
     tlt_cur = tlt_ytd_return(cur_year, fmp_key)
     print(f"  → {tlt_cur}" if tlt_cur is not None else "  → fetch failed, skipping")
 
+    # ── Read files ───────────────────────────────────────────────────────────
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
+    with open(DATA_FILE, "r", encoding="utf-8") as f:
+        data = f.read()
 
-    html = patch_html(html,
+    # patch_html writes to data (SP500, mortgage arrays) and html (display elements)
+    data = patch_html(data,
                       sp_ret, sp_cur,
                       nasdaq_ret, nasdaq_cur,
                       tlt_ret, tlt_cur,
                       mort, date,
                       data_through_year=cur_year,
                       data_through_month=cur_month)
+    # Date display and mortgage-rate badge stay in HTML
+    if mort is not None:
+        rate_pct = f"{mort * 100:.2f}%"
+        html = re.sub(
+            r"<!-- PROJ_DATE_START -->.*?<!-- PROJ_DATE_END -->",
+            f"<!-- PROJ_DATE_START -->{date}<!-- PROJ_DATE_END -->",
+            html,
+        )
+        html = re.sub(
+            r'(<strong id="proj-mort-rate"[^>]*>)[^<]*(</strong>)',
+            rf"\g<1>{rate_pct}\g<2>",
+            html,
+        )
 
-    # ── FRED: FHFA HPI annual returns for all locations ───────────────────────
+    # ── FRED: FHFA HPI annual returns for metro/state locations ──────────────
+    metro_returns: dict[str, float | None] = {}   # cache for city scaling
+    rent_returns:  dict[str, float | None] = {}
     if fred_key:
         print(f"\nFetching FHFA HPI {est_year} Q4-to-Q4 returns from FRED…")
         for var_name, series_id in HPI_SERIES.items():
             ret = hpi_annual_return(series_id, est_year, fred_key)
+            metro_returns[var_name] = ret
             if ret is not None:
                 print(f"  {var_name} ({series_id}): {ret:+.4f}")
-                html = patch_loc_estimate(html, var_name, ret, est_year)
+                data = patch_loc_estimate(data, var_name, ret, est_year)
             else:
                 print(f"  {var_name} ({series_id}): no data yet, skipping")
 
-        # ── FRED: BLS CPI rent growth for all locations ────────────────────────
+        # ── FRED: BLS CPI rent growth for metro/state locations ────────────────
         print(f"\nFetching BLS CPI rent growth {est_year} Dec-to-Dec from FRED…")
-        seen_series: dict[str, float | None] = {}  # cache to avoid duplicate fetches
+        seen_series: dict[str, float | None] = {}
         for var_name, series_id in RENT_SERIES.items():
             if series_id not in seen_series:
                 seen_series[series_id] = rent_growth_annual(series_id, est_year, fred_key)
             ret = seen_series[series_id]
+            rent_returns[var_name] = ret
             if ret is not None:
                 print(f"  {var_name} ({series_id}): {ret:+.4f}")
-                html = patch_loc_estimate(html, var_name, ret, est_year)
+                data = patch_loc_estimate(data, var_name, ret, est_year)
             else:
                 print(f"  {var_name} ({series_id}): no data yet, skipping")
 
+        # ── Derive city estimates from parent metro returns × scale factor ──────
+        print(f"\nDeriving city estimates from parent metro returns…")
+        for city_ann, (parent_hpi, price_scale, parent_rent, rent_scale) in CITY_FROM_METRO.items():
+            city_rent = city_ann.replace("_ANN", "_RENT_GROWTH")
+            p_ret = metro_returns.get(parent_hpi)
+            r_ret = rent_returns.get(parent_rent)
+            if p_ret is not None:
+                city_val = round(p_ret * price_scale, 4)
+                print(f"  {city_ann}: {parent_hpi} {p_ret:+.4f} × {price_scale} = {city_val:+.4f}")
+                data = patch_loc_estimate(data, city_ann, city_val, est_year)
+            else:
+                print(f"  {city_ann}: parent {parent_hpi} unavailable, skipping")
+            if r_ret is not None:
+                city_rent_val = round(r_ret * rent_scale, 4)
+                print(f"  {city_rent}: {parent_rent} {r_ret:+.4f} × {rent_scale} = {city_rent_val:+.4f}")
+                data = patch_loc_estimate(data, city_rent, city_rent_val, est_year)
+            else:
+                print(f"  {city_rent}: parent {parent_rent} unavailable, skipping")
+
+    # ── Write files ───────────────────────────────────────────────────────────
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        f.write(data)
 
     print(f"\nDone. date={date}, mortgage={mort}")
     print(f"  {est_year} annual: sp500={sp_ret}, nasdaq={nasdaq_ret}, tlt={tlt_ret}")
