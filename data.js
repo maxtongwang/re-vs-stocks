@@ -129,7 +129,7 @@ const STRINGS = {
     btnDepreciation: "Depreciation",
     btnCosts: "Op. Costs",
     tipCosts:
-      "Property tax (location-specific rate).\nInsurance: 0.5%/yr of current value.\nMaintenance: 1%/yr of current value.",
+      "Property tax (location-specific rate).\nInsurance: 0.5%/yr of current value.\nMaintenance: 1%/yr of purchase price.",
     btnTxCosts: "Tx Costs",
     tipTxCosts:
       "Buy: title, escrow, inspection, appraisal (1–2% of purchase).\nSell: commission (both sides), title, transfer taxes, warranty (6–9% of sale).\nRates vary by location — hover the breakdown for details.",
@@ -255,7 +255,7 @@ const STRINGS = {
         items: [
           `Property tax: ${activeLocConfig.propTaxNote}`,
           "Insurance: 0.5% of current property value/yr",
-          "Maintenance: 1% of current property value/yr",
+          "Maintenance: 1% of purchase price/yr",
           "Depreciation (rental only): IRS 27.5-yr schedule; improvement % adjustable above. Primary residences are not eligible for depreciation deductions.",
           `Tax rate: ${activeLocConfig.taxNote} on paper rental gain/loss`,
         ],
@@ -319,7 +319,7 @@ const STRINGS = {
     btnDepreciation: "折旧",
     btnCosts: "运营成本",
     tipCosts:
-      "房产税（税率因地区而异）。\n保险：房产现值0.5%/年。\n维护费：房产现值1%/年。",
+      "房产税（税率因地区而异）。\n保险：房产现值0.5%/年。\n维护费：购入价1%/年。",
     btnTxCosts: "交易成本",
     tipTxCosts:
       "买入：产权、托管、验房、评估（约为房价1–2%）。\n卖出：佣金（双方）、产权、转让税、保修（约为售价6–9%）。\n税率因地区而异，详见明细。",
@@ -444,7 +444,7 @@ const STRINGS = {
         items: [
           `房产税：${activeLocConfig.propTaxNoteZh}`,
           "保险：当前房产价值的0.5%/年",
-          "维护费：当前房产价值的1%/年",
+          "维护费：购入价的1%/年",
           "折旧（仅适用出租）：IRS 27.5年住宅折旧规定；建筑占比可在上方调整。自住房产不可享受折旧抵税。",
           `税率：${activeLocConfig.taxNoteZh}（适用出租纸面盈亏）`,
         ],

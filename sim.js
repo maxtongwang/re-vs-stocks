@@ -508,7 +508,7 @@ function simRE(
     const r = isPrimary ? 0 : rent / 12;
     const t = inclCosts ? ptax / 12 : 0,
       ins = inclCosts ? (pv * 0.005) / 12 : 0,
-      mai = inclCosts ? (pv * 0.01) / 12 : 0;
+      mai = inclCosts ? (price * 0.01) / 12 : 0;
     let int = 0,
       prin = 0;
     const si = m - schedOffset;
