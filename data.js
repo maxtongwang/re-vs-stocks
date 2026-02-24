@@ -133,6 +133,17 @@ const STRINGS = {
     btnTxCosts: "Tx Costs",
     tipTxCosts:
       "Buy: title, escrow, inspection, appraisal (1–2% of purchase).\nSell: commission (both sides), title, transfer taxes, warranty (6–9% of sale).\nRates vary by location — hover the breakdown for details.",
+    btnCapGains: "Cap Gains",
+    tipCapGains:
+      "Capital gains tax on net profit at time of sale.\n\nStocks: long-term rate on total gain (cost basis = initial investment).\n\nRE Rental: long-term rate on appreciation; plus 25% recapture on prior depreciation deductions. Toggle 1031 to defer all taxes on rollover.\n\nRE Primary: Section 121 exclusion ($500k married / $250k single) if owned ≥2 years. Long-term rate on gains above exclusion.\n\nRates = federal 23.8% (20% LT + 3.8% NIIT) + same state rate used for income tax benefits above.",
+    btn1031On: "1031 On",
+    btn1031Off: "1031 Off",
+    tip1031:
+      "1031 Exchange: defer all capital gains and depreciation recapture by rolling proceeds into a like-kind property. Requires 45-day identification and 180-day close. Boot (cash out) is taxable.",
+    btnExclMarried: "Married $500K",
+    btnExclSingle: "Single $250K",
+    tipExcl:
+      "Section 121 Primary Residence Exclusion: exclude up to $500K (married filing jointly) or $250K (single) of gain from federal tax. Requires ownership AND use as primary residence for ≥2 of the past 5 years.",
     legendLabels: [
       "S&P 500 (total)",
       "RE All Cash",
@@ -312,6 +323,17 @@ const STRINGS = {
     btnTxCosts: "交易成本",
     tipTxCosts:
       "买入：产权、托管、验房、评估（约为房价1–2%）。\n卖出：佣金（双方）、产权、转让税、保修（约为售价6–9%）。\n税率因地区而异，详见明细。",
+    btnCapGains: "资本利得",
+    tipCapGains:
+      "出售时对净利润征收的资本利得税。股票：总收益适用长期税率。租赁房产：增值收益适用长期税率，折旧回收税25%，可选1031延税。自住房：满足2年居住要求可享豁免（已婚$50万/单身$25万），超出部分按长期税率征税。",
+    btn1031On: "1031 开",
+    btn1031Off: "1031 关",
+    tip1031:
+      "1031交换：将收益投入同类资产可延迟缴纳资本利得税及折旧回收税。需在45天内确认新资产、180天内完成交割。",
+    btnExclMarried: "已婚 $50万",
+    btnExclSingle: "单身 $25万",
+    tipExcl:
+      "第121条自住房豁免：已婚联合申报最高豁免$50万，单身最高$25万。需过去5年内拥有并作为主要住所满2年。",
     legendLabels: [
       "S&P 500 (总回报)",
       "房产 全现金",
@@ -565,6 +587,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -608,6 +631,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -650,6 +674,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -688,6 +713,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -726,6 +752,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -764,6 +791,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -802,6 +830,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -840,6 +869,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -882,6 +912,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -924,6 +955,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -970,6 +1002,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州《拯救家园》：评估价值约1.0%；非自住出租上限+10%/年",
     taxNote: "35% (35% fed + 0% FL — no income tax)",
     taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -1012,6 +1045,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：约当前市值2.1%，无州所得税",
     taxNote: "35% (35% fed + 0% TX — no income tax)",
     taxNoteZh: "35%（联邦35% + 德州0%，无州所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -1055,6 +1089,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华州：约当前市值0.93%，无州所得税",
     taxNote: "35% (35% fed + 0% WA — no income tax)",
     taxNoteZh: "35%（联邦35% + 华州0%，无州所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -1101,6 +1137,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "纽约市第1-2类住宅：评估价值约1.5%；年增上限+6%",
     taxNote: "45.7% (35% fed + 10.9% NY)",
     taxNoteZh: "45.7%（联邦35% + 纽约州10.9%）",
+    stateCapGainsRate: 0.109,
     sources: {
       homePrice: [
         {
@@ -1144,6 +1181,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "全国均值：约当前市值1.1%（每年重新评估）",
     taxNote: "38% (35% fed + ~3% avg state)",
     taxNoteZh: "38%（联邦35% + 州均约3%）",
+    stateCapGainsRate: 0.03,
     sources: {
       homePrice: [
         {
@@ -1190,6 +1228,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：约当前市值2.1%，无州所得税",
     taxNote: "35% (35% fed + 0% TX — no income tax)",
     taxNoteZh: "35%（联邦35% + 德州0%，无州所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -1236,6 +1275,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州《拯救家园》：评估价值约1.0%；非自住出租上限+10%/年",
     taxNote: "35% (35% fed + 0% FL — no income tax)",
     taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -1279,6 +1319,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华盛顿州：约当前市值0.93%，无州所得税",
     taxNote: "35% (35% fed + 0% WA — no income tax)",
     taxNoteZh: "35%（联邦35% + 华州0%，无州所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -1322,6 +1364,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "纽约都市区：约当前市值1.5%",
     taxNote: "45.7% (35% fed + 10.9% NY)",
     taxNoteZh: "45.7%（联邦35% + 纽约州10.9%）",
+    stateCapGainsRate: 0.03,
     sources: {
       homePrice: [
         {
@@ -1365,6 +1408,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1403,6 +1447,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1441,6 +1486,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1479,6 +1525,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1517,6 +1564,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1555,6 +1603,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1593,6 +1642,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1631,6 +1681,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1669,6 +1720,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1707,6 +1759,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1745,6 +1798,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1783,6 +1837,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1821,6 +1876,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1859,6 +1915,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1897,6 +1954,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    stateCapGainsRate: 0.133,
     sources: {
       homePrice: [
         {
@@ -1935,6 +1993,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：每年重新评估; 高地公园学区约1.5%",
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -1973,6 +2032,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：每年重新评估; 大学公园约1.5%",
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2011,6 +2071,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：每年重新评估; 卡罗尔学区约2.0%",
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2049,6 +2110,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：每年重新评估; 弗里斯科学区约2.1%",
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2087,6 +2149,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "德州：每年重新评估; 普莱诺学区约2.0%",
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2117,7 +2180,7 @@ const LOC_CONFIG = {
   miamibeach: {
     propTaxRate: 0.01,
     txBuy: 0.013, // +FL doc stamps on mortgage ~0.3%
-    txSell: 0.070, // commission ~5%, title 0.5%, FL doc stamps 0.7%, luxury close
+    txSell: 0.07, // commission ~5%, title 0.5%, FL doc stamps 0.7%, luxury close
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2127,6 +2190,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.0%",
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2157,7 +2221,7 @@ const LOC_CONFIG = {
   coralgables: {
     propTaxRate: 0.01,
     txBuy: 0.013,
-    txSell: 0.070,
+    txSell: 0.07,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2167,6 +2231,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.0%",
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2197,7 +2262,7 @@ const LOC_CONFIG = {
   keybiscayne: {
     propTaxRate: 0.009,
     txBuy: 0.013,
-    txSell: 0.070,
+    txSell: 0.07,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2207,6 +2272,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约0.9%",
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2237,7 +2303,7 @@ const LOC_CONFIG = {
   coconutgrove: {
     propTaxRate: 0.01,
     txBuy: 0.013,
-    txSell: 0.070,
+    txSell: 0.07,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2247,6 +2313,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.0%",
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2277,7 +2344,7 @@ const LOC_CONFIG = {
   brickell: {
     propTaxRate: 0.011,
     txBuy: 0.013,
-    txSell: 0.070,
+    txSell: 0.07,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2287,6 +2354,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "佛州：每年重新评估; 迈阿密戴德县约1.1%（公寓为主）",
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
+    stateCapGainsRate: 0,
     sources: {
       homePrice: [
         {
@@ -2316,7 +2384,7 @@ const LOC_CONFIG = {
   },
   medina: {
     propTaxRate: 0.0075,
-    txSell: 0.090, // commission ~5%, title 0.5%, WA REET 3.0% (>$3.025M bracket)
+    txSell: 0.09, // commission ~5%, title 0.5%, WA REET 3.0% (>$3.025M bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2326,6 +2394,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华州：每年重新评估; 金县美地纳约0.75%",
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -2355,7 +2425,7 @@ const LOC_CONFIG = {
   },
   mercerisland: {
     propTaxRate: 0.0085,
-    txSell: 0.090, // WA REET 3.0% (>$3.025M bracket)
+    txSell: 0.09, // WA REET 3.0% (>$3.025M bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2365,6 +2435,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华州：每年重新评估; 金县梅赛岛约0.85%",
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -2404,6 +2476,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华州：每年重新评估; 金县贝尔维尤约0.9%",
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -2443,6 +2517,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华州：每年重新评估; 金县柯克兰约0.92%",
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -2482,6 +2558,8 @@ const LOC_CONFIG = {
     propTaxNoteZh: "华州：每年重新评估; 金县雷德蒙德约0.95%",
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
+    stateCapGainsRate: 0,
+    capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
         {
@@ -2511,7 +2589,7 @@ const LOC_CONFIG = {
   },
   manhattan: {
     propTaxRate: 0.012,
-    txBuy: 0.020, // NYC mortgage recording tax ~1.8% + title; mansion tax 1%+
+    txBuy: 0.02, // NYC mortgage recording tax ~1.8% + title; mansion tax 1%+
     txSell: 0.078, // commission ~5%, title 0.5%, NYC RPTT 1.425% + NYS 0.4%
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
@@ -2522,6 +2600,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "纽约州：每年重新评估; 曼哈顿公寓有效税率约1.2%",
     taxNote: "~50% (37% fed + 10.9% NY state + 3.876% NYC)",
     taxNoteZh: "约50%（联邦37% + 纽约州10.9% + 纽约市3.876%）",
+    stateCapGainsRate: 0.148,
     sources: {
       homePrice: [
         {
@@ -2551,7 +2630,7 @@ const LOC_CONFIG = {
   },
   brooklyn: {
     propTaxRate: 0.015,
-    txBuy: 0.020,
+    txBuy: 0.02,
     txSell: 0.078,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
@@ -2562,6 +2641,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "纽约州：每年重新评估; 布鲁克林有效税率约1.5%",
     taxNote: "~50% (37% fed + 10.9% NY state + 3.876% NYC)",
     taxNoteZh: "约50%（联邦37% + 纽约州10.9% + 纽约市3.876%）",
+    stateCapGainsRate: 0.148,
     sources: {
       homePrice: [
         {
@@ -2591,8 +2671,8 @@ const LOC_CONFIG = {
   },
   hoboken: {
     propTaxRate: 0.025,
-    txBuy: 0.010,
-    txSell: 0.070, // commission ~5%, title 0.5%, NJ realty transfer fee ~1.0%
+    txBuy: 0.01,
+    txSell: 0.07, // commission ~5%, title 0.5%, NJ realty transfer fee ~1.0%
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.47,
@@ -2602,6 +2682,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "新泽西州：每年重新评估; 哈德逊县霍博肯约2.5%",
     taxNote: "47% (37% fed + 10.75% NJ state)",
     taxNoteZh: "47%（联邦37% + 新泽西州10.75%）",
+    stateCapGainsRate: 0.108,
     sources: {
       homePrice: [
         {
@@ -2641,6 +2722,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "纽约州：每年重新评估; 威彻斯特县斯卡斯代尔约2.8%",
     taxNote: "49% (37% fed + 10.9% NY state + 1% local)",
     taxNoteZh: "49%（联邦37% + 纽约州10.9% + 地方税1%）",
+    stateCapGainsRate: 0.119,
     sources: {
       homePrice: [
         {
@@ -2680,6 +2762,7 @@ const LOC_CONFIG = {
     propTaxNoteZh: "纽约州：每年重新评估; 拿骚县大颈约2.5%",
     taxNote: "49% (37% fed + 10.9% NY state + 1% local)",
     taxNoteZh: "49%（联邦37% + 纽约州10.9% + 地方税1%）",
+    stateCapGainsRate: 0.119,
     sources: {
       homePrice: [
         {

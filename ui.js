@@ -60,6 +60,9 @@ let inclTaxBenefits = true,
   inclDepreciation = true,
   inclCosts = true,
   inclTxCosts = false;
+let inclCapGains = false,
+  use1031 = true,
+  primaryExclusion = "married";
 let numRefis = 0;
 let refiLTV = false;
 let refiLTVPct = 0.75;
@@ -89,7 +92,7 @@ function buildTable() {
   // Sync RE scenario column headers from RE_DOWN_PMTS
   RE_DOWN_PMTS.forEach((p, i) => {
     const th = document.getElementById(`th-s${i + 2}`);
-    if (th) th.textContent = `${+(p * 100)}%Dn`;
+    if (th) th.textContent = `${dpPct(p)}%Dn`;
   });
   tbody.innerHTML = "";
   const dur = endYear - startYear + 1;
@@ -343,6 +346,22 @@ function applyLang() {
   document
     .querySelector("#btn-incl-tx-costs .tip-icon")
     .setAttribute("data-tip", s.tipTxCosts);
+  document.querySelector("#btn-incl-cap-gains .tip-text").textContent =
+    s.btnCapGains;
+  document
+    .querySelector("#btn-incl-cap-gains .tip-icon")
+    .setAttribute("data-tip", s.tipCapGains);
+  document.querySelector("#btn-1031 .tip-text").textContent = use1031
+    ? s.btn1031On
+    : s.btn1031Off;
+  document
+    .querySelector("#btn-1031 .tip-icon")
+    .setAttribute("data-tip", s.tip1031);
+  document.querySelector("#btn-excl .tip-text").textContent =
+    primaryExclusion === "married" ? s.btnExclMarried : s.btnExclSingle;
+  document
+    .querySelector("#btn-excl .tip-icon")
+    .setAttribute("data-tip", s.tipExcl);
   const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
   document.querySelectorAll(".leg-text").forEach((el, i) => {
     el.innerHTML = legLabels[i];
@@ -405,6 +424,7 @@ document.getElementById("btn-rental").addEventListener("click", () => {
   document.getElementById("btn-rental").classList.add("active");
   document.getElementById("btn-primary").classList.remove("active");
   allWealth = buildAllWealth(startYear);
+  syncCapGainsSubBtn();
   applyLang();
   draw(curMonth - 1);
 });
@@ -415,6 +435,7 @@ document.getElementById("btn-primary").addEventListener("click", () => {
   document.getElementById("btn-primary").classList.add("active");
   document.getElementById("btn-rental").classList.remove("active");
   allWealth = buildAllWealth(startYear);
+  syncCapGainsSubBtn();
   applyLang();
   draw(curMonth - 1);
 });
@@ -438,6 +459,41 @@ document.getElementById("btn-primary").addEventListener("click", () => {
     allWealth = buildAllWealth(startYear);
     draw(curMonth - 1);
   });
+});
+
+// ── Cap Gains toggles ─────────────────────────────────────────────────────
+document.getElementById("btn-incl-cap-gains").addEventListener("click", () => {
+  inclCapGains = !inclCapGains;
+  document
+    .getElementById("btn-incl-cap-gains")
+    .classList.toggle("active", inclCapGains);
+  syncCapGainsSubBtn();
+  const assBullet = document.getElementById("assump-capgains");
+  if (assBullet) assBullet.style.display = inclCapGains ? "" : "none";
+  allWealth = buildAllWealth(startYear);
+  draw(curMonth - 1);
+});
+
+document.getElementById("btn-1031").addEventListener("click", () => {
+  use1031 = !use1031;
+  const el = document.getElementById("btn-1031");
+  el.querySelector(".tip-text").textContent = use1031
+    ? STRINGS[lang].btn1031On
+    : STRINGS[lang].btn1031Off;
+  el.classList.toggle("active", use1031);
+  allWealth = buildAllWealth(startYear);
+  draw(curMonth - 1);
+});
+
+document.getElementById("btn-excl").addEventListener("click", () => {
+  primaryExclusion = primaryExclusion === "married" ? "single" : "married";
+  const el = document.getElementById("btn-excl");
+  el.querySelector(".tip-text").textContent =
+    primaryExclusion === "married"
+      ? STRINGS[lang].btnExclMarried
+      : STRINGS[lang].btnExclSingle;
+  allWealth = buildAllWealth(startYear);
+  draw(curMonth - 1);
 });
 
 // ── Refi count toggle ────────────────────────────────────────────────────
@@ -521,6 +577,9 @@ function getShareParams() {
   if (!inclDepreciation) p.set("dep", "0");
   if (!inclCosts) p.set("cos", "0");
   if (!inclTxCosts) p.set("tx", "0");
+  if (inclCapGains) p.set("cg", "1");
+  if (inclCapGains && !use1031) p.set("1031", "0");
+  if (inclCapGains && primaryExclusion === "single") p.set("excl", "single");
   if (INIT !== 100000) p.set("c", INIT);
   const idxKey = document.getElementById("index-select").value;
   if (idxKey !== "sp500") p.set("idx", idxKey);
@@ -584,6 +643,9 @@ function loadFromHash() {
   if (p.has("dep")) inclDepreciation = p.get("dep") !== "0";
   if (p.has("cos")) inclCosts = p.get("cos") !== "0";
   if (p.has("tx")) inclTxCosts = p.get("tx") !== "0";
+  if (p.has("cg")) inclCapGains = p.get("cg") === "1";
+  if (p.has("1031")) use1031 = p.get("1031") !== "0";
+  if (p.has("excl") && p.get("excl") === "single") primaryExclusion = "single";
   if (p.has("c")) {
     const cv = parseInt(p.get("c"));
     if ([100000, 200000, 500000, 1000000, 2000000, 5000000].includes(cv))
@@ -620,6 +682,65 @@ document.getElementById("lang-select").addEventListener("change", (e) => {
   draw(curMonth - 1);
 });
 
+// ── Cap Gains sub-button visibility ──────────────────────────────────────
+function syncCapGainsSubBtn() {
+  const sub = document.getElementById("capgains-sub");
+  if (!sub) return;
+  if (!inclCapGains) {
+    sub.style.display = "none";
+    return;
+  }
+  sub.style.display = "";
+  const btn1031El = document.getElementById("btn-1031");
+  const btnExclEl = document.getElementById("btn-excl");
+  if (btn1031El) btn1031El.style.display = isPrimary ? "none" : "";
+  if (btnExclEl) btnExclEl.style.display = isPrimary ? "" : "none";
+  // Show/hide assumptions bullet
+  const assBullet = document.getElementById("assump-capgains");
+  if (assBullet) assBullet.style.display = "";
+}
+
+// ── Cap Gains edu tooltip builder ─────────────────────────────────────────
+function buildCapGainsEdu(idx, m, DC, W, isZh, lbl) {
+  const d = allDecomp[idx];
+  if (!d) return "";
+  const dc = d.dComp?.[m];
+  if (!dc) return "";
+
+  const FED_CG_RATE = 0.238;
+  const stateRate = d.stateCapGainsRate ?? 0;
+  const rate = FED_CG_RATE + stateRate;
+  const totalRatePct = (rate * 100).toFixed(1);
+  const stateRatePct = (stateRate * 100).toFixed(1);
+  const price = d.price;
+  const appr = dc.appr ?? 0;
+  const salePrice = price + appr;
+  const cgTax = computeCapGains(idx, m);
+
+  if (isPrimary) {
+    const exclusion = primaryExclusion === "married" ? 500_000 : 250_000;
+    const gain = salePrice - price;
+    const taxableGain = Math.max(0, gain - exclusion);
+    return isZh
+      ? `<strong style="color:${DC.cg}">${lbl.capGains}</strong><br>• 售价 ${fmt(salePrice)} − 购价 ${fmt(price)} = 收益 ${fmt(gain)}<br>&nbsp;&nbsp;· 第121条豁免（${primaryExclusion === "married" ? "已婚" : "单身"}）：${fmt(exclusion)}<br>&nbsp;&nbsp;· 应税收益 = ${fmt(taxableGain)} | 税率 ${W(totalRatePct + "%")}（联邦23.8%+州${stateRatePct}%）<br>• 资本利得税 = ${W(fmt(cgTax))}`
+      : `<strong style="color:${DC.cg}">${lbl.capGains}</strong><br>• sale ${fmt(salePrice)} − basis ${fmt(price)} = gain ${fmt(gain)}<br>&nbsp;&nbsp;· §121 exclusion (${primaryExclusion}): ${fmt(exclusion)}<br>&nbsp;&nbsp;· taxable gain = ${fmt(taxableGain)} | rate ${W(totalRatePct + "%")} (fed 23.8% + state ${stateRatePct}%)<br>• capital gains tax = ${W(fmt(cgTax))}`;
+  } else {
+    if (use1031) {
+      return isZh
+        ? `<strong style="color:${DC.cg}">${lbl.capGains}（1031延税）</strong><br>• 1031交换：将收益投入同类资产，延迟缴纳资本利得税<br>&nbsp;&nbsp;· 折旧回收税（25%）及增值税均延迟<br>• 关闭<em>1031</em>查看应税金额`
+        : `<strong style="color:${DC.cg}">${lbl.capGains} (1031 Deferred)</strong><br>• 1031 exchange defers all capital gains and depreciation recapture<br>&nbsp;&nbsp;· roll proceeds into like-kind property — no tax due<br>• toggle <em>1031 Off</em> to see taxable amount`;
+    }
+    const gain = salePrice - price;
+    const totalDeprec = dc.totalDeprec ?? 0;
+    const recaptureTax = Math.round(totalDeprec * 0.25);
+    const ltGain = Math.max(0, gain - totalDeprec);
+    const ltTax = Math.round(ltGain * rate);
+    return isZh
+      ? `<strong style="color:${DC.cg}">${lbl.capGains}</strong><br>• 售价 ${fmt(salePrice)} − 购价 ${fmt(price)} = 收益 ${fmt(gain)}<br>&nbsp;&nbsp;· 折旧回收税：${fmt(totalDeprec)} × 25% = ${W(fmt(recaptureTax))}<br>&nbsp;&nbsp;· 长期资本利得：${fmt(ltGain)} × ${W(totalRatePct + "%")} = ${W(fmt(ltTax))}<br>• 合计资本利得税 = ${W(fmt(cgTax))}`
+      : `<strong style="color:${DC.cg}">${lbl.capGains}</strong><br>• sale ${fmt(salePrice)} − basis ${fmt(price)} = gain ${fmt(gain)}<br>&nbsp;&nbsp;· depreciation recapture: ${fmt(totalDeprec)} × 25% = ${W(fmt(recaptureTax))}<br>&nbsp;&nbsp;· LT gain: ${fmt(ltGain)} × ${W(totalRatePct + "%")} = ${W(fmt(ltTax))}<br>• total cap gains tax = ${W(fmt(cgTax))}`;
+  }
+}
+
 // ── Return decomposition panel ────────────────────────────────────────────
 let decompActiveRow = null;
 let clickedKey = null; // pinned row — survives mouse leaving barsEl
@@ -651,6 +772,7 @@ function renderDecomp(monthsToShow) {
     taxPos: getCSSVar("--decomp-tax-pos"),
     taxNeg: getCSSVar("--decomp-tax-neg"),
     tx: getCSSVar("--decomp-tx"),
+    cg: getCSSVar("--decomp-cg"),
     hi: getCSSVar("--decomp-hi"),
     hiMid: getCSSVar("--text-mid"),
     hiSub: getCSSVar("--text-sub"),
@@ -673,6 +795,7 @@ function renderDecomp(monthsToShow) {
     taxShield: s.btnTaxBenefits,
     taxBill: isZh ? "税务负担" : "Tax Bill",
     txCosts: isZh ? "交易成本" : "Tx Costs",
+    capGains: s.btnCapGains,
     total: isZh ? "→ 净资产" : "→ Net Worth",
   };
 
@@ -740,18 +863,38 @@ function renderDecomp(monthsToShow) {
             : `<strong style="color:${DC.div}">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
       },
     });
+    const spCgTax = inclCapGains ? computeCapGains(0, m) : 0;
+    if (inclCapGains && spCgTax > 0) {
+      spRows.push({
+        key: "sp-cg",
+        label: lbl.capGains,
+        val: -spCgTax,
+        color: DC.cg,
+        edu: () => {
+          const d = allDecomp[0];
+          const stateRate = d?.stateCapGainsRate ?? 0;
+          const spBonus = d?.capGainsRateSPBonus ?? 0;
+          const totalRate = ((0.238 + stateRate + spBonus) * 100).toFixed(1);
+          const gain = (allWealth[0][m] ?? 0) - INIT;
+          return isZh
+            ? `<strong style="color:${DC.cg}">${lbl.capGains}</strong><br>• 出售收益 = ${fmt(gain)} | 税率 ${W(totalRate + "%")}（联邦23.8%+州${((stateRate + spBonus) * 100).toFixed(1)}%）<br>&nbsp;&nbsp;· 成本基础 = 初始投资 ${fmt(INIT)}<br>• 应税金额 = ${fmt(gain)} × ${totalRate}% = ${W(fmt(spCgTax))}<br>• 关闭<em>资本利得</em>可从图表移除`
+            : `<strong style="color:${DC.cg}">${lbl.capGains}</strong><br>• gain on sale = ${fmt(gain)} | rate ${W(totalRate + "%")} (fed 23.8% + state ${((stateRate + spBonus) * 100).toFixed(1)}%)<br>&nbsp;&nbsp;· cost basis = initial investment ${fmt(INIT)}<br>• tax = ${fmt(gain)} × ${totalRate}% = ${W(fmt(spCgTax))}<br>• toggle <em>Cap Gains</em> off to remove from chart`;
+        },
+      });
+    }
     spRows.push({
       key: "sp-total",
       label: lbl.total,
-      val: spWealth,
+      val: inclCapGains ? spWealth - spCgTax : spWealth,
       total: true,
       color: spColor,
       edu: () => {
+        const spNetWealth = inclCapGains ? spWealth - spCgTax : spWealth;
         const spCagr = (
-          (Math.pow(Math.max(spWealth, 1) / INIT, 1 / years) - 1) *
+          (Math.pow(Math.max(spNetWealth, 1) / INIT, 1 / years) - 1) *
           100
         ).toFixed(1);
-        const mult = (spWealth / INIT).toFixed(1);
+        const mult = (spNetWealth / INIT).toFixed(1);
         const yrsStr = years.toFixed(1);
         const modeNote =
           reinvest || spDc?.cumDiv === 0
@@ -762,8 +905,8 @@ function renderDecomp(monthsToShow) {
               ? `叠加模式：价格涨幅 + 股息 ${fmt(spDc?.cumDiv || 0)} 分开追踪`
               : `Additive: price gain + ${fmt(spDc?.cumDiv || 0)} dividends tracked separately`;
         return isZh
-          ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spWealth)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
-          : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spWealth)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
+          ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spNetWealth)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
+          : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spNetWealth)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
       },
     });
   }
@@ -1100,7 +1243,19 @@ function renderDecomp(monthsToShow) {
           },
         });
       }
-      const displayTotal = inclTxCosts ? bestVal - txSellCost : bestVal;
+      const reCgTax = inclCapGains ? computeCapGains(bestIdx, m) : 0;
+      if (inclCapGains && (reCgTax > 0 || isPrimary)) {
+        reRows.push({
+          key: "re-cg",
+          label: lbl.capGains,
+          val: -reCgTax,
+          color: DC.cg,
+          edu: () => buildCapGainsEdu(bestIdx, m, DC, W, isZh, lbl),
+        });
+      }
+      const displayTotal = inclTxCosts
+        ? bestVal - txSellCost - reCgTax
+        : bestVal - reCgTax;
       reRows.push({
         key: "re-total",
         label: lbl.total,
@@ -1601,8 +1756,9 @@ function draw(monthsToShow) {
       dc && inclTxCosts && dc.txSellRate > 0 && dc.dComp?.[fullM] != null
         ? Math.round((dc.price + dc.dComp[fullM].appr) * dc.txSellRate)
         : 0;
-    // Helper: Y value with optional sell cost deduction at endpoint
-    const wyEnd = (m) => w[m] - (endSellCost > 0 ? endSellCost : 0);
+    const endCapGains = inclCapGains ? computeCapGains(i, fullM) : 0;
+    // Helper: Y value with sell cost + cap gains deducted at endpoint
+    const wyEnd = (m) => w[m] - endSellCost - endCapGains;
 
     ctx.strokeStyle = color;
     ctx.lineWidth = lw;
@@ -1622,7 +1778,12 @@ function draw(monthsToShow) {
     if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
       ctx.lineTo(
         tx(fullM + 1 + frac),
-        ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]) - endSellCost),
+        ty(
+          w[fullM] +
+            frac * (w[fullM + 1] - w[fullM]) -
+            endSellCost -
+            endCapGains,
+        ),
       );
     ctx.stroke();
     // Dashed: projection portion
@@ -1640,7 +1801,12 @@ function draw(monthsToShow) {
       if (frac > 0 && fullM + 1 < w.length)
         ctx.lineTo(
           tx(fullM + 1 + frac),
-          ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]) - endSellCost),
+          ty(
+            w[fullM] +
+              frac * (w[fullM + 1] - w[fullM]) -
+              endSellCost -
+              endCapGains,
+          ),
         );
       ctx.stroke();
       ctx.setLineDash([]);
@@ -1656,7 +1822,7 @@ function draw(monthsToShow) {
       const hm = Math.min(fullM, w.length - 1);
       const canInterp = frac > 0 && fullM + 1 < w.length;
       const dotX = canInterp ? tx(fullM + 1 + frac) : tx(hm + 1);
-      // Apply sell cost adjustment to tip dot position (mirrors line endpoint)
+      // Apply sell cost + cap gains adjustment to tip dot position (mirrors line endpoint)
       const dotDc = i > 0 ? allDecomp[i] : null;
       const dotSellCost =
         dotDc &&
@@ -1665,9 +1831,15 @@ function draw(monthsToShow) {
         dotDc.dComp?.[hm] != null
           ? Math.round((dotDc.price + dotDc.dComp[hm].appr) * dotDc.txSellRate)
           : 0;
+      const dotCapGains = inclCapGains ? computeCapGains(i, hm) : 0;
       const dotY = canInterp
-        ? ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]) - dotSellCost)
-        : ty(w[hm] - dotSellCost);
+        ? ty(
+            w[fullM] +
+              frac * (w[fullM + 1] - w[fullM]) -
+              dotSellCost -
+              dotCapGains,
+          )
+        : ty(w[hm] - dotSellCost - dotCapGains);
       ctx.fillStyle = CT.s[i];
       ctx.beginPath();
       ctx.arc(dotX, dotY, 3, 0, Math.PI * 2);
@@ -1690,13 +1862,14 @@ function draw(monthsToShow) {
           : canInterp
             ? v0 + frac * (allWealth[i][hm + 1] - v0)
             : v0;
-        // Subtract sell cost at current endpoint for RE lines
+        // Subtract sell cost + cap gains at current endpoint
         const lDc = i > 0 ? allDecomp[i] : null;
         const lSell =
           lDc && inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm] != null
             ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
             : 0;
-        const v = atStart ? INIT : vRaw - lSell;
+        const lCapGains = inclCapGains ? computeCapGains(i, hm) : 0;
+        const v = atStart ? INIT : vRaw - lSell - lCapGains;
         return { s, i, v };
       })
         .filter(({ i }) => !hidden.has(i))
@@ -1997,6 +2170,16 @@ if (!inclCosts)
   document.getElementById("btn-incl-costs").classList.remove("active");
 if (!inclTxCosts)
   document.getElementById("btn-incl-tx-costs").classList.remove("active");
+if (inclCapGains) {
+  document.getElementById("btn-incl-cap-gains").classList.add("active");
+  syncCapGainsSubBtn();
+  const assBullet = document.getElementById("assump-capgains");
+  if (assBullet) assBullet.style.display = "";
+}
+if (!use1031) {
+  const el = document.getElementById("btn-1031");
+  if (el) el.classList.remove("active");
+}
 document.querySelectorAll(".leg-item").forEach((item) => {
   item.classList.toggle("hidden", hidden.has(parseInt(item.dataset.idx)));
 });
