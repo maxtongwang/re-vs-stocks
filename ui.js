@@ -508,7 +508,8 @@ function getShareParams() {
   if (lang !== "en") p.set("l", lang);
   if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
   const hArr = [...hidden].sort((a, b) => a - b);
-  const isDefault = hArr.length === 2 && hArr[0] === 4 && hArr[1] === 5;
+  const isDefault =
+    hArr.length === 3 && hArr[0] === 3 && hArr[1] === 4 && hArr[2] === 5;
   if (!isDefault) p.set("h", hArr.join(","));
   if (!inclTaxBenefits) p.set("tb", "0");
   if (!inclDepreciation) p.set("dep", "0");
