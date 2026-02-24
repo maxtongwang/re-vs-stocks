@@ -66,7 +66,7 @@ let inclCapGains = false,
 let numRefis = 0;
 let refiLTV = false;
 let refiLTVPct = 0.75;
-let incomeTier = 3; // default: $500K (index 3)
+let incomeTier = 1; // default: $150K (index 1)
 let lang = "en";
 let allDecomp = [];
 let allWealth = buildAllWealth(startYear);
@@ -587,7 +587,7 @@ function getShareParams() {
   if (numRefis > 0) p.set("r", numRefis);
   if (refiLTV) p.set("t", "l");
   if (refiLTV && refiLTVPct !== 0.75) p.set("v", Math.round(refiLTVPct * 100));
-  if (incomeTier !== 3) p.set("br", incomeTier);
+  if (incomeTier !== 1) p.set("br", incomeTier);
   if (lang !== "en") p.set("l", lang);
   if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
   const hArr = [...hidden].sort((a, b) => a - b);
@@ -2188,13 +2188,12 @@ if (refiLTV && numRefis > 0) {
   document.getElementById("ltv-pct-slider").value = ltvPctInit;
   document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
 }
-if (incomeTier !== 3) {
-  [0, 1, 2, 3, 4].forEach((i) =>
-    document
-      .getElementById(`btn-tier-${i}`)
-      .classList.toggle("active", i === incomeTier),
-  );
-}
+// Sync tier buttons (default is index 1 / $150K — always re-apply from state)
+[0, 1, 2, 3, 4].forEach((i) =>
+  document
+    .getElementById(`btn-tier-${i}`)
+    .classList.toggle("active", i === incomeTier),
+);
 document.getElementById("lang-select").value = lang;
 document.getElementById("lang-abbr").textContent = lang === "zh" ? "🇨🇳" : "🇺🇸";
 if (!inclTaxBenefits)
