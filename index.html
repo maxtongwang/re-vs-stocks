@@ -5415,10 +5415,8 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range (log scale) — expand-only with smooth lerp.
-        // Scan visible months for targets; lerp toward them but never contract.
-        // lerpYLo/lerpYHi initialized in rebuild() from full dataset so lines
-        // start near the bottom and grow upward naturally.
+        // Y range (log scale) — bidirectional smooth lerp during play, instant snap
+        // during slider. Null means first frame: snap immediately.
         let yMin = Infinity,
           yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
@@ -5434,16 +5432,18 @@
         const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
         const tgtLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
         const tgtHi = yMax * 1.1;
-        // Smooth expand-only lerp — no snap, no reset between plays
-        const _s = 0.06;
-        if (tgtHi > lerpYHi)
-          lerpYHi = Math.exp(
-            Math.log(lerpYHi) + (Math.log(tgtHi) - Math.log(lerpYHi)) * _s,
-          );
-        if (tgtLo < lerpYLo)
-          lerpYLo = Math.exp(
-            Math.log(lerpYLo) + (Math.log(tgtLo) - Math.log(lerpYLo)) * _s,
-          );
+        // Snap on first frame; smooth lerp during play; instant snap during scrubbing
+        if (lerpYLo === null) {
+          lerpYLo = tgtLo;
+          lerpYHi = tgtHi;
+        }
+        const _s = playing ? 0.05 : 1.0;
+        lerpYHi = Math.exp(
+          Math.log(lerpYHi) + (Math.log(tgtHi) - Math.log(lerpYHi)) * _s,
+        );
+        lerpYLo = Math.exp(
+          Math.log(lerpYLo) + (Math.log(tgtLo) - Math.log(lerpYLo)) * _s,
+        );
         const yLo = lerpYLo;
         const yHi = lerpYHi;
         const tx = (m) => PL + (m / Math.max(totalMonths - 1, 1)) * chartW;
@@ -5734,9 +5734,9 @@
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
       }
 
-      // ── Y-axis lerp state (expand-only, reset in rebuild) ────────────────────
-      let lerpYLo = 50000,
-        lerpYHi = 10000000;
+      // ── Y-axis lerp state (bidirectional, null = snap on next draw) ─────────
+      let lerpYLo = null,
+        lerpYHi = null;
 
       // ── Play state machine ────────────────────────────────────────────────────
       // States: STOPPED | PLAYING
@@ -5749,8 +5749,11 @@
 
       function startPlay() {
         if (playing) return; // guard: no double RAF
-        if (curMonth >= totalMonths) curMonth = 1; // restart from beginning if at end
-        // Pre-initialize bounds before playing=true so draw() never sees stale/null state.
+        if (curMonth >= totalMonths) {
+          curMonth = 1; // restart from beginning if at end
+          lerpYLo = null;
+          lerpYHi = null; // snap y-axis to month-1 range on first frame
+        }
         sliderEl.value = Math.round(curMonth);
         playing = true;
         lastTs = null;
@@ -5823,17 +5826,9 @@
         curMonth = Math.min(projStartM + 1, totalMonths);
         sliderEl.max = totalMonths;
         sliderEl.value = curMonth;
-        // Reset lerp bounds from full dataset — wide ceiling so lines start near bottom
-        let _rMax = 200000,
-          _rMin = Infinity;
-        for (const w of allWealth)
-          for (const v of w) {
-            if (v > _rMax) _rMax = v;
-            if (v > 1000 && v < _rMin) _rMin = v;
-          }
-        if (!isFinite(_rMin)) _rMin = 50000;
-        lerpYHi = _rMax * 1.1;
-        lerpYLo = Math.max(1000, _rMin * 0.85);
+        // Reset lerp so draw() snaps to the correct range for curMonth on first frame
+        lerpYLo = null;
+        lerpYHi = null;
         updateAssumptions();
         updateLabel(curMonth);
         buildTable();
