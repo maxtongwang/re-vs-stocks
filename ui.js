@@ -1504,7 +1504,7 @@ function draw(monthsToShow) {
     ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
     ctx.fillStyle = CT.projLabel;
     ctx.textAlign = "left";
-    ctx.fillText("EST.", pxStart + 4, PT + 10);
+    ctx.fillText("EST.", pxStart + 4, PT - 3);
   }
 
   // Lines
