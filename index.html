@@ -179,14 +179,7 @@
   </head>
   <body>
     <noscript>
-      <p
-        style="
-          color: #fff;
-          font-family: monospace;
-          padding: 20px;
-          text-align: center;
-        "
-      >
+      <p style="font-family: monospace; padding: 20px; text-align: center">
         This interactive investment calculator requires JavaScript. Please
         enable JavaScript to compare S&amp;P 500 vs real estate returns across
         CA, TX, FL, WA, and NY.
@@ -254,38 +247,10 @@
             <option value="zh">🇨🇳</option>
           </select>
         </span>
-        <button
-          id="theme-btn"
-          title="Toggle light/dark theme"
-          style="
-            background: none;
-            border: none;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-sub);
-            font-family: monospace;
-            font-size: 13px;
-            padding: 0 0 1px 6px;
-            cursor: pointer;
-            line-height: 17px;
-          "
-        >
+        <button id="theme-btn" class="icon-btn" title="Toggle light/dark theme">
           ◑
         </button>
-        <button
-          id="share-btn"
-          title="Copy share link"
-          style="
-            background: none;
-            border: none;
-            border-bottom: 1px solid var(--border);
-            color: var(--text-sub);
-            font-family: monospace;
-            font-size: 13px;
-            padding: 0 0 1px 6px;
-            cursor: pointer;
-            line-height: 17px;
-          "
-        >
+        <button id="share-btn" class="icon-btn" title="Copy share link">
           🔗
         </button>
       </div>
@@ -318,18 +283,7 @@
 
     <div class="ctrl-row">
       <span id="label-improv" class="tip tip-right">Improvement %:</span>
-      <select
-        id="improv-slider"
-        style="
-          flex: 1;
-          background: #111;
-          color: #888;
-          border: 1px solid #333;
-          padding: 2px 4px;
-          font-size: 11px;
-          font-family: monospace;
-        "
-      >
+      <select id="improv-slider">
         <option value="22">22% — NYC</option>
         <option value="28">28% — SF Bay Area</option>
         <option value="32">32% — Orange County</option>
@@ -354,7 +308,7 @@
         gap: 5px 16px;
         font-size: 11px;
         line-height: 14px;
-        color: #888;
+        color: var(--text-mid);
         margin-bottom: 5px;
         align-items: start;
       "
@@ -406,7 +360,7 @@
             id="refi-bal-tip"
             style="
               font-size: 10px;
-              color: #aaa;
+              color: var(--text-dim);
               line-height: 13px;
               padding-left: 2px;
               display: none;
@@ -435,7 +389,7 @@
               id="ltv-tip-line"
               style="
                 font-size: 10px;
-                color: #aaa;
+                color: var(--text-dim);
                 line-height: 13px;
                 padding-left: 2px;
               "
@@ -468,7 +422,9 @@
             <button class="toggle-btn active" id="btn-incl-costs">
               Op. Costs
             </button>
-            <span id="label-costs-note" style="color: #555; font-size: 9px"
+            <span
+              id="label-costs-note"
+              style="color: var(--text-sub); font-size: 9px"
               >(tax · ins · maint)</span
             >
           </div>
@@ -551,12 +507,12 @@
         <thead>
           <tr>
             <th id="th-year">Year</th>
-            <th style="color: #4da6ff">S&P500+div</th>
-            <th style="color: #66ff66">AllCash</th>
-            <th style="color: #ccff33">50%Dn</th>
-            <th class="col-hidden" style="color: #ffaa00">20%Dn</th>
-            <th class="col-hidden" style="color: #ff6600">10%Dn</th>
-            <th class="col-hidden" style="color: #ff3333">3.5%Dn</th>
+            <th style="color: var(--color-s0)">S&P500+div</th>
+            <th style="color: var(--color-s1)">AllCash</th>
+            <th style="color: var(--color-s2)">50%Dn</th>
+            <th class="col-hidden" style="color: var(--color-s3)">20%Dn</th>
+            <th class="col-hidden" style="color: var(--color-s4)">10%Dn</th>
+            <th class="col-hidden" style="color: var(--color-s5)">3.5%Dn</th>
           </tr>
         </thead>
         <tbody id="table-body"></tbody>
@@ -571,7 +527,13 @@
       <div id="decomp-edu"></div>
     </div>
 
-    <hr style="border: none; border-top: 1px solid #222; margin: 24px 0 0" />
+    <hr
+      style="
+        border: none;
+        border-top: 1px solid var(--border-dim);
+        margin: 24px 0 0;
+      "
+    />
     <div class="note" id="note-section">
       <strong id="label-assm-dyn" role="heading" aria-level="2"
         >Assumptions (dynamic)</strong
@@ -582,7 +544,7 @@
       ><span
         id="assm-fix-note"
         style="
-          color: #555;
+          color: var(--text-sub);
           font-weight: normal;
           margin-left: 6px;
           font-size: 10px;
@@ -676,22 +638,22 @@
 
       <strong id="label-sources" role="heading" aria-level="2">Sources</strong>
       <ul id="sources-list" class="src-list"></ul>
-      <p style="color: #555; margin: 4px 0 0; font-size: inherit">
+      <p style="color: var(--text-dim); margin: 4px 0 0; font-size: inherit">
         · Projection data as of
-        <strong style="color: #777; display: inline; margin: 0"
+        <strong style="color: var(--text-sub); display: inline; margin: 0"
           ><!-- PROJ_DATE_START -->2026-02<!-- PROJ_DATE_END --></strong
         >
         &middot; 30yr mortgage:
         <strong
           id="proj-mort-rate"
-          style="color: #777; display: inline; margin: 0"
+          style="color: var(--text-sub); display: inline; margin: 0"
           >5.88%</strong
         >
         &middot; auto-updated monthly via
         <a
           href="https://financialmodelingprep.com"
           target="_blank"
-          style="color: #555"
+          style="color: var(--text-dim)"
           >Financial Modeling Prep</a
         >
       </p>
@@ -701,7 +663,7 @@
       id="disclaimer"
       style="
         text-align: center;
-        color: #555;
+        color: var(--text-dim);
         font-size: 11px;
         margin: 10px 0 4px;
       "
@@ -715,14 +677,14 @@
       style="
         font-family: monospace;
         font-size: 10px;
-        color: #333;
+        color: var(--text-lo);
         margin: 12px 0 8px;
         line-height: 1.7;
       "
     >
       <summary
         style="
-          color: #2a2a2a;
+          color: var(--text-sub);
           cursor: pointer;
           list-style: none;
           font-size: 10px;
@@ -768,7 +730,7 @@
           index used for appreciation. Improvement ratio ~55%.
         </li>
       </ul>
-      <p style="margin-top: 4px; color: #2a2a2a">
+      <p style="margin-top: 4px; color: var(--text-sub)">
         All scenarios: $100,000 initial investment · 5 leverage levels (all
         cash, 50% down, 20% down, 10% down, 3.5% down) · historical data
         1970–2025 · S&amp;P 500 (total return), NASDAQ, and 60/40 portfolio

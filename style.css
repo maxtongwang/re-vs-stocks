@@ -136,6 +136,37 @@ body {
   font-weight: bold;
   min-width: 36px;
 }
+/* ── Icon buttons (theme toggle, share) ─────────────────────────────── */
+.icon-btn {
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-sub);
+  font-family: monospace;
+  font-size: 13px;
+  padding: 0 0 1px 6px;
+  cursor: pointer;
+  line-height: 17px;
+  vertical-align: baseline;
+}
+/* ── Improvement % select ───────────────────────────────────────────── */
+#improv-slider {
+  flex: 1;
+  background: var(--surface);
+  color: var(--text-mid);
+  border: 1px solid var(--border);
+  padding: 2px 4px;
+  font-size: 11px;
+  font-family: monospace;
+}
+#improv-slider option {
+  background: var(--surface);
+  color: var(--text);
+}
+/* ── Unify all range input accent colors ────────────────────────────── */
+input[type="range"] {
+  accent-color: var(--text-mid);
+}
 .toggle-group {
   display: flex;
   gap: 4px;

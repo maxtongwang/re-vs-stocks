@@ -86,6 +86,16 @@
   --canvas-neg-fill: #2d1515;
   --canvas-neg-stroke: #f44747;
 
+  /* ── Decomp panel + outcome callout ── */
+  --decomp-div: #5588cc;
+  --decomp-rent: #55bb77;
+  --decomp-int: #cc4444;
+  --decomp-costs: #bb7700;
+  --decomp-tax-pos: #bbbb33;
+  --decomp-tax-neg: #cc3333;
+  --decomp-hi: #d4d4d4;
+  --outcome-label: #6a6a6a;
+
   /* ── Scenario line / dot colors — VS Code palette ── */
   --color-s0: #4ec9b0; /* S&P 500 — teal */
   --color-s1: #6a9955; /* RE All Cash — green */
@@ -175,6 +185,16 @@
   --canvas-proj-label: #7a6000;
   --canvas-neg-fill: #ffe8e8;
   --canvas-neg-stroke: #cc2222;
+
+  /* ── Decomp panel + outcome callout ── */
+  --decomp-div: #2255aa;
+  --decomp-rent: #1a6633;
+  --decomp-int: #c02020;
+  --decomp-costs: #885500;
+  --decomp-tax-pos: #666600;
+  --decomp-tax-neg: #c02020;
+  --decomp-hi: #222222;
+  --outcome-label: #666666;
 
   /* ── Scenario line / dot colors — readable on light bg ── */
   --color-s0: #1e6bc4; /* S&P 500 */

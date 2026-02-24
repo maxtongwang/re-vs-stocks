@@ -582,6 +582,20 @@ function renderDecomp(monthsToShow) {
   }
   if (hrEl) hrEl.style.display = "";
 
+  // Read theme colors once for this render pass
+  const DC = {
+    sp: getCSSVar("--color-s0"),
+    div: getCSSVar("--decomp-div"),
+    rent: getCSSVar("--decomp-rent"),
+    int: getCSSVar("--decomp-int"),
+    costs: getCSSVar("--decomp-costs"),
+    taxPos: getCSSVar("--decomp-tax-pos"),
+    taxNeg: getCSSVar("--decomp-tax-neg"),
+    hi: getCSSVar("--decomp-hi"),
+    hiMid: getCSSVar("--text-mid"),
+    hiSub: getCSSVar("--text-sub"),
+  };
+
   const years = (m + 1) / 12;
   const yr = startYear + Math.floor(m / 12);
   const mo = (m % 12) + 1;
@@ -618,20 +632,20 @@ function renderDecomp(monthsToShow) {
     "S&P 500";
 
   if (titleEl) {
-    titleEl.innerHTML = `<span style="color:#888">${lbl.title}</span> · <span style="color:#666">${yr}/${mo.toString().padStart(2, "0")}</span>`;
+    titleEl.innerHTML = `<span style="color:${DC.hiMid}">${lbl.title}</span> · <span style="color:${DC.hiSub}">${yr}/${mo.toString().padStart(2, "0")}</span>`;
   }
 
   // Build row arrays for each table
   const spRows = [];
   const reRows = [];
 
-  // Helper: white-highlight key assumptions/numbers in edu text
-  const W = (s) => `<strong style="color:#fff">${s}</strong>`;
+  // Helper: highlight key assumptions/numbers in edu text
+  const W = (s) => `<strong style="color:${DC.hi}">${s}</strong>`;
 
   // S&P rows
   const yrs = years.toFixed(1);
   if (spDc != null) {
-    const spColor = "#4da6ff";
+    const spColor = DC.sp;
     spRows.push({
       key: "sp-appr",
       label: lbl.appreciation,
@@ -653,16 +667,16 @@ function renderDecomp(monthsToShow) {
       key: "sp-div",
       label: lbl.dividends,
       val: spDc.cumDiv,
-      color: "#6688ff",
+      color: DC.div,
       edu: () => {
         const avgDivYield = ((spDc.cumDiv / (INIT * years)) * 100).toFixed(1);
         return isZh
           ? reinvest
-            ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• 再投资额外增长 ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} 贡献<br>&nbsp;&nbsp;· 股息买入更多份额 → 复利滚雪球，含低价加仓<br>• 总回报 ${W("~10%/年")} vs 仅价格 ${W("~7–8%/年")}：差额 = 再投资红利`
-            : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} | 累加模式，现金收取<br>&nbsp;&nbsp;· 标普股息率 ~${W("1.3–2%/年")}；再投资模式自动买入（含低价时）<br>• 公司利润直接分配 — 切换<em>再投资</em>对比差异`
+            ? `<strong style="color:${DC.div}">${lbl.dividends}</strong><br>• 再投资额外增长 ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} 贡献<br>&nbsp;&nbsp;· 股息买入更多份额 → 复利滚雪球，含低价加仓<br>• 总回报 ${W("~10%/年")} vs 仅价格 ${W("~7–8%/年")}：差额 = 再投资红利`
+            : `<strong style="color:${DC.div}">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} | 累加模式，现金收取<br>&nbsp;&nbsp;· 标普股息率 ~${W("1.3–2%/年")}；再投资模式自动买入（含低价时）<br>• 公司利润直接分配 — 切换<em>再投资</em>对比差异`
           : reinvest
-            ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• reinvestment growth ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} contribution<br>&nbsp;&nbsp;· dividends buy more shares → compounds (incl. buying dips)<br>• total return ${W("~10%/yr")} vs price-only ${W("~7–8%/yr")}: difference = reinvested dividends`
-            : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
+            ? `<strong style="color:${DC.div}">${lbl.dividends}</strong><br>• reinvestment growth ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} contribution<br>&nbsp;&nbsp;· dividends buy more shares → compounds (incl. buying dips)<br>• total return ${W("~10%/yr")} vs price-only ${W("~7–8%/yr")}: difference = reinvested dividends`
+            : `<strong style="color:${DC.div}">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
       },
     });
     spRows.push({
@@ -687,8 +701,8 @@ function renderDecomp(monthsToShow) {
               ? `叠加模式：价格涨幅 + 股息 ${fmt(spDc?.cumDiv || 0)} 分开追踪`
               : `Additive: price gain + ${fmt(spDc?.cumDiv || 0)} dividends tracked separately`;
         return isZh
-          ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> | ${mult}x | 年化 <strong style="color:#ccc">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
-          : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> | ${mult}x | <strong style="color:#ccc">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
+          ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spWealth)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
+          : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(spWealth)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
       },
     });
   }
@@ -696,7 +710,7 @@ function renderDecomp(monthsToShow) {
   // RE rows
   if (bestIdx >= 0) {
     const reDc = allDecomp[bestIdx]?.dComp?.[m];
-    const reColor = SCENARIOS[bestIdx].color;
+    const reColor = getCSSVar("--color-s" + bestIdx);
     const reLabel = SCENARIOS[bestIdx].label;
     if (reDc != null) {
       // Update includes button label to reflect current tax outcome
@@ -735,8 +749,8 @@ function renderDecomp(monthsToShow) {
           ).toFixed(1);
           const barVal = fmt(INIT + reDc.appr);
           return isZh
-            ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• 首付 ${fmt(INIT)} + 升值 ${fmt(reDc.appr)} = <strong style="color:#ccc">${barVal}</strong> | 房价 ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}%首付（${fmt(INIT)}）= 年化 <strong style="color:#ccc">${reOnCapCagr}%</strong>（${leverage}x 杠杆，${rePriceCagr}%/年房价）<br>• 杠杆双向：房价 −10% → 本金 <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong>`
-            : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• down ${fmt(INIT)} + gain ${fmt(reDc.appr)} = <strong style="color:#ccc">${barVal}</strong> | property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:#ccc">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage, ${rePriceCagr}%/yr on property)<br>• leverage cuts both ways: −10% property → <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong> on your capital`;
+            ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• 首付 ${fmt(INIT)} + 升值 ${fmt(reDc.appr)} = <strong style="color:${DC.hi}">${barVal}</strong> | 房价 ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}%首付（${fmt(INIT)}）= 年化 <strong style="color:${DC.hi}">${reOnCapCagr}%</strong>（${leverage}x 杠杆，${rePriceCagr}%/年房价）<br>• 杠杆双向：房价 −10% → 本金 <strong style="color:${DC.int}">−${(10 / down).toFixed(0)}%</strong>`
+            : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• down ${fmt(INIT)} + gain ${fmt(reDc.appr)} = <strong style="color:${DC.hi}">${barVal}</strong> | property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:${DC.hi}">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage, ${rePriceCagr}%/yr on property)<br>• leverage cuts both ways: −10% property → <strong style="color:${DC.int}">−${(10 / down).toFixed(0)}%</strong> on your capital`;
         },
       });
       if (!isPrimary && reDc.cumRent > 0) {
@@ -744,7 +758,7 @@ function renderDecomp(monthsToShow) {
           key: "re-rent",
           label: lbl.rentIncome,
           val: reDc.cumRent,
-          color: "#66ff99",
+          color: DC.rent,
           edu: () => {
             const initMonthlyRent = Math.round((price * startYield) / 12);
             const avgMonthlyRent = Math.round(reDc.cumRent / (m + 1));
@@ -774,8 +788,8 @@ function renderDecomp(monthsToShow) {
                     ? `典型市场回报率区间（${fmtYield(yLo)}–${fmtYield(yHi)}%）`
                     : `within typical market range (${fmtYield(yLo)}–${fmtYield(yHi)}%)`;
             return isZh
-              ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:#ccc">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩`
-              : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:#ccc">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time`;
+              ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩`
+              : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time`;
           },
         });
       }
@@ -784,7 +798,7 @@ function renderDecomp(monthsToShow) {
           key: "re-int",
           label: lbl.interest,
           val: -reDc.cumInt,
-          color: "#ff5555",
+          color: DC.int,
           edu: () => {
             const intAsPctPrice =
               price > 0 ? ((reDc.cumInt / price) * 100).toFixed(0) : 0;
@@ -880,8 +894,8 @@ function renderDecomp(monthsToShow) {
               });
               const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
               return isZh
-                ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• 共 ${fmt(reDc.cumInt)} | 购价 <strong style="color:#ccc">${intAsPctPrice}%</strong> | ${yrs}年<br>• 利率分段：<br>${periodLines.join("<br>")}<br>• 每次再融资：余额 × 新利率 → 摊销重置${hasCashOut ? "<br>&nbsp;&nbsp;· 套现：权益 → 现金 + 贷款增加 + 未来利息增加" : ""}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息全额可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
-                : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} total | <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price | ${yrs}yrs<br>• Rate history by period:<br>${periodLines.join("<br>")}<br>• each refi: new balance × new rate → amortization resets${hasCashOut ? "<br>&nbsp;&nbsp;· cash-out: equity → cash + higher loan + more future interest" : ""}${!isPrimary ? `<br>&nbsp;&nbsp;· rental: all interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
+                ? `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• 共 ${fmt(reDc.cumInt)} | 购价 <strong style="color:${DC.hi}">${intAsPctPrice}%</strong> | ${yrs}年<br>• 利率分段：<br>${periodLines.join("<br>")}<br>• 每次再融资：余额 × 新利率 → 摊销重置${hasCashOut ? "<br>&nbsp;&nbsp;· 套现：权益 → 现金 + 贷款增加 + 未来利息增加" : ""}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息全额可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
+                : `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} total | <strong style="color:${DC.hi}">${intAsPctPrice}%</strong> of purchase price | ${yrs}yrs<br>• Rate history by period:<br>${periodLines.join("<br>")}<br>• each refi: new balance × new rate → amortization resets${hasCashOut ? "<br>&nbsp;&nbsp;· cash-out: equity → cash + higher loan + more future interest" : ""}${!isPrimary ? `<br>&nbsp;&nbsp;· rental: all interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
             }
             // Single rate (no refis)
             const mortPmt =
@@ -894,8 +908,8 @@ function renderDecomp(monthsToShow) {
                 : 0;
             const initMonthlyInt = Math.round((mort * mortRate) / 12);
             return isZh
-              ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")}（30年固定）| ${yrs}年<br>&nbsp;&nbsp;· 月供 ${fmt(mortPmt)} | 首月利息 ${fmt(initMonthlyInt)} | 累计 = 购价 <strong style="color:#ccc">${intAsPctPrice}%</strong><br>• 等额还款前期利息为主，本金后期加速<br>&nbsp;&nbsp;· ${leverage}x 杠杆成本：全款需 ${fmt(price)} vs 首付 ${fmt(INIT)}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
-              : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")}) | ${yrs}yrs<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo | month-1 interest = ${fmt(initMonthlyInt)} | total = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price<br>• amortization front-loads interest; principal accelerates near payoff<br>&nbsp;&nbsp;· ${leverage}x leverage cost: ${fmt(price)} cash needed vs ${fmt(INIT)} down${!isPrimary ? `<br>&nbsp;&nbsp;· rental: interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
+              ? `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")}（30年固定）| ${yrs}年<br>&nbsp;&nbsp;· 月供 ${fmt(mortPmt)} | 首月利息 ${fmt(initMonthlyInt)} | 累计 = 购价 <strong style="color:${DC.hi}">${intAsPctPrice}%</strong><br>• 等额还款前期利息为主，本金后期加速<br>&nbsp;&nbsp;· ${leverage}x 杠杆成本：全款需 ${fmt(price)} vs 首付 ${fmt(INIT)}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
+              : `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")}) | ${yrs}yrs<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo | month-1 interest = ${fmt(initMonthlyInt)} | total = <strong style="color:${DC.hi}">${intAsPctPrice}%</strong> of purchase price<br>• amortization front-loads interest; principal accelerates near payoff<br>&nbsp;&nbsp;· ${leverage}x leverage cost: ${fmt(price)} cash needed vs ${fmt(INIT)} down${!isPrimary ? `<br>&nbsp;&nbsp;· rental: interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
           },
         });
       }
@@ -904,7 +918,7 @@ function renderDecomp(monthsToShow) {
           key: "re-costs",
           label: lbl.costs,
           val: -reDc.cumCosts,
-          color: "#ff8800",
+          color: DC.costs,
           edu: () => {
             const propTaxPct = (activeLocConfig.propTaxRate * 100).toFixed(2);
             const totalCostPct = (
@@ -919,13 +933,13 @@ function renderDecomp(monthsToShow) {
                 ? ((reDc.cumCosts / reDc.cumRent) * 100).toFixed(0)
                 : "—";
             return isZh
-              ? `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年")}${!isPrimary ? `<br>&nbsp;&nbsp;· = 租金收入 <strong style="color:#ccc">${costsAsRentPct}%</strong>；随房产价值增长，即便租金滞后` : ""}<br>• 切换<em>运营成本</em>可量化拖累`
-              : `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr")}${!isPrimary ? `<br>&nbsp;&nbsp;· = <strong style="color:#ccc">${costsAsRentPct}%</strong> of gross rent; scales with property value even when rent lags` : ""}<br>• toggle <em>Op. Costs</em> to isolate drag`;
+              ? `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年")}${!isPrimary ? `<br>&nbsp;&nbsp;· = 租金收入 <strong style="color:${DC.hi}">${costsAsRentPct}%</strong>；随房产价值增长，即便租金滞后` : ""}<br>• 切换<em>运营成本</em>可量化拖累`
+              : `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr")}${!isPrimary ? `<br>&nbsp;&nbsp;· = <strong style="color:${DC.hi}">${costsAsRentPct}%</strong> of gross rent; scales with property value even when rent lags` : ""}<br>• toggle <em>Op. Costs</em> to isolate drag`;
           },
         });
       }
       if (inclTaxBenefits && reDc.cumTax !== 0) {
-        const taxColor = reDc.cumTax >= 0 ? "#ffff66" : "#ff6666";
+        const taxColor = reDc.cumTax >= 0 ? DC.taxPos : DC.taxNeg;
         reRows.push({
           key: "re-tax",
           label: reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill,
@@ -982,8 +996,8 @@ function renderDecomp(monthsToShow) {
             reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
           );
           return isZh
-            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> | ${mult}x | 年化 <strong style="color:#ccc">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
-            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> | ${mult}x | <strong style="color:#ccc">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
+            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(bestVal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
+            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(bestVal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
         },
       });
     }
@@ -1017,8 +1031,8 @@ function renderDecomp(monthsToShow) {
     return h;
   }
 
-  const spColor = "#4da6ff";
-  const reColor = bestIdx >= 0 ? SCENARIOS[bestIdx].color : "#66ff66";
+  const spColor = DC.sp;
+  const reColor = bestIdx >= 0 ? getCSSVar("--color-s" + bestIdx) : DC.rent;
   const reLabel = bestIdx >= 0 ? SCENARIOS[bestIdx].label : "RE";
 
   barsEl.innerHTML =
@@ -1068,13 +1082,13 @@ function renderDecomp(monthsToShow) {
   });
   const hintEl = document.getElementById("decomp-hint");
   const hint = isZh
-    ? `<span style="color:#fff">↑ 悬停或点击行查看说明</span>`
-    : `<span style="color:#fff">↑ hover or click a row to explore</span>`;
+    ? `<span style="color:${DC.hi}">↑ 悬停或点击行查看说明</span>`
+    : `<span style="color:${DC.hi}">↑ hover or click a row to explore</span>`;
   if (hintEl) hintEl.innerHTML = hint;
 
   const defaultEdu = isZh
-    ? `<strong style="color:#888">收益明细</strong>：涨幅（杠杆放大）、现金流、成本、税收 → 正值叠加，负值抵消。悬停行查看计算逻辑。`
-    : `<strong style="color:#888">Return Breakdown</strong>: appreciation (leverage-amplified) + cash flows + costs + tax → positive adds, negative drags. Hover a row for the math.`;
+    ? `<strong style="color:${DC.hiMid}">收益明细</strong>：涨幅（杠杆放大）、现金流、成本、税收 → 正值叠加，负值抵消。悬停行查看计算逻辑。`
+    : `<strong style="color:${DC.hiMid}">Return Breakdown</strong>: appreciation (leverage-amplified) + cash flows + costs + tax → positive adds, negative drags. Hover a row for the math.`;
 
   // Use the outer panel so moving mouse to edu text doesn't reset content
   const panelEl = document.getElementById("decomp-panel");
@@ -1124,7 +1138,7 @@ function updateOutcomeCallout(monthsToShow) {
   }
   const idxLabel =
     document.getElementById("index-select").selectedOptions[0].text;
-  const spStr = `<span style="color:#4da6ff">${fmt(spVal)} (${spCagr}%/yr)</span>`;
+  const spStr = `<span style="color:${getCSSVar("--color-s0")}">${fmt(spVal)} (${spCagr}%/yr)</span>`;
   if (bestReIdx === -1) {
     el.innerHTML = `· ${idxLabel}: ${spStr}`;
     return;
@@ -1141,7 +1155,8 @@ function updateOutcomeCallout(monthsToShow) {
     bestReVal > spVal
       ? `<strong>${aheadFn(((bestReVal / spVal - 1) * 100).toFixed(0), true)}</strong>`
       : `<strong>${aheadFn(((spVal / bestReVal - 1) * 100).toFixed(0), false)}</strong>`;
-  el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:#777">· ${idxLabel}:</td><td style="text-align:left">${spStr}</td></tr><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:#777">· ${reLabel}:</td><td style="text-align:left">${reStr} — ${winner}</td></tr></table>`;
+  const outLabel = getCSSVar("--outcome-label");
+  el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:${outLabel}">· ${idxLabel}:</td><td style="text-align:left">${spStr}</td></tr><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:${outLabel}">· ${reLabel}:</td><td style="text-align:left">${reStr} — ${winner}</td></tr></table>`;
 }
 
 function updateLegendCagr(monthsToShow) {
@@ -1189,7 +1204,7 @@ function handleCanvasPointer(clientX, clientY) {
   const yr = startYear + Math.floor(m / 12);
   const mo = (m % 12) + 1;
   const years = (m + 1) / 12;
-  let html = `<div style="color:#666;margin-bottom:2px">${yr}/${mo.toString().padStart(2, "0")}</div>`;
+  let html = `<div style="color:${getCSSVar("--text-sub")};margin-bottom:2px">${yr}/${mo.toString().padStart(2, "0")}</div>`;
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const v = allWealth[i][m];
