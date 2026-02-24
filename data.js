@@ -1,11 +1,11 @@
 // ── Scenario metadata ──────────────────────────────────────────────────────
 const SCENARIOS = [
-  { label: "S&P 500 (total)", color: "#4da6ff" },
-  { label: "RE All Cash", color: "#66ff66" },
-  { label: "RE 50% Down", color: "#ccff33" },
-  { label: "RE 20% Down", color: "#ffaa00" },
-  { label: "RE 10% Down", color: "#ff6600" },
-  { label: "RE 3.5% Down", color: "#ff3333" },
+  { label: "S&P 500 (total)" },
+  { label: "RE All Cash" },
+  { label: "RE 50% Down" },
+  { label: "RE 20% Down" },
+  { label: "RE 10% Down" },
+  { label: "RE 3.5% Down" },
 ];
 
 // ── Market events (crashes + spikes) ─────────────────────────────────────

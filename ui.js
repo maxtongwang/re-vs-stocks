@@ -8,6 +8,11 @@ function getCSSVar(name) {
 function applyTheme(theme) {
   document.documentElement.dataset.theme = theme;
   localStorage.setItem("theme", theme);
+  buildTable();
+  syncTableCols();
+  updateAssumptions();
+  renderDecomp(curMonth);
+  updateOutcomeCallout(curMonth);
   draw(curMonth - 1);
 }
 
@@ -1147,7 +1152,7 @@ function updateOutcomeCallout(monthsToShow) {
     (Math.pow(Math.max(bestReVal, 1) / INIT, 1 / years) - 1) *
     100
   ).toFixed(1);
-  const reColor = SCENARIOS[bestReIdx].color;
+  const reColor = getCSSVar("--color-s" + bestReIdx);
   const reLabel = SCENARIOS[bestReIdx].label;
   const reStr = `<span style="color:${reColor}">${fmt(bestReVal)} (${reCagr}%/yr)</span>`;
   const aheadFn = STRINGS[lang].outcomeAhead;
