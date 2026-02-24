@@ -1,6 +1,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: hidden;
 }
 * {
   box-sizing: border-box;
@@ -326,8 +327,8 @@ canvas {
   background: var(--btn-active-bg);
 }
 .legend-wrap {
-  width: 100vw;
-  margin-left: -12px; /* negate body padding so wrapper spans full viewport */
+  margin-left: -12px;
+  margin-right: -12px; /* span full viewport width without 100vw overflow */
   text-align: center;
   margin-top: 10px;
 }
