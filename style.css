@@ -237,6 +237,7 @@ input[type="range"] {
 }
 #sg-refi .toggle-btn {
   justify-content: center;
+  min-width: 36px;
 }
 .toggle-btn.active {
   border-color: var(--accent);
