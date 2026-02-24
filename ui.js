@@ -76,9 +76,10 @@ const hidden = new Set([3, 4, 5]);
 // ── Formatting ────────────────────────────────────────────────────────────
 function fmt(v) {
   if (v === undefined || v === null) return "—";
-  if (v < 0) return `-$${Math.round(-v / 1000)}K`;
-  if (v >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
-  return `$${Math.round(v / 1000)}K`;
+  const abs = Math.abs(v);
+  const sign = v < 0 ? "-" : "";
+  if (abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(1)}M`;
+  return `${sign}$${Math.round(abs / 1000)}K`;
 }
 
 // ── Table ─────────────────────────────────────────────────────────────────
@@ -1099,7 +1100,9 @@ function renderDecomp(monthsToShow) {
           },
         });
       }
-      const displayTotal = inclTxCosts ? bestVal - txSellCost : bestVal;
+      const atLastMonth = m >= allWealth[0].length - 1;
+      const displayTotal =
+        !inclTxCosts || atLastMonth ? bestVal : bestVal - txSellCost;
       reRows.push({
         key: "re-total",
         label: lbl.total,
@@ -1249,12 +1252,12 @@ function updateLegendCagr(monthsToShow) {
   // Pick unit once based on max value so all items use the same format
   const maxV = Math.max(...allWealth.map((w) => w[m] ?? 0));
   const useM = maxV >= 1e6;
-  const fmtLeg = (v) =>
-    v < 0
-      ? `-$${(-v / 1e6).toFixed(2)}M`
-      : useM
-        ? `$${(v / 1e6).toFixed(2)}M`
-        : `$${Math.round(v / 1000)}K`;
+  const fmtLeg = (v) => {
+    const abs = Math.abs(v);
+    const sign = v < 0 ? "-" : "";
+    if (useM || abs >= 1e6) return `${sign}$${(abs / 1e6).toFixed(1)}M`;
+    return `${sign}$${Math.round(abs / 1000)}K`;
+  };
   let bestIdx = -1,
     bestVal = -Infinity;
   for (let i = 0; i < allWealth.length; i++) {

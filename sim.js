@@ -567,12 +567,16 @@ function simRE(
     newLoan: finalPeriodLoan,
     cashOut: 0,
   });
-  // One-time buy costs (closing costs paid at purchase) — constant offset on all months.
-  // Sell costs are one-time at sale; returned in decomp for the UI to display.
+  // One-time buy costs: constant offset on all months.
+  // One-time sell costs: deducted only at the final month (terminal sale).
   const txBuyRate = inclTxCosts ? (locCfg.txBuy ?? 0.01) : 0;
   const txSellRate = inclTxCosts ? (locCfg.txSell ?? 0.06) : 0;
   const txBuyCost = Math.round(price * txBuyRate);
   if (txBuyCost > 0) for (let i = 0; i < w.length; i++) w[i] -= txBuyCost;
+  if (txSellRate > 0 && w.length > 0) {
+    const lastM = w.length - 1;
+    w[lastM] -= Math.round((price + dComp[lastM].appr) * txSellRate);
+  }
 
   // Bankruptcy clamp: once wealth goes negative, it can deepen but never recover.
   // Running minimum freezes at the worst point — no false comeback from insolvency.
