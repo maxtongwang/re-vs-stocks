@@ -1168,7 +1168,7 @@ function updateLegendCagr(monthsToShow) {
       continue;
     }
     const cagr = (Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100;
-    el.textContent = ` ${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%`;
+    el.textContent = ` ${fmt(v)} ${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%`;
     el.style.color =
       cagr >= 0 ? getCSSVar("--cagr-positive") : getCSSVar("--cagr-negative");
     if (!hidden.has(i) && v > bestVal) {
@@ -1190,7 +1190,20 @@ function updateLegendCagr(monthsToShow) {
       ? document.getElementById("index-select").selectedOptions[0].text
       : legLabels[bestIdx];
   leaderEl.style.color = getCSSVar(`--color-s${bestIdx}`);
-  leaderEl.textContent = `\u2014 ${label}`;
+  // Show leading scenario and how far ahead it is vs the best of the other type
+  const spVal = allWealth[0][m];
+  let compVal = -Infinity;
+  for (let i = 1; i < allWealth.length; i++) {
+    if (!hidden.has(i) && allWealth[i][m] > compVal) compVal = allWealth[i][m];
+  }
+  const ahead =
+    bestIdx === 0 && compVal > 0
+      ? ((spVal / compVal - 1) * 100) | 0
+      : bestIdx > 0
+        ? ((bestVal / spVal - 1) * 100) | 0
+        : 0;
+  const aheadStr = ahead > 0 ? ` · +${ahead}%` : "";
+  leaderEl.textContent = `\u2014 ${label}${aheadStr}`;
 }
 
 // ── Canvas ────────────────────────────────────────────────────────────────
