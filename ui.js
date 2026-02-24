@@ -66,6 +66,7 @@ let inclCapGains = false,
 let numRefis = 0;
 let refiLTV = false;
 let refiLTVPct = 0.75;
+let incomeTier = 3; // default: $500K (index 3)
 let lang = "en";
 let allDecomp = [];
 let allWealth = buildAllWealth(startYear);
@@ -557,6 +558,24 @@ document.getElementById("ltv-pct-slider").addEventListener("input", (e) => {
   }
 });
 
+// ── Income tier toggle ────────────────────────────────────────────────────
+[0, 1, 2, 3, 4].forEach((n) => {
+  document.getElementById(`btn-tier-${n}`).addEventListener("click", () => {
+    if (incomeTier === n) return;
+    incomeTier = n;
+    [0, 1, 2, 3, 4].forEach((i) =>
+      document
+        .getElementById(`btn-tier-${i}`)
+        .classList.toggle("active", i === n),
+    );
+    allWealth = buildAllWealth(startYear);
+    updateAssumptions();
+    buildTable();
+    syncTableCols();
+    draw(curMonth - 1);
+  });
+});
+
 // ── Share URL ─────────────────────────────────────────────────────────────
 function getShareParams() {
   const p = new URLSearchParams();
@@ -567,6 +586,7 @@ function getShareParams() {
   if (numRefis > 0) p.set("r", numRefis);
   if (refiLTV) p.set("t", "l");
   if (refiLTV && refiLTVPct !== 0.75) p.set("v", Math.round(refiLTVPct * 100));
+  if (incomeTier !== 3) p.set("br", incomeTier);
   if (lang !== "en") p.set("l", lang);
   if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
   const hArr = [...hidden].sort((a, b) => a - b);
@@ -612,6 +632,10 @@ function loadFromHash() {
   if (p.has("r"))
     numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
   if (p.has("t")) refiLTV = p.get("t") === "l";
+  if (p.has("br")) {
+    const v = parseInt(p.get("br"));
+    if (v >= 0 && v <= 4) incomeTier = v;
+  }
   if (p.has("v")) {
     const v = parseInt(p.get("v"));
     if (v >= 50 && v <= 80 && v % 5 === 0) refiLTVPct = v / 100;
@@ -2162,6 +2186,13 @@ if (refiLTV && numRefis > 0) {
   const ltvPctInit = Math.round(refiLTVPct * 100);
   document.getElementById("ltv-pct-slider").value = ltvPctInit;
   document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
+}
+if (incomeTier !== 3) {
+  [0, 1, 2, 3, 4].forEach((i) =>
+    document
+      .getElementById(`btn-tier-${i}`)
+      .classList.toggle("active", i === incomeTier),
+  );
 }
 document.getElementById("lang-select").value = lang;
 document.getElementById("lang-abbr").textContent = lang === "zh" ? "🇨🇳" : "🇺🇸";

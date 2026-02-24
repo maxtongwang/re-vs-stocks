@@ -653,6 +653,8 @@ function buildAllWealth(yr) {
   const mr = MORTGAGE_RATES[i];
   const ry = activeCaRentYields[i];
   const refis = getRefis(yr, endYear, numRefis); // refis only in historical range
+  const effectiveTaxRate = getMarginalRate(activeLocConfig, incomeTier);
+  const locCfgEff = { ...activeLocConfig, taxRate: effectiveTaxRate };
   const raw = [
     simSP(spP, sp, spD, reinvest),
     simRE(
@@ -668,7 +670,7 @@ function buildAllWealth(yr) {
       refis,
       refiLTV,
       refiLTVPct,
-      activeLocConfig,
+      locCfgEff,
       inclTaxBenefits,
       inclDepreciation,
       inclCosts,
@@ -688,7 +690,7 @@ function buildAllWealth(yr) {
         refis,
         refiLTV,
         refiLTVPct,
-        activeLocConfig,
+        locCfgEff,
         inclTaxBenefits,
         inclDepreciation,
         inclCosts,
