@@ -2606,6 +2606,7 @@ draw(curMonth - 1);
 // Tooltip viewport-clamping: keep ::before within screen bounds (horizontal + vertical)
 function positionTooltip(icon) {
   const rect = icon.getBoundingClientRect();
+  const bz = parseFloat(getComputedStyle(document.body).zoom) || 1;
   const tipW = Math.min(240, window.innerWidth * 0.9);
   const isRight = !!icon.closest(".tip-right");
   const isLeft = !!icon.closest(".tip-left");
@@ -2616,8 +2617,19 @@ function positionTooltip(icon) {
   const clamped = Math.max(8, Math.min(absLeft, window.innerWidth - tipW - 8));
   icon.style.setProperty("--tt-x", clamped - rect.left + "px");
   icon.style.setProperty("--tt-tx", "none");
-  // Flip to below when icon is too close to the top of the viewport
-  icon.classList.toggle("tip-flipped", rect.top < 200);
+  // Flip to below when tooltip would overflow the top of the viewport.
+  // Measure actual tip height (pseudo-elements can't be measured directly).
+  const tipText = icon.getAttribute("data-tip") || "";
+  let tipHvisual = 160; // fallback estimate
+  if (tipText) {
+    const m = document.createElement("div");
+    m.style.cssText = `position:fixed;top:-9999px;visibility:hidden;font-size:11px;line-height:1.5;padding:5px 9px;width:${Math.round(tipW / bz)}px;white-space:pre-line;pointer-events:none;`;
+    m.textContent = tipText;
+    document.body.appendChild(m);
+    tipHvisual = m.offsetHeight * bz; // CSS px → visual px
+    m.remove();
+  }
+  icon.classList.toggle("tip-flipped", rect.top < tipHvisual + 12);
 }
 
 // Tooltip icon click: toggle tooltip, never fire parent button action
