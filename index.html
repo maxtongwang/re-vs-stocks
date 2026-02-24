@@ -5584,11 +5584,14 @@
           ctx.lineJoin = "round";
           const solidEnd = Math.min(projStartM, fullM);
           // Solid: anchor at INIT then historical data (data index m → x-position m+1)
+          // At fullM=0 frac=0 (slider at very start), only the INIT anchor is drawn.
           ctx.setLineDash([]);
           ctx.beginPath();
           ctx.moveTo(tx(0), ty(INIT));
-          for (let m = 0; m <= solidEnd && m < w.length; m++)
+          for (let m = 0; m <= solidEnd && m < w.length; m++) {
+            if (fullM === 0 && frac === 0) break; // only INIT anchor at start
             ctx.lineTo(tx(m + 1), ty(w[m]));
+          }
           // Fractional leading edge in solid zone
           if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
             ctx.lineTo(
@@ -5640,14 +5643,17 @@
         {
           const hm = Math.min(fullM, totalMonths - 1);
           const canInterp = frac > 0 && hm + 1 < allWealth[0].length;
+          const atStart = fullM === 0 && frac === 0;
           if (hm >= 0) {
             ctx.font = `${lfs}px monospace`;
             ctx.textAlign = "left";
             const items = SCENARIOS.map((s, i) => {
-              const v0 = allWealth[i][hm];
-              const v = canInterp
-                ? v0 + frac * (allWealth[i][hm + 1] - v0)
-                : v0;
+              const v0 = atStart ? INIT : allWealth[i][hm];
+              const v = atStart
+                ? INIT
+                : canInterp
+                  ? v0 + frac * (allWealth[i][hm + 1] - v0)
+                  : v0;
               return { s, i, v };
             })
               .filter(({ i }) => !hidden.has(i))
@@ -5671,7 +5677,12 @@
             // Clamp top
             for (let k = 0; k < positions.length; k++)
               if (positions[k] < PT + lfs) positions[k] = PT + lfs;
-            const lx = (canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
+            const lx =
+              (atStart
+                ? tx(0)
+                : canInterp
+                  ? tx(fullM + 1 + frac)
+                  : tx(hm + 1)) + 6;
             items.forEach(({ s, i, v }, k) => {
               ctx.fillStyle = s.color;
               ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
