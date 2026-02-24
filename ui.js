@@ -58,7 +58,8 @@ let improvPct = activeLocConfig.improvPct; // keep in sync with default location
 let isPrimary = false;
 let inclTaxBenefits = true,
   inclDepreciation = true,
-  inclCosts = true;
+  inclCosts = true,
+  inclTxCosts = true;
 let numRefis = 0;
 let refiLTV = false;
 let refiLTVPct = 0.75;
@@ -336,6 +337,11 @@ function applyLang() {
   document
     .querySelector("#btn-incl-costs .tip-icon")
     .setAttribute("data-tip", s.tipCosts);
+  document.querySelector("#btn-incl-tx-costs .tip-text").textContent =
+    s.btnTxCosts;
+  document
+    .querySelector("#btn-incl-tx-costs .tip-icon")
+    .setAttribute("data-tip", s.tipTxCosts);
   const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
   document.querySelectorAll(".leg-text").forEach((el, i) => {
     el.innerHTML = legLabels[i];
@@ -413,17 +419,20 @@ document.getElementById("btn-primary").addEventListener("click", () => {
 });
 
 // ── Includes toggles ─────────────────────────────────────────────────────
-["taxbenefit", "depreciation", "costs"].forEach((key) => {
+["taxbenefit", "depreciation", "costs", "tx-costs"].forEach((key) => {
   document.getElementById(`btn-incl-${key}`).addEventListener("click", () => {
     if (key === "taxbenefit") inclTaxBenefits = !inclTaxBenefits;
     else if (key === "depreciation") inclDepreciation = !inclDepreciation;
-    else inclCosts = !inclCosts;
+    else if (key === "costs") inclCosts = !inclCosts;
+    else inclTxCosts = !inclTxCosts;
     const val =
       key === "taxbenefit"
         ? inclTaxBenefits
         : key === "depreciation"
           ? inclDepreciation
-          : inclCosts;
+          : key === "costs"
+            ? inclCosts
+            : inclTxCosts;
     document.getElementById(`btn-incl-${key}`).classList.toggle("active", val);
     allWealth = buildAllWealth(startYear);
     draw(curMonth - 1);
@@ -510,6 +519,7 @@ function getShareParams() {
   if (!inclTaxBenefits) p.set("tb", "0");
   if (!inclDepreciation) p.set("dep", "0");
   if (!inclCosts) p.set("cos", "0");
+  if (!inclTxCosts) p.set("tx", "0");
   if (INIT !== 100000) p.set("c", INIT);
   const idxKey = document.getElementById("index-select").value;
   if (idxKey !== "sp500") p.set("idx", idxKey);
@@ -572,6 +582,7 @@ function loadFromHash() {
   if (p.has("tb")) inclTaxBenefits = p.get("tb") !== "0";
   if (p.has("dep")) inclDepreciation = p.get("dep") !== "0";
   if (p.has("cos")) inclCosts = p.get("cos") !== "0";
+  if (p.has("tx")) inclTxCosts = p.get("tx") !== "0";
   if (p.has("c")) {
     const cv = parseInt(p.get("c"));
     if ([100000, 200000, 500000, 1000000, 2000000, 5000000].includes(cv))
@@ -638,6 +649,7 @@ function renderDecomp(monthsToShow) {
     costs: getCSSVar("--decomp-costs"),
     taxPos: getCSSVar("--decomp-tax-pos"),
     taxNeg: getCSSVar("--decomp-tax-neg"),
+    tx: getCSSVar("--decomp-tx"),
     hi: getCSSVar("--decomp-hi"),
     hiMid: getCSSVar("--text-mid"),
     hiSub: getCSSVar("--text-sub"),
@@ -659,6 +671,7 @@ function renderDecomp(monthsToShow) {
     costs: s.btnCosts,
     taxShield: s.btnTaxBenefits,
     taxBill: isZh ? "税务负担" : "Tax Bill",
+    txCosts: isZh ? "交易成本" : "Tx Costs",
     total: isZh ? "→ 净资产" : "→ Net Worth",
   };
 
@@ -772,7 +785,12 @@ function renderDecomp(monthsToShow) {
         mortRate,
         startYield,
         ratePeriods = [],
+        txBuyCost = 0,
+        txSellRate = 0,
       } = allDecomp[bestIdx];
+      const propValAtM = price + reDc.appr;
+      const txSellCost = Math.round(propValAtM * txSellRate);
+      const txBuyRate = price > 0 ? txBuyCost / price : 0;
       const leverage = down > 0 ? (1 / down).toFixed(1) : "∞";
       const appPct = price > 0 ? ((reDc.appr / price) * 100).toFixed(0) : 0;
       const yrs = years.toFixed(1);
@@ -1025,26 +1043,83 @@ function renderDecomp(monthsToShow) {
           },
         });
       }
+      if (inclTxCosts && (txBuyCost > 0 || txSellCost > 0)) {
+        reRows.push({
+          key: "re-tx",
+          label: lbl.txCosts,
+          val: -(txBuyCost + txSellCost),
+          color: DC.tx,
+          edu: () => {
+            const txBuyPct = (txBuyRate * 100).toFixed(1);
+            const txSellPct = (txSellRate * 100).toFixed(1);
+            const txTotal = txBuyCost + txSellCost;
+            let buyNote, sellNote;
+            if (txBuyRate >= 0.018) {
+              buyNote = isZh
+                ? "产权、托管、评估 + 抵押录入税（~1.0–1.8%）"
+                : "title, escrow, appraisal + mortgage recording tax (~1.0–1.8%)";
+            } else if (txBuyRate >= 0.012) {
+              buyNote = isZh
+                ? "产权、托管、评估 + 佛州印花税（0.35%×2）"
+                : "title, escrow, appraisal + FL doc stamps (0.35%×2)";
+            } else {
+              buyNote = isZh
+                ? "产权（~0.5%）、托管（~0.3%）、验房（~0.3%）、评估（~0.1%）"
+                : "title (~0.5%), escrow (~0.3%), inspection (~0.3%), appraisal (~0.1%)";
+            }
+            if (txSellRate >= 0.088) {
+              const reetPct = ((txSellRate - 0.065) * 100).toFixed(2);
+              sellNote = isZh
+                ? `佣金（~5%）、产权+托管（~0.5%）、华州REET（~${reetPct}%）`
+                : `commission (~5%), title/escrow (~0.5%), WA REET (~${reetPct}%)`;
+            } else if (txSellRate >= 0.077) {
+              sellNote = isZh
+                ? "佣金（~5%）、产权+托管（~0.5%）、RPTT 1.425% + 纽约州转让税0.4%"
+                : "commission (~5%), title/escrow (~0.5%), RPTT 1.425% + NYS transfer 0.4%";
+            } else if (txSellRate >= 0.071) {
+              sellNote = isZh
+                ? "佣金（~5%）、产权+托管（~0.5%）、华州REET（~1.28%）"
+                : "commission (~5%), title/escrow (~0.5%), WA REET (~1.28%)";
+            } else if (txSellRate >= 0.068) {
+              sellNote = isZh
+                ? "佣金（~5%）、产权+托管（~0.5%）、佛州印花税（0.7%）、保修"
+                : "commission (~5%), title/escrow (~0.5%), FL doc stamps (0.7%), warranty";
+            } else if (txSellRate >= 0.063) {
+              sellNote = isZh
+                ? "佣金（~5%）、产权+托管（~0.5%）、州转让税（~0.4%）"
+                : "commission (~5%), title/escrow (~0.5%), state transfer tax (~0.4%)";
+            } else {
+              sellNote = isZh
+                ? "佣金（~5%）、产权+托管（~0.5%）、保修"
+                : "commission (~5%), title/escrow (~0.5%), warranty";
+            }
+            return isZh
+              ? `<strong style="color:${DC.tx}">交易成本（一次性）</strong><br>• 买入：${W(txBuyPct + "%")} × ${fmt(price)} = ${W(fmt(txBuyCost))}（${buyNote}）<br>&nbsp;&nbsp;· 已从首日财富中扣除（永久拖累）<br>• 卖出（假设今天出售）：${W(txSellPct + "%")} × ${fmt(propValAtM)} = ${W(fmt(txSellCost))}（${sellNote}）<br>&nbsp;&nbsp;· 买入 + 卖出合计 ${W(fmt(txTotal))}<br>• 关闭<em>交易成本</em>可从图表移除`
+              : `<strong style="color:${DC.tx}">Transaction Costs (one-time)</strong><br>• buy: ${W(txBuyPct + "%")} × ${fmt(price)} = ${W(fmt(txBuyCost))} (${buyNote})<br>&nbsp;&nbsp;· baked into wealth from day 1 (permanent drag)<br>• sell (if sold today): ${W(txSellPct + "%")} × ${fmt(propValAtM)} = ${W(fmt(txSellCost))} (${sellNote})<br>&nbsp;&nbsp;· buy + sell combined: ${W(fmt(txTotal))}<br>• toggle <em>Tx Costs</em> off to remove from chart`;
+          },
+        });
+      }
+      const displayTotal = inclTxCosts ? bestVal - txSellCost : bestVal;
       reRows.push({
         key: "re-total",
         label: lbl.total,
-        val: bestVal,
+        val: displayTotal,
         total: true,
         color: reColor,
         edu: () => {
           const reCagr = (
-            (Math.pow(Math.max(bestVal, 1) / INIT, 1 / years) - 1) *
+            (Math.pow(Math.max(displayTotal, 1) / INIT, 1 / years) - 1) *
             100
           ).toFixed(1);
-          const mult = (bestVal / INIT).toFixed(1);
-          // Additive decomposition: wealth = (INIT + appr) + (cumRent - cumInt - cumCosts + cumTax)
+          const mult = (displayTotal / INIT).toFixed(1);
+          // Additive decomposition: wealth = (INIT + appr) + (cumRent - cumInt - cumCosts + cumTax) - txCosts
           const appreciationPart = Math.round(INIT + reDc.appr);
           const cashFlowPart = Math.round(
             reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
           );
           return isZh
-            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(bestVal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
-            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(bestVal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
+            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
+            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
         },
       });
     }
@@ -1890,6 +1965,8 @@ if (!inclDepreciation)
   document.getElementById("btn-incl-depreciation").classList.remove("active");
 if (!inclCosts)
   document.getElementById("btn-incl-costs").classList.remove("active");
+if (!inclTxCosts)
+  document.getElementById("btn-incl-tx-costs").classList.remove("active");
 document.querySelectorAll(".leg-item").forEach((item) => {
   item.classList.toggle("hidden", hidden.has(parseInt(item.dataset.idx)));
 });

@@ -407,6 +407,7 @@ function simRE(
   inclTaxBenefits = true,
   inclDepreciation = true,
   inclCosts = true,
+  inclTxCosts = true,
 ) {
   const price = INIT / down,
     mort = price * (1 - down);
@@ -566,6 +567,13 @@ function simRE(
     newLoan: finalPeriodLoan,
     cashOut: 0,
   });
+  // One-time buy costs (closing costs paid at purchase) — constant offset on all months.
+  // Sell costs are one-time at sale; returned in decomp for the UI to display.
+  const txBuyRate = inclTxCosts ? (locCfg.txBuy ?? 0.01) : 0;
+  const txSellRate = inclTxCosts ? (locCfg.txSell ?? 0.06) : 0;
+  const txBuyCost = Math.round(price * txBuyRate);
+  if (txBuyCost > 0) for (let i = 0; i < w.length; i++) w[i] -= txBuyCost;
+
   // Bankruptcy clamp: once wealth goes negative, it can deepen but never recover.
   // Running minimum freezes at the worst point — no false comeback from insolvency.
   let floor = 0;
@@ -583,6 +591,8 @@ function simRE(
       startYield,
       ratePeriods,
       dComp,
+      txBuyCost,
+      txSellRate,
     },
   };
 }
@@ -657,6 +667,7 @@ function buildAllWealth(yr) {
       inclTaxBenefits,
       inclDepreciation,
       inclCosts,
+      inclTxCosts,
     ),
     ...RE_DOWN_PMTS.map((dp) =>
       simRE(
@@ -676,6 +687,7 @@ function buildAllWealth(yr) {
         inclTaxBenefits,
         inclDepreciation,
         inclCosts,
+        inclTxCosts,
       ),
     ),
   ];

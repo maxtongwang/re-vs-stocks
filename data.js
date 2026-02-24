@@ -130,6 +130,9 @@ const STRINGS = {
     btnCosts: "Op. Costs",
     tipCosts:
       "Property tax (location-specific rate).\nInsurance: 0.5%/yr of current value.\nMaintenance: 1%/yr of current value.",
+    btnTxCosts: "Tx Costs",
+    tipTxCosts:
+      "Buy: title, escrow, inspection, appraisal (1–2% of purchase).\nSell: commission (both sides), title, transfer taxes, warranty (6–9% of sale).\nRates vary by location — hover the breakdown for details.",
     legendLabels: [
       "S&P 500 (total)",
       "RE All Cash",
@@ -306,6 +309,9 @@ const STRINGS = {
     btnCosts: "运营成本",
     tipCosts:
       "房产税（税率因地区而异）。\n保险：房产现值0.5%/年。\n维护费：房产现值1%/年。",
+    btnTxCosts: "交易成本",
+    tipTxCosts:
+      "买入：产权、托管、验房、评估（约为房价1–2%）。\n卖出：佣金（双方）、产权、转让税、保修（约为售价6–9%）。\n税率因地区而异，详见明细。",
     legendLabels: [
       "S&P 500 (总回报)",
       "房产 全现金",
@@ -951,6 +957,8 @@ const LOC_CONFIG = {
   },
   miami: {
     propTaxRate: 0.01,
+    txBuy: 0.013, // +FL doc stamps on mortgage ~0.3%
+    txSell: 0.067, // commission ~5%, title 0.5%, FL doc stamps on deed 0.7%, misc
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0.0,
     propTaxAnnualCap: 0.1,
@@ -1037,6 +1045,7 @@ const LOC_CONFIG = {
   },
   seattle: {
     propTaxRate: 0.0093,
+    txSell: 0.088, // commission ~5%, title 0.5%, WA REET 2.75% ($1.525M–$3.025M bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0.0,
     taxRate: 0.35,
@@ -1079,6 +1088,8 @@ const LOC_CONFIG = {
   },
   nyc: {
     propTaxRate: 0.015,
+    txBuy: 0.02, // +NYC mortgage recording tax ~1.8% of loan (for leveraged); mansion tax 1%+
+    txSell: 0.078, // commission ~5%, title 0.5%, NYC RPTT 1.425% + NYS transfer 0.4%, misc
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0.0,
     propTaxAnnualCap: 0.06,
@@ -1212,6 +1223,8 @@ const LOC_CONFIG = {
   },
   fl: {
     propTaxRate: 0.01,
+    txBuy: 0.013, // +FL doc stamps on mortgage ~0.3%
+    txSell: 0.067, // commission ~5%, title 0.5%, FL doc stamps on deed 0.7%, misc
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0.0,
     propTaxAnnualCap: 0.1,
@@ -1256,6 +1269,7 @@ const LOC_CONFIG = {
   },
   wa: {
     propTaxRate: 0.0093,
+    txSell: 0.073, // commission ~5%, title 0.5%, WA REET 1.28% (median bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0.0,
     taxRate: 0.35,
@@ -1298,6 +1312,7 @@ const LOC_CONFIG = {
   },
   ny: {
     propTaxRate: 0.015,
+    txSell: 0.064, // commission ~5%, title 0.5%, NYS transfer tax 0.4%
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0.0,
     taxRate: 0.457,
@@ -2101,6 +2116,8 @@ const LOC_CONFIG = {
   },
   miamibeach: {
     propTaxRate: 0.01,
+    txBuy: 0.013, // +FL doc stamps on mortgage ~0.3%
+    txSell: 0.070, // commission ~5%, title 0.5%, FL doc stamps 0.7%, luxury close
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2139,6 +2156,8 @@ const LOC_CONFIG = {
   },
   coralgables: {
     propTaxRate: 0.01,
+    txBuy: 0.013,
+    txSell: 0.070,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2177,6 +2196,8 @@ const LOC_CONFIG = {
   },
   keybiscayne: {
     propTaxRate: 0.009,
+    txBuy: 0.013,
+    txSell: 0.070,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2215,6 +2236,8 @@ const LOC_CONFIG = {
   },
   coconutgrove: {
     propTaxRate: 0.01,
+    txBuy: 0.013,
+    txSell: 0.070,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2253,6 +2276,8 @@ const LOC_CONFIG = {
   },
   brickell: {
     propTaxRate: 0.011,
+    txBuy: 0.013,
+    txSell: 0.070,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2291,6 +2316,7 @@ const LOC_CONFIG = {
   },
   medina: {
     propTaxRate: 0.0075,
+    txSell: 0.090, // commission ~5%, title 0.5%, WA REET 3.0% (>$3.025M bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2329,6 +2355,7 @@ const LOC_CONFIG = {
   },
   mercerisland: {
     propTaxRate: 0.0085,
+    txSell: 0.090, // WA REET 3.0% (>$3.025M bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2367,6 +2394,7 @@ const LOC_CONFIG = {
   },
   bellevue: {
     propTaxRate: 0.009,
+    txSell: 0.088, // WA REET 2.75% ($1.525M–$3.025M bracket)
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2405,6 +2433,7 @@ const LOC_CONFIG = {
   },
   kirkland: {
     propTaxRate: 0.0092,
+    txSell: 0.088,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2443,6 +2472,7 @@ const LOC_CONFIG = {
   },
   redmond: {
     propTaxRate: 0.0095,
+    txSell: 0.088,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.37,
@@ -2481,6 +2511,8 @@ const LOC_CONFIG = {
   },
   manhattan: {
     propTaxRate: 0.012,
+    txBuy: 0.020, // NYC mortgage recording tax ~1.8% + title; mansion tax 1%+
+    txSell: 0.078, // commission ~5%, title 0.5%, NYC RPTT 1.425% + NYS 0.4%
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.5,
@@ -2519,6 +2551,8 @@ const LOC_CONFIG = {
   },
   brooklyn: {
     propTaxRate: 0.015,
+    txBuy: 0.020,
+    txSell: 0.078,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.5,
@@ -2557,6 +2591,8 @@ const LOC_CONFIG = {
   },
   hoboken: {
     propTaxRate: 0.025,
+    txBuy: 0.010,
+    txSell: 0.070, // commission ~5%, title 0.5%, NJ realty transfer fee ~1.0%
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.47,
@@ -2595,6 +2631,7 @@ const LOC_CONFIG = {
   },
   scarsdale: {
     propTaxRate: 0.028,
+    txSell: 0.064, // commission ~5%, title 0.5%, NYS transfer tax 0.4%
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.49,
@@ -2633,6 +2670,7 @@ const LOC_CONFIG = {
   },
   greatneck: {
     propTaxRate: 0.025,
+    txSell: 0.064,
     propTaxTracksValue: true,
     propTaxAnnualIncrease: 0,
     taxRate: 0.49,
