@@ -62,9 +62,17 @@ function updateSelectAbbr() {
   document.getElementById("metro-abbr").textContent =
     SELECT_ABBR[metroKey] || metroKey.toUpperCase();
   const cw = document.getElementById("city-wrap");
-  if (cw && cw.style.display !== "none")
-    document.getElementById("city-abbr").textContent =
-      locKey === metroKey ? "All" : SELECT_ABBR[locKey] || locKey;
+  if (cw && cw.style.display !== "none") {
+    let cityAbbr = "All";
+    if (locKey !== metroKey) {
+      const metro = LOCATION_HIERARCHY.flatMap((s) => s.metros).find(
+        (m) => m.key === metroKey,
+      );
+      const city = metro?.cities.find((c) => c.key === locKey);
+      cityAbbr = city?.abbr || locKey;
+    }
+    document.getElementById("city-abbr").textContent = cityAbbr;
+  }
 }
 
 function refreshDatasets() {
