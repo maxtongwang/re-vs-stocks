@@ -1,0 +1,202 @@
+/* ─────────────────────────────────────────────────────────────────────────
+   themes.css — CSS custom property definitions for all color/font tokens.
+   Load this BEFORE style.css.
+
+   Usage:
+     Dark (default)  — <html> with no data-theme or data-theme="dark"
+     Light           — <html data-theme="light">
+
+   Toggle in JS:
+     document.documentElement.dataset.theme =
+       document.documentElement.dataset.theme === 'light' ? 'dark' : 'light';
+   ─────────────────────────────────────────────────────────────────────────*/
+
+/* ── Dark theme — classic VS Code-style ───────────────────────────────── */
+:root {
+  /* Backgrounds */
+  --bg: #1e1e1e;
+  --surface: #252526;
+  --surface-accent: #2d2b1e; /* warm tint: primary-note */
+
+  /* Borders */
+  --border: #404040;
+  --border-dim: #303030;
+  --border-faint: #2a2a2a;
+  --border-social: #383838;
+
+  /* Text scale — 5 levels, light-on-dark */
+  --text: #d4d4d4; /* VS Code default text */
+  --text-hi: #e8e8e8; /* values, near-white */
+  --text-mid: #858585; /* ctrl labels, muted UI */
+  --text-sub: #6a6a6a; /* secondary labels */
+  --text-lo: #565656; /* notes, decomp labels */
+  --text-dim: #454545; /* hints, metadata */
+  --text-nano: #3a3a3a; /* hero divider, bullets */
+
+  /* Semantic aliases */
+  --val: #d4d4d4; /* numeric amounts */
+  --val-dim: #9cdcfe; /* table headers, amount — VS Code light-blue */
+  --link: #4ec9b0; /* VS Code teal */
+
+  /* Accents */
+  --accent: #4ec9b0; /* VS Code teal — S&P, active borders */
+  --accent-re: #6a9955; /* VS Code green — RE */
+  --accent-init: #9cdcfe; /* VS Code light-blue — amount */
+
+  /* Buttons */
+  --btn-active-bg: #2d2d2d;
+
+  /* Table */
+  --table-head-bg: #252526;
+  --table-head-text: #9cdcfe;
+
+  /* Special rows */
+  --crash-row-bg: #2d1515;
+  --spike-row-bg: #2d2b15;
+
+  /* Tooltip */
+  --tooltip-bg: rgba(30, 30, 30, 0.97);
+  --tooltip-border: #454545;
+  --tooltip-text: #d4d4d4;
+
+  /* Primary-note callout */
+  --primary-note-bg: #2d2b1e;
+  --primary-note-border: #6a6030;
+  --primary-note-text: #b8a870;
+  --primary-note-strong: #d4c888;
+
+  /* CAGR indicator */
+  --cagr-positive: #4ec9b0;
+  --cagr-negative: #f44747; /* VS Code red */
+
+  /* ── Canvas tokens (read via getComputedStyle in JS) ── */
+  --canvas-bg: #1e1e1e;
+  --canvas-grid: #303030;
+  --canvas-axis: #6a6a6a;
+  --canvas-label: #565656;
+  --canvas-refi-line: #6a6a6a;
+  --canvas-refi-label: #858585;
+  --canvas-crash-line: #8b3a3a;
+  --canvas-spike-line: #8b7030;
+  --canvas-crash-label: #d46060;
+  --canvas-spike-label: #c8a040;
+  --canvas-proj-fill: rgba(200, 160, 60, 0.08);
+  --canvas-proj-stroke: rgba(200, 160, 60, 0.3);
+  --canvas-proj-label: #a08840;
+  --canvas-neg-fill: #2d1515;
+  --canvas-neg-stroke: #f44747;
+
+  /* ── Scenario line / dot colors — VS Code palette ── */
+  --color-s0: #4ec9b0; /* S&P 500 — teal */
+  --color-s1: #6a9955; /* RE All Cash — green */
+  --color-s2: #b8d7a3; /* RE 50% Down — light green */
+  --color-s3: #dcdcaa; /* RE 20% Down — yellow */
+  --color-s4: #ce9178; /* RE 10% Down — orange */
+  --color-s5: #f44747; /* RE 3.5% Down — red */
+
+  /* ── Dropdown arrow SVGs (can't use var() inside url()) ── */
+  --arrow-sp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%234ec9b0'/%3E%3C/svg%3E");
+  --arrow-re: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%236a9955'/%3E%3C/svg%3E");
+  --arrow-init: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%239cdcfe'/%3E%3C/svg%3E");
+  --arrow-dim: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%236a6a6a'/%3E%3C/svg%3E");
+}
+
+/* ── Light theme ──────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  /* Backgrounds */
+  --bg: #f5f5f0;
+  --surface: #e6e6e0;
+  --surface-accent: #fffce8;
+
+  /* Borders */
+  --border: #b8b8b0;
+  --border-dim: #d0d0c8;
+  --border-faint: #deded6;
+  --border-social: #c4c4bc;
+
+  /* Text scale — dark-on-light */
+  --text: #111;
+  --text-hi: #222;
+  --text-mid: #555;
+  --text-sub: #666;
+  --text-lo: #777;
+  --text-dim: #888;
+  --text-nano: #999;
+
+  /* Semantic aliases */
+  --val: #222;
+  --val-dim: #555;
+  --link: #1e6bc4;
+
+  /* Accents */
+  --accent: #1e6bc4;
+  --accent-re: #1a7a1a;
+  --accent-init: #555;
+
+  /* Buttons */
+  --btn-active-bg: #d4d4ce;
+
+  /* Table */
+  --table-head-bg: #deded8;
+  --table-head-text: #555;
+
+  /* Special rows */
+  --crash-row-bg: #fff0ee;
+  --spike-row-bg: #fffff0;
+
+  /* Tooltip */
+  --tooltip-bg: rgba(250, 250, 246, 0.97);
+  --tooltip-border: #c0c0b8;
+  --tooltip-text: #222;
+
+  /* Primary-note callout */
+  --primary-note-bg: #fffce8;
+  --primary-note-border: #aa9900;
+  --primary-note-text: #665500;
+  --primary-note-strong: #443300;
+
+  /* CAGR indicator */
+  --cagr-positive: #2e7d32;
+  --cagr-negative: #c62828;
+
+  /* ── Canvas tokens ── */
+  --canvas-bg: #f5f5f0;
+  --canvas-grid: #d0d0c8;
+  --canvas-axis: #777;
+  --canvas-label: #666;
+  --canvas-refi-line: #999;
+  --canvas-refi-label: #777;
+  --canvas-crash-line: #cc5555;
+  --canvas-spike-line: #aa7722;
+  --canvas-crash-label: #bb2222;
+  --canvas-spike-label: #996600;
+  --canvas-proj-fill: rgba(160, 130, 0, 0.07);
+  --canvas-proj-stroke: rgba(140, 110, 0, 0.38);
+  --canvas-proj-label: #7a6000;
+  --canvas-neg-fill: #ffe8e8;
+  --canvas-neg-stroke: #cc2222;
+
+  /* ── Scenario line / dot colors — readable on light bg ── */
+  --color-s0: #1e6bc4; /* S&P 500 */
+  --color-s1: #1a7a1a; /* RE All Cash */
+  --color-s2: #5a7a00; /* RE 50% Down */
+  --color-s3: #c07a00; /* RE 20% Down */
+  --color-s4: #c04400; /* RE 10% Down */
+  --color-s5: #bb2020; /* RE 3.5% Down */
+
+  /* ── Dropdown arrow SVGs — light-theme colors ── */
+  --arrow-sp: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%231e6bc4'/%3E%3C/svg%3E");
+  --arrow-re: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%231a7a1a'/%3E%3C/svg%3E");
+  --arrow-init: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23555'/%3E%3C/svg%3E");
+  --arrow-dim: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23666'/%3E%3C/svg%3E");
+}
+
+/* ── Theme-invariant special rows ─────────────────────────────────────── */
+.row-crash {
+  background: var(--crash-row-bg);
+}
+.row-spike {
+  background: var(--spike-row-bg);
+  opacity: 0.7;
+  font-style: italic;
+}

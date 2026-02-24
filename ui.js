@@ -1,0 +1,1914 @@
+// ── Theme ─────────────────────────────────────────────────────────────────
+function getCSSVar(name) {
+  return getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+}
+
+function applyTheme(theme) {
+  document.documentElement.dataset.theme = theme;
+  localStorage.setItem("theme", theme);
+  draw(curMonth - 1);
+}
+
+function toggleTheme() {
+  applyTheme(
+    document.documentElement.dataset.theme === "light" ? "dark" : "light",
+  );
+}
+
+// ── Mutable state ─────────────────────────────────────────────────────────
+let startYear = 1995;
+let endYear = 2026;
+let reinvest = false;
+let improvPct = activeLocConfig.improvPct; // keep in sync with default location
+let isPrimary = false;
+let inclTaxBenefits = true,
+  inclDepreciation = true,
+  inclCosts = true;
+let numRefis = 0;
+let refiLTV = false;
+let refiLTVPct = 0.75;
+let lang = "en";
+let allDecomp = [];
+let allWealth = buildAllWealth(startYear);
+let totalMonths = (endYear - startYear + 1) * 12;
+let projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
+let curMonth = Math.min(projStartM + 1, totalMonths);
+
+// Initially hidden: 20% Down (idx 3), 10% Down (idx 4), 3.5% Down (idx 5)
+const hidden = new Set([3, 4, 5]);
+
+// ── Formatting ────────────────────────────────────────────────────────────
+function fmt(v) {
+  if (v === undefined || v === null) return "—";
+  if (v < 0) return `-$${Math.round(-v / 1000)}K`;
+  if (v >= 1e6) return `$${(v / 1e6).toFixed(2)}M`;
+  return `$${Math.round(v / 1000)}K`;
+}
+
+// ── Table ─────────────────────────────────────────────────────────────────
+const tbody = document.getElementById("table-body");
+function buildTable() {
+  const s = STRINGS[lang];
+  tbody.innerHTML = "";
+  const dur = endYear - startYear + 1;
+  const crashYearSet = new Set(
+    MARKET_EVENTS.filter((e) => e.type === "crash").map((e) => e.year),
+  );
+  const crashEvByYear = Object.fromEntries(
+    MARKET_EVENTS.filter((e) => e.type === "crash").map((e) => [e.year, e]),
+  );
+  const checks = [];
+  for (let y = 5; y <= dur; y += 5) checks.push(y);
+  // Compute mData here so 5-yr loop can detect data-cutoff coincidence
+  const mData = projStartM;
+  // Last 5-yr mark that doesn't get capped (yrs*12 < totalMonths)
+  let lastValidFiveYrM = 0;
+  for (const yrs of checks) {
+    // Skip rows where the true year-end extends past the simulation —
+    // those would show a wrong future year label AND duplicate the projection row
+    if (yrs * 12 >= totalMonths) continue;
+    const m = yrs * 12; // not capped
+    if (m > lastValidFiveYrM) lastValidFiveYrM = m;
+    const yr = startYear + yrs;
+    const ev = crashEvByYear[yr];
+    const tr = document.createElement("tr");
+    if (ev) tr.classList.add("row-crash");
+    const evName = ev ? (lang === "zh" ? ev.nameZh : ev.name) : null;
+    // When this 5-yr row coincides with the actual data cutoff, include the month
+    const isCutoff = m === mData && !ev;
+    const mo = (m % 12) + 1;
+    const cutoffLabel = `Yr ${yrs} (${yr}/${mo.toString().padStart(2, "0")})`;
+    tr.innerHTML =
+      `<td>${ev ? s.crashRowLabel(yr, evName) : isCutoff ? cutoffLabel : s.tableRowLabel(yrs, yr)}</td>` +
+      allWealth
+        .map((w, i) => {
+          const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+          return `<td${cls}>${fmt(w[m])}</td>`;
+        })
+        .join("");
+    tbody.appendChild(tr);
+  }
+  if (lastValidFiveYrM < mData) {
+    const yrF = startYear + Math.floor(mData / 12);
+    const moF = (mData % 12) + 1;
+    const tr = document.createElement("tr");
+    tr.innerHTML =
+      `<td>${yrF}/${moF.toString().padStart(2, "0")}</td>` +
+      allWealth
+        .map((w, i) => {
+          const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+          return `<td${cls}>${fmt(w[mData])}</td>`;
+        })
+        .join("");
+    tbody.appendChild(tr);
+  }
+  // Projection row: year-end estimate (dimmed italic)
+  if (totalMonths - 1 > mData) {
+    const mProj = totalMonths - 1;
+    const yrP = startYear + Math.floor(mProj / 12);
+    const moP = (mProj % 12) + 1;
+    const projYrs = (mProj - mData) / 12; // fraction of year (e.g. 11/12)
+    const tr = document.createElement("tr");
+    tr.classList.add("row-spike");
+    tr.innerHTML =
+      `<td>${yrP}/${moP.toString().padStart(2, "0")} est.</td>` +
+      allWealth
+        .map((w, i) => {
+          const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+          const base = w[mData];
+          const proj = w[mProj];
+          let pctStr = "";
+          if (base > 0 && projYrs > 0) {
+            const cagr = (Math.pow(proj / base, 1 / projYrs) - 1) * 100;
+            const sign = cagr >= 0 ? "+" : "";
+            const color =
+              cagr >= 0
+                ? getCSSVar("--cagr-positive")
+                : getCSSVar("--cagr-negative");
+            pctStr = `<br><span style="font-size:0.85em;color:${color}">${sign}${cagr.toFixed(0)}%/yr</span>`;
+          }
+          return `<td${cls}>${fmt(proj)}${pctStr}</td>`;
+        })
+        .join("");
+    tbody.appendChild(tr);
+  }
+  // Insert crash years not already on a 5-year interval
+  const crashOffsets = MARKET_EVENTS.filter((e) => e.type === "crash")
+    .map((e) => ({ offset: e.year - startYear, ev: e }))
+    .filter(({ offset }) => offset > 0 && offset <= dur && offset % 5 !== 0);
+  for (const { offset, ev } of crashOffsets) {
+    const m = Math.min(offset * 12, totalMonths - 1);
+    if (m >= totalMonths) continue;
+    const yr = startYear + offset;
+    const evName = lang === "zh" ? ev.nameZh : ev.name;
+    const tr = document.createElement("tr");
+    tr.classList.add("row-crash");
+    tr.innerHTML =
+      `<td>${s.crashRowLabel(yr, evName)}</td>` +
+      allWealth
+        .map((w, i) => {
+          const cls = hidden.has(i) ? ' class="col-hidden"' : "";
+          return `<td${cls}>${fmt(w[m])}</td>`;
+        })
+        .join("");
+    const rows = [...tbody.querySelectorAll("tr")];
+    const insertBefore = rows.find((r) => {
+      const m2 = parseInt(r.cells[0].textContent.match(/\d{4}/)?.[0] || "9999");
+      return m2 > yr;
+    });
+    if (insertBefore) tbody.insertBefore(tr, insertBefore);
+    else tbody.appendChild(tr);
+  }
+}
+
+// ── Legend + table column sync ────────────────────────────────────────────
+document.getElementById("legend").addEventListener("click", (e) => {
+  const item = e.target.closest(".leg-item");
+  if (!item) return;
+  const idx = parseInt(item.dataset.idx);
+  if (hidden.has(idx)) {
+    hidden.delete(idx);
+    item.classList.remove("hidden");
+  } else {
+    hidden.add(idx);
+    item.classList.add("hidden");
+  }
+  syncTableCols();
+  draw(curMonth - 1);
+});
+
+function syncTableCols() {
+  const headers = document.querySelectorAll("thead th");
+  headers.forEach((th, i) => {
+    if (i === 0) return;
+    th.classList.toggle("col-hidden", hidden.has(i - 1));
+  });
+  document.querySelectorAll("tbody tr").forEach((tr) => {
+    [...tr.cells].forEach((td, i) => {
+      if (i === 0) return;
+      td.classList.toggle("col-hidden", hidden.has(i - 1));
+    });
+  });
+}
+
+// ── Assumptions display ───────────────────────────────────────────────────
+function updateAssumptions() {
+  const s = STRINGS[lang];
+  const i = startYear - BASE_YEAR;
+  const mr = (MORTGAGE_RATES[i] * 100).toFixed(2);
+  const ry = (activeCaRentYields[i] * 100).toFixed(1);
+  const yrs = endYear - startYear + 1;
+  const p2r = Math.round(1 / activeCaRentYields[i]);
+  const ip = Math.round(improvPct * 100);
+  const modeLabel = reinvest ? s.modeLabelReinvest : s.modeLabelAdditive;
+
+  const refis = getRefis(startYear, endYear, numRefis);
+  const actualRefis = refis.length;
+
+  document.getElementById("assumptions-line").innerHTML = s.assumptionsLine(
+    startYear,
+    endYear,
+    yrs,
+    mr,
+    ry,
+    ip,
+    modeLabel,
+    isPrimary,
+    numRefis,
+    refiLTV,
+    actualRefis,
+  );
+
+  document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
+    startYear,
+    endYear,
+    yrs,
+    mr,
+    ry,
+    p2r,
+    ip,
+    modeLabel,
+    isPrimary,
+    numRefis,
+    refis,
+    refiLTV,
+    actualRefis,
+  );
+
+  document.getElementById("fixed-assumptions").innerHTML = s
+    .fixedGroups(refiLTVPct)
+    .flatMap((g) => [
+      `<li class="group-hd">${g.label}</li>`,
+      ...g.items.map((item) => `<li>${item}</li>`),
+    ])
+    .join("");
+}
+
+// ── Apply language ────────────────────────────────────────────────────────
+function buildSourcesList() {
+  const s = STRINGS[lang];
+  const idxKey = document.getElementById("index-select").value;
+  const iSrc = INDEX_SOURCES[idxKey] || INDEX_SOURCES.sp500;
+  const lSrc = activeLocConfig.sources;
+  const locLabel =
+    document.getElementById("metro-select").selectedOptions[0]?.text ||
+    document.getElementById("state-select").selectedOptions[0]?.text ||
+    "";
+  const idxLabel =
+    document.getElementById("index-select").selectedOptions[0].text;
+  function lnk(arr) {
+    return arr
+      .map((l) => `<a href="${l.href}" target="_blank">${l.text}</a>`)
+      .join(" &amp; ");
+  }
+  const items = s.buildSources(idxLabel, locLabel, iSrc, lSrc, lnk);
+  document.getElementById("sources-list").innerHTML = items
+    .map((i) => `<li>${i}</li>`)
+    .join("");
+}
+
+function applyLang() {
+  const s = STRINGS[lang];
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+  document.getElementById("hero-title").innerHTML = s.heroTitle;
+  document.getElementById("disclaimer").textContent = s.disclaimer;
+  document.getElementById("label-start").textContent = s.labelStart;
+  document.getElementById("label-end").textContent = s.labelEnd;
+  document.getElementById("label-cashflow").textContent = s.labelCashflow;
+  document.getElementById("label-improv").textContent = s.labelImprov;
+  document.getElementById("label-propmode").textContent = s.labelPropMode;
+  document.getElementById("label-refi").textContent = s.labelRefi;
+  document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
+  document.getElementById("ltv-tip-line").textContent = s.tipLtvLine;
+  document.getElementById("refi-bal-tip").textContent = s.tipBalLine;
+  document.getElementById("label-improv").dataset.tip = s.tipImprov;
+  document.getElementById("btn-additive").textContent = s.btnAdditive;
+  document.getElementById("btn-reinvest").textContent = s.btnReinvest;
+  document.getElementById("btn-rental").textContent = s.btnRental;
+  document.getElementById("btn-primary").textContent = s.btnPrimary;
+  document.getElementById("btn-refi-rate").textContent = s.btnRefiBalance;
+  document.getElementById("label-includes").textContent = s.labelIncludes;
+  document.getElementById("btn-incl-taxbenefit").textContent = s.btnTaxBenefits;
+  document.getElementById("btn-incl-depreciation").textContent =
+    s.btnDepreciation;
+  document.getElementById("btn-incl-costs").textContent = s.btnCosts;
+  document.getElementById("label-costs-note").textContent = s.labelCostsNote;
+  const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
+  document.querySelectorAll(".leg-text").forEach((el, i) => {
+    el.innerHTML = legLabels[i];
+  });
+  // Override first legend label with the actual selected index name
+  {
+    const idxText =
+      document.getElementById("index-select")?.selectedOptions[0]?.text;
+    const firstLeg = document.querySelector(".leg-text");
+    if (idxText && firstLeg) {
+      const suffix = lang === "zh" ? "（总回报）" : " (total)";
+      firstLeg.innerHTML = idxText + suffix;
+    }
+  }
+  document.getElementById("th-year").textContent = s.thYear;
+  document.getElementById("label-assm-dyn").textContent = s.assmDyn;
+  document.getElementById("label-assm-fix").textContent = s.assmFix;
+  document.getElementById("assm-fix-note").textContent = s.assmFixNote;
+  document.getElementById("label-sources").textContent = s.labelSources;
+  document.getElementById("label-built-by").textContent = s.builtBy;
+  document.getElementById("mode-desc").innerHTML = s.modeDesc;
+  document.getElementById("methodology-note").innerHTML = s.methodologyNote;
+  const primaryNoteEl = document.getElementById("primary-note");
+  primaryNoteEl.style.display = isPrimary ? "" : "none";
+  if (isPrimary) primaryNoteEl.innerHTML = s.primaryNote;
+  updateAssumptions();
+  buildSourcesList();
+  buildTable();
+  syncTableCols();
+}
+
+// ── Reinvest toggle ───────────────────────────────────────────────────────
+document.getElementById("btn-reinvest").addEventListener("click", () => {
+  if (reinvest) return;
+  reinvest = true;
+  document.getElementById("btn-reinvest").classList.add("active");
+  document.getElementById("btn-additive").classList.remove("active");
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+});
+
+document.getElementById("btn-additive").addEventListener("click", () => {
+  if (!reinvest) return;
+  reinvest = false;
+  document.getElementById("btn-additive").classList.add("active");
+  document.getElementById("btn-reinvest").classList.remove("active");
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+});
+
+// ── Property mode toggle ─────────────────────────────────────────────────
+document.getElementById("btn-rental").addEventListener("click", () => {
+  if (!isPrimary) return;
+  isPrimary = false;
+  document.getElementById("btn-rental").classList.add("active");
+  document.getElementById("btn-primary").classList.remove("active");
+  allWealth = buildAllWealth(startYear);
+  applyLang();
+  draw(curMonth - 1);
+});
+
+document.getElementById("btn-primary").addEventListener("click", () => {
+  if (isPrimary) return;
+  isPrimary = true;
+  document.getElementById("btn-primary").classList.add("active");
+  document.getElementById("btn-rental").classList.remove("active");
+  allWealth = buildAllWealth(startYear);
+  applyLang();
+  draw(curMonth - 1);
+});
+
+// ── Includes toggles ─────────────────────────────────────────────────────
+["taxbenefit", "depreciation", "costs"].forEach((key) => {
+  document.getElementById(`btn-incl-${key}`).addEventListener("click", () => {
+    if (key === "taxbenefit") inclTaxBenefits = !inclTaxBenefits;
+    else if (key === "depreciation") inclDepreciation = !inclDepreciation;
+    else inclCosts = !inclCosts;
+    const val =
+      key === "taxbenefit"
+        ? inclTaxBenefits
+        : key === "depreciation"
+          ? inclDepreciation
+          : inclCosts;
+    document.getElementById(`btn-incl-${key}`).classList.toggle("active", val);
+    allWealth = buildAllWealth(startYear);
+    draw(curMonth - 1);
+  });
+});
+
+// ── Refi count toggle ────────────────────────────────────────────────────
+[0, 1, 2, 3].forEach((n) => {
+  document.getElementById(`btn-refi-${n}`).addEventListener("click", () => {
+    if (numRefis === n) return;
+    numRefis = n;
+    [0, 1, 2, 3].forEach((i) =>
+      document
+        .getElementById(`btn-refi-${i}`)
+        .classList.toggle("active", i === n),
+    );
+    const hasRefis = n > 0;
+    document.getElementById("refi-type-group").style.display = hasRefis
+      ? "flex"
+      : "none";
+    document.getElementById("refi-bal-tip").style.display =
+      hasRefis && !refiLTV ? "" : "none";
+    document.getElementById("row-ltv-pct").style.display =
+      hasRefis && refiLTV ? "flex" : "none";
+    allWealth = buildAllWealth(startYear);
+    updateAssumptions();
+    buildTable();
+    syncTableCols();
+    draw(curMonth - 1);
+  });
+});
+
+// ── Refi type toggle (Rate-term vs LTV cash-out) ──────────────────────────
+document.getElementById("btn-refi-rate").addEventListener("click", () => {
+  if (!refiLTV) return;
+  refiLTV = false;
+  document.getElementById("row-ltv-pct").style.display = "none";
+  document.getElementById("refi-bal-tip").style.display = "";
+  document.getElementById("btn-refi-rate").classList.add("active");
+  document.getElementById("btn-refi-ltv").classList.remove("active");
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+});
+document.getElementById("btn-refi-ltv").addEventListener("click", () => {
+  if (refiLTV) return;
+  refiLTV = true;
+  document.getElementById("row-ltv-pct").style.display = "flex";
+  document.getElementById("refi-bal-tip").style.display = "none";
+  document.getElementById("btn-refi-ltv").classList.add("active");
+  document.getElementById("btn-refi-rate").classList.remove("active");
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+});
+document.getElementById("ltv-pct-slider").addEventListener("input", (e) => {
+  refiLTVPct = parseInt(e.target.value) / 100;
+  document.getElementById("ltv-pct-val").textContent = e.target.value + "%";
+  if (refiLTV) {
+    allWealth = buildAllWealth(startYear);
+    updateAssumptions();
+    buildTable();
+    syncTableCols();
+    draw(curMonth - 1);
+  }
+});
+
+// ── Share URL ─────────────────────────────────────────────────────────────
+function getShareParams() {
+  const p = new URLSearchParams();
+  if (startYear !== 1995) p.set("s", startYear);
+  if (endYear !== 2026) p.set("e", endYear);
+  if (reinvest) p.set("m", "r");
+  if (isPrimary) p.set("p", "1");
+  if (numRefis > 0) p.set("r", numRefis);
+  if (refiLTV) p.set("t", "l");
+  if (refiLTV && refiLTVPct !== 0.75) p.set("v", Math.round(refiLTVPct * 100));
+  if (lang !== "en") p.set("l", lang);
+  if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
+  const hArr = [...hidden].sort((a, b) => a - b);
+  const isDefault = hArr.length === 2 && hArr[0] === 4 && hArr[1] === 5;
+  if (!isDefault) p.set("h", hArr.join(","));
+  if (!inclTaxBenefits) p.set("tb", "0");
+  if (!inclDepreciation) p.set("dep", "0");
+  if (!inclCosts) p.set("cos", "0");
+  if (INIT !== 100000) p.set("c", INIT);
+  return p.toString();
+}
+
+function loadFromHash() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  const p = new URLSearchParams(hash);
+  if (p.has("s")) {
+    const v = parseInt(p.get("s"));
+    if (v >= BASE_YEAR && v < MAX_YEAR) startYear = v;
+  }
+  if (p.has("e")) {
+    const v = parseInt(p.get("e"));
+    if (v > BASE_YEAR && v <= MAX_YEAR) endYear = v;
+  }
+  if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
+  if (p.has("m")) reinvest = p.get("m") === "r";
+  if (p.has("p")) isPrimary = p.get("p") === "1";
+  if (p.has("r"))
+    numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
+  if (p.has("t")) refiLTV = p.get("t") === "l";
+  if (p.has("v")) {
+    const v = parseInt(p.get("v"));
+    if (v >= 50 && v <= 80 && v % 5 === 0) refiLTVPct = v / 100;
+  }
+  if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
+  if (p.has("i")) {
+    const v = parseInt(p.get("i"));
+    if (v >= 10 && v <= 80) {
+      const opts = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
+      const snapped = opts.reduce((a, b) =>
+        Math.abs(b - v) < Math.abs(a - v) ? b : a,
+      );
+      improvPct = snapped / 100;
+    }
+  }
+  if (p.has("h")) {
+    hidden.clear();
+    const hStr = p.get("h");
+    if (hStr)
+      hStr
+        .split(",")
+        .filter(Boolean)
+        .forEach((n) => {
+          const i = parseInt(n);
+          if (i >= 0 && i < 6) hidden.add(i);
+        });
+  }
+  if (p.has("tb")) inclTaxBenefits = p.get("tb") !== "0";
+  if (p.has("dep")) inclDepreciation = p.get("dep") !== "0";
+  if (p.has("cos")) inclCosts = p.get("cos") !== "0";
+  if (p.has("c")) {
+    const cv = parseInt(p.get("c"));
+    if ([100000, 200000, 500000, 1000000, 2000000, 5000000].includes(cv))
+      INIT = cv;
+  }
+}
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("#share-btn")) return;
+  const qs = getShareParams();
+  history.replaceState(
+    null,
+    "",
+    qs ? "#" + qs : location.pathname + location.search,
+  );
+  const btn = document.getElementById("share-btn");
+  navigator.clipboard
+    .writeText(location.href)
+    .then(() => {
+      btn.textContent = "✓";
+      setTimeout(() => {
+        btn.textContent = "🔗";
+      }, 1500);
+    })
+    .catch(() => {});
+});
+
+// ── Lang select ──────────────────────────────────────────────────────────
+document.getElementById("lang-select").addEventListener("change", (e) => {
+  lang = e.target.value;
+  document.getElementById("lang-abbr").textContent =
+    lang === "zh" ? "🇨🇳" : "🇺🇸";
+  applyLang();
+  draw(curMonth - 1);
+});
+
+// ── Return decomposition panel ────────────────────────────────────────────
+let decompActiveRow = null;
+let clickedKey = null; // pinned row — survives mouse leaving barsEl
+
+function renderDecomp(monthsToShow) {
+  clickedKey = null; // clear pin on re-render (month changed)
+  const titleEl = document.getElementById("decomp-title");
+  const barsEl = document.getElementById("decomp-bars");
+  const eduEl = document.getElementById("decomp-edu");
+  const hrEl = document.getElementById("decomp-divider");
+  if (!barsEl || !allDecomp.length) return;
+
+  const m = Math.min(monthsToShow, allWealth[0].length - 1);
+  if (m < 5) {
+    barsEl.innerHTML = "";
+    if (titleEl) titleEl.textContent = "";
+    if (hrEl) hrEl.style.display = "none";
+    return;
+  }
+  if (hrEl) hrEl.style.display = "";
+
+  const years = (m + 1) / 12;
+  const yr = startYear + Math.floor(m / 12);
+  const mo = (m % 12) + 1;
+
+  // Locale labels
+  const isZh = lang === "zh";
+  const s = STRINGS[lang];
+  const lbl = {
+    title: isZh ? "收益明细" : "Return Breakdown",
+    appreciation: isZh ? "资本" : "Capital",
+    dividends: isZh ? "股息" : "Dividends",
+    rentIncome: isZh ? "租金收入" : "Rent Income",
+    interest: isZh ? "利息支出" : "Interest Paid",
+    costs: s.btnCosts,
+    taxShield: s.btnTaxBenefits,
+    taxBill: isZh ? "税务负担" : "Tax Bill",
+    total: isZh ? "→ 净资产" : "→ Net Worth",
+  };
+
+  // Find best visible RE scenario
+  let bestIdx = -1,
+    bestVal = -Infinity;
+  for (let i = 1; i < allWealth.length; i++) {
+    if (!hidden.has(i) && allWealth[i][m] > bestVal) {
+      bestVal = allWealth[i][m];
+      bestIdx = i;
+    }
+  }
+
+  const spWealth = allWealth[0][m];
+  const spDc = allDecomp[0]?.dComp?.[m];
+  const idxLabel =
+    document.getElementById("index-select")?.selectedOptions[0]?.text ||
+    "S&P 500";
+
+  if (titleEl) {
+    titleEl.innerHTML = `<span style="color:#888">${lbl.title}</span> · <span style="color:#666">${yr}/${mo.toString().padStart(2, "0")}</span>`;
+  }
+
+  // Build row arrays for each table
+  const spRows = [];
+  const reRows = [];
+
+  // Helper: white-highlight key assumptions/numbers in edu text
+  const W = (s) => `<strong style="color:#fff">${s}</strong>`;
+
+  // S&P rows
+  const yrs = years.toFixed(1);
+  if (spDc != null) {
+    const spColor = "#4da6ff";
+    spRows.push({
+      key: "sp-appr",
+      label: lbl.appreciation,
+      val: INIT + spDc.appr,
+      base: true,
+      color: spColor,
+      edu: () => {
+        const pct = ((spDc.appr / INIT) * 100).toFixed(0);
+        const spCagr = (
+          (Math.pow((INIT + spDc.appr) / INIT, 1 / years) - 1) *
+          100
+        ).toFixed(1);
+        return isZh
+          ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | 年化 ${spCagr}% | ${yrs}年（仅价格）<br>• 历史均值 ${W("~10%/年")}；单年 ${W("±30–40%")}<br>&nbsp;&nbsp;· 复利非线性：每次翻倍基数更大，增速加快`
+          : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | ${spCagr}%/yr CAGR | ${yrs}yrs (price only)<br>• hist. avg ${W("~10%/yr")}; single yrs ${W("±30–40%")}<br>&nbsp;&nbsp;· compounding nonlinear: each doubling grows from a larger base`;
+      },
+    });
+    spRows.push({
+      key: "sp-div",
+      label: lbl.dividends,
+      val: spDc.cumDiv,
+      color: "#6688ff",
+      edu: () => {
+        const avgDivYield = ((spDc.cumDiv / (INIT * years)) * 100).toFixed(1);
+        return isZh
+          ? reinvest
+            ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• 再投资额外增长 ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} 贡献<br>&nbsp;&nbsp;· 股息买入更多份额 → 复利滚雪球，含低价加仓<br>• 总回报 ${W("~10%/年")} vs 仅价格 ${W("~7–8%/年")}：差额 = 再投资红利`
+            : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}年 | ~${W(avgDivYield + "%/年")} | 累加模式，现金收取<br>&nbsp;&nbsp;· 标普股息率 ~${W("1.3–2%/年")}；再投资模式自动买入（含低价时）<br>• 公司利润直接分配 — 切换<em>再投资</em>对比差异`
+          : reinvest
+            ? `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• reinvestment growth ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} contribution<br>&nbsp;&nbsp;· dividends buy more shares → compounds (incl. buying dips)<br>• total return ${W("~10%/yr")} vs price-only ${W("~7–8%/yr")}: difference = reinvested dividends`
+            : `<strong style="color:#6688ff">${lbl.dividends}</strong><br>• ${fmt(spDc.cumDiv)} / ${yrs}yrs | ~${W(avgDivYield + "%/yr")} | additive mode, cash collected<br>&nbsp;&nbsp;· S&P yield ~${W("1.3–2%/yr")}; Reinvested mode buys more shares (incl. dips)<br>• profit-sharing from index companies — toggle <em>Reinvested</em> to compare`;
+      },
+    });
+    spRows.push({
+      key: "sp-total",
+      label: lbl.total,
+      val: spWealth,
+      total: true,
+      color: spColor,
+      edu: () => {
+        const spCagr = (
+          (Math.pow(Math.max(spWealth, 1) / INIT, 1 / years) - 1) *
+          100
+        ).toFixed(1);
+        const mult = (spWealth / INIT).toFixed(1);
+        const yrsStr = years.toFixed(1);
+        const modeNote =
+          reinvest || spDc?.cumDiv === 0
+            ? isZh
+              ? "再投资模式：股息自动复投，总回报含价格+股息复利"
+              : "Reinvested: dividends compounded back into shares (total return)"
+            : isZh
+              ? `叠加模式：价格涨幅 + 股息 ${fmt(spDc?.cumDiv || 0)} 分开追踪`
+              : `Additive: price gain + ${fmt(spDc?.cumDiv || 0)} dividends tracked separately`;
+        return isZh
+          ? `<strong style="color:${spColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> | ${mult}x | 年化 <strong style="color:#ccc">${spCagr}%</strong> | ${yrsStr}年<br>&nbsp;&nbsp;· ${modeNote}<br>• 历史~10%/年（含再投资）；50年跑程后10年创造财富 > 前40年之和`
+          : `<strong style="color:${spColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(spWealth)}</strong> | ${mult}x | <strong style="color:#ccc">${spCagr}%/yr</strong> | ${yrsStr}yrs<br>&nbsp;&nbsp;· ${modeNote}<br>• hist. ~10%/yr (reinvested); last 10yrs of a 50yr run > first 40yrs combined`;
+      },
+    });
+  }
+
+  // RE rows
+  if (bestIdx >= 0) {
+    const reDc = allDecomp[bestIdx]?.dComp?.[m];
+    const reColor = SCENARIOS[bestIdx].color;
+    const reLabel = SCENARIOS[bestIdx].label;
+    if (reDc != null) {
+      // Update includes button label to reflect current tax outcome
+      const taxBtnEl = document.getElementById("btn-incl-taxbenefit");
+      if (taxBtnEl)
+        taxBtnEl.textContent =
+          reDc.cumTax >= 0 ? s.btnTaxBenefits : s.btnTaxBill;
+      const {
+        price,
+        mort,
+        down,
+        mortRate,
+        startYield,
+        ratePeriods = [],
+      } = allDecomp[bestIdx];
+      const leverage = down > 0 ? (1 / down).toFixed(1) : "∞";
+      const appPct = price > 0 ? ((reDc.appr / price) * 100).toFixed(0) : 0;
+      const yrs = years.toFixed(1);
+      const propVal = price + reDc.appr;
+      const downPct = Math.round(down * 100);
+
+      reRows.push({
+        key: "re-appr",
+        label: lbl.appreciation,
+        val: INIT + reDc.appr,
+        base: true,
+        color: reColor,
+        edu: () => {
+          const rePriceCagr = (
+            (Math.pow(propVal / price, 1 / years) - 1) *
+            100
+          ).toFixed(1);
+          const reOnCapCagr = (
+            (Math.pow((INIT + reDc.appr) / INIT, 1 / years) - 1) *
+            100
+          ).toFixed(1);
+          const barVal = fmt(INIT + reDc.appr);
+          return isZh
+            ? `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• 首付 ${fmt(INIT)} + 升值 ${fmt(reDc.appr)} = <strong style="color:#ccc">${barVal}</strong> | 房价 ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}%首付（${fmt(INIT)}）= 年化 <strong style="color:#ccc">${reOnCapCagr}%</strong>（${leverage}x 杠杆，${rePriceCagr}%/年房价）<br>• 杠杆双向：房价 −10% → 本金 <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong>`
+            : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• down ${fmt(INIT)} + gain ${fmt(reDc.appr)} = <strong style="color:#ccc">${barVal}</strong> | property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:#ccc">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage, ${rePriceCagr}%/yr on property)<br>• leverage cuts both ways: −10% property → <strong style="color:#ff5555">−${(10 / down).toFixed(0)}%</strong> on your capital`;
+        },
+      });
+      if (!isPrimary && reDc.cumRent > 0) {
+        reRows.push({
+          key: "re-rent",
+          label: lbl.rentIncome,
+          val: reDc.cumRent,
+          color: "#66ff99",
+          edu: () => {
+            const initMonthlyRent = Math.round((price * startYield) / 12);
+            const avgMonthlyRent = Math.round(reDc.cumRent / (m + 1));
+            const rentToIntPct =
+              reDc.cumInt > 0
+                ? ((reDc.cumRent / reDc.cumInt) * 100).toFixed(0)
+                : "∞";
+            const rentToCostsPct =
+              reDc.cumCosts > 0
+                ? ((reDc.cumRent / reDc.cumCosts) * 100).toFixed(0)
+                : "∞";
+            const yieldPct = (startYield * 100).toFixed(1);
+            const [yLo, yHi] = activeLocConfig.typicalYieldRange || [
+              0.035, 0.055,
+            ];
+            const fmtYield = (v) => String(Number((v * 100).toFixed(1)));
+            const yieldCtx =
+              startYield < yLo
+                ? isZh
+                  ? `低回报率——${startYear}年房价已超租金涨幅`
+                  : `low — prices outpaced rents entering ${startYear}`
+                : startYield > yHi
+                  ? isZh
+                    ? `高回报率——${startYear}年租金相对房价较高`
+                    : `high — rents strong relative to prices in ${startYear}`
+                  : isZh
+                    ? `典型市场回报率区间（${fmtYield(yLo)}–${fmtYield(yHi)}%）`
+                    : `within typical market range (${fmtYield(yLo)}–${fmtYield(yHi)}%)`;
+            return isZh
+              ? `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:#ccc">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩`
+              : `<strong style="color:#66ff99">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:#ccc">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:#ccc">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time`;
+          },
+        });
+      }
+      if (reDc.cumInt > 0) {
+        reRows.push({
+          key: "re-int",
+          label: lbl.interest,
+          val: -reDc.cumInt,
+          color: "#ff5555",
+          edu: () => {
+            const intAsPctPrice =
+              price > 0 ? ((reDc.cumInt / price) * 100).toFixed(0) : 0;
+            if (ratePeriods.length > 1) {
+              // Multi-rate (refi) — show per-period breakdown
+              const filteredPeriods = ratePeriods.filter(
+                (p) => p.toM > p.fromM,
+              );
+              const periodLines = filteredPeriods.map((p, i) => {
+                const pFromYr = startYear + Math.floor(p.fromM / 12);
+                const isLastPeriod = i === filteredPeriods.length - 1;
+                const cashOutNote =
+                  p.cashOut > 0
+                    ? isZh
+                      ? `，套现 ${W(fmt(p.cashOut))}（再投资）`
+                      : `, ${W("+" + fmt(p.cashOut) + " cash-out")} reinvested`
+                    : "";
+                const tag =
+                  i === 0
+                    ? isZh
+                      ? "原始"
+                      : "original"
+                    : p.cashOut > 0
+                      ? isZh
+                        ? "套现再融资"
+                        : "cash-out refi"
+                      : isZh
+                        ? "再融资"
+                        : "refi";
+                if (isLastPeriod) {
+                  // Last period: 30yr term, payoff may be in the future
+                  const payoffYr = pFromYr + 30;
+                  const fullTermInt = Math.round(p.pmt * 360 - p.loan);
+                  const simEnd = allWealth[bestIdx].length - 1;
+                  const isBeyondSim = p.fromM + 360 > simEnd;
+                  let displayWealth, wealthLabel, wealthLabelZh;
+                  if (isBeyondSim) {
+                    // Project forward: use historical property CAGR to extrapolate
+                    const endDc = allDecomp[bestIdx].dComp[simEnd];
+                    const propValEnd = price + endDc.appr;
+                    const simYears = (simEnd + 1) / 12;
+                    const propCagr =
+                      price > 0
+                        ? Math.pow(propValEnd / price, 1 / simYears) - 1
+                        : 0;
+                    const yearsRem = payoffYr - endYear;
+                    // Remaining loan at sim end via amortization formula
+                    const n = simEnd - p.fromM;
+                    const r = p.rate / 12;
+                    const remAtEnd =
+                      r > 0 && n < 360
+                        ? Math.max(
+                            0,
+                            Math.round(
+                              (p.loan *
+                                (Math.pow(1 + r, 360) - Math.pow(1 + r, n))) /
+                                (Math.pow(1 + r, 360) - 1),
+                            ),
+                          )
+                        : 0;
+                    const cfAtEnd =
+                      allWealth[bestIdx][simEnd] - (propValEnd - remAtEnd);
+                    const propAtPayoff = Math.round(
+                      propValEnd * Math.pow(1 + propCagr, yearsRem),
+                    );
+                    displayWealth = Math.max(propAtPayoff + cfAtEnd, 0);
+                    const cagrPct = (propCagr * 100).toFixed(1);
+                    wealthLabel = `projected wealth at payoff (${endYear} base + ${yearsRem}yr @${cagrPct}%/yr)`;
+                    wealthLabelZh = `预测还清时财富（${endYear}年基础+${yearsRem}年@${cagrPct}%/年）`;
+                    const simDurYrs = Math.round(n / 12);
+                    const partialInt = Math.round(
+                      p.pmt * n - (p.loan - remAtEnd),
+                    );
+                    return isZh
+                      ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${endYear}（模拟${simDurYrs}年，还清年${payoffYr}）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 模拟内利息（${simDurYrs}年）：${W(fmt(partialInt))} | 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabelZh}：${W(fmt(displayWealth))}`
+                      : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${endYear} (${simDurYrs}yrs in sim, payoff ${payoffYr})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· sim interest (${simDurYrs}yrs): ${W(fmt(partialInt))} | full-term: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabel}: ${W(fmt(displayWealth))}`;
+                  } else {
+                    const payoffM = p.fromM + 360;
+                    displayWealth = allWealth[bestIdx][payoffM];
+                    wealthLabel = "simulated wealth at payoff";
+                    wealthLabelZh = "还清时模拟总财富";
+                  }
+                  return isZh
+                    ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${payoffYr}（30年）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 全期利息：${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabelZh}：${W(fmt(displayWealth))}`
+                    : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${payoffYr} (30yr)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· full-term interest: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabel}: ${W(fmt(displayWealth))}`;
+                }
+                // Intermediate period: elapsed time between two refis
+                const pToYr = startYear + Math.floor(p.toM / 12);
+                const pDurYrs = Math.round((p.toM - p.fromM) / 12);
+                return isZh
+                  ? `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")}（${tag}）：${pFromYr}–${pToYr}（${pDurYrs}年）<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 贷款 ${fmt(p.loan)} | 月供 ${fmt(p.pmt)}${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· 利息 ${fmt(p.periodInt)}`
+                  : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${pToYr} (${pDurYrs}yrs)<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${fmt(p.periodInt)} interest`;
+              });
+              const hasCashOut = ratePeriods.some((p) => p.cashOut > 0);
+              return isZh
+                ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• 共 ${fmt(reDc.cumInt)} | 购价 <strong style="color:#ccc">${intAsPctPrice}%</strong> | ${yrs}年<br>• 利率分段：<br>${periodLines.join("<br>")}<br>• 每次再融资：余额 × 新利率 → 摊销重置${hasCashOut ? "<br>&nbsp;&nbsp;· 套现：权益 → 现金 + 贷款增加 + 未来利息增加" : ""}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息全额可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
+                : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} total | <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price | ${yrs}yrs<br>• Rate history by period:<br>${periodLines.join("<br>")}<br>• each refi: new balance × new rate → amortization resets${hasCashOut ? "<br>&nbsp;&nbsp;· cash-out: equity → cash + higher loan + more future interest" : ""}${!isPrimary ? `<br>&nbsp;&nbsp;· rental: all interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
+            }
+            // Single rate (no refis)
+            const mortPmt =
+              mort > 0
+                ? Math.round(
+                    (((mort * mortRate) / 12) *
+                      Math.pow(1 + mortRate / 12, 360)) /
+                      (Math.pow(1 + mortRate / 12, 360) - 1),
+                  )
+                : 0;
+            const initMonthlyInt = Math.round((mort * mortRate) / 12);
+            return isZh
+              ? `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")}（30年固定）| ${yrs}年<br>&nbsp;&nbsp;· 月供 ${fmt(mortPmt)} | 首月利息 ${fmt(initMonthlyInt)} | 累计 = 购价 <strong style="color:#ccc">${intAsPctPrice}%</strong><br>• 等额还款前期利息为主，本金后期加速<br>&nbsp;&nbsp;· ${leverage}x 杠杆成本：全款需 ${fmt(price)} vs 首付 ${fmt(INIT)}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
+              : `<strong style="color:#ff5555">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")}) | ${yrs}yrs<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo | month-1 interest = ${fmt(initMonthlyInt)} | total = <strong style="color:#ccc">${intAsPctPrice}%</strong> of purchase price<br>• amortization front-loads interest; principal accelerates near payoff<br>&nbsp;&nbsp;· ${leverage}x leverage cost: ${fmt(price)} cash needed vs ${fmt(INIT)} down${!isPrimary ? `<br>&nbsp;&nbsp;· rental: interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
+          },
+        });
+      }
+      if (reDc.cumCosts > 0) {
+        reRows.push({
+          key: "re-costs",
+          label: lbl.costs,
+          val: -reDc.cumCosts,
+          color: "#ff8800",
+          edu: () => {
+            const propTaxPct = (activeLocConfig.propTaxRate * 100).toFixed(2);
+            const totalCostPct = (
+              (activeLocConfig.propTaxRate + 0.015) *
+              100
+            ).toFixed(2);
+            const initAnnualCosts = Math.round(
+              price * (activeLocConfig.propTaxRate + 0.015),
+            );
+            const costsAsRentPct =
+              reDc.cumRent > 0
+                ? ((reDc.cumCosts / reDc.cumRent) * 100).toFixed(0)
+                : "—";
+            return isZh
+              ? `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年")}${!isPrimary ? `<br>&nbsp;&nbsp;· = 租金收入 <strong style="color:#ccc">${costsAsRentPct}%</strong>；随房产价值增长，即便租金滞后` : ""}<br>• 切换<em>运营成本</em>可量化拖累`
+              : `<strong style="color:#ff8800">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr")}${!isPrimary ? `<br>&nbsp;&nbsp;· = <strong style="color:#ccc">${costsAsRentPct}%</strong> of gross rent; scales with property value even when rent lags` : ""}<br>• toggle <em>Op. Costs</em> to isolate drag`;
+          },
+        });
+      }
+      if (inclTaxBenefits && reDc.cumTax !== 0) {
+        const taxColor = reDc.cumTax >= 0 ? "#ffff66" : "#ff6666";
+        reRows.push({
+          key: "re-tax",
+          label: reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill,
+          val: reDc.cumTax,
+          color: taxColor,
+          edu: () => {
+            const taxRatePct = Math.round(activeLocConfig.taxRate * 100);
+            const annualDep = Math.round((price * improvPct) / 27.5);
+            const depClaimed = Math.round(annualDep * Math.min(yrs, 27.5));
+            const depRecapture = Math.round(depClaimed * 0.25);
+            const initRent = (price * startYield) / 12;
+            const initInt = (mort * mortRate) / 12;
+            const initPropTax = (price * activeLocConfig.propTaxRate) / 12;
+            const initIns = (price * 0.005) / 12;
+            const initMaint = (price * 0.01) / 12;
+            const monthlyDep = (price * improvPct) / 27.5 / 12;
+            const initTaxInc =
+              initRent -
+              initInt -
+              initPropTax -
+              initIns -
+              initMaint -
+              (inclDepreciation ? monthlyDep : 0);
+            const initMonthlyTaxBen = Math.round(
+              -initTaxInc * activeLocConfig.taxRate,
+            );
+            if (reDc.cumTax >= 0) {
+              return isZh
+                ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• 节税 ${fmt(reDc.cumTax)} | 利息${inclDepreciation ? "+折旧" : ""}抵扣 | ${W(taxRatePct + "%边际税率")} | ${yrs}年<br>• 首月：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → ~${fmt(initMonthlyTaxBen)}/月税收收益${inclDepreciation ? `<br>• 折旧：${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5年")} = ${fmt(annualDep)}/年账面亏损（不花钱）<br>&nbsp;&nbsp;· 累计抵扣 ${W(fmt(depClaimed))} → 出售追缴 ${W(fmt(depRecapture))}（25%）${isPrimary ? "" : "（1031置换除外）"}` : `<br>• 开启<em>折旧</em>：${fmt(price)} × X% ÷ 27.5年 = 账面亏损，进一步减税`}`
+                : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• saved ${fmt(reDc.cumTax)} | interest${inclDepreciation ? " + depreciation" : ""} deduction | ${W(taxRatePct + "% marginal rate")} | ${yrs}yrs<br>• mo-1: rent − interest − costs${inclDepreciation ? " − dep" : ""} = taxable → ~${fmt(initMonthlyTaxBen)}/mo benefit${inclDepreciation ? `<br>• depreciation: ${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5yr")} = ${fmt(annualDep)}/yr write-off (non-cash)<br>&nbsp;&nbsp;· ${W(fmt(depClaimed))} claimed → ${W(fmt(depRecapture))} recapture at sale${isPrimary ? "" : " — unless 1031 exchange"}` : `<br>• enable <em>Depreciation</em>: non-cash write-off reduces taxable income further`}`;
+            } else {
+              return isZh
+                ? `<strong style="color:${taxColor}">税务负担</strong><br>• 应缴 ${fmt(-reDc.cumTax)} | 租金 > 利息+成本${inclDepreciation ? "+折旧" : ""} → 净应税收入<br>&nbsp;&nbsp;· ${W(taxRatePct + "%边际税率")} → 每$1利润 = ${W(taxRatePct + "¢")}税<br>• 切换<em>税务优惠</em>可移除；或开启<em>折旧</em>加回亏损抵税`
+                : `<strong style="color:${taxColor}">Tax Bill</strong><br>• owed ${fmt(-reDc.cumTax)} | rent > interest + costs${inclDepreciation ? " + depreciation" : ""} → net taxable income<br>&nbsp;&nbsp;· ${W(taxRatePct + "% marginal rate")} → every $1 profit = ${W(taxRatePct + "¢")} tax<br>• toggle <em>Tax Benefits</em> to remove; or <em>Depreciation</em> to add write-off back`;
+            }
+          },
+        });
+      }
+      reRows.push({
+        key: "re-total",
+        label: lbl.total,
+        val: bestVal,
+        total: true,
+        color: reColor,
+        edu: () => {
+          const reCagr = (
+            (Math.pow(Math.max(bestVal, 1) / INIT, 1 / years) - 1) *
+            100
+          ).toFixed(1);
+          const mult = (bestVal / INIT).toFixed(1);
+          // Additive decomposition: wealth = (INIT + appr) + (cumRent - cumInt - cumCosts + cumTax)
+          const appreciationPart = Math.round(INIT + reDc.appr);
+          const cashFlowPart = Math.round(
+            reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
+          );
+          return isZh
+            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> | ${mult}x | 年化 <strong style="color:#ccc">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
+            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:#ccc">${fmt(bestVal)}</strong> | ${mult}x | <strong style="color:#ccc">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
+        },
+      });
+    }
+  }
+
+  // Scale = sum of positive item values per table.
+  // Positive bars grow left→right; negative bars grow right→left.
+  // Sum(positive bars) - sum(negative bars) = total bar width. ✓
+  function buildTable(rows, headerLabel, headerColor) {
+    if (!rows.length) return "";
+    const totalVal = Math.abs(rows.find((r) => r.total)?.val || 1) || 1;
+    let h = `<table class="decomp-table"><thead><tr><td colspan="3" class="decomp-table-head" style="color:${headerColor}">${headerLabel}</td></tr></thead><tbody>`;
+    rows.forEach((row) => {
+      const isNeg = row.val < 0;
+      const w = Math.min(100, Math.round((Math.abs(row.val) / totalVal) * 100));
+      const opacity = row.total ? 1 : row.base ? 0.8 : 0.7;
+      const barPos = isNeg ? "left:auto;right:0" : "left:0";
+      const bold = row.total ? ";font-weight:bold" : "";
+      const sign = !row.total && !row.base && isNeg ? "−" : "";
+      const dispVal =
+        row.total || row.base
+          ? fmt(row.val)
+          : `${sign}${fmt(Math.abs(row.val))}`;
+      h += `<tr class="decomp-row" data-key="${row.key}">
+              <td class="decomp-lbl" style="color:${row.color}${bold}">${row.label}</td>
+              <td class="decomp-bar-td"><div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:${opacity};${barPos}"></div></div></td>
+              <td class="decomp-amt" style="color:${row.color}${bold};text-align:${isNeg ? "right" : "left"}">${dispVal}</td>
+            </tr>`;
+    });
+    h += `</tbody></table>`;
+    return h;
+  }
+
+  const spColor = "#4da6ff";
+  const reColor = bestIdx >= 0 ? SCENARIOS[bestIdx].color : "#66ff66";
+  const reLabel = bestIdx >= 0 ? SCENARIOS[bestIdx].label : "RE";
+
+  barsEl.innerHTML =
+    `<div id="decomp-grid">` +
+    buildTable(spRows, idxLabel, spColor) +
+    (bestIdx >= 0 ? buildTable(reRows, reLabel, reColor) : "") +
+    `</div>`;
+
+  // Wire hover/click for educational content
+  const allRows = [...spRows, ...reRows];
+  const eduMap = {};
+  allRows.forEach((r) => {
+    if (r.edu) eduMap[r.key] = r.edu;
+  });
+  barsEl.querySelectorAll(".decomp-row").forEach((el) => {
+    const key = el.dataset.key;
+    if (!eduMap[key]) return;
+    const showEdu = () => {
+      barsEl
+        .querySelectorAll(".decomp-row")
+        .forEach((e) => e.classList.remove("active-edu"));
+      el.classList.add("active-edu");
+      if (eduEl) {
+        eduEl.innerHTML = eduMap[key]();
+        decompActiveRow = key;
+      }
+    };
+    el.addEventListener("mouseenter", () => {
+      // Don't override a pinned row unless hovering the pinned row itself
+      if (clickedKey && clickedKey !== key) return;
+      showEdu();
+    });
+    el.addEventListener("click", () => {
+      if (clickedKey === key) {
+        // Click pinned row again → unpin
+        clickedKey = null;
+        barsEl
+          .querySelectorAll(".decomp-row")
+          .forEach((e) => e.classList.remove("active-edu"));
+        if (eduEl) eduEl.innerHTML = defaultEdu;
+        decompActiveRow = null;
+      } else {
+        clickedKey = key;
+        showEdu();
+      }
+    });
+  });
+  const hintEl = document.getElementById("decomp-hint");
+  const hint = isZh
+    ? `<span style="color:#fff">↑ 悬停或点击行查看说明</span>`
+    : `<span style="color:#fff">↑ hover or click a row to explore</span>`;
+  if (hintEl) hintEl.innerHTML = hint;
+
+  const defaultEdu = isZh
+    ? `<strong style="color:#888">收益明细</strong>：涨幅（杠杆放大）、现金流、成本、税收 → 正值叠加，负值抵消。悬停行查看计算逻辑。`
+    : `<strong style="color:#888">Return Breakdown</strong>: appreciation (leverage-amplified) + cash flows + costs + tax → positive adds, negative drags. Hover a row for the math.`;
+
+  // Use the outer panel so moving mouse to edu text doesn't reset content
+  const panelEl = document.getElementById("decomp-panel");
+  if (panelEl)
+    panelEl.addEventListener("mouseleave", () => {
+      clickedKey = null; // clear pin when mouse fully leaves panel
+      decompActiveRow = null;
+      barsEl
+        .querySelectorAll(".decomp-row")
+        .forEach((e) => e.classList.remove("active-edu"));
+      if (eduEl) eduEl.innerHTML = defaultEdu;
+    });
+
+  // Restore active edu if row still exists, otherwise show default
+  if (decompActiveRow && eduMap[decompActiveRow]) {
+    const el = barsEl.querySelector(`[data-key="${decompActiveRow}"]`);
+    if (el) {
+      el.classList.add("active-edu");
+      if (eduEl) eduEl.innerHTML = eduMap[decompActiveRow]();
+    } else {
+      if (eduEl) eduEl.innerHTML = defaultEdu;
+    }
+  } else {
+    if (eduEl) eduEl.innerHTML = defaultEdu;
+  }
+}
+
+// ── Communication helpers ─────────────────────────────────────────────────
+function updateOutcomeCallout(monthsToShow) {
+  const el = document.getElementById("outcome-callout");
+  if (!el || monthsToShow < 6) {
+    if (el) el.textContent = "";
+    return;
+  }
+  const m = Math.min(monthsToShow, allWealth[0].length - 1);
+  const years = (m + 1) / 12;
+  const spVal = allWealth[0][m];
+  const spCagr = ((Math.pow(spVal / INIT, 1 / years) - 1) * 100).toFixed(1);
+  // Best visible RE scenario
+  let bestReIdx = -1,
+    bestReVal = -Infinity;
+  for (let i = 1; i < allWealth.length; i++) {
+    if (!hidden.has(i) && allWealth[i][m] > bestReVal) {
+      bestReVal = allWealth[i][m];
+      bestReIdx = i;
+    }
+  }
+  const idxLabel =
+    document.getElementById("index-select").selectedOptions[0].text;
+  const spStr = `<span style="color:#4da6ff">${fmt(spVal)} (${spCagr}%/yr)</span>`;
+  if (bestReIdx === -1) {
+    el.innerHTML = `· ${idxLabel}: ${spStr}`;
+    return;
+  }
+  const reCagr = (
+    (Math.pow(Math.max(bestReVal, 1) / INIT, 1 / years) - 1) *
+    100
+  ).toFixed(1);
+  const reColor = SCENARIOS[bestReIdx].color;
+  const reLabel = SCENARIOS[bestReIdx].label;
+  const reStr = `<span style="color:${reColor}">${fmt(bestReVal)} (${reCagr}%/yr)</span>`;
+  const aheadFn = STRINGS[lang].outcomeAhead;
+  const winner =
+    bestReVal > spVal
+      ? `<strong>${aheadFn(((bestReVal / spVal - 1) * 100).toFixed(0), true)}</strong>`
+      : `<strong>${aheadFn(((spVal / bestReVal - 1) * 100).toFixed(0), false)}</strong>`;
+  el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:#777">· ${idxLabel}:</td><td style="text-align:left">${spStr}</td></tr><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:#777">· ${reLabel}:</td><td style="text-align:left">${reStr} — ${winner}</td></tr></table>`;
+}
+
+function updateLegendCagr(monthsToShow) {
+  const m = Math.min(monthsToShow, allWealth[0].length - 1);
+  const years = (m + 1) / 12;
+  for (let i = 0; i < allWealth.length; i++) {
+    const el = document.getElementById(`leg-cagr-${i}`);
+    if (!el) continue;
+    const v = allWealth[i][m];
+    if (years < 1) {
+      el.textContent = "";
+      continue;
+    }
+    const cagr = (Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100;
+    el.textContent = `${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%/yr`;
+    el.style.color =
+      cagr >= 0 ? getCSSVar("--cagr-positive") : getCSSVar("--cagr-negative");
+  }
+}
+
+// ── Canvas ────────────────────────────────────────────────────────────────
+const canvas = document.getElementById("c");
+const sliderEl = document.getElementById("slider");
+const yearLabel = document.getElementById("year-label");
+const playBtn = document.getElementById("play-btn");
+const ctx = canvas.getContext("2d");
+const chartTooltip = document.getElementById("chart-tooltip");
+let cW = 0,
+  cH = 0;
+
+function handleCanvasPointer(clientX, clientY) {
+  const rect = canvas.getBoundingClientRect();
+  const PL = 52,
+    PR = 90;
+  const chartW = cW - PL - PR;
+  const cx = (clientX - rect.left) * (cW / rect.width);
+  if (cx < PL || cx > cW - PR) {
+    chartTooltip.style.display = "none";
+    return;
+  }
+  const ratio = (cx - PL) / chartW;
+  const m = Math.round(
+    Math.max(0, Math.min(totalMonths - 1, ratio * totalMonths - 1)),
+  );
+  const yr = startYear + Math.floor(m / 12);
+  const mo = (m % 12) + 1;
+  const years = (m + 1) / 12;
+  let html = `<div style="color:#666;margin-bottom:2px">${yr}/${mo.toString().padStart(2, "0")}</div>`;
+  for (let i = 0; i < allWealth.length; i++) {
+    if (hidden.has(i)) continue;
+    const v = allWealth[i][m];
+    const cagrStr =
+      years >= 1
+        ? ` <span style="color:${getCSSVar("--text-dim")}">${((Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100).toFixed(1)}%/yr</span>`
+        : "";
+    html += `<div><span style="color:${getCSSVar(`--color-s${i}`)}">▪</span> ${fmt(v)}${cagrStr}</div>`;
+  }
+  chartTooltip.innerHTML = html;
+  chartTooltip.style.display = "block";
+  const wrapRect = canvas.parentElement.getBoundingClientRect();
+  let tx = clientX - wrapRect.left + 14;
+  let ty = clientY - wrapRect.top - 10;
+  if (tx + 155 > wrapRect.width) tx = clientX - wrapRect.left - 165;
+  chartTooltip.style.left = tx + "px";
+  chartTooltip.style.top = ty + "px";
+}
+canvas.addEventListener("mousemove", (e) =>
+  handleCanvasPointer(e.clientX, e.clientY),
+);
+canvas.addEventListener("mouseleave", () => {
+  chartTooltip.style.display = "none";
+});
+canvas.addEventListener(
+  "touchmove",
+  (e) => {
+    e.preventDefault();
+    handleCanvasPointer(e.touches[0].clientX, e.touches[0].clientY);
+  },
+  { passive: false },
+);
+canvas.addEventListener("touchend", () => {
+  chartTooltip.style.display = "none";
+});
+
+function resizeCanvas() {
+  const dpr = window.devicePixelRatio || 1;
+  cW = canvas.parentElement.clientWidth;
+  cH = Math.round((cW * 10) / 16);
+  canvas.width = cW * dpr;
+  canvas.height = cH * dpr;
+  canvas.style.width = cW + "px";
+  canvas.style.height = cH + "px";
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+
+function draw(monthsToShow) {
+  const W = cW,
+    H = cH;
+  if (W === 0) return;
+  // Read canvas colors from CSS custom properties (theme-aware)
+  const CT = {
+    bg: getCSSVar("--canvas-bg"),
+    grid: getCSSVar("--canvas-grid"),
+    axis: getCSSVar("--canvas-axis"),
+    label: getCSSVar("--canvas-label"),
+    refiLine: getCSSVar("--canvas-refi-line"),
+    refiLabel: getCSSVar("--canvas-refi-label"),
+    crashLine: getCSSVar("--canvas-crash-line"),
+    spikeLine: getCSSVar("--canvas-spike-line"),
+    crashLabel: getCSSVar("--canvas-crash-label"),
+    spikeLabel: getCSSVar("--canvas-spike-label"),
+    projFill: getCSSVar("--canvas-proj-fill"),
+    projStroke: getCSSVar("--canvas-proj-stroke"),
+    projLabel: getCSSVar("--canvas-proj-label"),
+    negFill: getCSSVar("--canvas-neg-fill"),
+    negStroke: getCSSVar("--canvas-neg-stroke"),
+    s: [0, 1, 2, 3, 4, 5].map((i) => getCSSVar(`--color-s${i}`)),
+  };
+  // Sub-month interpolation for smooth animation
+  const fullM = Math.floor(monthsToShow);
+  const frac = monthsToShow - fullM;
+  ctx.fillStyle = CT.bg;
+  ctx.fillRect(0, 0, W, H);
+  // Compute right padding to fit chasing labels
+  const chartLegLabels = [
+    document.getElementById("index-select")?.selectedOptions[0]?.text ||
+      "S&P 500",
+    "All Cash",
+    "50% Down",
+    "20% Down",
+    "10% Down",
+    "3.5% Down",
+  ];
+  const lfs = Math.max(8, Math.min(10, W / 65));
+  ctx.font = `${lfs}px monospace`;
+  const maxLW = SCENARIOS.reduce(
+    (mx, s, i) =>
+      hidden.has(i)
+        ? mx
+        : Math.max(mx, ctx.measureText(chartLegLabels[i]).width),
+    0,
+  );
+  const PL = 52,
+    PR = Math.ceil(maxLW) + 10,
+    PT = 16,
+    PB = 28;
+  const chartW = W - PL - PR,
+    chartH = H - PT - PB;
+
+  // Y range (log scale) — bidirectional smooth lerp during play, instant snap
+  // during slider. Null means first frame: snap immediately.
+  let yMin = Infinity,
+    yMax = 200000;
+  for (let i = 0; i < allWealth.length; i++) {
+    if (hidden.has(i)) continue;
+    const w = allWealth[i];
+    for (let m = 0; m <= fullM && m < w.length; m++) {
+      if (w[m] > yMax) yMax = w[m];
+      if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
+    }
+  }
+  if (!isFinite(yMin)) yMin = 50000;
+  const _loRaw = yMin * 0.85;
+  const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
+  const tgtLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
+  const tgtHi = yMax * 1.1;
+  // Snap on first frame; smooth lerp during play; instant snap during scrubbing
+  if (lerpYLo === null) {
+    lerpYLo = tgtLo;
+    lerpYHi = tgtHi;
+  }
+  const _s = playing ? 0.05 : 1.0;
+  lerpYHi = Math.exp(
+    Math.log(lerpYHi) + (Math.log(tgtHi) - Math.log(lerpYHi)) * _s,
+  );
+  lerpYLo = Math.exp(
+    Math.log(lerpYLo) + (Math.log(tgtLo) - Math.log(lerpYLo)) * _s,
+  );
+  const yLo = lerpYLo;
+  const yHi = lerpYHi;
+  const tx = (m) => PL + (m / Math.max(totalMonths, 1)) * chartW;
+  const logRange = Math.log(yHi) - Math.log(yLo);
+  const ty = (v) =>
+    PT + ((Math.log(yHi) - Math.log(Math.max(v, yLo))) / logRange) * chartH;
+
+  // Log-spaced grid (1, 2, 5 × powers of 10)
+  const gridVals = [];
+  for (
+    let dec = Math.floor(Math.log10(yLo));
+    dec <= Math.ceil(Math.log10(yHi));
+    dec++
+  ) {
+    for (const m of [1, 2, 5]) {
+      const v = m * Math.pow(10, dec);
+      if (v >= yLo && v <= yHi) gridVals.push(v);
+    }
+  }
+  ctx.font = `${Math.max(8, Math.min(10, W / 50))}px monospace`;
+  for (const v of gridVals) {
+    const y = ty(v);
+    ctx.strokeStyle = CT.grid;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(PL, y);
+    ctx.lineTo(PL + chartW, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = CT.axis;
+    ctx.textAlign = "right";
+    ctx.fillText(fmt(v), PL - 3, y + 4);
+  }
+
+  // Refi year markers — only years that actually fire (getRefis filters out rate-rising years)
+  if (numRefis > 0) {
+    const refis = getRefis(startYear, endYear, numRefis);
+    const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+    let refiLabelIdx = 0;
+    for (const refi of refis) {
+      if (refi.m > fullM) continue;
+      const x = tx(refi.m + 1);
+      ctx.strokeStyle = CT.refiLine;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(x, PT);
+      ctx.lineTo(x, PT + chartH);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = CT.refiLabel;
+      ctx.font = xLabelFont;
+      ctx.textAlign = "center";
+      const labelY = PT + 8 + (refiLabelIdx % 3) * 10;
+      ctx.fillText(`R${refi.year}`, x, labelY);
+      refiLabelIdx++;
+    }
+  }
+
+  // Historical event annotations — crashes (red) + spikes (amber)
+  ctx.font = `${Math.max(7, Math.min(8, W / 80))}px monospace`;
+  ctx.globalAlpha = 0.5;
+  let lastCrashLabelX = -999,
+    lastSpikeLabelX = -999;
+  for (const ev of MARKET_EVENTS) {
+    if (!ev.chartLine) continue;
+    const evM = (ev.year - startYear) * 12;
+    if (evM <= 0 || evM >= fullM) continue;
+    const ex = tx(evM);
+    const isCrash = ev.type === "crash";
+    ctx.strokeStyle = isCrash ? CT.crashLine : CT.spikeLine;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([2, 4]);
+    ctx.beginPath();
+    ctx.moveTo(ex, PT);
+    ctx.lineTo(ex, PT + chartH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    const evLabel = lang === "zh" ? ev.nameZh : ev.name;
+    ctx.fillStyle = isCrash ? CT.crashLabel : CT.spikeLabel;
+    ctx.textAlign = "center";
+    if (isCrash) {
+      if (Math.abs(ex - lastCrashLabelX) > 36) {
+        ctx.fillText(evLabel, ex, PT + chartH - 16);
+        lastCrashLabelX = ex;
+      }
+    } else {
+      if (Math.abs(ex - lastSpikeLabelX) > 36) {
+        ctx.fillText(evLabel, ex, PT + 44);
+        lastSpikeLabelX = ex;
+      }
+    }
+  }
+  ctx.globalAlpha = 1.0;
+
+  // X-axis year labels
+  ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+  ctx.textAlign = "center";
+  const fullDur = endYear - startYear + 1;
+  const step = fullDur <= 10 ? 1 : fullDur <= 20 ? 2 : 5;
+  for (let yr = 0; yr <= fullDur; yr += step) {
+    const m = yr * 12;
+    ctx.fillStyle = CT.label;
+    ctx.fillText(startYear + yr, tx(m), H - 6);
+  }
+
+  // Projection zone shading
+  const pxStart = tx(projStartM + 1);
+  if (pxStart < PL + chartW) {
+    ctx.fillStyle = CT.projFill;
+    ctx.fillRect(pxStart, PT, PL + chartW - pxStart, chartH);
+    // Boundary line
+    ctx.strokeStyle = CT.projStroke;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(pxStart, PT);
+    ctx.lineTo(pxStart, PT + chartH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+    ctx.fillStyle = CT.projLabel;
+    ctx.textAlign = "left";
+    ctx.fillText("EST.", pxStart + 4, PT + 10);
+  }
+
+  // Lines
+  for (let i = 0; i < SCENARIOS.length; i++) {
+    if (hidden.has(i)) continue;
+    const w = allWealth[i];
+    const color = CT.s[i];
+    const lw = i === 0 ? 2 : 1.5;
+
+    ctx.strokeStyle = color;
+    ctx.lineWidth = lw;
+    ctx.lineJoin = "round";
+    const solidEnd = Math.min(projStartM, fullM);
+    // Solid: anchor at INIT then historical data (data index m → x-position m+1)
+    // At fullM=0 frac=0 (slider at very start), only the INIT anchor is drawn.
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    ctx.moveTo(tx(0), ty(INIT));
+    for (let m = 0; m <= solidEnd && m < w.length; m++) {
+      if (fullM === 0 && frac === 0) break; // only INIT anchor at start
+      ctx.lineTo(tx(m + 1), ty(w[m]));
+    }
+    // Fractional leading edge in solid zone
+    if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
+      ctx.lineTo(
+        tx(fullM + 1 + frac),
+        ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+      );
+    ctx.stroke();
+    // Dashed: projection portion
+    const inDashZone = fullM > projStartM || (fullM === projStartM && frac > 0);
+    if (inDashZone) {
+      ctx.setLineDash([4, 4]);
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(tx(solidEnd + 1), ty(w[solidEnd]));
+      for (let m = solidEnd + 1; m <= fullM && m < w.length; m++)
+        ctx.lineTo(tx(m + 1), ty(w[m]));
+      // Fractional leading edge in dash zone
+      if (frac > 0 && fullM + 1 < w.length)
+        ctx.lineTo(
+          tx(fullM + 1 + frac),
+          ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+        );
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1.0;
+    }
+  }
+
+  // Tip dots (interpolated for smooth movement)
+  if (monthsToShow > 1) {
+    for (let i = 0; i < SCENARIOS.length; i++) {
+      if (hidden.has(i)) continue;
+      const w = allWealth[i];
+      const hm = Math.min(fullM, w.length - 1);
+      const canInterp = frac > 0 && fullM + 1 < w.length;
+      const dotX = canInterp ? tx(fullM + 1 + frac) : tx(hm + 1);
+      const dotY = canInterp
+        ? ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]))
+        : ty(w[hm]);
+      ctx.fillStyle = CT.s[i];
+      ctx.beginPath();
+      ctx.arc(dotX, dotY, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  // Chasing line-head labels (right of current endpoint, interpolated)
+  {
+    const hm = Math.min(fullM, totalMonths - 1);
+    const canInterp = frac > 0 && hm + 1 < allWealth[0].length;
+    const atStart = fullM === 0 && frac === 0;
+    if (hm >= 0) {
+      ctx.font = `${lfs}px monospace`;
+      ctx.textAlign = "left";
+      const items = SCENARIOS.map((s, i) => {
+        const v0 = atStart ? INIT : allWealth[i][hm];
+        const v = atStart
+          ? INIT
+          : canInterp
+            ? v0 + frac * (allWealth[i][hm + 1] - v0)
+            : v0;
+        return { s, i, v };
+      })
+        .filter(({ i }) => !hidden.has(i))
+        .sort((a, b) => b.v - a.v);
+      const minGap = lfs * 2 + 4;
+      const positions = items.map(({ v }) => ty(v));
+      // Forward pass: push down to resolve top-overlaps
+      for (let k = 1; k < positions.length; k++)
+        if (positions[k] < positions[k - 1] + minGap)
+          positions[k] = positions[k - 1] + minGap;
+      // Clamp bottom, then backward pass: push up to resolve bottom-overflow
+      const yBottom = PT + chartH - lfs;
+      for (let k = positions.length - 1; k >= 0; k--) {
+        if (positions[k] > yBottom) positions[k] = yBottom;
+        if (
+          k < positions.length - 1 &&
+          positions[k] > positions[k + 1] - minGap
+        )
+          positions[k] = positions[k + 1] - minGap;
+      }
+      // Clamp top
+      for (let k = 0; k < positions.length; k++)
+        if (positions[k] < PT + lfs) positions[k] = PT + lfs;
+      const lx =
+        (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
+      items.forEach(({ s, i, v }, k) => {
+        ctx.fillStyle = CT.s[i];
+        ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
+        ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.9);
+      });
+    }
+  }
+
+  // Annotate when any visible scenario is below the chart floor (negative equity)
+  {
+    let hasFloored = false;
+    const mCheck = fullM;
+    outer: for (let i = 0; i < allWealth.length; i++) {
+      if (hidden.has(i)) continue;
+      for (let m = 0; m <= mCheck && m < allWealth[i].length; m++) {
+        if (allWealth[i][m] < yLo) {
+          hasFloored = true;
+          break outer;
+        }
+      }
+    }
+    if (hasFloored) {
+      const afs = Math.max(8, Math.min(10, W / 70));
+      ctx.font = `bold ${afs}px monospace`;
+      ctx.textAlign = "center";
+      const floorLabel =
+        lang === "zh"
+          ? "已破产。过度杠杆导致负净值。图表停留于最大亏损点。"
+          : "Bankrupted. Overleverage Caused Negative Equity. Chart Stayed at Max Deficit.";
+      const labelX = PL + chartW / 2;
+      // Sit above x-axis year labels: baseline H-6, font 7-9px → tops ~H-15
+      const yLabelFontSize = Math.max(7, Math.min(9, W / 55));
+      const labelY = H - 6 - yLabelFontSize - 6;
+      const tw = ctx.measureText(floorLabel).width;
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = CT.negFill;
+      ctx.fillRect(labelX - tw / 2 - 4, labelY - afs - 1, tw + 8, afs + 4);
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = CT.negStroke;
+      ctx.fillText(floorLabel, labelX, labelY);
+    }
+  }
+
+  // Update communication elements with integer month (array index safe)
+  updateOutcomeCallout(fullM);
+  updateLegendCagr(fullM);
+  renderDecomp(fullM);
+}
+
+// ── Year label ────────────────────────────────────────────────────────────
+function updateLabel(mInt) {
+  const yr = startYear + Math.floor((mInt - 1) / 12);
+  const mo = ((mInt - 1) % 12) + 1;
+  const est = mInt > projStartM + 1 ? " est." : "";
+  yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
+}
+
+// ── Y-axis lerp state (bidirectional, null = snap on next draw) ─────────
+let lerpYLo = null,
+  lerpYHi = null;
+
+// ── Play state machine ────────────────────────────────────────────────────
+// States: STOPPED | PLAYING
+let playing = false,
+  rafId = null,
+  lastTs = null,
+  speedMultiplier = 1;
+
+const speedBtn = document.getElementById("speed-btn");
+
+function startPlay() {
+  if (playing) return; // guard: no double RAF
+  if (curMonth >= totalMonths) {
+    curMonth = 1; // restart from beginning if at end
+    lerpYLo = null;
+    lerpYHi = null; // snap y-axis to month-1 range on first frame
+  }
+  sliderEl.value = Math.round(curMonth);
+  playing = true;
+  lastTs = null;
+  playBtn.innerHTML = "⏸";
+  rafId = requestAnimationFrame(tick);
+}
+
+function stopPlay() {
+  if (!playing && rafId === null) return; // guard: already stopped
+  playing = false;
+  playBtn.innerHTML = "&#9654;";
+  if (rafId !== null) {
+    cancelAnimationFrame(rafId);
+    rafId = null;
+  }
+  lastTs = null;
+}
+
+function tick(ts) {
+  if (!playing) return;
+  if (lastTs === null) {
+    lastTs = ts;
+    rafId = requestAnimationFrame(tick);
+    return;
+  }
+  const dt = Math.min((ts - lastTs) / 1000, 0.1);
+  lastTs = ts;
+  curMonth = Math.min(
+    curMonth + dt * (totalMonths / 30) * speedMultiplier,
+    totalMonths,
+  );
+  const m = Math.round(curMonth);
+  sliderEl.value = m;
+  updateLabel(m);
+  draw(curMonth - 1); // float → sub-month interpolation in draw()
+  if (curMonth >= totalMonths) {
+    stopPlay();
+    return;
+  }
+  rafId = requestAnimationFrame(tick);
+}
+
+playBtn.addEventListener("click", () => {
+  if (playing) stopPlay();
+  else startPlay();
+});
+
+// 2x toggle: only auto-play when turning ON and animation is not finished
+speedBtn.addEventListener("click", () => {
+  const turningOn = speedMultiplier === 1;
+  speedMultiplier = turningOn ? 2 : 1;
+  speedBtn.classList.toggle("active", speedMultiplier === 2);
+  if (turningOn && !playing && curMonth < totalMonths) startPlay();
+});
+
+// ── Slider ────────────────────────────────────────────────────────────────
+sliderEl.addEventListener("input", () => {
+  stopPlay();
+  curMonth = parseInt(sliderEl.value);
+  updateLabel(curMonth);
+  draw(curMonth - 1);
+});
+
+// ── Start / end year controls ─────────────────────────────────────────────
+function rebuild() {
+  allWealth = buildAllWealth(startYear);
+  totalMonths = (endYear - startYear + 1) * 12;
+  projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
+  curMonth = Math.min(projStartM + 1, totalMonths);
+  sliderEl.max = totalMonths;
+  sliderEl.value = curMonth;
+  // Reset lerp so draw() snaps to the correct range for curMonth on first frame
+  lerpYLo = null;
+  lerpYHi = null;
+  updateAssumptions();
+  updateLabel(curMonth);
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+}
+
+function setStartYear(yr) {
+  startYear = yr;
+  document.getElementById("start-year-val").textContent = yr;
+  // keep end year at least 1 year ahead
+  const endSlider = document.getElementById("end-year-slider");
+  endSlider.min = yr + 1;
+  if (endYear <= yr) {
+    endYear = yr + 1;
+    endSlider.value = endYear;
+    document.getElementById("end-year-val").textContent = endYear;
+  }
+  rebuild();
+}
+
+function setEndYear(yr) {
+  endYear = yr;
+  document.getElementById("end-year-val").textContent = yr;
+  // keep start year at least 1 year behind
+  const startSlider = document.getElementById("start-year-slider");
+  startSlider.max = yr - 1;
+  if (startYear >= yr) {
+    startYear = yr - 1;
+    startSlider.value = startYear;
+    document.getElementById("start-year-val").textContent = startYear;
+  }
+  rebuild();
+}
+
+document
+  .getElementById("start-year-slider")
+  .addEventListener("input", function () {
+    stopPlay();
+    setStartYear(parseInt(this.value));
+  });
+
+document
+  .getElementById("end-year-slider")
+  .addEventListener("input", function () {
+    stopPlay();
+    setEndYear(parseInt(this.value));
+  });
+
+document
+  .getElementById("improv-slider")
+  .addEventListener("change", function () {
+    improvPct = parseInt(this.value) / 100;
+    allWealth = buildAllWealth(startYear);
+    updateAssumptions();
+    buildTable();
+    syncTableCols();
+    draw(curMonth - 1);
+  });
+
+// ── Resize ────────────────────────────────────────────────────────────────
+// Debounced: rotation fires many rapid events; only redraw after it settles
+let resizeTimer = null;
+window.addEventListener("resize", () => {
+  if (resizeTimer !== null) clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    resizeTimer = null;
+    resizeCanvas();
+    draw(curMonth - 1);
+  }, 80);
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────
+loadFromHash();
+// Sync DOM to (possibly hash-loaded) state
+document.getElementById("start-year-slider").value = startYear;
+document.getElementById("start-year-val").textContent = startYear;
+document.getElementById("end-year-slider").value = endYear;
+document.getElementById("end-year-val").textContent = endYear;
+document.getElementById("init-select").value = INIT;
+document.getElementById("init-abbr").textContent =
+  INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "k";
+const IMPROV_OPTS = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
+const snapImprov = (pct) =>
+  IMPROV_OPTS.reduce((a, b) => (Math.abs(b - pct) < Math.abs(a - pct) ? b : a));
+const ipPct = snapImprov(Math.round(improvPct * 100));
+improvPct = ipPct / 100;
+document.getElementById("improv-slider").value = ipPct;
+document.getElementById("end-year-slider").min = startYear + 1;
+document.getElementById("start-year-slider").max = endYear - 1;
+if (reinvest) {
+  document.getElementById("btn-reinvest").classList.add("active");
+  document.getElementById("btn-additive").classList.remove("active");
+}
+if (isPrimary) {
+  document.getElementById("btn-primary").classList.add("active");
+  document.getElementById("btn-rental").classList.remove("active");
+}
+if (numRefis > 0) {
+  [0, 1, 2, 3].forEach((i) =>
+    document
+      .getElementById(`btn-refi-${i}`)
+      .classList.toggle("active", i === numRefis),
+  );
+  document.getElementById("refi-type-group").style.display = "flex";
+  if (!refiLTV) document.getElementById("refi-bal-tip").style.display = "";
+}
+if (refiLTV && numRefis > 0) {
+  document.getElementById("btn-refi-ltv").classList.add("active");
+  document.getElementById("btn-refi-rate").classList.remove("active");
+  document.getElementById("row-ltv-pct").style.display = "flex";
+  const ltvPctInit = Math.round(refiLTVPct * 100);
+  document.getElementById("ltv-pct-slider").value = ltvPctInit;
+  document.getElementById("ltv-pct-val").textContent = ltvPctInit + "%";
+}
+document.getElementById("lang-select").value = lang;
+document.getElementById("lang-abbr").textContent = lang === "zh" ? "🇨🇳" : "🇺🇸";
+if (!inclTaxBenefits)
+  document.getElementById("btn-incl-taxbenefit").classList.remove("active");
+if (!inclDepreciation)
+  document.getElementById("btn-incl-depreciation").classList.remove("active");
+if (!inclCosts)
+  document.getElementById("btn-incl-costs").classList.remove("active");
+document.querySelectorAll(".leg-item").forEach((item) => {
+  item.classList.toggle("hidden", hidden.has(parseInt(item.dataset.idx)));
+});
+document
+  .getElementById("index-select")
+  .addEventListener("change", refreshDatasets);
+document.getElementById("state-select").addEventListener("change", () => {
+  populateMetroSelect();
+  populateCitySelect();
+  refreshDatasets();
+});
+document.getElementById("metro-select").addEventListener("change", () => {
+  populateCitySelect();
+  refreshDatasets();
+});
+document
+  .getElementById("city-select")
+  .addEventListener("change", refreshDatasets);
+const INIT_OPTS = [100000, 200000, 500000, 1000000, 2000000, 5000000];
+const fmtInitAbbr = (v) =>
+  v >= 1000000 ? "$" + v / 1000000 + "M" : "$" + v / 1000 + "k";
+document.getElementById("init-select").addEventListener("change", function () {
+  INIT = parseInt(this.value);
+  document.getElementById("init-abbr").textContent = fmtInitAbbr(INIT);
+  allWealth = buildAllWealth(startYear);
+  draw(curMonth - 1);
+});
+
+function populateMetroSelect() {
+  const stateKey = document.getElementById("state-select").value;
+  const state = LOCATION_HIERARCHY.find((s) => s.key === stateKey);
+  const sel = document.getElementById("metro-select");
+  sel.innerHTML = state.metros
+    .map((m) => `<option value="${m.key}">${m.label}</option>`)
+    .join("");
+}
+
+function populateCitySelect() {
+  const metroKey = document.getElementById("metro-select").value;
+  const metro = LOCATION_HIERARCHY.flatMap((s) => s.metros).find(
+    (m) => m.key === metroKey,
+  );
+  const wrap = document.getElementById("city-wrap");
+  const div = document.getElementById("city-divider");
+  const sel = document.getElementById("city-select");
+  if (!metro || metro.cities.length === 0) {
+    wrap.style.display = "none";
+    div.style.display = "none";
+    return;
+  }
+  wrap.style.display = "";
+  div.style.display = "";
+  sel.innerHTML = metro.cities
+    .map((c) => `<option value="${c.key}">${c.label}</option>`)
+    .join("");
+}
+
+populateMetroSelect();
+populateCitySelect();
+
+// Apply saved theme before first draw
+const savedTheme = localStorage.getItem("theme");
+if (savedTheme === "light" || savedTheme === "dark") {
+  document.documentElement.dataset.theme = savedTheme;
+}
+document.getElementById("theme-btn").addEventListener("click", toggleTheme);
+
+allWealth = buildAllWealth(startYear);
+totalMonths = (endYear - startYear + 1) * 12;
+projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
+curMonth = totalMonths;
+sliderEl.max = totalMonths;
+sliderEl.value = curMonth;
+resizeCanvas();
+applyLang();
+updateLabel(curMonth);
+draw(curMonth - 1);
+
+document.addEventListener("click", (e) => {
+  const t = e.target.closest(".tip");
+  document.querySelectorAll(".tip.open").forEach((el) => {
+    if (el !== t) el.classList.remove("open");
+  });
+  if (t) t.classList.toggle("open");
+});
