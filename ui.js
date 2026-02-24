@@ -1203,7 +1203,7 @@ function updateLegendCagr(monthsToShow) {
         ? ((bestVal / spVal - 1) * 100) | 0
         : 0;
   const aheadStr = ahead > 0 ? ` · +${ahead}%` : "";
-  leaderEl.textContent = `\u2014 ${label}${aheadStr}`;
+  leaderEl.textContent = `Leading Index \u2014 ${label}${aheadStr}`;
 }
 
 // ── Canvas ────────────────────────────────────────────────────────────────

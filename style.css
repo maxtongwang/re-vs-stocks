@@ -306,6 +306,11 @@ canvas {
   gap: 4px 16px;
   margin-top: 10px;
 }
+#leader-bar {
+  text-align: center;
+  margin-top: 6px;
+  min-height: 14px;
+}
 .legend-leader {
   font-size: 11px;
   color: var(--text-mid);
