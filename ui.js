@@ -1337,7 +1337,7 @@ function draw(monthsToShow) {
     document.getElementById("index-select")?.selectedOptions[0]?.text ||
       "S&P 500",
     "All Cash",
-    ...RE_DOWN_PMTS.map((p) => `${+(p * 100)}% Down`),
+    ...RE_DOWN_PMTS.map((p) => `${dpPct(p)}% Down`),
   ];
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;

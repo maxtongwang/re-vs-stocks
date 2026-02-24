@@ -1,7 +1,10 @@
 // ── Down payment config — change here to update ALL labels + simulation ────
 const RE_DOWN_PMTS = [0.6, 0.4, 0.25, 0.035]; // s2–s5; s1 = All Cash
+function dpPct(p) {
+  return parseFloat((p * 100).toFixed(4));
+}
 function dpLabel(p) {
-  return `${+(p * 100)}% Down`;
+  return `${dpPct(p)}% Down`;
 }
 
 // ── Scenario metadata ──────────────────────────────────────────────────────
@@ -306,12 +309,12 @@ const STRINGS = {
     legendLabels: [
       "S&P 500 (总回报)",
       "房产 全现金",
-      ...RE_DOWN_PMTS.map((p) => `房产 ${+(p * 100)}%首付`),
+      ...RE_DOWN_PMTS.map((p) => `房产 ${dpPct(p)}%首付`),
     ],
     legendLabelsPrimary: [
       "S&P 500 (总回报)",
       "自住 全现金",
-      ...RE_DOWN_PMTS.map((p) => `自住 ${+(p * 100)}%首付`),
+      ...RE_DOWN_PMTS.map((p) => `自住 ${dpPct(p)}%首付`),
     ],
     thYear: "年份",
     assmDyn: "动态假设",
