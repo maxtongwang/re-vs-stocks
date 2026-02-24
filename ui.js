@@ -1605,8 +1605,12 @@ canvas.addEventListener("touchend", () => {
 
 function resizeCanvas() {
   const dpr = window.devicePixelRatio || 1;
-  cW = canvas.parentElement.clientWidth;
-  cH = Math.round((cW * 10) / 16);
+  const wrap = canvas.parentElement;
+  cW = wrap.clientWidth;
+  const idealH = Math.round((cW * 10) / 16);
+  // Respect CSS height cap (e.g. max-height in landscape mobile); capH=0 before layout
+  const capH = wrap.clientHeight;
+  cH = capH > 0 && capH < idealH ? capH : idealH;
   canvas.width = cW * dpr;
   canvas.height = cH * dpr;
   canvas.style.width = cW + "px";
