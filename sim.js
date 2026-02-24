@@ -720,8 +720,6 @@ function buildAllWealth(yr) {
  */
 function computeCapGains(idx, m) {
   if (!inclCapGains) return 0;
-  // Index cap gains only apply when Tx Costs is ON (sell event required for fair comparison)
-  if (idx === 0 && !inclTxCosts) return 0;
 
   const d = allDecomp[idx];
   if (!d) return 0;
