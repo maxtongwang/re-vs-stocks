@@ -315,15 +315,15 @@ canvas {
   background: var(--btn-active-bg);
 }
 .legend-wrap {
-  display: flex;
-  justify-content: center;
+  text-align: center;
   margin-top: 10px;
 }
 .legend {
-  display: flex;
+  display: inline-flex;
   flex-direction: row;
   align-items: flex-start;
   gap: 24px;
+  text-align: left;
 }
 .legend-col {
   display: grid;
