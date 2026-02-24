@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224aap" />
-    <link rel="stylesheet" href="style.css?v=20260224aap" />
+    <link rel="stylesheet" href="themes.css?v=20260224aaq" />
+    <link rel="stylesheet" href="style.css?v=20260224aaq" />
   </head>
   <body>
     <noscript>
@@ -560,6 +560,21 @@
     <div id="primary-note"></div>
 
     <div id="chart-wrap">
+      <button
+        id="btn-show-overlay"
+        class="toggle-btn"
+        style="
+          position: absolute;
+          top: 4px;
+          right: 4px;
+          z-index: 1;
+          font-size: 9px;
+          padding: 1px 5px;
+          opacity: 0.7;
+        "
+      >
+        Price Only
+      </button>
       <canvas id="c"></canvas>
       <div id="chart-tooltip"></div>
     </div>
@@ -945,8 +960,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224aap" defer></script>
-    <script src="sim.js?v=20260224aap" defer></script>
-    <script src="ui.js?v=20260224aap" defer></script>
+    <script src="data.js?v=20260224aaq" defer></script>
+    <script src="sim.js?v=20260224aaq" defer></script>
+    <script src="ui.js?v=20260224aaq" defer></script>
   </body>
 </html>

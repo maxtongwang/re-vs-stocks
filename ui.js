@@ -55,6 +55,9 @@ let startYear = 1995;
 let endYear = 2026;
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
+let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
+let indexSpWealth = []; // populated by buildAllWealth
+let indexReWealth = [];
 let improvPct = activeLocConfig.improvPct; // keep in sync with default location
 let isPrimary = false;
 let inclTaxBenefits = true,
@@ -444,6 +447,15 @@ document.getElementById("btn-additive").addEventListener("click", () => {
   });
 });
 
+// ── Price-only overlay toggle ─────────────────────────────────────────────
+document.getElementById("btn-show-overlay").addEventListener("click", () => {
+  showIndexOverlay = !showIndexOverlay;
+  document
+    .getElementById("btn-show-overlay")
+    .classList.toggle("active", showIndexOverlay);
+  draw(curMonth - 1);
+});
+
 // ── Property mode toggle ─────────────────────────────────────────────────
 document.getElementById("btn-rental").addEventListener("click", () => {
   if (!isPrimary) return;
@@ -656,6 +668,7 @@ function getShareParams() {
   if (endYear !== 2026) p.set("e", endYear);
   if (reinvest) p.set("m", "r");
   if (reinvest && reinvestIdx !== "sp500") p.set("ri", reinvestIdx);
+  if (showIndexOverlay) p.set("ov", "1");
   if (isPrimary) p.set("p", "1");
   if (numRefis > 0) p.set("r", numRefis);
   if (refiLTV) p.set("t", "l");
@@ -704,6 +717,7 @@ function loadFromHash() {
   if (p.has("m")) reinvest = p.get("m") === "r";
   if (p.has("ri") && ["sp500", "nasdaq", "sixty40"].includes(p.get("ri")))
     reinvestIdx = p.get("ri");
+  if (p.has("ov")) showIndexOverlay = p.get("ov") === "1";
   if (p.has("p")) isPrimary = p.get("p") === "1";
   if (p.has("r"))
     numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
@@ -1605,7 +1619,34 @@ function handleCanvasPointer(clientX, clientY) {
   const yr = startYear + Math.floor(m / 12);
   const mo = (m % 12) + 1;
   const years = (m + 1) / 12;
+  const isZhH = typeof lang !== "undefined" && lang === "zh";
   let html = `<div style="color:${getCSSVar("--text-sub")};margin-bottom:2px">${yr}/${mo.toString().padStart(2, "0")}</div>`;
+  if (
+    showIndexOverlay &&
+    indexSpWealth.length > m &&
+    indexReWealth.length > m
+  ) {
+    const overlayItems = [
+      {
+        v: indexSpWealth[m],
+        color: getCSSVar("--color-s0"),
+        label: isZhH ? "标普全收益" : "S&P total return",
+      },
+      {
+        v: indexReWealth[m],
+        color: "#d4950a",
+        label: isZhH ? "房价(FHFA)" : "RE price (FHFA)",
+      },
+    ];
+    for (const { v, color, label } of overlayItems) {
+      const cagrStr =
+        years >= 1
+          ? ` <span style="color:${getCSSVar("--text-dim")}">${((Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100).toFixed(1)}%/yr</span>`
+          : "";
+      html += `<div><span style="color:${color}">▪</span> ${fmt(v)}${cagrStr} <span style="color:${getCSSVar("--text-dim")};font-size:8px">${label}</span></div>`;
+    }
+    html += `<hr style="border:none;border-top:1px solid ${getCSSVar("--border-dim")};margin:3px 0">`;
+  }
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const v = allWealth[i][m];
@@ -1613,7 +1654,8 @@ function handleCanvasPointer(clientX, clientY) {
       years >= 1
         ? ` <span style="color:${getCSSVar("--text-dim")}">${((Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100).toFixed(1)}%/yr</span>`
         : "";
-    html += `<div><span style="color:${getCSSVar(`--color-s${i}`)}">▪</span> ${fmt(v)}${cagrStr}</div>`;
+    const rowAlpha = showIndexOverlay ? ' style="opacity:0.5"' : "";
+    html += `<div${rowAlpha}><span style="color:${getCSSVar(`--color-s${i}`)}">▪</span> ${fmt(v)}${cagrStr}</div>`;
   }
   chartTooltip.innerHTML = html;
   chartTooltip.style.display = "block";
@@ -1869,7 +1911,8 @@ function draw(monthsToShow) {
     ctx.fillText("EST.", pxStart + 4, PT - 3);
   }
 
-  // Lines
+  // Lines — dim to background when overlay is active
+  if (showIndexOverlay) ctx.globalAlpha = 0.18;
   for (let i = 0; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
@@ -2028,6 +2071,108 @@ function draw(monthsToShow) {
         ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.9);
       });
     }
+  }
+
+  // ── Common-chart overlay: S&P total return vs RE price-only (no leverage/income) ──
+  if (
+    showIndexOverlay &&
+    indexSpWealth.length > 0 &&
+    indexReWealth.length > 0
+  ) {
+    ctx.globalAlpha = 1.0;
+    const isZh = typeof lang !== "undefined" && lang === "zh";
+    const overlayPairs = [
+      {
+        w: indexSpWealth,
+        color: CT.s[0],
+        label: isZh ? "标普全收益" : "S&P total return",
+      },
+      {
+        w: indexReWealth,
+        color: "#d4950a",
+        label: isZh ? "房价指数(FHFA)" : "RE price (FHFA)",
+      },
+    ];
+    const hm = Math.min(fullM, totalMonths - 1);
+    const canInterp = frac > 0 && hm + 1 < indexSpWealth.length;
+    const atStart = fullM === 0 && frac === 0;
+    const lx =
+      (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
+    const overlayPositions = overlayPairs.map(({ w }) => {
+      const v0 = atStart ? INIT : w[hm];
+      return ty(
+        canInterp && !atStart
+          ? v0 + frac * (w[Math.min(hm + 1, w.length - 1)] - v0)
+          : v0,
+      );
+    });
+    // Collision avoidance for overlay labels
+    const minGapO = lfs * 2 + 4;
+    if (overlayPositions[1] < overlayPositions[0] + minGapO)
+      overlayPositions[1] = overlayPositions[0] + minGapO;
+    overlayPairs.forEach(({ w, color, label }, oi) => {
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = "round";
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(tx(0), ty(INIT));
+      const solidEnd = Math.min(projStartM, fullM);
+      for (let m = 0; m <= solidEnd && m < w.length; m++) {
+        if (atStart) break;
+        ctx.lineTo(tx(m + 1), ty(w[m]));
+      }
+      if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
+        ctx.lineTo(
+          tx(fullM + 1 + frac),
+          ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+        );
+      ctx.stroke();
+      const inDash = fullM > projStartM || (fullM === projStartM && frac > 0);
+      if (inDash) {
+        ctx.setLineDash([4, 4]);
+        ctx.globalAlpha = 0.7;
+        ctx.beginPath();
+        ctx.moveTo(tx(solidEnd + 1), ty(w[solidEnd]));
+        for (let m = solidEnd + 1; m <= fullM && m < w.length; m++)
+          ctx.lineTo(tx(m + 1), ty(w[m]));
+        if (frac > 0 && fullM + 1 < w.length)
+          ctx.lineTo(
+            tx(fullM + 1 + frac),
+            ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+          );
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1.0;
+      }
+      // Tip dot
+      if (monthsToShow > 1) {
+        const dotX = canInterp ? tx(fullM + 1 + frac) : tx(hm + 1);
+        const dotV = atStart
+          ? INIT
+          : canInterp
+            ? w[hm] + frac * (w[Math.min(hm + 1, w.length - 1)] - w[hm])
+            : w[hm];
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(dotX, ty(dotV), 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // Chasing label
+      const v = atStart
+        ? INIT
+        : canInterp
+          ? w[hm] + frac * (w[Math.min(hm + 1, w.length - 1)] - w[hm])
+          : w[hm];
+      ctx.fillStyle = color;
+      ctx.font = `bold ${lfs}px monospace`;
+      ctx.textAlign = "left";
+      ctx.fillText(fmt(v), lx, overlayPositions[oi] - lfs * 0.3);
+      ctx.fillText(label, lx, overlayPositions[oi] + lfs * 0.9);
+    });
+    ctx.font = `${lfs}px monospace`; // restore font
+  } else {
+    ctx.globalAlpha = 1.0;
   }
 
   // Annotate when any visible scenario is below the chart floor (negative equity)
@@ -2272,6 +2417,8 @@ if (isPrimary) {
   document.getElementById("btn-rental").classList.remove("active");
 }
 syncPmFeeBtn();
+if (showIndexOverlay)
+  document.getElementById("btn-show-overlay").classList.add("active");
 if (numRefis > 0) {
   [0, 1, 2, 3].forEach((i) =>
     document

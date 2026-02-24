@@ -206,6 +206,10 @@ input[type="range"] {
   transition: all 0.15s;
   text-align: center;
   word-break: keep-all;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
 }
 #btn-additive,
 #btn-reinvest,

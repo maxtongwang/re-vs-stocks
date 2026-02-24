@@ -731,6 +731,18 @@ function buildAllWealth(yr) {
         }
       : r.decomp,
   );
+  // Simple price-index series for "common chart" overlay:
+  // S&P total return and RE price appreciation, both starting at INIT, no leverage/income.
+  indexSpWealth = [INIT];
+  indexReWealth = [INIT];
+  for (let m = 0; m < months - 1; m++) {
+    indexSpWealth.push(
+      Math.round(indexSpWealth[indexSpWealth.length - 1] * (1 + sp[m])),
+    );
+    indexReWealth.push(
+      Math.round(indexReWealth[indexReWealth.length - 1] * (1 + ca[m])),
+    );
+  }
   return raw.map((r) => r.wealth);
 }
 
