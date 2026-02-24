@@ -329,10 +329,9 @@ canvas {
 }
 .legend-col {
   display: grid;
-  grid-template-columns: 14px max-content 1fr;
-  column-gap: 6px;
+  grid-template-columns: 12px max-content max-content;
+  column-gap: 8px;
   row-gap: 4px;
-  width: fit-content;
 }
 #leader-bar {
   text-align: center;
@@ -345,16 +344,16 @@ canvas {
   white-space: nowrap;
 }
 .leg-item {
-  display: grid;
-  grid-column: 1 / -1;
-  grid-template-columns: subgrid;
-  align-items: center;
+  display: contents;
   font-size: 11px;
   cursor: pointer;
   user-select: none;
+}
+.leg-item > * {
+  align-self: center;
   transition: opacity 0.15s;
 }
-.leg-item.hidden {
+.leg-item.hidden > * {
   opacity: 0.3;
 }
 .leg-item.hidden .leg-dot {
