@@ -252,7 +252,6 @@ function updateAssumptions() {
     numRefis,
     refiLTV,
     actualRefis,
-    s.methodologyNote,
   );
 
   document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(

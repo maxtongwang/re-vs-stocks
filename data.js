@@ -189,7 +189,7 @@ const STRINGS = {
           ? `Refi: ${W(refiLabel + " " + (isLTV ? "(LTV)" : "(Balance)"))}`
           : "";
       const line1 = `${sy}–${ey} · ${W(yrs + " yrs")} · Mortgage: ${W(mr + "%")} · Cash flow: ${W(mode)}`;
-      const line2full = `${line2}${refiStr ? ` · ${refiStr}` : ""}${methNote ? ` · ${methNote}` : ""}`;
+      const line2full = `${line2}${refiStr ? ` · ${refiStr}` : ""}`;
       return `${line1}<br>${line2full}`;
     },
     dynamicLine: (
@@ -370,7 +370,7 @@ const STRINGS = {
           ? `重贷：${W(refiLabel + (isLTV ? "（LTV）" : "（剩余贷款）"))}`
           : "";
       const line1 = `${sy}–${ey} · ${W(yrs + "年")} · 房贷：${W(mr + "%")} · 现金流：${W(mode)}`;
-      const line2full = `${line2}${refiStr ? ` · ${refiStr}` : ""}${methNote ? ` · ${methNote}` : ""}`;
+      const line2full = `${line2}${refiStr ? ` · ${refiStr}` : ""}`;
       return `${line1}<br>${line2full}`;
     },
     dynamicLine: (

@@ -532,7 +532,10 @@ th:first-child {
   font-weight: bold;
 }
 #methodology-note {
-  display: none;
+  font-size: 10px;
+  color: var(--text-dim);
+  text-align: center;
+  margin: 2px 0 4px;
 }
 #methodology-note a {
   color: var(--text-dim);
