@@ -119,7 +119,7 @@ const STRINGS = {
     tipCashflow:
       "Additive: dividends & rent collected as cash, not compounded.\nReinvested: income compounds back into the portfolio.",
     tipReinvest:
-      "Surplus cash flows (rent after costs, S&P dividends) compound monthly in the index selected to the right.\nDeficits are funded out-of-pocket — negative balance does not compound.",
+      "RE: surplus cash flows (rent after costs) compound in the index selected to the right.\nStock: dividends reinvest back into the same index — not affected by the selector.\nDeficits are funded out-of-pocket — negative balance does not compound.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -327,7 +327,7 @@ const STRINGS = {
     tipCashflow:
       "叠加：股息和房租以现金收取，不复利。\n复投：收益重新投入组合，产生复利。",
     tipReinvest:
-      "现金流盈余（扣除成本后的租金、股息）按右侧所选指数的历史月度回报复利增长。\n亏损由自有资金补足，负余额不复利。",
+      "房产：租金盈余（扣除成本后）按右侧所选指数复利增长。\n股票：股息再投资回同一指数本身，不受右侧选择影响。\n亏损由自有资金补足，负余额不复利。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",
