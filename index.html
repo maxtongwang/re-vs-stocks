@@ -5327,7 +5327,7 @@
         }
         const ratio = (cx - PL) / chartW;
         const m = Math.round(
-          Math.max(0, Math.min(totalMonths - 1, ratio * (totalMonths - 1))),
+          Math.max(0, Math.min(totalMonths - 1, ratio * totalMonths - 1)),
         );
         const yr = startYear + Math.floor(m / 12);
         const mo = (m % 12) + 1;
@@ -5446,7 +5446,7 @@
         );
         const yLo = lerpYLo;
         const yHi = lerpYHi;
-        const tx = (m) => PL + (m / Math.max(totalMonths - 1, 1)) * chartW;
+        const tx = (m) => PL + (m / Math.max(totalMonths, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
         const ty = (v) =>
           PT +
@@ -5487,7 +5487,7 @@
           let refiLabelIdx = 0;
           for (const refi of refis) {
             if (refi.m > fullM) continue;
-            const x = tx(refi.m);
+            const x = tx(refi.m + 1);
             ctx.strokeStyle = "#666";
             ctx.lineWidth = 1;
             ctx.setLineDash([3, 3]);
@@ -5553,7 +5553,7 @@
         }
 
         // Projection zone shading
-        const pxStart = tx(projStartM);
+        const pxStart = tx(projStartM + 1);
         if (pxStart < PL + chartW) {
           ctx.fillStyle = "rgba(255,220,80,0.10)";
           ctx.fillRect(pxStart, PT, PL + chartW - pxStart, chartH);
@@ -5583,16 +5583,16 @@
           ctx.lineWidth = lw;
           ctx.lineJoin = "round";
           const solidEnd = Math.min(projStartM, fullM);
-          // Solid: historical portion (up to fullM or projStartM, whichever first)
+          // Solid: anchor at INIT then historical data (data index m → x-position m+1)
           ctx.setLineDash([]);
           ctx.beginPath();
-          ctx.moveTo(tx(0), ty(w[0]));
-          for (let m = 1; m <= solidEnd && m < w.length; m++)
-            ctx.lineTo(tx(m), ty(w[m]));
+          ctx.moveTo(tx(0), ty(INIT));
+          for (let m = 0; m <= solidEnd && m < w.length; m++)
+            ctx.lineTo(tx(m + 1), ty(w[m]));
           // Fractional leading edge in solid zone
           if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
             ctx.lineTo(
-              tx(fullM + frac),
+              tx(fullM + 1 + frac),
               ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
             );
           ctx.stroke();
@@ -5603,13 +5603,13 @@
             ctx.setLineDash([4, 4]);
             ctx.globalAlpha = 0.7;
             ctx.beginPath();
-            ctx.moveTo(tx(solidEnd), ty(w[solidEnd]));
+            ctx.moveTo(tx(solidEnd + 1), ty(w[solidEnd]));
             for (let m = solidEnd + 1; m <= fullM && m < w.length; m++)
-              ctx.lineTo(tx(m), ty(w[m]));
+              ctx.lineTo(tx(m + 1), ty(w[m]));
             // Fractional leading edge in dash zone
             if (frac > 0 && fullM + 1 < w.length)
               ctx.lineTo(
-                tx(fullM + frac),
+                tx(fullM + 1 + frac),
                 ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
               );
             ctx.stroke();
@@ -5625,7 +5625,7 @@
             const w = allWealth[i];
             const hm = Math.min(fullM, w.length - 1);
             const canInterp = frac > 0 && fullM + 1 < w.length;
-            const dotX = canInterp ? tx(fullM + frac) : tx(hm);
+            const dotX = canInterp ? tx(fullM + 1 + frac) : tx(hm + 1);
             const dotY = canInterp
               ? ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]))
               : ty(w[hm]);
@@ -5671,7 +5671,7 @@
             // Clamp top
             for (let k = 0; k < positions.length; k++)
               if (positions[k] < PT + lfs) positions[k] = PT + lfs;
-            const lx = (canInterp ? tx(fullM + frac) : tx(hm)) + 6;
+            const lx = (canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
             items.forEach(({ s, i, v }, k) => {
               ctx.fillStyle = s.color;
               ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
