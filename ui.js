@@ -5,9 +5,34 @@ function getCSSVar(name) {
     .trim();
 }
 
-function applyTheme(theme) {
+const _mq = window.matchMedia("(prefers-color-scheme: dark)");
+
+function getThemePref() {
+  return localStorage.getItem("theme") || "auto";
+}
+
+function resolveTheme(pref) {
+  if (pref === "auto") return _mq.matches ? "dark" : "light";
+  return pref;
+}
+
+function updateThemeBtn(pref) {
+  const btn = document.getElementById("theme-btn");
+  if (!btn) return;
+  btn.textContent = pref === "light" ? "○" : pref === "dark" ? "●" : "◑";
+  btn.title =
+    pref === "light"
+      ? "Light theme"
+      : pref === "dark"
+        ? "Dark theme"
+        : "Auto (follows device)";
+}
+
+function applyTheme(pref) {
+  const theme = resolveTheme(pref);
   document.documentElement.dataset.theme = theme;
-  localStorage.setItem("theme", theme);
+  localStorage.setItem("theme", pref);
+  updateThemeBtn(pref);
   buildTable();
   syncTableCols();
   updateAssumptions();
@@ -17,10 +42,13 @@ function applyTheme(theme) {
 }
 
 function toggleTheme() {
-  applyTheme(
-    document.documentElement.dataset.theme === "light" ? "dark" : "light",
-  );
+  const pref = getThemePref();
+  applyTheme(pref === "auto" ? "light" : pref === "light" ? "dark" : "auto");
 }
+
+_mq.addEventListener("change", () => {
+  if (getThemePref() === "auto") applyTheme("auto");
+});
 
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
@@ -1907,11 +1935,10 @@ function populateCitySelect() {
 populateMetroSelect();
 populateCitySelect();
 
-// Apply saved theme before first draw
-const savedTheme = localStorage.getItem("theme");
-if (savedTheme === "light" || savedTheme === "dark") {
-  document.documentElement.dataset.theme = savedTheme;
-}
+// Apply saved theme preference before first draw
+const initPref = getThemePref();
+document.documentElement.dataset.theme = resolveTheme(initPref);
+updateThemeBtn(initPref);
 document.getElementById("theme-btn").addEventListener("click", toggleTheme);
 
 allWealth = buildAllWealth(startYear);
