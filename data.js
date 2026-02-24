@@ -737,7 +737,7 @@ const LOC_CONFIG = {
       ],
       rentPost2015: [
         {
-          text: "Zillow ZORI OC metro",
+          text: "Zillow ZORI Yorba Linda",
           href: "https://www.zillow.com/research/data/",
         },
       ],
@@ -775,7 +775,7 @@ const LOC_CONFIG = {
       ],
       rentPost2015: [
         {
-          text: "Zillow ZORI OC metro",
+          text: "Zillow ZORI Laguna Beach",
           href: "https://www.zillow.com/research/data/",
         },
       ],
@@ -813,7 +813,7 @@ const LOC_CONFIG = {
       ],
       rentPost2015: [
         {
-          text: "Zillow ZORI OC metro",
+          text: "Zillow ZORI Huntington Beach",
           href: "https://www.zillow.com/research/data/",
         },
       ],
