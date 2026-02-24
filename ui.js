@@ -1650,9 +1650,11 @@ function resizeCanvas() {
   const wrap = canvas.parentElement;
   cW = wrap.clientWidth;
   const idealH = Math.round((cW * 10) / 16);
-  // Respect CSS height cap (e.g. max-height in landscape mobile); capH=0 before layout
-  const capH = wrap.clientHeight;
-  cH = capH > 0 && capH < idealH ? capH : idealH;
+  // Read CSS max-height directly (computed value resolves vh→px before first paint,
+  // unlike clientHeight which reflects canvas content and fails on first render).
+  const maxHStr = getComputedStyle(wrap).maxHeight;
+  const cssMaxH = maxHStr !== "none" ? parseFloat(maxHStr) : 0;
+  cH = cssMaxH > 0 && cssMaxH < idealH ? Math.round(cssMaxH) : idealH;
   canvas.width = cW * dpr;
   canvas.height = cH * dpr;
   canvas.style.width = cW + "px";
