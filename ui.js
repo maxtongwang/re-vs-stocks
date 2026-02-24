@@ -337,7 +337,6 @@ function applyLang() {
   document.querySelector("#btn-refi-rate .tip-text").textContent =
     s.btnRefiBalance;
   document.getElementById("label-includes").textContent = s.labelIncludes;
-  document.getElementById("label-pm-fee").textContent = s.labelPmFee;
   document.getElementById("btn-incl-taxbenefit").textContent = s.btnTaxBenefits;
   document.getElementById("btn-incl-depreciation").textContent =
     s.btnDepreciation;
