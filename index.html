@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224aw" />
-    <link rel="stylesheet" href="style.css?v=20260224aw" />
+    <link rel="stylesheet" href="themes.css?v=20260224ax" />
+    <link rel="stylesheet" href="style.css?v=20260224ax" />
   </head>
   <body>
     <noscript>
@@ -471,45 +471,63 @@
               ><span class="tip-icon">ⓘ</span>
             </button>
           </div>
-          <!-- Row 2: PM fee + HOA + cap gains -->
-          <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-incl-mgmt">PM fee</button>
-            <button class="toggle-btn" id="btn-incl-hoa">HOA</button>
-            <select
-              id="hoa-amount-select"
+          <!-- Row 2: PM fee + HOA (popdown) + cap gains — stretches to row 1 width -->
+          <div class="toggle-group" style="align-items: flex-start">
+            <button
+              class="toggle-btn active"
+              id="btn-incl-mgmt"
+              style="flex: 1"
+            >
+              PM fee
+            </button>
+            <div
               style="
-                display: none;
-                font-size: 10px;
-                font-family: monospace;
-                border: 1px solid var(--border);
-                background: var(--bg);
-                color: var(--text-mid);
-                padding: 1px 3px;
-                border-radius: 3px;
-                cursor: pointer;
+                display: flex;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 3px;
+                flex: 1;
               "
             >
-              <option value="100">$100/mo</option>
-              <option value="200">$200/mo</option>
-              <option value="300" selected>$300/mo</option>
-              <option value="400">$400/mo</option>
-              <option value="500">$500/mo</option>
-              <option value="600">$600/mo</option>
-              <option value="700">$700/mo</option>
-              <option value="800">$800/mo</option>
-              <option value="900">$900/mo</option>
-              <option value="1000">$1,000/mo</option>
-              <option value="1100">$1,100/mo</option>
-              <option value="1200">$1,200/mo</option>
-              <option value="1300">$1,300/mo</option>
-              <option value="1400">$1,400/mo</option>
-              <option value="1500">$1,500/mo</option>
-              <option value="1600">$1,600/mo</option>
-              <option value="1700">$1,700/mo</option>
-              <option value="1800">$1,800/mo</option>
-              <option value="1900">$1,900/mo</option>
-              <option value="2000">$2,000/mo</option>
-            </select>
+              <button class="toggle-btn" id="btn-incl-hoa">HOA</button>
+              <select
+                id="hoa-amount-select"
+                style="
+                  display: none;
+                  width: 100%;
+                  box-sizing: border-box;
+                  font-size: 10px;
+                  font-family: monospace;
+                  border: 1px solid var(--border);
+                  background: var(--bg);
+                  color: var(--text-mid);
+                  padding: 1px 3px;
+                  border-radius: 3px;
+                  cursor: pointer;
+                "
+              >
+                <option value="100">$100/mo</option>
+                <option value="200">$200/mo</option>
+                <option value="300" selected>$300/mo</option>
+                <option value="400">$400/mo</option>
+                <option value="500">$500/mo</option>
+                <option value="600">$600/mo</option>
+                <option value="700">$700/mo</option>
+                <option value="800">$800/mo</option>
+                <option value="900">$900/mo</option>
+                <option value="1000">$1,000/mo</option>
+                <option value="1100">$1,100/mo</option>
+                <option value="1200">$1,200/mo</option>
+                <option value="1300">$1,300/mo</option>
+                <option value="1400">$1,400/mo</option>
+                <option value="1500">$1,500/mo</option>
+                <option value="1600">$1,600/mo</option>
+                <option value="1700">$1,700/mo</option>
+                <option value="1800">$1,800/mo</option>
+                <option value="1900">$1,900/mo</option>
+                <option value="2000">$2,000/mo</option>
+              </select>
+            </div>
             <div
               style="
                 display: flex;
@@ -940,8 +958,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224aw" defer></script>
-    <script src="sim.js?v=20260224aw" defer></script>
-    <script src="ui.js?v=20260224aw" defer></script>
+    <script src="data.js?v=20260224ax" defer></script>
+    <script src="sim.js?v=20260224ax" defer></script>
+    <script src="ui.js?v=20260224ax" defer></script>
   </body>
 </html>
