@@ -441,7 +441,8 @@ function simRE(
   let cumRentD = 0,
     cumIntD = 0,
     cumCostsD = 0,
-    cumTaxD = 0;
+    cumTaxD = 0,
+    cumulativeDeprec = 0;
   const dComp = [];
   for (let m = 0; m < caM.length; m++) {
     // Apply appreciation first so LTV uses current value
@@ -535,12 +536,14 @@ function simRE(
     cumCostsD += t + ins + mai;
     cumTaxD += taxBenefit;
     periodIntD += int;
+    if (!isPrimary && inclDepreciation && m < 330) cumulativeDeprec += dep;
     dComp.push({
       appr: Math.round(pv - price),
       cumRent: Math.round(cumRentD),
       cumInt: Math.round(cumIntD),
       cumCosts: Math.round(cumCostsD),
       cumTax: Math.round(cumTaxD),
+      totalDeprec: Math.round(cumulativeDeprec),
     });
 
     if (reinvest) {
@@ -593,6 +596,8 @@ function simRE(
       dComp,
       txBuyCost,
       txSellRate,
+      stateCapGainsRate: locCfg.stateCapGainsRate ?? 0,
+      capGainsRateSPBonus: locCfg.capGainsRateSPBonus ?? 0,
     },
   };
 }
@@ -691,6 +696,82 @@ function buildAllWealth(yr) {
       ),
     ),
   ];
-  allDecomp = raw.map((r) => r.decomp);
+  // Augment S&P decomp with location-specific cap gains rates (needed by computeCapGains)
+  allDecomp = raw.map((r, i) =>
+    i === 0
+      ? {
+          ...r.decomp,
+          stateCapGainsRate: activeLocConfig.stateCapGainsRate ?? 0,
+          capGainsRateSPBonus: activeLocConfig.capGainsRateSPBonus ?? 0,
+        }
+      : r.decomp,
+  );
   return raw.map((r) => r.wealth);
+}
+
+/**
+ * computeCapGains(idx, m)
+ *
+ * Returns the capital gains tax bill (positive = tax owed) at month m for scenario idx.
+ * Returns 0 if cap gains is off, or if fully deferred.
+ *
+ * idx: scenario index (0 = S&P, 1+ = RE scenarios)
+ * m: month index (0-based)
+ */
+function computeCapGains(idx, m) {
+  if (!inclCapGains) return 0;
+  // Index cap gains only apply when Tx Costs is ON (sell event required for fair comparison)
+  if (idx === 0 && !inclTxCosts) return 0;
+
+  const d = allDecomp[idx];
+  if (!d) return 0;
+
+  const FED_CG_RATE = 0.238; // 20% LT + 3.8% NIIT
+  const stateRate = d.stateCapGainsRate ?? 0;
+  const spBonus = idx === 0 ? (d.capGainsRateSPBonus ?? 0) : 0;
+  const rate = FED_CG_RATE + stateRate + spBonus;
+
+  if (idx === 0) {
+    // ── S&P 500 ──────────────────────────────────────────────────────────────
+    // Cost basis = INIT (initial investment). Gain = wealth[m] - INIT.
+    const gain = (allWealth[idx][m] ?? 0) - INIT;
+    if (gain <= 0) return 0;
+    return Math.round(gain * rate);
+  }
+
+  // ── Real Estate ───────────────────────────────────────────────────────────
+  const dc = d.dComp?.[m];
+  if (!dc) return 0;
+
+  const price = d.price;
+  const appr = dc.appr ?? 0; // cumulative appreciation at month m
+  const salePrice = price + appr;
+  const costBasis = price; // original purchase price (no improvements modeled)
+
+  if (isPrimary) {
+    // Section 121 exclusion. Requires ≥2 years ownership.
+    const years = m / 12;
+    if (years < 2) return 0;
+
+    const exclusion = primaryExclusion === "married" ? 500_000 : 250_000;
+    const gain = salePrice - costBasis;
+    if (gain <= 0) return 0;
+    const taxableGain = Math.max(0, gain - exclusion);
+    return Math.round(taxableGain * rate);
+  } else {
+    // Rental property
+    if (use1031) return 0; // fully deferred via 1031 exchange
+
+    const gain = salePrice - costBasis;
+
+    // Depreciation recapture: 25% on prior depreciation taken
+    const totalDeprec = dc.totalDeprec ?? 0; // cumulative depreciation
+    const recaptureTax = Math.round(totalDeprec * 0.25);
+
+    // LT gain on appreciation (gain minus the depreciated portion)
+    const ltGain = Math.max(0, gain - totalDeprec);
+    const ltTax = Math.round(ltGain * rate);
+
+    return recaptureTax + ltTax;
+  }
 }

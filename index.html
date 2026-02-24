@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224r" />
-    <link rel="stylesheet" href="style.css?v=20260224r" />
+    <link rel="stylesheet" href="themes.css?v=20260224t" />
+    <link rel="stylesheet" href="style.css?v=20260224t" />
   </head>
   <body>
     <noscript>
@@ -464,6 +464,36 @@
               ><span class="tip-icon">ⓘ</span>
             </button>
           </div>
+          <div
+            style="
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              gap: 3px;
+            "
+          >
+            <button class="toggle-btn tip tip-left" id="btn-incl-cap-gains">
+              <span class="tip-text">Cap Gains</span
+              ><span class="tip-icon">ⓘ</span>
+            </button>
+          </div>
+          <div
+            id="capgains-sub"
+            style="display: none; flex-direction: column; gap: 3px"
+          >
+            <button class="toggle-btn active tip tip-left" id="btn-1031">
+              <span class="tip-text">1031 On</span
+              ><span class="tip-icon">ⓘ</span>
+            </button>
+            <button
+              class="toggle-btn tip tip-left"
+              id="btn-excl"
+              style="display: none"
+            >
+              <span class="tip-text">Married $500K</span
+              ><span class="tip-icon">ⓘ</span>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -677,6 +707,22 @@
           usually requires holding 10+ years past the refi date.
         </li>
       </ul>
+      <p
+        id="assump-capgains"
+        style="
+          display: none;
+          margin: 4px 0;
+          color: var(--text-mid);
+          font-size: inherit;
+        "
+      >
+        <strong>Capital Gains:</strong> Long-term rate (federal 20% + NIIT 3.8%
+        + state). RE rental: 25% depreciation recapture on prior deductions. RE
+        Primary: §121 excludes $500K (married) / $250K (single) if owned ≥2
+        years. 1031 defers all tax on rollover. Stocks/index: gain = proceeds
+        minus initial investment; only applied when Tx Costs is also on (sell
+        event required).
+      </p>
 
       <strong id="label-sources" role="heading" aria-level="2">Sources</strong>
       <ul id="sources-list" class="src-list"></ul>
@@ -867,8 +913,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224r" defer></script>
-    <script src="sim.js?v=20260224r" defer></script>
-    <script src="ui.js?v=20260224r" defer></script>
+    <script src="data.js?v=20260224t" defer></script>
+    <script src="sim.js?v=20260224t" defer></script>
+    <script src="ui.js?v=20260224t" defer></script>
   </body>
 </html>
