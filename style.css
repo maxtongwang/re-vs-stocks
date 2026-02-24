@@ -250,6 +250,11 @@ input[type="range"] {
   border-color: var(--accent);
   color: var(--accent);
 }
+.toggle-btn[disabled] {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+}
 .settings-divider {
   border: none;
   border-top: 1px solid var(--border-dim);
@@ -595,7 +600,13 @@ th:first-child {
     order: 4;
   }
 }
-/* ── Landscape mobile: prevent chart from filling the entire viewport ── */
+/* ── Landscape (all screens): cap chart height so content below stays visible ── */
+@media (orientation: landscape) {
+  #chart-wrap {
+    max-height: 50vh;
+  }
+}
+/* ── Landscape mobile: tighter cap + compressed hero ── */
 @media (orientation: landscape) and (max-height: 500px) {
   #chart-wrap {
     max-height: 44vh;

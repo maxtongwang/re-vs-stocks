@@ -425,6 +425,7 @@ document.getElementById("btn-rental").addEventListener("click", () => {
   isPrimary = false;
   document.getElementById("btn-rental").classList.add("active");
   document.getElementById("btn-primary").classList.remove("active");
+  syncPmFeeBtn();
   allWealth = buildAllWealth(startYear);
   syncCapGainsSubBtn();
   applyLang();
@@ -436,6 +437,7 @@ document.getElementById("btn-primary").addEventListener("click", () => {
   isPrimary = true;
   document.getElementById("btn-primary").classList.add("active");
   document.getElementById("btn-rental").classList.remove("active");
+  syncPmFeeBtn();
   allWealth = buildAllWealth(startYear);
   syncCapGainsSubBtn();
   applyLang();
@@ -464,7 +466,17 @@ document.getElementById("btn-primary").addEventListener("click", () => {
 });
 
 // ── PM fee toggle ────────────────────────────────────────────────────────
+function syncPmFeeBtn() {
+  const btn = document.getElementById("btn-incl-mgmt");
+  if (isPrimary) {
+    btn.setAttribute("disabled", "");
+  } else {
+    btn.removeAttribute("disabled");
+  }
+}
+
 document.getElementById("btn-incl-mgmt").addEventListener("click", () => {
+  if (isPrimary) return;
   inclMgmtFee = !inclMgmtFee;
   document
     .getElementById("btn-incl-mgmt")
@@ -1579,9 +1591,12 @@ function handleCanvasPointer(clientX, clientY) {
   chartTooltip.innerHTML = html;
   chartTooltip.style.display = "block";
   const wrapRect = canvas.parentElement.getBoundingClientRect();
-  let tx = clientX - wrapRect.left + 14;
-  let ty = clientY - wrapRect.top - 10;
-  if (tx + 155 > wrapRect.width) tx = clientX - wrapRect.left - 165;
+  // CSS zoom makes getBoundingClientRect() return visual (zoomed) px, but
+  // style.left/top expect CSS (unzoomed) px — divide by the body zoom factor.
+  const bz = parseFloat(getComputedStyle(document.body).zoom) || 1;
+  let tx = (clientX - wrapRect.left + 14) / bz;
+  let ty = (clientY - wrapRect.top - 10) / bz;
+  if (tx + 155 > wrapRect.width / bz) tx = (clientX - wrapRect.left) / bz - 165;
   chartTooltip.style.left = tx + "px";
   chartTooltip.style.top = ty + "px";
 }
@@ -2219,6 +2234,7 @@ if (isPrimary) {
   document.getElementById("btn-primary").classList.add("active");
   document.getElementById("btn-rental").classList.remove("active");
 }
+syncPmFeeBtn();
 if (numRefis > 0) {
   [0, 1, 2, 3].forEach((i) =>
     document
