@@ -694,7 +694,10 @@ function syncCapGainsSubBtn() {
   const btn1031El = document.getElementById("btn-1031");
   const btnExclEl = document.getElementById("btn-excl");
   if (btn1031El) btn1031El.style.display = isPrimary ? "none" : "";
-  if (btnExclEl) btnExclEl.style.display = isPrimary ? "" : "none";
+  if (btnExclEl) {
+    btnExclEl.style.display = isPrimary ? "" : "none";
+    btnExclEl.classList.add("active"); // always on — cycles between married/single
+  }
   // Show/hide assumptions bullet
   const assBullet = document.getElementById("assump-capgains");
   if (assBullet) assBullet.style.display = "";
