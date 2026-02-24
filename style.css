@@ -212,15 +212,9 @@ input[type="range"] {
   min-width: 92px;
 }
 #label-cashflow,
-#label-includes {
-  min-width: 74px;
-}
-#label-propmode {
-  min-width: 74px;
-}
-#label-tax-bracket {
-  min-width: 74px;
-}
+#label-includes,
+#label-propmode,
+#label-tax-bracket,
 #label-refi {
   min-width: 74px;
 }
