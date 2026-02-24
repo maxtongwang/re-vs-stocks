@@ -314,7 +314,7 @@ function applyLang() {
   document.getElementById("label-propmode").textContent = s.labelPropMode;
   document.getElementById("label-refi").textContent = s.labelRefi;
   document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
-  document.getElementById("label-ltv-pct").dataset.tip = s.tipLtvLine;
+  document.getElementById("btn-refi-ltv").dataset.tip = s.tipLtvLine;
   document.getElementById("btn-refi-rate").dataset.tip = s.tipBalLine;
   document.getElementById("label-improv").dataset.tip = s.tipImprov;
   document.getElementById("label-cashflow").dataset.tip = s.tipCashflow;
@@ -328,6 +328,7 @@ function applyLang() {
   document.getElementById("btn-incl-depreciation").textContent =
     s.btnDepreciation;
   document.getElementById("btn-incl-costs").textContent = s.btnCosts;
+  document.getElementById("btn-incl-costs").dataset.tip = s.tipCosts;
   document.getElementById("label-costs-note").textContent = s.labelCostsNote;
   const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
   document.querySelectorAll(".leg-text").forEach((el, i) => {
