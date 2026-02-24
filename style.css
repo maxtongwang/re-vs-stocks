@@ -267,6 +267,7 @@ input[type="range"] {
 #chart-wrap {
   width: 100%;
   aspect-ratio: 16/10;
+  max-height: 560px;
 }
 canvas {
   width: 100%;
