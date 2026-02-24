@@ -314,14 +314,16 @@ canvas {
 #speed-btn:active {
   background: var(--btn-active-bg);
 }
+.legend-wrap {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
 .legend {
   display: flex;
   flex-direction: row;
   align-items: flex-start;
   gap: 24px;
-  margin-top: 10px;
-  width: fit-content;
-  margin-inline: auto;
 }
 .legend-col {
   display: grid;
