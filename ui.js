@@ -316,7 +316,6 @@ function applyLang() {
   document.getElementById("label-end").textContent = s.labelEnd;
   document.querySelector("#label-cashflow .tip-text").textContent =
     s.labelCashflow;
-  document.querySelector("#label-improv .tip-text").textContent = s.labelImprov;
   document.getElementById("label-propmode").textContent = s.labelPropMode;
   document.getElementById("label-tax-bracket").textContent = s.labelTaxBracket;
   document.getElementById("label-refi").textContent = s.labelRefi;
@@ -326,9 +325,6 @@ function applyLang() {
   document
     .querySelector("#btn-refi-rate .tip-icon")
     .setAttribute("data-tip", s.tipBalLine);
-  document
-    .querySelector("#label-improv .tip-icon")
-    .setAttribute("data-tip", s.tipImprov);
   document
     .querySelector("#label-cashflow .tip-icon")
     .setAttribute("data-tip", s.tipCashflow);
@@ -628,7 +624,6 @@ function getShareParams() {
   if (refiLTV && refiLTVPct !== 0.75) p.set("v", Math.round(refiLTVPct * 100));
   if (incomeTier !== 1) p.set("br", incomeTier);
   if (lang !== "en") p.set("l", lang);
-  if (improvPct !== 0.4) p.set("i", Math.round(improvPct * 100));
   const hArr = [...hidden].sort((a, b) => a - b);
   const isDefault =
     hArr.length === 3 && hArr[0] === 3 && hArr[1] === 4 && hArr[2] === 5;
@@ -683,16 +678,7 @@ function loadFromHash() {
     if (v >= 50 && v <= 80 && v % 5 === 0) refiLTVPct = v / 100;
   }
   if (p.has("l") && STRINGS[p.get("l")]) lang = p.get("l");
-  if (p.has("i")) {
-    const v = parseInt(p.get("i"));
-    if (v >= 10 && v <= 80) {
-      const opts = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
-      const snapped = opts.reduce((a, b) =>
-        Math.abs(b - v) < Math.abs(a - v) ? b : a,
-      );
-      improvPct = snapped / 100;
-    }
-  }
+
   if (p.has("h")) {
     hidden.clear();
     const hStr = p.get("h");
@@ -2188,17 +2174,6 @@ document
     setEndYear(parseInt(this.value));
   });
 
-document
-  .getElementById("improv-slider")
-  .addEventListener("change", function () {
-    improvPct = parseInt(this.value) / 100;
-    allWealth = buildAllWealth(startYear);
-    updateAssumptions();
-    buildTable();
-    syncTableCols();
-    draw(curMonth - 1);
-  });
-
 // ── Resize ────────────────────────────────────────────────────────────────
 // Debounced: rotation fires many rapid events; only redraw after it settles
 let resizeTimer = null;
@@ -2221,12 +2196,7 @@ document.getElementById("end-year-val").textContent = endYear;
 document.getElementById("init-select").value = INIT;
 document.getElementById("init-abbr").textContent =
   INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "k";
-const IMPROV_OPTS = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
-const snapImprov = (pct) =>
-  IMPROV_OPTS.reduce((a, b) => (Math.abs(b - pct) < Math.abs(a - pct) ? b : a));
-const ipPct = snapImprov(Math.round(improvPct * 100));
-improvPct = ipPct / 100;
-document.getElementById("improv-slider").value = ipPct;
+
 document.getElementById("end-year-slider").min = startYear + 1;
 document.getElementById("start-year-slider").max = endYear - 1;
 if (reinvest) {
