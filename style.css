@@ -695,6 +695,10 @@ th:first-child {
   --tt-x: 0px;
   --tt-tx: none;
 }
+.tip-icon.tip-flipped[data-tip]::before {
+  bottom: auto;
+  top: calc(100% + 6px);
+}
 .tip-left .tip-icon[data-tip]::before {
   --tt-x: auto;
   right: 0;

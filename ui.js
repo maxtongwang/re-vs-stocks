@@ -2403,7 +2403,7 @@ applyLang();
 updateLabel(curMonth);
 draw(curMonth - 1);
 
-// Tooltip viewport-clamping: keep ::before within screen bounds
+// Tooltip viewport-clamping: keep ::before within screen bounds (horizontal + vertical)
 function positionTooltip(icon) {
   const rect = icon.getBoundingClientRect();
   const tipW = Math.min(240, window.innerWidth * 0.9);
@@ -2416,6 +2416,8 @@ function positionTooltip(icon) {
   const clamped = Math.max(8, Math.min(absLeft, window.innerWidth - tipW - 8));
   icon.style.setProperty("--tt-x", clamped - rect.left + "px");
   icon.style.setProperty("--tt-tx", "none");
+  // Flip to below when icon is too close to the top of the viewport
+  icon.classList.toggle("tip-flipped", rect.top < 200);
 }
 
 // Tooltip icon click: toggle tooltip, never fire parent button action
