@@ -607,8 +607,9 @@ th:first-child {
   content: attr(data-tip);
   position: absolute;
   bottom: calc(100% + 6px);
-  left: 50%;
-  transform: translateX(-50%);
+  left: var(--tt-x, 50%);
+  right: auto;
+  transform: var(--tt-tx, translateX(-50%));
   background: var(--surface);
   color: var(--text-hi);
   font-size: 11px;
@@ -630,13 +631,13 @@ th:first-child {
   opacity: 1;
 }
 .tip-right .tip-icon[data-tip]::before {
-  left: 0;
-  transform: none;
+  --tt-x: 0px;
+  --tt-tx: none;
 }
 .tip-left .tip-icon[data-tip]::before {
-  left: auto;
+  --tt-x: auto;
   right: 0;
-  transform: none;
+  --tt-tx: none;
 }
 .leg-cagr {
   font-size: 10px;

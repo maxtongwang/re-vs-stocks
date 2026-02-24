@@ -2375,10 +2375,27 @@ applyLang();
 updateLabel(curMonth);
 draw(curMonth - 1);
 
+// Tooltip viewport-clamping: keep ::before within screen bounds
+function positionTooltip(icon) {
+  const rect = icon.getBoundingClientRect();
+  const tipW = Math.min(240, window.innerWidth * 0.9);
+  const isRight = !!icon.closest(".tip-right");
+  const isLeft = !!icon.closest(".tip-left");
+  let absLeft;
+  if (isRight) absLeft = rect.left;
+  else if (isLeft) absLeft = rect.right - tipW;
+  else absLeft = rect.left + rect.width / 2 - tipW / 2;
+  const clamped = Math.max(8, Math.min(absLeft, window.innerWidth - tipW - 8));
+  icon.style.setProperty("--tt-x", clamped - rect.left + "px");
+  icon.style.setProperty("--tt-tx", "none");
+}
+
 // Tooltip icon click: toggle tooltip, never fire parent button action
 document.querySelectorAll(".tip-icon").forEach((icon) => {
+  icon.addEventListener("mouseenter", () => positionTooltip(icon));
   icon.addEventListener("click", (e) => {
     e.stopPropagation(); // block event from reaching parent button
+    positionTooltip(icon);
     const isOpen = icon.classList.contains("open");
     document
       .querySelectorAll(".tip-icon.open")
