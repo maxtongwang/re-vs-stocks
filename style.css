@@ -320,6 +320,8 @@ canvas {
   align-items: flex-start;
   gap: 24px;
   margin-top: 10px;
+  width: fit-content;
+  margin-inline: auto;
 }
 .legend-col {
   display: grid;

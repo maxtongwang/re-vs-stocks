@@ -1157,6 +1157,15 @@ function updateOutcomeCallout(monthsToShow) {
 function updateLegendCagr(monthsToShow) {
   const m = Math.min(monthsToShow, allWealth[0].length - 1);
   const years = (m + 1) / 12;
+  // Pick unit once based on max value so all items use the same format
+  const maxV = Math.max(...allWealth.map((w) => w[m] ?? 0));
+  const useM = maxV >= 1e6;
+  const fmtLeg = (v) =>
+    v < 0
+      ? `-$${(-v / 1e6).toFixed(2)}M`
+      : useM
+        ? `$${(v / 1e6).toFixed(2)}M`
+        : `$${Math.round(v / 1000)}K`;
   let bestIdx = -1,
     bestVal = -Infinity;
   for (let i = 0; i < allWealth.length; i++) {
@@ -1168,7 +1177,7 @@ function updateLegendCagr(monthsToShow) {
       continue;
     }
     const cagr = (Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100;
-    el.textContent = ` ${fmt(v)} ${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%`;
+    el.textContent = ` ${fmtLeg(v)}  ${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%`;
     el.style.color =
       cagr >= 0 ? getCSSVar("--cagr-positive") : getCSSVar("--cagr-negative");
     if (!hidden.has(i) && v > bestVal) {
