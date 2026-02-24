@@ -285,7 +285,10 @@ function buildSourcesList() {
   const idxKey = document.getElementById("index-select").value;
   const iSrc = INDEX_SOURCES[idxKey] || INDEX_SOURCES.sp500;
   const lSrc = activeLocConfig.sources;
+  const cityWrap = document.getElementById("city-wrap");
   const locLabel =
+    (cityWrap?.style.display !== "none" &&
+      document.getElementById("city-select").selectedOptions[0]?.text) ||
     document.getElementById("metro-select").selectedOptions[0]?.text ||
     document.getElementById("state-select").selectedOptions[0]?.text ||
     "";
