@@ -120,6 +120,9 @@ const STRINGS = {
       "Additive: dividends & rent collected as cash, not compounded.\nReinvested: income compounds back into the portfolio.",
     tipReinvest:
       "RE: surplus cash flows (rent after costs) compound in the index selected to the right.\nStock: dividends reinvest back into the same index — not affected by the selector.\nDeficits are funded out-of-pocket — negative balance does not compound.",
+    btnPriceOnly: "Price Only",
+    tipPriceOverlay:
+      "FHFA HPI (Federal Housing Finance Agency House Price Index): the U.S. government's repeat-sales index tracking home price changes since 1975.\n\nThis overlay compares pure price appreciation only — the selected stock index vs. FHFA RE price — both starting at $250K with no leverage, rent, costs, or taxes applied.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -328,6 +331,9 @@ const STRINGS = {
       "叠加：股息和房租以现金收取，不复利。\n复投：收益重新投入组合，产生复利。",
     tipReinvest:
       "房产：租金盈余（扣除成本后）按右侧所选指数复利增长。\n股票：股息再投资回同一指数本身，不受右侧选择影响。\n亏损由自有资金补足，负余额不复利。",
+    btnPriceOnly: "仅价格",
+    tipPriceOverlay:
+      "FHFA HPI（联邦住房金融局房价指数）：美国政府追踪房价涨跌的重复销售指数，覆盖1975年至今。\n\n此对比仅显示纯价格升值——所选股票指数对比FHFA房价指数——均从25万美元起始，不含杠杆、租金、成本或税务。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",

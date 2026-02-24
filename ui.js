@@ -399,6 +399,7 @@ function applyLang() {
   buildSourcesList();
   buildTable();
   syncTableCols();
+  syncOverlayBtnLabel();
 }
 
 // ── Reinvest toggle ───────────────────────────────────────────────────────
@@ -448,11 +449,26 @@ document.getElementById("btn-additive").addEventListener("click", () => {
 });
 
 // ── Price-only overlay toggle ─────────────────────────────────────────────
+function syncOverlayBtnLabel() {
+  const abbr = { sp500: "S&P", nasdaq: "NQ", sixty40: "60/40" };
+  const idxKey = document.getElementById("index-select").value;
+  const short = abbr[idxKey] || "S&P";
+  const s = STRINGS[lang];
+  const textEl = document.querySelector("#btn-show-overlay .tip-text");
+  const iconEl = document.querySelector("#btn-show-overlay .tip-icon");
+  if (textEl)
+    textEl.textContent = showIndexOverlay
+      ? `${short} vs FHFA`
+      : s.btnPriceOnly || "Price Only";
+  if (iconEl) iconEl.setAttribute("data-tip", s.tipPriceOverlay || "");
+}
+
 document.getElementById("btn-show-overlay").addEventListener("click", () => {
   showIndexOverlay = !showIndexOverlay;
   document
     .getElementById("btn-show-overlay")
     .classList.toggle("active", showIndexOverlay);
+  syncOverlayBtnLabel();
   draw(curMonth - 1);
 });
 
@@ -1960,7 +1976,7 @@ function draw(monthsToShow) {
     const inDashZone = fullM > projStartM || (fullM === projStartM && frac > 0);
     if (inDashZone) {
       ctx.setLineDash([4, 4]);
-      ctx.globalAlpha = 0.7;
+      ctx.globalAlpha = showIndexOverlay ? 0.18 : 0.7;
       ctx.beginPath();
       ctx.moveTo(tx(solidEnd + 1), ty(w[solidEnd]));
       for (let m = solidEnd + 1; m <= fullM && m < w.length; m++) {
@@ -1980,7 +1996,7 @@ function draw(monthsToShow) {
         );
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.globalAlpha = 1.0;
+      ctx.globalAlpha = showIndexOverlay ? 0.18 : 1.0;
     }
   }
 
