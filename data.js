@@ -108,6 +108,7 @@ const STRINGS = {
     labelCashflow: "Cash flow",
     labelImprov: "Improvement %",
     labelPropMode: "Prop:",
+    labelTaxBracket: "Tax bracket:",
     labelRefi: "Refi:",
     tipBalLine:
       "Rate-and-term: keeps the same remaining balance, resets to a new 30-yr schedule at the lower rate.",
@@ -299,6 +300,7 @@ const STRINGS = {
     labelCashflow: "现金流",
     labelImprov: "建筑占比",
     labelPropMode: "类型：",
+    labelTaxBracket: "税率档：",
     labelRefi: "重贷：",
     tipBalLine:
       "利率调整型：维持剩余贷款金额不变，以新低利率重新计算30年还款计划。",

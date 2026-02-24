@@ -315,6 +315,7 @@ function applyLang() {
     s.labelCashflow;
   document.querySelector("#label-improv .tip-text").textContent = s.labelImprov;
   document.getElementById("label-propmode").textContent = s.labelPropMode;
+  document.getElementById("label-tax-bracket").textContent = s.labelTaxBracket;
   document.getElementById("label-refi").textContent = s.labelRefi;
   document
     .querySelector("#btn-refi-ltv .tip-icon")
