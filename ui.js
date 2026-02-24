@@ -518,6 +518,16 @@ function getShareParams() {
   if (!inclDepreciation) p.set("dep", "0");
   if (!inclCosts) p.set("cos", "0");
   if (INIT !== 100000) p.set("c", INIT);
+  const idxKey = document.getElementById("index-select").value;
+  if (idxKey !== "sp500") p.set("idx", idxKey);
+  const stateKey = document.getElementById("state-select").value;
+  if (stateKey !== "ca") p.set("st", stateKey);
+  const metroKey = document.getElementById("metro-select").value;
+  if (metroKey !== "oc") p.set("mt", metroKey);
+  const cityWrap = document.getElementById("city-wrap");
+  if (cityWrap?.style.display !== "none") {
+    p.set("ct", document.getElementById("city-select").value);
+  }
   return p.toString();
 }
 
@@ -1952,6 +1962,44 @@ function populateCitySelect() {
 
 populateMetroSelect();
 populateCitySelect();
+
+// Apply URL location/index params after cascade helpers are ready
+function applyLocationFromHash() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  const p = new URLSearchParams(hash);
+  if (p.has("idx")) {
+    const sel = document.getElementById("index-select");
+    const v = p.get("idx");
+    if ([...sel.options].some((o) => o.value === v)) sel.value = v;
+  }
+  if (p.has("st")) {
+    const sel = document.getElementById("state-select");
+    const v = p.get("st");
+    if ([...sel.options].some((o) => o.value === v)) {
+      sel.value = v;
+      populateMetroSelect();
+    }
+  }
+  if (p.has("mt")) {
+    const sel = document.getElementById("metro-select");
+    const v = p.get("mt");
+    if ([...sel.options].some((o) => o.value === v)) {
+      sel.value = v;
+      populateCitySelect();
+    }
+  }
+  if (p.has("ct")) {
+    const wrap = document.getElementById("city-wrap");
+    const sel = document.getElementById("city-select");
+    if (wrap?.style.display !== "none") {
+      const v = p.get("ct");
+      if ([...sel.options].some((o) => o.value === v)) sel.value = v;
+    }
+  }
+  updateSelectAbbr();
+}
+applyLocationFromHash();
 
 // Apply saved theme preference before first draw
 const initPref = getThemePref();
