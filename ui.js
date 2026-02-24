@@ -54,6 +54,7 @@ _mq.addEventListener("change", () => {
 let startYear = 1995;
 let endYear = 2026;
 let reinvest = false;
+let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let improvPct = activeLocConfig.improvPct; // keep in sync with default location
 let isPrimary = false;
 let inclTaxBenefits = true,
@@ -329,7 +330,10 @@ function applyLang() {
     .querySelector("#label-cashflow .tip-icon")
     .setAttribute("data-tip", s.tipCashflow);
   document.getElementById("btn-additive").textContent = s.btnAdditive;
-  document.getElementById("btn-reinvest").textContent = s.btnReinvest;
+  document.querySelector("#btn-reinvest .tip-text").textContent = s.btnReinvest;
+  document
+    .querySelector("#btn-reinvest .tip-icon")
+    .setAttribute("data-tip", s.tipReinvest);
   document.getElementById("btn-rental").textContent = s.btnRental;
   document.getElementById("btn-primary").textContent = s.btnPrimary;
   document.querySelector("#btn-refi-rate .tip-text").textContent =
@@ -395,11 +399,17 @@ function applyLang() {
 }
 
 // ── Reinvest toggle ───────────────────────────────────────────────────────
+function syncReinvestIdxWrap() {
+  const wrap = document.getElementById("reinvest-idx-wrap");
+  if (wrap) wrap.style.display = reinvest ? "" : "none";
+}
+
 document.getElementById("btn-reinvest").addEventListener("click", () => {
   if (reinvest) return;
   reinvest = true;
   document.getElementById("btn-reinvest").classList.add("active");
   document.getElementById("btn-additive").classList.remove("active");
+  syncReinvestIdxWrap();
   allWealth = buildAllWealth(startYear);
   updateAssumptions();
   buildTable();
@@ -412,11 +422,26 @@ document.getElementById("btn-additive").addEventListener("click", () => {
   reinvest = false;
   document.getElementById("btn-additive").classList.add("active");
   document.getElementById("btn-reinvest").classList.remove("active");
+  syncReinvestIdxWrap();
   allWealth = buildAllWealth(startYear);
   updateAssumptions();
   buildTable();
   syncTableCols();
   draw(curMonth - 1);
+});
+
+// ── Reinvest index selector ───────────────────────────────────────────────
+["sp500", "nasdaq", "sixty40"].forEach((key) => {
+  document.getElementById(`btn-ri-${key}`).addEventListener("click", () => {
+    if (reinvestIdx === key) return;
+    reinvestIdx = key;
+    ["sp500", "nasdaq", "sixty40"].forEach((k) =>
+      document
+        .getElementById(`btn-ri-${k}`)
+        .classList.toggle("active", k === key),
+    );
+    refreshDatasets(); // recomputes reinvestMonthlyAll and rebuilds
+  });
 });
 
 // ── Property mode toggle ─────────────────────────────────────────────────
@@ -630,6 +655,7 @@ function getShareParams() {
   if (startYear !== 1995) p.set("s", startYear);
   if (endYear !== 2026) p.set("e", endYear);
   if (reinvest) p.set("m", "r");
+  if (reinvest && reinvestIdx !== "sp500") p.set("ri", reinvestIdx);
   if (isPrimary) p.set("p", "1");
   if (numRefis > 0) p.set("r", numRefis);
   if (refiLTV) p.set("t", "l");
@@ -677,6 +703,8 @@ function loadFromHash() {
   }
   if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
   if (p.has("m")) reinvest = p.get("m") === "r";
+  if (p.has("ri") && ["sp500", "nasdaq", "sixty40"].includes(p.get("ri")))
+    reinvestIdx = p.get("ri");
   if (p.has("p")) isPrimary = p.get("p") === "1";
   if (p.has("r"))
     numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
@@ -2229,6 +2257,14 @@ document.getElementById("start-year-slider").max = endYear - 1;
 if (reinvest) {
   document.getElementById("btn-reinvest").classList.add("active");
   document.getElementById("btn-additive").classList.remove("active");
+}
+syncReinvestIdxWrap();
+if (reinvestIdx !== "sp500") {
+  ["sp500", "nasdaq", "sixty40"].forEach((k) =>
+    document
+      .getElementById(`btn-ri-${k}`)
+      .classList.toggle("active", k === reinvestIdx),
+  );
 }
 if (isPrimary) {
   document.getElementById("btn-primary").classList.add("active");

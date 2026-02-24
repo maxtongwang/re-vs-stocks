@@ -118,6 +118,8 @@ const STRINGS = {
       "IRS: only the structure (not land) depreciates on a 27.5yr schedule. CA metro ~40%, TX ~60%.",
     tipCashflow:
       "Additive: dividends & rent collected as cash, not compounded.\nReinvested: income compounds back into the portfolio.",
+    tipReinvest:
+      "Surplus cash flows (rent after costs, S&P dividends) compound monthly in the index selected to the right.\nDeficits are funded out-of-pocket — negative balance does not compound.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -324,6 +326,8 @@ const STRINGS = {
       "IRS：只有建筑物（非土地）可按27.5年折旧。加州约40%，德州约60%。",
     tipCashflow:
       "叠加：股息和房租以现金收取，不复利。\n复投：收益重新投入组合，产生复利。",
+    tipReinvest:
+      "现金流盈余（扣除成本后的租金、股息）按右侧所选指数的历史月度回报复利增长。\n亏损由自有资金补足，负余额不复利。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",

@@ -10,6 +10,7 @@ function toMonthly(ann) {
 let spMonthlyAll = toMonthly(SP500_ANN); // 912 months (1970–2045), total return
 let spPriceMonthlyAll = toMonthly(SP500_PRICE); // 912 months, price only
 let caMonthlyAll = toMonthly(OC_ANN); // 912 months — default matches dropdown
+let reinvestMonthlyAll = spMonthlyAll; // index used to compound RE cash flows (reinvest mode)
 
 // Active dataset pointers (updated by index/location dropdowns)
 let activeSpDiv = SP500_DIV;
@@ -320,6 +321,20 @@ function refreshDatasets() {
   spMonthlyAll = toMonthly(SP500_ANN);
   spPriceMonthlyAll = toMonthly(iPrice);
   caMonthlyAll = toMonthly(lAnn);
+  // Reinvest index (may differ from main index: user picks where RE cash flows compound)
+  const riPrice =
+    reinvestIdx === "nasdaq"
+      ? NASDAQ_PRICE
+      : reinvestIdx === "sixty40"
+        ? SIX_FORTY_PRICE
+        : SP500_PRICE;
+  const riDiv =
+    reinvestIdx === "nasdaq"
+      ? NASDAQ_DIV
+      : reinvestIdx === "sixty40"
+        ? SIX_FORTY_DIV
+        : SP500_DIV;
+  reinvestMonthlyAll = toMonthly(riPrice.map((r, j) => r + riDiv[j]));
   allWealth = buildAllWealth(startYear);
   applyLang();
   draw(curMonth - 1);
@@ -655,6 +670,8 @@ function buildAllWealth(yr) {
   const spP = spPriceMonthlyAll.slice(i * 12, i * 12 + months);
   const spD = activeSpDiv.slice(i);
   const ca = caMonthlyAll.slice(i * 12, i * 12 + months);
+  // Slice of the reinvest-target index for compounding RE cash flows
+  const ri = reinvestMonthlyAll.slice(i * 12, i * 12 + months);
   const rg = activeCaRent.slice(i);
   const mr = MORTGAGE_RATES[i];
   const ry = activeCaRentYields[i];
@@ -671,7 +688,7 @@ function buildAllWealth(yr) {
       ry,
       improvPct,
       reinvest,
-      sp,
+      ri,
       isPrimary,
       refis,
       refiLTV,
@@ -691,7 +708,7 @@ function buildAllWealth(yr) {
         ry,
         improvPct,
         reinvest,
-        sp,
+        ri,
         isPrimary,
         refis,
         refiLTV,

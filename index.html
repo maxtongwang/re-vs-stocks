@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224aak" />
-    <link rel="stylesheet" href="style.css?v=20260224aak" />
+    <link rel="stylesheet" href="themes.css?v=20260224aal" />
+    <link rel="stylesheet" href="style.css?v=20260224aal" />
   </head>
   <body>
     <noscript>
@@ -422,7 +422,15 @@
         >
         <div class="toggle-group">
           <button class="toggle-btn active" id="btn-additive">Additive</button>
-          <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
+          <button class="toggle-btn tip tip-right" id="btn-reinvest">
+            <span class="tip-text">Reinvested</span
+            ><span class="tip-icon">ⓘ</span>
+          </button>
+        </div>
+        <div id="reinvest-idx-wrap" class="toggle-group" style="display: none">
+          <button class="toggle-btn active" id="btn-ri-sp500">S&amp;P</button>
+          <button class="toggle-btn" id="btn-ri-nasdaq">NAS</button>
+          <button class="toggle-btn" id="btn-ri-sixty40">60/40</button>
         </div>
       </div>
 
@@ -937,8 +945,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224aak" defer></script>
-    <script src="sim.js?v=20260224aak" defer></script>
-    <script src="ui.js?v=20260224aak" defer></script>
+    <script src="data.js?v=20260224aal" defer></script>
+    <script src="sim.js?v=20260224aal" defer></script>
+    <script src="ui.js?v=20260224aal" defer></script>
   </body>
 </html>
