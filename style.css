@@ -300,10 +300,16 @@ canvas {
   background: var(--btn-active-bg);
 }
 .legend {
-  display: grid;
-  grid-template-columns: repeat(2, max-content);
-  gap: 6px 20px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 16px;
   margin-top: 10px;
+}
+.legend-leader {
+  font-size: 11px;
+  color: var(--text-mid);
+  white-space: nowrap;
 }
 .leg-item {
   display: flex;

@@ -1151,50 +1151,14 @@ function renderDecomp(monthsToShow) {
 
 // ── Communication helpers ─────────────────────────────────────────────────
 function updateOutcomeCallout(monthsToShow) {
-  const el = document.getElementById("outcome-callout");
-  if (!el || monthsToShow < 6) {
-    if (el) el.textContent = "";
-    return;
-  }
-  const m = Math.min(monthsToShow, allWealth[0].length - 1);
-  const years = (m + 1) / 12;
-  const spVal = allWealth[0][m];
-  const spCagr = ((Math.pow(spVal / INIT, 1 / years) - 1) * 100).toFixed(1);
-  // Best visible RE scenario
-  let bestReIdx = -1,
-    bestReVal = -Infinity;
-  for (let i = 1; i < allWealth.length; i++) {
-    if (!hidden.has(i) && allWealth[i][m] > bestReVal) {
-      bestReVal = allWealth[i][m];
-      bestReIdx = i;
-    }
-  }
-  const idxLabel =
-    document.getElementById("index-select").selectedOptions[0].text;
-  const spStr = `<span style="color:${getCSSVar("--color-s0")}">${fmt(spVal)} (${spCagr}%/yr)</span>`;
-  if (bestReIdx === -1) {
-    el.innerHTML = `· ${idxLabel}: ${spStr}`;
-    return;
-  }
-  const reCagr = (
-    (Math.pow(Math.max(bestReVal, 1) / INIT, 1 / years) - 1) *
-    100
-  ).toFixed(1);
-  const reColor = getCSSVar("--color-s" + bestReIdx);
-  const reLabel = SCENARIOS[bestReIdx].label;
-  const reStr = `<span style="color:${reColor}">${fmt(bestReVal)} (${reCagr}%/yr)</span>`;
-  const aheadFn = STRINGS[lang].outcomeAhead;
-  const winner =
-    bestReVal > spVal
-      ? `<strong>${aheadFn(((bestReVal / spVal - 1) * 100).toFixed(0), true)}</strong>`
-      : `<strong>${aheadFn(((spVal / bestReVal - 1) * 100).toFixed(0), false)}</strong>`;
-  const outLabel = getCSSVar("--outcome-label");
-  el.innerHTML = `<table style="border-collapse:collapse"><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:${outLabel}">· ${idxLabel}:</td><td style="text-align:left">${spStr}</td></tr><tr><td style="text-align:left;padding-right:5px;white-space:nowrap;color:${outLabel}">· ${reLabel}:</td><td style="text-align:left">${reStr} — ${winner}</td></tr></table>`;
+  updateLegendCagr(monthsToShow);
 }
 
 function updateLegendCagr(monthsToShow) {
   const m = Math.min(monthsToShow, allWealth[0].length - 1);
   const years = (m + 1) / 12;
+  let bestIdx = -1,
+    bestVal = -Infinity;
   for (let i = 0; i < allWealth.length; i++) {
     const el = document.getElementById(`leg-cagr-${i}`);
     if (!el) continue;
@@ -1204,10 +1168,29 @@ function updateLegendCagr(monthsToShow) {
       continue;
     }
     const cagr = (Math.pow(Math.max(v, 1) / INIT, 1 / years) - 1) * 100;
-    el.textContent = `${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%/yr`;
+    el.textContent = ` ${cagr >= 0 ? "+" : ""}${cagr.toFixed(1)}%`;
     el.style.color =
       cagr >= 0 ? getCSSVar("--cagr-positive") : getCSSVar("--cagr-negative");
+    if (!hidden.has(i) && v > bestVal) {
+      bestVal = v;
+      bestIdx = i;
+    }
   }
+  const leaderEl = document.getElementById("legend-leader");
+  if (!leaderEl) return;
+  if (bestIdx < 0 || years < 1) {
+    leaderEl.textContent = "";
+    return;
+  }
+  const legLabels = isPrimary
+    ? STRINGS[lang].legendLabelsPrimary
+    : STRINGS[lang].legendLabels;
+  const label =
+    bestIdx === 0
+      ? document.getElementById("index-select").selectedOptions[0].text
+      : legLabels[bestIdx];
+  leaderEl.style.color = getCSSVar(`--color-s${bestIdx}`);
+  leaderEl.textContent = `\u2014 ${label}`;
 }
 
 // ── Canvas ────────────────────────────────────────────────────────────────
