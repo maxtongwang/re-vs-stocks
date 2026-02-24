@@ -5415,29 +5415,29 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range: tip-only (log-chart style, tight floor)
-        //   Both yMin and yMax from current tip values only — no history scan.
-        //   This keeps floor tight just below the lowest current line (limited floor space)
-        //   and ceiling tight above the highest, expanding smoothly as lines grow.
-        //   Lerped in log-space during playback; snap on slider/settings or when rewinding.
-        let yMax = 200000,
+        // Y range: full scan (0..fullM) for proper log chart with limited floor.
+        //   Scanning all drawn months ensures no line is clamped/flat at the floor.
+        //   "Limited floor" clamp (yMin ≥ yMax/30, ~1.5 log-decades) prevents a single
+        //   old dip from dragging the floor far below where current lines sit.
+        //   Both bounds lerped in log-space during playback for smooth animation.
+        let yMax = 1000,
           yMin = Infinity;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
-          const tipM = Math.min(fullM, w.length - 1);
-          const v = w[tipM];
-          if (v > 1000) {
-            if (v > yMax) yMax = v;
-            if (v < yMin) yMin = v;
+          for (let m = 0; m <= Math.min(fullM, w.length - 1); m++) {
+            const v = w[m];
+            if (v > 0) {
+              if (v > yMax) yMax = v;
+              if (v < yMin) yMin = v;
+            }
           }
         }
-        if (!isFinite(yMin) || yMin <= 0) yMin = 50000;
-        if (yMax <= yMin) yMax = yMin * 2;
-        const _loRaw = yMin * 0.88; // 12% headroom below lowest line
-        const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
-        const targetYLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
-        const targetYHi = yMax * 1.12; // 12% headroom above highest line
+        if (!isFinite(yMin) || yMin <= 0) yMin = yMax * 0.05;
+        // Limited floor: never more than ~1.5 log-decades (30x) below ceiling
+        yMin = Math.max(yMin, yMax / 30);
+        const targetYLo = yMin * 0.9;
+        const targetYHi = yMax * 1.1;
         if (animYLo === null || !playing) {
           animYLo = targetYLo;
           animYHi = targetYHi;
