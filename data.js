@@ -129,6 +129,7 @@ const STRINGS = {
     btnTaxBill: "Tax Bill",
     btnDepreciation: "Depreciation",
     btnCosts: "Op. Costs",
+    btnPmFee: "PM fee",
     tipCosts:
       "Property tax (location-specific rate).\nInsurance: 0.5%/yr of purchase price, +4%/yr construction cost inflation.\nMaintenance: 1%/yr of purchase price, +4%/yr construction cost inflation.\nVacancy: location-specific (Census ACS). Reduces gross rent collected.\nMgmt fee: % of collected rent for professional management (optional toggle).\nHOA/condo fees: excluded — vary too widely by building. Factor in manually.",
     btnTxCosts: "Tx Costs",
@@ -251,6 +252,16 @@ const STRINGS = {
       evName ? `${yr} \u2014 ${evName}` : `${yr} (crash)`,
     fixedGroups: (ltvPct) => [
       {
+        label: "About This Tool",
+        items: [
+          "This is a live simulation — every toggle, slider, and dropdown updates all five wealth curves instantly. No page reload, no submit button. Explore freely.",
+          "Five scenarios run in parallel: S&P 500 total return vs. real estate at All Cash, 60%, 40%, 25%, and 3.5% down — all starting from the same $100K of capital on the same date.",
+          "Everything is adjustable: location, hold period, income bracket, rental vs. primary, number of refis, improvement %, cash-flow reinvestment mode, and which cost/tax items to include.",
+          "The goal is intuition: historical outcomes vary wildly by entry year, leverage, and city. Drag the start year, flip rental to primary, toggle costs on and off — notice how the winning scenario changes. No single answer is 'correct.'",
+          "All figures are nominal (not inflation-adjusted). Data: FHFA house price index (location-adjusted), S&P 500 total return (CRSP / Macrotrends), 30-yr mortgage rates (FRED), local property tax rates, historical dividend yields, CPI.",
+        ],
+      },
+      {
         label: "Property Costs",
         items: [
           `Property tax: ${activeLocConfig.propTaxNote}`,
@@ -322,6 +333,7 @@ const STRINGS = {
     btnTaxBill: "税务负担",
     btnDepreciation: "折旧",
     btnCosts: "运营成本",
+    btnPmFee: "物管费",
     tipCosts:
       "房产税（税率因地区而异）。\n保险：购入价0.5%/年，+4%/年建筑成本通胀。\n维护费：购入价1%/年，+4%/年建筑成本通胀。\n空置率：按地区（美国人口普查ACS）。降低实际收租金额。\n物业管理费：占实收租金百分比，适用专业管理（可关闭开关）。\nHOA/共管费：未计入——各楼盘差异过大，请自行估算。",
     btnTxCosts: "交易成本",
@@ -443,6 +455,16 @@ const STRINGS = {
     crashRowLabel: (yr, evName) =>
       evName ? `${yr} \u2014 ${evName}` : `${yr}（崩盘）`,
     fixedGroups: (ltvPct) => [
+      {
+        label: "关于本工具",
+        items: [
+          "这是一个实时模拟工具——每次切换、拖动或选择，五条财富曲线立即更新。无需刷新页面，无需点击提交，自由探索。",
+          "五种方案并行对比：标普500总回报 vs. 全现金购房、60%、40%、25%和3.5%首付——所有方案从相同日期、相同$10万本金出发。",
+          "所有参数均可调整：城市、持有年限、收入税率档、出租或自住、重贷次数、建筑占比、现金流再投资方式，以及各项成本和税务是否计入。",
+          "目标是建立直觉：历史结果因入场年份、杠杆率和城市不同而差异极大，没有唯一"正确答案"。拖动起始年、切换出租与自住、开关各项成本——观察领先者如何随条件变化而转换。",
+          "所有数据均为名义值（未经通胀调整）。数据来源：FHFA房价指数（按城市调整）、标普500总回报（CRSP/Macrotrends）、30年固定房贷利率（FRED）、各地房产税率、历史股息率及CPI。",
+        ],
+      },
       {
         label: "房产持有成本",
         items: [

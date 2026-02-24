@@ -338,6 +338,7 @@ function applyLang() {
     s.btnRefiBalance;
   document.getElementById("label-includes").textContent = s.labelIncludes;
   document.getElementById("btn-incl-taxbenefit").textContent = s.btnTaxBenefits;
+  document.getElementById("btn-incl-mgmt").textContent = s.btnPmFee;
   document.getElementById("btn-incl-depreciation").textContent =
     s.btnDepreciation;
   document.querySelector("#btn-incl-costs .tip-text").textContent = s.btnCosts;
@@ -887,8 +888,8 @@ function renderDecomp(monthsToShow) {
           100
         ).toFixed(1);
         return isZh
-          ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | 年化 ${spCagr}% | ${yrs}年（仅价格）<br>• 历史均值 ${W("~10%/年")}；单年 ${W("±30–40%")}<br>&nbsp;&nbsp;· 复利非线性：每次翻倍基数更大，增速加快`
-          : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | ${spCagr}%/yr CAGR | ${yrs}yrs (price only)<br>• hist. avg ${W("~10%/yr")}; single yrs ${W("±30–40%")}<br>&nbsp;&nbsp;· compounding nonlinear: each doubling grows from a larger base`;
+          ? `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | 年化 ${W(spCagr + "%")} | ${yrs}年（仅价格）<br>• 历史均值 ${W("~10%/年")}；单年 ${W("±30–40%")}<br>&nbsp;&nbsp;· 复利非线性：每次翻倍基数更大，增速加快`
+          : `<strong style="color:${spColor}">${lbl.appreciation}</strong><br>• ${fmt(INIT)} → ${fmt(INIT + spDc.appr)} | +${pct}% | ${W(spCagr + "%/yr CAGR")} | ${yrs}yrs (price only)<br>• hist. avg ${W("~10%/yr")}; single yrs ${W("±30–40%")}<br>&nbsp;&nbsp;· compounding nonlinear: each doubling grows from a larger base`;
       },
     });
     spRows.push({
@@ -1013,7 +1014,7 @@ function renderDecomp(monthsToShow) {
           val: reDc.cumRent,
           color: DC.rent,
           edu: () => {
-            const initMonthlyRent = Math.round((price * startYield) / 12);
+            const grossMonthlyRent = Math.round((price * startYield) / 12);
             const avgMonthlyRent = Math.round(reDc.cumRent / (m + 1));
             const rentToIntPct =
               reDc.cumInt > 0
@@ -1040,20 +1041,23 @@ function renderDecomp(monthsToShow) {
                   : isZh
                     ? `典型市场回报率区间（${fmtYield(yLo)}–${fmtYield(yHi)}%）`
                     : `within typical market range (${fmtYield(yLo)}–${fmtYield(yHi)}%)`;
-            const vacPct = (
-              (activeLocConfig.vacancyRate ?? 0.05) * 100
-            ).toFixed(0);
-            const mgmtPct = (
-              (activeLocConfig.mgmtFeeRate ?? 0.09) * 100
-            ).toFixed(0);
+            const vacRate = activeLocConfig.vacancyRate ?? 0.05;
+            const vacPct = Math.round(vacRate * 100);
+            const collectedPct = 100 - vacPct;
+            const collectedMonthlyRent = Math.round(
+              grossMonthlyRent * (1 - vacRate),
+            );
+            const mgmtRate = activeLocConfig.mgmtFeeRate ?? 0.09;
+            const mgmtPct = Math.round(mgmtRate * 100);
+            const mgmtMonthlyFee = Math.round(collectedMonthlyRent * mgmtRate);
             const mgmtLine = inclMgmtFee
               ? isZh
-                ? `<br>• ${mgmtPct}%物业管理费（占实收租金）`
-                : `<br>• ${mgmtPct}% mgmt fee on collected rent`
+                ? `<br>• 物管费 ${W(mgmtPct + "%")} × 实收 = ${W("−" + fmt(mgmtMonthlyFee) + "/月")}（IRS Schedule E 可抵税）`
+                : `<br>• mgmt fee ${W(mgmtPct + "%")} × collected = ${W("−" + fmt(mgmtMonthlyFee) + "/mo")} (IRS Schedule E deductible)`
               : "";
             return isZh
-              ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩<br>• ${vacPct}%空置率（人口普查ACS）——实收租金 = 毛租金×${100 - parseInt(vacPct)}%${mgmtLine}<br>• 租金管控未建模——若受租金管制，实际租金涨幅可能低于市场水平`
-              : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time<br>• ${vacPct}% vacancy (Census ACS) — collected rent = gross × ${100 - parseInt(vacPct)}%${mgmtLine}<br>• Rent control not modeled — if rent-stabilized, actual growth may be lower than market`;
+              ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 均值 ${W(fmt(avgMonthlyRent) + "/月")}（实收）<br>&nbsp;&nbsp;· 租金 ÷ 利息 = ${W(rentToIntPct + "%")} | 租金 ÷ 成本 = ${W(rentToCostsPct + "%")}<br>• 起始毛租金 ${W(fmt(grossMonthlyRent) + "/月")} · ${W(yieldPct + "%回报率")} = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩<br>• 空置率 ${W(vacPct + "%")}（人口普查ACS）：实收 = 毛租金 × ${W(collectedPct + "%")} = ${W(fmt(collectedMonthlyRent) + "/月")}${mgmtLine}<br>• 租金管控未建模——若受租金管制，实际租金涨幅可能低于市场水平`
+              : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | avg ${W(fmt(avgMonthlyRent) + "/mo")} collected<br>&nbsp;&nbsp;· rent ÷ interest = ${W(rentToIntPct + "%")} | rent ÷ costs = ${W(rentToCostsPct + "%")}<br>• gross ${W(fmt(grossMonthlyRent) + "/mo")} at start · ${W(yieldPct + "% yield")} = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent → yield compresses over time<br>• vacancy ${W(vacPct + "%")} (Census ACS): collected = gross × ${W(collectedPct + "%")} = ${W(fmt(collectedMonthlyRent) + "/mo")}${mgmtLine}<br>• Rent control not modeled — if rent-stabilized, actual growth may be lower than market`;
           },
         });
       }
@@ -1197,8 +1201,8 @@ function renderDecomp(monthsToShow) {
                 ? ((reDc.cumCosts / reDc.cumRent) * 100).toFixed(0)
                 : "—";
             return isZh
-              ? `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${fmt(Math.round(initAnnualCosts / 12))}/月（${fmt(initAnnualCosts)}/年，第1年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年（第1年）")}，+4%/年建筑成本通胀${!isPrimary ? `<br>&nbsp;&nbsp;· = 租金收入 <strong style="color:${DC.hi}">${costsAsRentPct}%</strong>（第1年）` : ""}<br>• 切换<em>运营成本</em>可量化拖累`
-              : `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${fmt(Math.round(initAnnualCosts / 12))}/mo (${fmt(initAnnualCosts)}/yr, yr 1)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr (yr 1)")}, +4%/yr construction cost inflation${!isPrimary ? `<br>&nbsp;&nbsp;· = <strong style="color:${DC.hi}">${costsAsRentPct}%</strong> of gross rent (yr 1)` : ""}<br>• toggle <em>Op. Costs</em> to isolate drag`;
+              ? `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${W(fmt(Math.round(initAnnualCosts / 12)) + "/月")}（${W(fmt(initAnnualCosts) + "/年")}，第1年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年（第1年）")}，+4%/年建筑成本通胀${!isPrimary ? `<br>&nbsp;&nbsp;· = 租金收入 ${W(costsAsRentPct + "%")}（第1年）` : ""}<br>• 切换<em>运营成本</em>可量化拖累`
+              : `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${W(fmt(Math.round(initAnnualCosts / 12)) + "/mo")} (${W(fmt(initAnnualCosts) + "/yr")}, yr 1)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr (yr 1)")}, +4%/yr construction cost inflation${!isPrimary ? `<br>&nbsp;&nbsp;· = ${W(costsAsRentPct + "%")} of gross rent (yr 1)` : ""}<br>• toggle <em>Op. Costs</em> to isolate drag`;
           },
         });
       }
@@ -1234,8 +1238,8 @@ function renderDecomp(monthsToShow) {
             );
             if (reDc.cumTax >= 0) {
               return isZh
-                ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• 节税 ${fmt(reDc.cumTax)} | 利息${inclDepreciation ? "+折旧" : ""}抵扣 | ${W(taxRatePct + "%边际税率")} | ${yrs}年<br>• 首月：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → ~${fmt(initMonthlyTaxBen)}/月税收收益${inclDepreciation ? `<br>• 折旧：${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5年")} = ${fmt(annualDep)}/年账面亏损（不花钱）<br>&nbsp;&nbsp;· 累计抵扣 ${W(fmt(depClaimed))} → 出售追缴 ${W(fmt(depRecapture))}（25%）${isPrimary ? "" : "（1031置换除外）"}` : `<br>• 开启<em>折旧</em>：${fmt(price)} × X% ÷ 27.5年 = 账面亏损，进一步减税`}`
-                : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• saved ${fmt(reDc.cumTax)} | interest${inclDepreciation ? " + depreciation" : ""} deduction | ${W(taxRatePct + "% marginal rate")} | ${yrs}yrs<br>• mo-1: rent − interest − costs${inclDepreciation ? " − dep" : ""} = taxable → ~${fmt(initMonthlyTaxBen)}/mo benefit${inclDepreciation ? `<br>• depreciation: ${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5yr")} = ${fmt(annualDep)}/yr write-off (non-cash)<br>&nbsp;&nbsp;· ${W(fmt(depClaimed))} claimed → ${W(fmt(depRecapture))} recapture at sale${isPrimary ? "" : " — unless 1031 exchange"}` : `<br>• enable <em>Depreciation</em>: non-cash write-off reduces taxable income further`}`;
+                ? `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• 节税 ${fmt(reDc.cumTax)} | 利息${inclDepreciation ? "+折旧" : ""}抵扣 | ${W(taxRatePct + "%边际税率")} | ${yrs}年<br>• 首月：租金−利息−成本${inclDepreciation ? "−折旧" : ""} = 应税收入 → ~${W(fmt(initMonthlyTaxBen) + "/月")}税收收益${inclDepreciation ? `<br>• 折旧：${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5年")} = ${W(fmt(annualDep) + "/年")}账面亏损（不花钱）<br>&nbsp;&nbsp;· 累计抵扣 ${W(fmt(depClaimed))} → 出售追缴 ${W(fmt(depRecapture))}（25%）${isPrimary ? "" : "（1031置换除外）"}` : `<br>• 开启<em>折旧</em>：${fmt(price)} × X% ÷ 27.5年 = 账面亏损，进一步减税`}`
+                : `<strong style="color:${taxColor}">${lbl.taxShield}</strong><br>• saved ${fmt(reDc.cumTax)} | interest${inclDepreciation ? " + depreciation" : ""} deduction | ${W(taxRatePct + "% marginal rate")} | ${yrs}yrs<br>• mo-1: rent − interest − costs${inclDepreciation ? " − dep" : ""} = taxable → ~${W(fmt(initMonthlyTaxBen) + "/mo")} benefit${inclDepreciation ? `<br>• depreciation: ${fmt(price)} × ${W(Math.round(improvPct * 100) + "%")} ÷ ${W("27.5yr")} = ${W(fmt(annualDep) + "/yr")} write-off (non-cash)<br>&nbsp;&nbsp;· ${W(fmt(depClaimed))} claimed → ${W(fmt(depRecapture))} recapture at sale${isPrimary ? "" : " — unless 1031 exchange"}` : `<br>• enable <em>Depreciation</em>: non-cash write-off reduces taxable income further`}`;
             } else {
               return isZh
                 ? `<strong style="color:${taxColor}">税务负担</strong><br>• 应缴 ${fmt(-reDc.cumTax)} | 租金 > 利息+成本${inclDepreciation ? "+折旧" : ""} → 净应税收入<br>&nbsp;&nbsp;· ${W(taxRatePct + "%边际税率")} → 每$1利润 = ${W(taxRatePct + "¢")}税<br>• 切换<em>税务优惠</em>可移除；或开启<em>折旧</em>加回亏损抵税`
@@ -1331,8 +1335,8 @@ function renderDecomp(monthsToShow) {
             reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
           );
           return isZh
-            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${fmt(cashFlowPart)}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
-            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${fmt(appreciationPart)}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${fmt(cashFlowPart)}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
+            ? `<strong style="color:${reColor}">→ 总计</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${W(fmt(cashFlowPart))}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
+            : `<strong style="color:${reColor}">→ Total</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${W(fmt(cashFlowPart))}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
         },
       });
     }
