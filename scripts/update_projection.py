@@ -127,6 +127,38 @@ CITY_FROM_METRO = {
     "GREATNECK_ANN":       ("NY_ANN",      1.04, "NYC_RENT_GROWTH",     0.98),
 }
 
+# ── LOCATION EXPANSION CHECKLIST ─────────────────────────────────────────────
+# Every time you add a new metro or city, update ALL of these:
+#
+# Adding a NEW METRO:
+#   data.js  1. Add {LOC}_ANN / {LOC}_RENT_GROWTH data arrays (backfilled history)
+#            2. Add LOC_CONFIG[key] entry (improvPct, sources[], startYear, …)
+#            3. Add entry to LOCATION_HIERARCHY metros[] under correct state
+#   sim.js   4. Add {LOC}: [...] entry to LOC_DATA map
+#   here     5. Add "{LOC}_ANN": "FRED_SERIES_ID" to HPI_SERIES above
+#            6. Add "{LOC}_RENT_GROWTH": "FRED_SERIES_ID" to RENT_SERIES above
+#   index.html 7. Bump ?v= cache-buster on all 5 asset refs (themes/style/data/sim/ui)
+#
+# Adding a NEW CITY (derived from existing metro):
+#   data.js  1. Add {CITY}_ANN / {CITY}_RENT_GROWTH data arrays (backfilled history)
+#            2. Add LOC_CONFIG[key] entry
+#            3. Push { key, label, abbr } to the parent metro's cities[] in LOCATION_HIERARCHY
+#   sim.js   4. Add {CITY}: [...] entry to LOC_DATA map
+#   here     5. Add "{CITY}_ANN": (parent_hpi, price_scale, parent_rent, rent_scale)
+#               to CITY_FROM_METRO above
+#   index.html 6. Bump ?v= cache-buster
+#
+# Monthly auto-update (this script) handles automatically once registered above:
+#   • SP500/NASDAQ/TLT current-year returns      (FMP — no registration needed)
+#   • MORTGAGE_RATES projection array            (FMP — no registration needed)
+#   • DATA_THROUGH_YEAR/MONTH marker in data.js  (auto)
+#   • <strong id="proj-mort-rate"> in index.html (auto)
+#   • <!-- PROJ_DATE_START/END --> in index.html (auto)
+#   • All HPI_SERIES metros → {LOC}_ANN in data.js
+#   • All RENT_SERIES metros → {LOC}_RENT_GROWTH in data.js
+#   • All CITY_FROM_METRO cities → derived from parent × scale factors
+# ─────────────────────────────────────────────────────────────────────────────
+
 
 # ── HTTP helper ───────────────────────────────────────────────────────────────
 
