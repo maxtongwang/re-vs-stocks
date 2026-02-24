@@ -506,9 +506,10 @@ function simRE(
     }
     // Primary: r=0 (no rent income). Rental: actual rent collected.
     const r = isPrimary ? 0 : rent / 12;
+    const constInfl = Math.pow(1.04, m / 12); // construction cost inflation ~4%/yr (ENR CCI long-run avg)
     const t = inclCosts ? ptax / 12 : 0,
-      ins = inclCosts ? (pv * 0.005) / 12 : 0,
-      mai = inclCosts ? (price * 0.01) / 12 : 0;
+      ins = inclCosts ? (price * 0.005 * constInfl) / 12 : 0,
+      mai = inclCosts ? (price * 0.01 * constInfl) / 12 : 0;
     let int = 0,
       prin = 0;
     const si = m - schedOffset;

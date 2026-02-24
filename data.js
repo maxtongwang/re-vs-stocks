@@ -254,8 +254,8 @@ const STRINGS = {
         label: "Property & Tax",
         items: [
           `Property tax: ${activeLocConfig.propTaxNote}`,
-          "Insurance: 0.5% of current property value/yr",
-          "Maintenance: 1% of purchase price/yr",
+          "Insurance: 0.5% of purchase price/yr, +4%/yr construction cost inflation (ENR CCI long-run avg)",
+          "Maintenance: 1% of purchase price/yr, +4%/yr construction cost inflation",
           "Depreciation (rental only): IRS 27.5-yr schedule; improvement % adjustable above. Primary residences are not eligible for depreciation deductions.",
           `Tax rate: ${getTaxNote(activeLocConfig, incomeTier, false)} on paper rental gain/loss`,
         ],
@@ -443,8 +443,8 @@ const STRINGS = {
         label: "房产成本与税务",
         items: [
           `房产税：${activeLocConfig.propTaxNoteZh}`,
-          "保险：当前房产价值的0.5%/年",
-          "维护费：购入价的1%/年",
+          "保险：购入价的0.5%/年，+4%/年建筑成本通胀（ENR建筑成本指数长期均值）",
+          "维护费：购入价的1%/年，+4%/年建筑成本通胀",
           "折旧（仅适用出租）：IRS 27.5年住宅折旧规定；建筑占比可在上方调整。自住房产不可享受折旧抵税。",
           `税率：${getTaxNote(activeLocConfig, incomeTier, true)}（适用出租纸面盈亏）`,
         ],
@@ -2857,13 +2857,13 @@ const INCOME_TIERS = [
 
 // State marginal rates indexed by income tier [75K, 150K, 300K, 500K, 750K+]
 const STATE_INCOME_RATES = {
-  ca:       [0.093, 0.093, 0.093, 0.103, 0.113],
-  none:     [0,     0,     0,     0,     0    ],
-  ny:       [0.059, 0.059, 0.059, 0.069, 0.069],
-  nyc:      [0.097, 0.097, 0.097, 0.107, 0.107],
-  nj:       [0.064, 0.064, 0.064, 0.09,  0.108],
-  nylocal:  [0.069, 0.069, 0.069, 0.079, 0.079],
-  national: [0.03,  0.04,  0.05,  0.055, 0.06 ],
+  ca: [0.093, 0.093, 0.093, 0.103, 0.113],
+  none: [0, 0, 0, 0, 0],
+  ny: [0.059, 0.059, 0.059, 0.069, 0.069],
+  nyc: [0.097, 0.097, 0.097, 0.107, 0.107],
+  nj: [0.064, 0.064, 0.064, 0.09, 0.108],
+  nylocal: [0.069, 0.069, 0.069, 0.079, 0.079],
+  national: [0.03, 0.04, 0.05, 0.055, 0.06],
 };
 
 function getMarginalRate(locCfg, tierIdx) {
@@ -2884,7 +2884,6 @@ function getTaxNote(locCfg, tierIdx, isZh) {
     ? `${combined}% (${fedPct}% fed + ${statePct}% state)`
     : `${combined}% (${fedPct}% fed, no state income tax)`;
 }
-
 
 const LOCATION_HIERARCHY = [
   {
