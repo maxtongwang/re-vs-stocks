@@ -635,6 +635,196 @@ const LOC_CONFIG = {
       ],
     },
   },
+  nb: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.22,
+    typicalYieldRange: [0.018, 0.03],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [
+        {
+          text: "Zillow ZHVI Newport Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentPre2015: [
+        {
+          text: "BLS CPI West Urban Rent",
+          href: "https://fred.stlouisfed.org/series/CUUR0400SEHA",
+        },
+      ],
+      rentPost2015: [
+        {
+          text: "Zillow ZORI Newport Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentYield: [
+        {
+          text: "Zillow ZHVI / ZORI Newport Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+    },
+  },
+  irvine: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.38,
+    typicalYieldRange: [0.025, 0.038],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [
+        {
+          text: "Zillow ZHVI Irvine",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentPre2015: [
+        {
+          text: "BLS CPI West Urban Rent",
+          href: "https://fred.stlouisfed.org/series/CUUR0400SEHA",
+        },
+      ],
+      rentPost2015: [
+        {
+          text: "Zillow ZORI Irvine",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentYield: [
+        {
+          text: "Zillow ZHVI / ZORI Irvine",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+    },
+  },
+  yorba: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.38,
+    typicalYieldRange: [0.028, 0.04],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [
+        {
+          text: "Zillow ZHVI Yorba Linda",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentPre2015: [
+        {
+          text: "BLS CPI West Urban Rent",
+          href: "https://fred.stlouisfed.org/series/CUUR0400SEHA",
+        },
+      ],
+      rentPost2015: [
+        {
+          text: "Zillow ZORI OC metro",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentYield: [
+        {
+          text: "Zillow ZHVI / ZORI Yorba Linda",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+    },
+  },
+  laguna: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.2,
+    typicalYieldRange: [0.015, 0.025],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [
+        {
+          text: "Zillow ZHVI Laguna Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentPre2015: [
+        {
+          text: "BLS CPI West Urban Rent",
+          href: "https://fred.stlouisfed.org/series/CUUR0400SEHA",
+        },
+      ],
+      rentPost2015: [
+        {
+          text: "Zillow ZORI OC metro",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentYield: [
+        {
+          text: "Zillow ZHVI / ZORI Laguna Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+    },
+  },
+  hb: {
+    propTaxRate: 0.0125,
+    propTaxTracksValue: false,
+    propTaxAnnualIncrease: 0.02,
+    taxRate: 0.44,
+    improvPct: 0.35,
+    typicalYieldRange: [0.028, 0.04],
+    propTaxNote: "CA Prop 13: 1.25% of purchase price, +2%/yr max",
+    propTaxNoteZh: "加州13号提案：购价1.25%，每年最多上涨2%",
+    taxNote: "44% (35% fed + 9.3% CA)",
+    taxNoteZh: "44%（联邦35% + 加州9.3%）",
+    sources: {
+      homePrice: [
+        {
+          text: "Zillow ZHVI Huntington Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentPre2015: [
+        {
+          text: "BLS CPI West Urban Rent",
+          href: "https://fred.stlouisfed.org/series/CUUR0400SEHA",
+        },
+      ],
+      rentPost2015: [
+        {
+          text: "Zillow ZORI OC metro",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+      rentYield: [
+        {
+          text: "Zillow ZHVI / ZORI Huntington Beach",
+          href: "https://www.zillow.com/research/data/",
+        },
+      ],
+    },
+  },
   la: {
     propTaxRate: 0.0125,
     propTaxTracksValue: false,
@@ -1158,7 +1348,18 @@ const LOCATION_HIERARCHY = [
     label: "California",
     abbr: "CA",
     metros: [
-      { key: "oc", label: "Orange County", abbr: "OC", cities: [] },
+      {
+        key: "oc",
+        label: "Orange County",
+        abbr: "OC",
+        cities: [
+          { key: "nb", label: "Newport Beach", abbr: "NB" },
+          { key: "irvine", label: "Irvine", abbr: "IR" },
+          { key: "yorba", label: "Yorba Linda", abbr: "YL" },
+          { key: "laguna", label: "Laguna Beach", abbr: "LB" },
+          { key: "hb", label: "Huntington Beach", abbr: "HB" },
+        ],
+      },
       { key: "la", label: "Los Angeles", abbr: "LA", cities: [] },
       { key: "sd", label: "San Diego", abbr: "SD", cities: [] },
       { key: "sf", label: "Bay Area", abbr: "SF Bay", cities: [] },
@@ -1325,6 +1526,228 @@ const OC_RENT_YIELDS = [
   0.031,
   // 2026 (estimate)
   0.031,
+];
+
+// ── OC Cities — derived from Zillow ZHVI city-level + FHFA OC HPI base ──────
+
+// Newport Beach (nb) — ultra-luxury coastal; ~2.5–3× OC median; higher volatility
+const NB_ANN = [
+  // 1970–1975
+  0.022, 0.077, 0.099, 0.165, 0.132, 0.154,
+  // 1976–1985
+  0.252, 0.321, 0.103, 0.165, 0.181, 0.118, -0.013, 0.027, 0.013, 0.046,
+  // 1986–1994
+  0.082, 0.142, 0.277, 0.177, -0.023, -0.003, -0.04, -0.06, -0.076,
+  // 1995–1999
+  0.006, -0.008, 0.054, 0.14, 0.086,
+  // 2000–2013 (luxury boom amplified; GFC deeper)
+  0.144, 0.122, 0.18, 0.208, 0.33, 0.231, 0.05, -0.111, -0.238, -0.029, -0.001,
+  -0.049, 0.035, 0.169,
+  // 2014–2024 (2018 luxury softened; 2021–22 surge)
+  0.066, 0.063, 0.055, 0.057, 0.03, 0.031, 0.065, 0.239, 0.153, 0.045, 0.059,
+  // 2025–2026 (estimate)
+  0.03, 0.03,
+];
+const NB_RENT_GROWTH = [
+  // 1970–1977 (luxury rent less elastic: OC × 0.85)
+  0.048, 0.033, 0.012, 0.028, 0.046, 0.044, 0.066, 0.08,
+  // 1978–2015
+  0.085, 0.088, 0.093, 0.1, 0.073, 0.053, 0.067, 0.077, 0.06, 0.036, 0.032,
+  0.05, 0.036, 0.017, 0.005, 0.001, 0.007, -0.008, 0.012, 0.014, 0.025, 0.031,
+  0.034, 0.054, 0.04, 0.05, 0.059, 0.051, 0.048, 0.051, 0.037, 0.006, 0.001,
+  0.011, 0.022, 0.023, 0.023, 0.033,
+  // 2016–2024
+  0.056, 0.063, 0.026, 0.017, 0.018, 0.079, 0.087, 0.054, 0.003,
+  // 2025–2026
+  0.017, 0.017,
+];
+const NB_RENT_YIELDS = [
+  // 1970–1993 (OC × 0.65)
+  0.047, 0.047, 0.044, 0.042, 0.04, 0.038, 0.036, 0.034, 0.033, 0.031, 0.033,
+  0.034, 0.038, 0.039, 0.04, 0.04, 0.039, 0.036, 0.034, 0.032, 0.033, 0.036,
+  0.039, 0.042,
+  // 1994–2024
+  0.045, 0.046, 0.044, 0.04, 0.036, 0.032, 0.028, 0.025, 0.022, 0.02, 0.017,
+  0.015, 0.014, 0.016, 0.021, 0.026, 0.029, 0.031, 0.03, 0.027, 0.026, 0.025,
+  0.023, 0.023, 0.023, 0.023, 0.021, 0.019, 0.018, 0.02, 0.02,
+  // 2025–2026
+  0.02, 0.02,
+];
+
+// Irvine (irvine) — planned community, tech hub; stable growth; ~1.3× OC median
+const IRVINE_ANN = [
+  // 1970–1975
+  0.018, 0.063, 0.081, 0.135, 0.108, 0.126,
+  // 1976–1985
+  0.207, 0.262, 0.084, 0.135, 0.148, 0.097, -0.009, 0.022, 0.011, 0.037,
+  // 1986–1994
+  0.067, 0.116, 0.227, 0.145, -0.017, -0.002, -0.03, -0.045, -0.056,
+  // 1995–1999
+  0.005, -0.006, 0.044, 0.115, 0.071,
+  // 2000–2013 (more resilient in GFC; above avg recovery with Chinese demand)
+  0.114, 0.097, 0.143, 0.164, 0.261, 0.183, 0.039, -0.079, -0.168, -0.02,
+  -0.001, -0.036, 0.033, 0.162,
+  // 2014–2024 (tech + foreign demand premium)
+  0.066, 0.063, 0.055, 0.057, 0.044, 0.026, 0.05, 0.175, 0.129, 0.079, 0.077,
+  // 2025–2026
+  0.03, 0.03,
+];
+const IRVINE_RENT_GROWTH = [
+  // 1970–1977 (strong rental market; OC × 1.00)
+  0.057, 0.039, 0.014, 0.033, 0.054, 0.051, 0.077, 0.094,
+  // 1978–2015
+  0.1, 0.103, 0.109, 0.118, 0.086, 0.062, 0.079, 0.091, 0.071, 0.043, 0.037,
+  0.059, 0.042, 0.02, 0.006, 0.001, 0.008, -0.009, 0.014, 0.017, 0.03, 0.037,
+  0.04, 0.063, 0.047, 0.059, 0.069, 0.06, 0.056, 0.06, 0.044, 0.007, 0.001,
+  0.013, 0.026, 0.027, 0.027, 0.039,
+  // 2016–2024
+  0.066, 0.074, 0.031, 0.02, 0.022, 0.093, 0.103, 0.064, 0.003,
+  // 2025–2026
+  0.02, 0.02,
+];
+const IRVINE_RENT_YIELDS = [
+  // 1970–1993 (OC × 0.88)
+  0.063, 0.063, 0.06, 0.057, 0.055, 0.051, 0.048, 0.046, 0.044, 0.042, 0.044,
+  0.047, 0.051, 0.053, 0.055, 0.055, 0.053, 0.049, 0.046, 0.043, 0.045, 0.048,
+  0.053, 0.057,
+  // 1994–2024
+  0.061, 0.062, 0.059, 0.055, 0.048, 0.043, 0.038, 0.033, 0.03, 0.026, 0.023,
+  0.02, 0.019, 0.022, 0.029, 0.035, 0.039, 0.042, 0.04, 0.037, 0.035, 0.033,
+  0.032, 0.031, 0.031, 0.031, 0.029, 0.026, 0.024, 0.026, 0.027,
+  // 2025–2026
+  0.027, 0.027,
+];
+
+// Yorba Linda (yorba) — luxury suburban; ~1.1× OC median; moderate premium
+const YORBA_ANN = [
+  // 1970–1975
+  0.021, 0.074, 0.095, 0.158, 0.126, 0.147,
+  // 1976–1985
+  0.241, 0.306, 0.098, 0.157, 0.173, 0.113, -0.011, 0.026, 0.013, 0.043,
+  // 1986–1994
+  0.078, 0.135, 0.265, 0.169, -0.021, -0.003, -0.037, -0.055, -0.069,
+  // 1995–1999
+  0.006, -0.008, 0.051, 0.134, 0.082,
+  // 2000–2013
+  0.126, 0.107, 0.158, 0.182, 0.288, 0.202, 0.043, -0.097, -0.208, -0.025,
+  -0.001, -0.044, 0.033, 0.162,
+  // 2014–2024 (suburban COVID boom)
+  0.063, 0.06, 0.052, 0.054, 0.042, 0.025, 0.047, 0.172, 0.127, 0.079, 0.077,
+  // 2025–2026
+  0.03, 0.03,
+];
+const YORBA_RENT_GROWTH = [
+  // 1970–1977 (SFR-focused; OC × 0.97)
+  0.055, 0.038, 0.014, 0.032, 0.052, 0.05, 0.075, 0.091,
+  // 1978–2015
+  0.097, 0.1, 0.106, 0.114, 0.083, 0.06, 0.077, 0.088, 0.069, 0.041, 0.036,
+  0.057, 0.041, 0.02, 0.006, 0.001, 0.008, -0.009, 0.014, 0.016, 0.029, 0.036,
+  0.039, 0.062, 0.046, 0.057, 0.067, 0.058, 0.055, 0.058, 0.042, 0.007, 0.001,
+  0.013, 0.025, 0.026, 0.026, 0.038,
+  // 2016–2024
+  0.064, 0.072, 0.03, 0.019, 0.021, 0.09, 0.1, 0.062, 0.003,
+  // 2025–2026
+  0.019, 0.019,
+];
+const YORBA_RENT_YIELDS = [
+  // 1970–1993 (OC × 0.90)
+  0.065, 0.065, 0.061, 0.059, 0.056, 0.052, 0.05, 0.047, 0.045, 0.043, 0.045,
+  0.048, 0.052, 0.054, 0.056, 0.056, 0.054, 0.05, 0.047, 0.044, 0.046, 0.05,
+  0.054, 0.059,
+  // 1994–2024
+  0.062, 0.063, 0.06, 0.056, 0.05, 0.044, 0.039, 0.034, 0.031, 0.027, 0.023,
+  0.021, 0.02, 0.023, 0.03, 0.036, 0.04, 0.043, 0.041, 0.038, 0.036, 0.034,
+  0.032, 0.032, 0.032, 0.032, 0.03, 0.026, 0.024, 0.027, 0.028,
+  // 2025–2026
+  0.028, 0.028,
+];
+
+// Laguna Beach (laguna) — ultra-coastal luxury/arts; ~3× OC median; extreme volatility
+const LAGUNA_ANN = [
+  // 1970–1975
+  0.023, 0.081, 0.104, 0.173, 0.138, 0.161,
+  // 1976–1985
+  0.264, 0.335, 0.108, 0.172, 0.189, 0.124, -0.013, 0.029, 0.014, 0.048,
+  // 1986–1994
+  0.086, 0.148, 0.29, 0.185, -0.024, -0.003, -0.042, -0.063, -0.079,
+  // 1995–1999
+  0.006, -0.009, 0.056, 0.147, 0.09,
+  // 2000–2013 (luxury boom strongest; GFC deepest)
+  0.15, 0.127, 0.188, 0.216, 0.343, 0.24, 0.052, -0.121, -0.258, -0.031, -0.001,
+  -0.049, 0.035, 0.169,
+  // 2014–2024 (2018 luxury cooled; 2020–22 surge extreme)
+  0.066, 0.063, 0.055, 0.057, 0.032, 0.031, 0.069, 0.254, 0.158, 0.045, 0.066,
+  // 2025–2026
+  0.03, 0.03,
+];
+const LAGUNA_RENT_GROWTH = [
+  // 1970–1977 (ultra-luxury rent very inelastic: OC × 0.80)
+  0.045, 0.031, 0.011, 0.026, 0.043, 0.041, 0.062, 0.075,
+  // 1978–2015
+  0.08, 0.083, 0.087, 0.094, 0.069, 0.05, 0.064, 0.073, 0.057, 0.034, 0.03,
+  0.047, 0.034, 0.016, 0.005, 0.0, 0.007, -0.007, 0.011, 0.013, 0.024, 0.03,
+  0.032, 0.051, 0.038, 0.047, 0.055, 0.048, 0.045, 0.048, 0.035, 0.005, 0.001,
+  0.01, 0.02, 0.022, 0.022, 0.031,
+  // 2016–2024
+  0.052, 0.059, 0.025, 0.016, 0.017, 0.074, 0.082, 0.051, 0.003,
+  // 2025–2026
+  0.016, 0.016,
+];
+const LAGUNA_RENT_YIELDS = [
+  // 1970–1993 (OC × 0.58 — ultra-premium price/rent ratio)
+  0.042, 0.042, 0.039, 0.038, 0.036, 0.034, 0.032, 0.03, 0.029, 0.028, 0.029,
+  0.031, 0.034, 0.035, 0.036, 0.036, 0.035, 0.032, 0.03, 0.028, 0.03, 0.032,
+  0.035, 0.038,
+  // 1994–2024
+  0.04, 0.041, 0.039, 0.036, 0.032, 0.028, 0.025, 0.022, 0.02, 0.017, 0.015,
+  0.013, 0.013, 0.015, 0.019, 0.023, 0.026, 0.028, 0.027, 0.024, 0.023, 0.022,
+  0.021, 0.02, 0.02, 0.02, 0.019, 0.017, 0.016, 0.017, 0.018,
+  // 2025–2026
+  0.018, 0.018,
+];
+
+// Huntington Beach (hb) — surf city coastal; ~1.1× OC median; solid rental market
+const HB_ANN = [
+  // 1970–1975
+  0.021, 0.074, 0.095, 0.158, 0.126, 0.147,
+  // 1976–1985
+  0.241, 0.306, 0.098, 0.157, 0.173, 0.113, -0.011, 0.026, 0.013, 0.043,
+  // 1986–1994
+  0.078, 0.135, 0.265, 0.169, -0.021, -0.003, -0.036, -0.053, -0.067,
+  // 1995–1999
+  0.006, -0.007, 0.051, 0.134, 0.082,
+  // 2000–2013
+  0.126, 0.107, 0.158, 0.182, 0.288, 0.202, 0.043, -0.095, -0.202, -0.024,
+  -0.001, -0.043, 0.033, 0.162,
+  // 2014–2024 (coastal premium in COVID)
+  0.063, 0.06, 0.052, 0.054, 0.042, 0.025, 0.048, 0.175, 0.129, 0.079, 0.077,
+  // 2025–2026
+  0.03, 0.03,
+];
+const HB_RENT_GROWTH = [
+  // 1970–1977 (coastal rental demand; OC × 1.00)
+  0.057, 0.039, 0.014, 0.033, 0.054, 0.051, 0.077, 0.094,
+  // 1978–2015
+  0.1, 0.103, 0.109, 0.118, 0.086, 0.062, 0.079, 0.091, 0.071, 0.043, 0.037,
+  0.059, 0.042, 0.02, 0.006, 0.001, 0.008, -0.009, 0.014, 0.017, 0.03, 0.037,
+  0.04, 0.063, 0.047, 0.059, 0.069, 0.06, 0.056, 0.06, 0.044, 0.007, 0.001,
+  0.013, 0.026, 0.027, 0.027, 0.039,
+  // 2016–2024
+  0.066, 0.074, 0.031, 0.02, 0.022, 0.093, 0.103, 0.064, 0.003,
+  // 2025–2026
+  0.02, 0.02,
+];
+const HB_RENT_YIELDS = [
+  // 1970–1993 (OC × 0.93 — coastal but mass market)
+  0.067, 0.067, 0.063, 0.06, 0.058, 0.054, 0.051, 0.048, 0.047, 0.045, 0.047,
+  0.049, 0.054, 0.056, 0.058, 0.058, 0.056, 0.052, 0.048, 0.046, 0.047, 0.051,
+  0.056, 0.06,
+  // 1994–2024
+  0.064, 0.065, 0.062, 0.058, 0.051, 0.046, 0.04, 0.035, 0.032, 0.028, 0.024,
+  0.021, 0.02, 0.023, 0.031, 0.037, 0.041, 0.045, 0.043, 0.039, 0.037, 0.035,
+  0.033, 0.033, 0.033, 0.033, 0.031, 0.027, 0.025, 0.028, 0.029,
+  // 2025–2026
+  0.029, 0.029,
 ];
 
 // ── Los Angeles CA (FHFA MSAD 31084 + pre-1975 West-region/CAR est) ──

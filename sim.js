@@ -22,6 +22,11 @@ const SELECT_ABBR = {
   nasdaq: "NASDAQ",
   sixty40: "60/40",
   oc: "OC",
+  nb: "NB",
+  irvine: "IR",
+  yorba: "YL",
+  laguna: "LB",
+  hb: "HB",
   la: "LA",
   sd: "SD",
   sf: "SF Bay",
@@ -80,6 +85,23 @@ function refreshDatasets() {
         : SP500_DIV;
   const LOC_DATA = {
     oc: { ann: OC_ANN, rent: OC_RENT_GROWTH, yield: OC_RENT_YIELDS },
+    nb: { ann: NB_ANN, rent: NB_RENT_GROWTH, yield: NB_RENT_YIELDS },
+    irvine: {
+      ann: IRVINE_ANN,
+      rent: IRVINE_RENT_GROWTH,
+      yield: IRVINE_RENT_YIELDS,
+    },
+    yorba: {
+      ann: YORBA_ANN,
+      rent: YORBA_RENT_GROWTH,
+      yield: YORBA_RENT_YIELDS,
+    },
+    laguna: {
+      ann: LAGUNA_ANN,
+      rent: LAGUNA_RENT_GROWTH,
+      yield: LAGUNA_RENT_YIELDS,
+    },
+    hb: { ann: HB_ANN, rent: HB_RENT_GROWTH, yield: HB_RENT_YIELDS },
     la: { ann: LA_ANN, rent: LA_RENT_GROWTH, yield: LA_RENT_YIELDS },
     sd: { ann: SD_ANN, rent: SD_RENT_GROWTH, yield: SD_RENT_YIELDS },
     sf: { ann: SF_ANN, rent: SF_RENT_GROWTH, yield: SF_RENT_YIELDS },
