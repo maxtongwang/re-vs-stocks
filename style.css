@@ -315,6 +315,8 @@ canvas {
   background: var(--btn-active-bg);
 }
 .legend-wrap {
+  width: 100vw;
+  margin-left: -12px; /* negate body padding so wrapper spans full viewport */
   text-align: center;
   margin-top: 10px;
 }
