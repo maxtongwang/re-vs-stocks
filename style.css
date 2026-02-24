@@ -27,10 +27,25 @@ body {
   margin-bottom: 8px;
 }
 .hero-sub {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
   font-size: 13px;
-  line-height: 17px; /* pin: CJK fallback isolation */
   color: var(--text-sub);
+}
+.hero-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  line-height: 17px; /* pin: CJK fallback isolation */
   white-space: nowrap;
+}
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 .hero-amount {
   color: var(--accent-init);

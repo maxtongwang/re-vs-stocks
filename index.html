@@ -190,69 +190,72 @@
         The Last Chart To Understand<br />Real Estate vs Stock Market
       </h1>
       <div class="hero-sub">
-        <span class="abbr-wrap hero-init">
-          <span class="abbr-text" id="init-abbr">$1M</span>
-          <select class="abbr-sel" id="init-select">
-            <option value="100000">$100k</option>
-            <option value="200000">$200k</option>
-            <option value="500000">$500k</option>
-            <option value="1000000" selected>$1M</option>
-            <option value="2000000">$2M</option>
-            <option value="5000000">$5M</option>
-          </select>
-        </span>
-        <span class="hero-divider">·</span>
-        <span class="abbr-wrap hero-sp">
-          <span class="abbr-text" id="index-abbr">S&P 500</span>
-          <select class="abbr-sel" id="index-select">
-            <option value="sp500">S&P 500</option>
-            <option value="nasdaq">NASDAQ</option>
-            <option value="sixty40">60/40 (S&P/TLT)</option>
-          </select>
-        </span>
-        <span class="hero-divider">vs</span>
-        <!-- State chip -->
-        <span class="abbr-wrap">
-          <span class="abbr-text" id="state-abbr">CA</span>
-          <select class="abbr-sel" id="state-select">
-            <option value="ca">California</option>
-            <option value="tx">Texas</option>
-            <option value="fl">Florida</option>
-            <option value="wa">Washington</option>
-            <option value="ny">New York</option>
-            <option value="national">National</option>
-          </select>
-        </span>
-        <span class="hero-divider">·</span>
-        <!-- Metro chip -->
-        <span class="abbr-wrap">
-          <span class="abbr-text" id="metro-abbr">OC</span>
-          <select class="abbr-sel" id="metro-select">
-            <!-- populated by populateMetroSelect() -->
-          </select>
-        </span>
-        <!-- City chip (hidden until metro has city entries) -->
-        <span class="hero-divider" id="city-divider" style="display: none"
-          >·</span
-        >
-        <span class="abbr-wrap" id="city-wrap" style="display: none">
-          <span class="abbr-text" id="city-abbr">All</span>
-          <select class="abbr-sel" id="city-select"></select>
-        </span>
-        <span class="hero-divider">·</span>
-        <span class="abbr-wrap">
-          <span class="abbr-text" id="lang-abbr">🇺🇸</span>
-          <select class="abbr-sel" id="lang-select" title="Language">
-            <option value="en">🇺🇸</option>
-            <option value="zh">🇨🇳</option>
-          </select>
-        </span>
-        <button id="theme-btn" class="icon-btn" title="Auto (follows device)">
-          ◑
-        </button>
-        <button id="share-btn" class="icon-btn" title="Copy share link">
-          🔗
-        </button>
+        <div class="hero-controls">
+          <span class="abbr-wrap hero-init">
+            <span class="abbr-text" id="init-abbr">$1M</span>
+            <select class="abbr-sel" id="init-select">
+              <option value="100000">$100k</option>
+              <option value="200000">$200k</option>
+              <option value="500000">$500k</option>
+              <option value="1000000" selected>$1M</option>
+              <option value="2000000">$2M</option>
+              <option value="5000000">$5M</option>
+            </select>
+          </span>
+          <span class="hero-divider">·</span>
+          <span class="abbr-wrap hero-sp">
+            <span class="abbr-text" id="index-abbr">S&P 500</span>
+            <select class="abbr-sel" id="index-select">
+              <option value="sp500">S&P 500</option>
+              <option value="nasdaq">NASDAQ</option>
+              <option value="sixty40">60/40 (S&P/TLT)</option>
+            </select>
+          </span>
+          <span class="hero-divider">vs</span>
+          <!-- State chip -->
+          <span class="abbr-wrap">
+            <span class="abbr-text" id="state-abbr">CA</span>
+            <select class="abbr-sel" id="state-select">
+              <option value="ca">California</option>
+              <option value="tx">Texas</option>
+              <option value="fl">Florida</option>
+              <option value="wa">Washington</option>
+              <option value="ny">New York</option>
+              <option value="national">National</option>
+            </select>
+          </span>
+          <span class="hero-divider">·</span>
+          <!-- Metro chip -->
+          <span class="abbr-wrap">
+            <span class="abbr-text" id="metro-abbr">OC</span>
+            <select class="abbr-sel" id="metro-select">
+              <!-- populated by populateMetroSelect() -->
+            </select>
+          </span>
+          <!-- City chip (hidden until metro has city entries) -->
+          <span class="hero-divider" id="city-divider" style="display: none"
+            >·</span
+          >
+          <span class="abbr-wrap" id="city-wrap" style="display: none">
+            <span class="abbr-text" id="city-abbr">All</span>
+            <select class="abbr-sel" id="city-select"></select>
+          </span>
+        </div>
+        <div class="hero-actions">
+          <span class="abbr-wrap">
+            <span class="abbr-text" id="lang-abbr">🇺🇸</span>
+            <select class="abbr-sel" id="lang-select" title="Language">
+              <option value="en">🇺🇸</option>
+              <option value="zh">🇨🇳</option>
+            </select>
+          </span>
+          <button id="theme-btn" class="icon-btn" title="Auto (follows device)">
+            ◑
+          </button>
+          <button id="share-btn" class="icon-btn" title="Copy share link">
+            🔗
+          </button>
+        </div>
       </div>
     </div>
 
