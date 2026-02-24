@@ -110,6 +110,8 @@ const STRINGS = {
       "Loan-to-Value: new loan ÷ current property value. Bank won't lend above this ceiling.",
     tipImprov:
       "IRS: only the structure (not land) depreciates on a 27.5yr schedule. CA metro ~40%, TX ~60%.",
+    tipCashflow:
+      "Additive: dividends & rent collected as cash, not compounded.\nReinvested: income compounds back into the portfolio.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -265,9 +267,6 @@ const STRINGS = {
         ],
       },
     ],
-    modeDesc:
-      "· Additive: dividends &amp; rent collected as cash, not compounded<br>" +
-      "· Reinvested: income compounds back into the portfolio",
     methodologyNote:
       'Historical data: FHFA · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
     primaryNote:
@@ -290,6 +289,8 @@ const STRINGS = {
     tipLtvLine: "贷款价值比：新贷款 ÷ 当前房产价值。银行不超此比例放贷。",
     tipImprov:
       "IRS：只有建筑物（非土地）可按27.5年折旧。加州约40%，德州约60%。",
+    tipCashflow:
+      "叠加：股息和房租以现金收取，不复利。\n复投：收益重新投入组合，产生复利。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",
@@ -444,9 +445,6 @@ const STRINGS = {
         ],
       },
     ],
-    modeDesc:
-      "· 叠加：股息和房租以现金收取，不复利<br>" +
-      "· 复投：收益重新投入组合，产生复利",
     methodologyNote:
       '数据来源：FHFA · 标普500 · FRED · <a href="#note-section">完整方法论 ↓</a>',
     primaryNote:

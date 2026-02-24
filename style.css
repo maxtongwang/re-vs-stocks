@@ -557,13 +557,6 @@ th:first-child {
 #primary-note strong {
   color: var(--primary-note-strong);
 }
-#mode-desc {
-  font-size: 10px;
-  color: var(--text-dim);
-  text-align: left;
-  margin: 0;
-  line-height: 1.7;
-}
 /* Portrait: 1 column. Landscape or wide desktop: 2 columns. */
 #settings-grid {
   grid-template-columns: 1fr;
@@ -588,7 +581,7 @@ th:first-child {
 .tip {
   position: relative;
 }
-.tip[data-tip]::after {
+.tip[data-tip]::before {
   content: attr(data-tip);
   position: absolute;
   bottom: calc(100% + 6px);
@@ -601,8 +594,8 @@ th:first-child {
   padding: 5px 9px;
   border: 1px solid var(--border);
   border-radius: 3px;
-  white-space: normal;
-  width: 220px;
+  white-space: pre-line;
+  width: min(240px, 90vw);
   text-align: left;
   z-index: 999;
   pointer-events: none;
@@ -610,13 +603,19 @@ th:first-child {
   transition: opacity 0.12s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
-.tip[data-tip]:hover::after,
-.tip[data-tip].open::after {
+.tip[data-tip]:hover::before,
+.tip[data-tip].open::before {
   opacity: 1;
 }
-.tip-right[data-tip]::after {
+.tip-right[data-tip]::before {
   left: 0;
   transform: none;
+}
+.tip[data-tip]::after {
+  content: " ⓘ";
+  font-size: 9px;
+  color: var(--text-mid);
+  opacity: 0.7;
 }
 .leg-cagr {
   font-size: 10px;

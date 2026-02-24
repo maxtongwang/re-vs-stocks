@@ -314,9 +314,10 @@ function applyLang() {
   document.getElementById("label-propmode").textContent = s.labelPropMode;
   document.getElementById("label-refi").textContent = s.labelRefi;
   document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
-  document.getElementById("ltv-tip-line").textContent = s.tipLtvLine;
-  document.getElementById("refi-bal-tip").textContent = s.tipBalLine;
+  document.getElementById("label-ltv-pct").dataset.tip = s.tipLtvLine;
+  document.getElementById("btn-refi-rate").dataset.tip = s.tipBalLine;
   document.getElementById("label-improv").dataset.tip = s.tipImprov;
+  document.getElementById("label-cashflow").dataset.tip = s.tipCashflow;
   document.getElementById("btn-additive").textContent = s.btnAdditive;
   document.getElementById("btn-reinvest").textContent = s.btnReinvest;
   document.getElementById("btn-rental").textContent = s.btnRental;
@@ -348,7 +349,6 @@ function applyLang() {
   document.getElementById("assm-fix-note").textContent = s.assmFixNote;
   document.getElementById("label-sources").textContent = s.labelSources;
   document.getElementById("label-built-by").textContent = s.builtBy;
-  document.getElementById("mode-desc").innerHTML = s.modeDesc;
   document.getElementById("methodology-note").innerHTML = s.methodologyNote;
   const primaryNoteEl = document.getElementById("primary-note");
   primaryNoteEl.style.display = isPrimary ? "" : "none";
@@ -437,8 +437,6 @@ document.getElementById("btn-primary").addEventListener("click", () => {
     document.getElementById("refi-type-group").style.display = hasRefis
       ? "flex"
       : "none";
-    document.getElementById("refi-bal-tip").style.display =
-      hasRefis && !refiLTV ? "" : "none";
     document.getElementById("row-ltv-pct").style.display =
       hasRefis && refiLTV ? "flex" : "none";
     allWealth = buildAllWealth(startYear);
@@ -454,7 +452,6 @@ document.getElementById("btn-refi-rate").addEventListener("click", () => {
   if (!refiLTV) return;
   refiLTV = false;
   document.getElementById("row-ltv-pct").style.display = "none";
-  document.getElementById("refi-bal-tip").style.display = "";
   document.getElementById("btn-refi-rate").classList.add("active");
   document.getElementById("btn-refi-ltv").classList.remove("active");
   allWealth = buildAllWealth(startYear);
@@ -467,7 +464,6 @@ document.getElementById("btn-refi-ltv").addEventListener("click", () => {
   if (refiLTV) return;
   refiLTV = true;
   document.getElementById("row-ltv-pct").style.display = "flex";
-  document.getElementById("refi-bal-tip").style.display = "none";
   document.getElementById("btn-refi-ltv").classList.add("active");
   document.getElementById("btn-refi-rate").classList.remove("active");
   allWealth = buildAllWealth(startYear);
@@ -1862,7 +1858,6 @@ if (numRefis > 0) {
       .classList.toggle("active", i === numRefis),
   );
   document.getElementById("refi-type-group").style.display = "flex";
-  if (!refiLTV) document.getElementById("refi-bal-tip").style.display = "";
 }
 if (refiLTV && numRefis > 0) {
   document.getElementById("btn-refi-ltv").classList.add("active");
