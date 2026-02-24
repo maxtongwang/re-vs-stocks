@@ -1333,7 +1333,7 @@ function draw(monthsToShow) {
       "S&P 500",
     "All Cash",
     "50% Down",
-    "20% Down",
+    "25% Down",
     "10% Down",
     "3.5% Down",
   ];
