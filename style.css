@@ -237,6 +237,10 @@ input[type="range"] {
 #row-ltv-pct {
   display: none;
 }
+#refi-type-group .toggle-btn {
+  flex: 1;
+  justify-content: center;
+}
 .toggle-btn.active {
   border-color: var(--accent);
   color: var(--accent);
