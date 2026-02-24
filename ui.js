@@ -1183,7 +1183,9 @@ function renderDecomp(monthsToShow) {
           val: reDc.cumTax,
           color: taxColor,
           edu: () => {
-            const taxRatePct = Math.round(activeLocConfig.taxRate * 100);
+            const taxRatePct = Math.round(
+              getMarginalRate(activeLocConfig, incomeTier) * 100,
+            );
             const annualDep = Math.round((price * improvPct) / 27.5);
             const depClaimed = Math.round(annualDep * Math.min(yrs, 27.5));
             const depRecapture = Math.round(depClaimed * 0.25);
@@ -1201,7 +1203,7 @@ function renderDecomp(monthsToShow) {
               initMaint -
               (inclDepreciation ? monthlyDep : 0);
             const initMonthlyTaxBen = Math.round(
-              -initTaxInc * activeLocConfig.taxRate,
+              -initTaxInc * getMarginalRate(activeLocConfig, incomeTier),
             );
             if (reDc.cumTax >= 0) {
               return isZh
