@@ -247,11 +247,10 @@ input[type="range"] {
 }
 #assumptions-line {
   font-size: 10px;
-  line-height: 14px; /* pin: 3 lines × 14px = 42px */
+  line-height: 14px; /* 2 lines × 14px = 28px */
   color: var(--text-lo);
   text-align: center;
   margin-bottom: 8px;
-  min-height: 42px;
 }
 #chart-wrap {
   width: 100%;
@@ -533,10 +532,7 @@ th:first-child {
   font-weight: bold;
 }
 #methodology-note {
-  font-size: 10px;
-  color: var(--text-dim);
-  text-align: center;
-  margin: 2px 0 4px;
+  display: none;
 }
 #methodology-note a {
   color: var(--text-dim);
