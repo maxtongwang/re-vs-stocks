@@ -5415,28 +5415,29 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range hybrid:
-        //   yMax — running historical peak (0..fullM): ceiling tracks highest ever reached
-        //   yMin — current tip only (w[fullM]): floor stays near where lines are now,
-        //          not dragged down by early high-leverage dips in history
-        // Both lerped in log-space during playback; snap on slider/settings.
+        // Y range: tip-only (log-chart style, tight floor)
+        //   Both yMin and yMax from current tip values only — no history scan.
+        //   This keeps floor tight just below the lowest current line (limited floor space)
+        //   and ceiling tight above the highest, expanding smoothly as lines grow.
+        //   Lerped in log-space during playback; snap on slider/settings or when rewinding.
         let yMax = 200000,
           yMin = Infinity;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
           const tipM = Math.min(fullM, w.length - 1);
-          // yMax: scan history
-          for (let m = 0; m <= tipM; m++) if (w[m] > yMax) yMax = w[m];
-          // yMin: tip only
           const v = w[tipM];
-          if (v > 1000 && v < yMin) yMin = v;
+          if (v > 1000) {
+            if (v > yMax) yMax = v;
+            if (v < yMin) yMin = v;
+          }
         }
-        if (!isFinite(yMin)) yMin = 50000;
-        const _loRaw = yMin * 0.85;
+        if (!isFinite(yMin) || yMin <= 0) yMin = 50000;
+        if (yMax <= yMin) yMax = yMin * 2;
+        const _loRaw = yMin * 0.88; // 12% headroom below lowest line
         const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
         const targetYLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
-        const targetYHi = yMax * 1.1;
+        const targetYHi = yMax * 1.12; // 12% headroom above highest line
         if (animYLo === null || !playing) {
           animYLo = targetYLo;
           animYHi = targetYHi;
@@ -5754,7 +5755,11 @@
 
       function startPlay() {
         if (playing) return; // guard: no double RAF
-        if (curMonth >= totalMonths) curMonth = 1; // restart from beginning if at end
+        if (curMonth >= totalMonths) {
+          curMonth = 1; // restart from beginning if at end
+          animYLo = null; // force snap on first frame — stale Jan-2026 scale is wrong for month 1
+          animYHi = null;
+        }
         sliderEl.value = Math.round(curMonth);
         playing = true;
         lastTs = null;
