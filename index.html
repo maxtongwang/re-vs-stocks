@@ -5415,37 +5415,48 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range: scan visible months (0..fullM), quantize to 1-2-5 nice numbers.
-        // Quantization means the axis only snaps at ~40-50% value changes,
-        // eliminating per-month jitter while keeping the range appropriate for
-        // the current time in the animation (not the final-month wide range).
-        let _yMax = 1000,
-          _yMin = Infinity;
+        // Y range — log chart, dynamic expansion only (bounds never contract).
+        // Scan visible months (0..fullM) for current frame min/max.
+        let _fMax = 1000,
+          _fMin = Infinity;
         for (let i = 0; i < allWealth.length; i++) {
           if (hidden.has(i)) continue;
           const w = allWealth[i];
           for (let m = 0; m <= Math.min(fullM, w.length - 1); m++) {
             const v = w[m];
             if (v > 0) {
-              if (v > _yMax) _yMax = v;
-              if (v < _yMin) _yMin = v;
+              if (v > _fMax) _fMax = v;
+              if (v < _fMin) _fMin = v;
             }
           }
         }
-        if (!isFinite(_yMin) || _yMin <= 0) _yMin = _yMax * 0.1;
-        // Clamp: floor never more than ~1.3 log-decades below ceiling.
-        // Prevents near-zero leveraged-scenario dips from pushing axis to $1K.
-        _yMin = Math.max(_yMin, _yMax / 20);
-        // Round DOWN to nice 1-2-5 for floor (50% headroom below min)
-        const _loRaw = _yMin * 0.5;
-        const _loP = Math.pow(10, Math.floor(Math.log10(_loRaw)));
-        const _loR = _loRaw / _loP;
-        const yLo = (_loR >= 5 ? 5 : _loR >= 2 ? 2 : 1) * _loP;
-        // Round UP to nice 1-2-5 for ceiling (10% headroom above max)
-        const _hiRaw = _yMax * 1.1;
-        const _hiP = Math.pow(10, Math.floor(Math.log10(_hiRaw)));
-        const _hiR = _hiRaw / _hiP;
-        const yHi = (_hiR > 5 ? 10 : _hiR > 2 ? 5 : _hiR > 1 ? 2 : 1) * _hiP;
+        if (!isFinite(_fMin) || _fMin <= 0) _fMin = _fMax * 0.1;
+        _fMin = Math.max(_fMin, _fMax / 20); // cap range at ~1.3 log-decades
+        const _tgtHi = _fMax * 1.1;
+        const _tgtLo = _fMin * 0.5;
+        if (!playing) {
+          // Static (slider): snap fresh, no expansion state
+          playYHi = _tgtHi;
+          playYLo = _tgtLo;
+        } else if (playYHi === null) {
+          // First frame of play: pre-expand ceiling to full dataset max so
+          // lines start near the bottom and grow upward naturally
+          playYHi = fullDatasetMax * 1.1;
+          playYLo = _tgtLo;
+        } else {
+          // Subsequent frames: smooth lerp only toward expanded targets
+          const s = 0.12;
+          if (_tgtHi > playYHi)
+            playYHi = Math.exp(
+              Math.log(playYHi) + (Math.log(_tgtHi) - Math.log(playYHi)) * s,
+            );
+          if (_tgtLo < playYLo)
+            playYLo = Math.exp(
+              Math.log(playYLo) + (Math.log(_tgtLo) - Math.log(playYLo)) * s,
+            );
+        }
+        const yLo = playYLo;
+        const yHi = playYHi;
         const tx = (m) => PL + (m / Math.max(totalMonths - 1, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
         const ty = (v) =>
@@ -5734,6 +5745,15 @@
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
       }
 
+      // ── Y-axis dynamic expansion state ───────────────────────────────────────
+      // playYHi/playYLo: running bounds that only ever expand outward during play.
+      // Reset to null on each startPlay() so every replay starts fresh.
+      // fullDatasetMax: precomputed in rebuild() to set initial ceiling so lines
+      // start near the bottom of the chart (not centered).
+      let playYHi = null,
+        playYLo = null,
+        fullDatasetMax = 1000;
+
       // ── Play state machine ────────────────────────────────────────────────────
       // States: STOPPED | PLAYING
       let playing = false,
@@ -5746,6 +5766,8 @@
       function startPlay() {
         if (playing) return; // guard: no double RAF
         if (curMonth >= totalMonths) curMonth = 1; // restart from beginning if at end
+        playYHi = null;
+        playYLo = null; // fresh bounds for each replay
         sliderEl.value = Math.round(curMonth);
         playing = true;
         lastTs = null;
@@ -5818,6 +5840,11 @@
         curMonth = Math.min(projStartM + 1, totalMonths);
         sliderEl.max = totalMonths;
         sliderEl.value = curMonth;
+        fullDatasetMax = 1000;
+        for (const w of allWealth)
+          for (const v of w) if (v > fullDatasetMax) fullDatasetMax = v;
+        playYHi = null;
+        playYLo = null;
         updateAssumptions();
         updateLabel(curMonth);
         buildTable();
