@@ -129,7 +129,6 @@ body {
 }
 .ctrl-row input[type="range"] {
   flex: 1;
-  accent-color: var(--text-mid);
 }
 .ctrl-row .val {
   color: var(--val);
@@ -253,7 +252,6 @@ canvas {
 }
 .slider-wrap input {
   flex: 1;
-  accent-color: var(--accent);
 }
 #year-label {
   font-size: 14px;
