@@ -504,12 +504,18 @@ function simRE(
         }
       }
     }
-    // Primary: r=0 (no rent income). Rental: actual rent collected.
-    const r = isPrimary ? 0 : rent / 12;
+    // Primary: r=0 (no rent income). Rental: collected rent after vacancy.
+    const vacancy = isPrimary ? 0 : (locCfg.vacancyRate ?? 0.05);
+    const r = isPrimary ? 0 : (rent / 12) * (1 - vacancy);
     const constInfl = Math.pow(1.04, m / 12); // construction cost inflation ~4%/yr (ENR CCI long-run avg)
     const t = inclCosts ? ptax / 12 : 0,
       ins = inclCosts ? (price * 0.005 * constInfl) / 12 : 0,
       mai = inclCosts ? (price * 0.01 * constInfl) / 12 : 0;
+    // Management fee: deductible operating expense (IRS Schedule E)
+    const mgmt =
+      !isPrimary && inclCosts && inclMgmtFee
+        ? r * (locCfg.mgmtFeeRate ?? 0.09)
+        : 0;
     let int = 0,
       prin = 0;
     const si = m - schedOffset;
@@ -519,7 +525,7 @@ function simRE(
       prin = prevBal - sched[si].balance;
       rem = sched[si].balance;
     }
-    const gross = r - (int + prin) - t - ins - mai;
+    const gross = r - mgmt - (int + prin) - t - ins - mai;
     // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
     // Primary: standard deduction assumed — no incremental tax benefit; taxBenefit = 0.
     // Rental tax benefits ON:  taxable = rent - interest - costs - depreciation
@@ -527,14 +533,15 @@ function simRE(
     const taxBenefit = isPrimary
       ? 0
       : !inclTaxBenefits
-        ? -(r - t - ins - mai) * locCfg.taxRate // remove interest + dep; costs still deductible
-        : -(r - int - t - ins - mai - (m < 330 ? dep : 0)) * locCfg.taxRate;
+        ? -(r - mgmt - t - ins - mai) * locCfg.taxRate // remove interest + dep; costs still deductible
+        : -(r - mgmt - int - t - ins - mai - (m < 330 ? dep : 0)) *
+          locCfg.taxRate;
     const netCF = gross + taxBenefit;
 
     // Decomp: accumulate components (additive basis regardless of reinvest)
     cumRentD += r;
     cumIntD += int;
-    cumCostsD += t + ins + mai;
+    cumCostsD += t + ins + mai + mgmt;
     cumTaxD += taxBenefit;
     periodIntD += int;
     if (!isPrimary && inclDepreciation && m < 330) cumulativeDeprec += dep;

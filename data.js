@@ -125,12 +125,13 @@ const STRINGS = {
     btnPrimary: "Primary",
     btnRefiBalance: "Balance",
     labelIncludes: "Includes:",
+    labelPmFee: "PM fee:",
     btnTaxBenefits: "Tax Benefits",
     btnTaxBill: "Tax Bill",
     btnDepreciation: "Depreciation",
     btnCosts: "Op. Costs",
     tipCosts:
-      "Property tax (location-specific rate).\nInsurance: 0.5%/yr of purchase price, +4%/yr construction cost inflation.\nMaintenance: 1%/yr of purchase price, +4%/yr construction cost inflation.",
+      "Property tax (location-specific rate).\nInsurance: 0.5%/yr of purchase price, +4%/yr construction cost inflation.\nMaintenance: 1%/yr of purchase price, +4%/yr construction cost inflation.\nVacancy: location-specific (Census ACS). Reduces gross rent collected.\nMgmt fee: % of collected rent for professional management (optional toggle).\nHOA/condo fees: excluded — vary too widely by building. Factor in manually.",
     btnTxCosts: "Tx Costs",
     tipTxCosts:
       "Buy: title, escrow, inspection, appraisal (1–2% of purchase).\nSell: commission (both sides), title, transfer taxes, warranty (6–9% of sale).\nRates vary by location — hover the breakdown for details.",
@@ -258,6 +259,10 @@ const STRINGS = {
           "Maintenance: 1% of purchase price/yr, inflated at 4%/yr. Tracks labor and materials inflation, not home price appreciation. Over 30 years costs grow ~3×; over 50 years ~7×.",
           "Depreciation (rental only): IRS 27.5-yr straight-line on the structure (not land). The improvement % above sets what share of purchase price is depreciable. Primary residences are ineligible.",
           `Income tax: ${getTaxNote(activeLocConfig, incomeTier, false)} marginal rate applied to net rental income (rent minus mortgage interest, property tax, insurance, maintenance, and depreciation). Select your bracket above. When deductions exceed rent, the result is a paper loss — you collect rent but show a taxable loss and may receive a refund.`,
+          `Vacancy: ${(activeLocConfig.vacancyRate * 100).toFixed(0)}% of gross rent (Census ACS 2022–23 rental vacancy survey, updated periodically). An unoccupied month earns no rent; fixed costs (mortgage, tax, insurance) continue.`,
+          `Property management (if enabled): ${(activeLocConfig.mgmtFeeRate * 100).toFixed(0)}% of collected rent for professional management (NARPM/AppFolio 2023 industry avg). Deductible on IRS Schedule E. Disable to model self-management.`,
+          "HOA / condo fees: not modeled. Building dues range $200–$2,000+/mo and are property-specific. For condos, add the monthly HOA to your own cash-flow estimate.",
+          "PMI (private mortgage insurance): not modeled. Required for conventional loans under 20% down — typically 0.5–1.5%/yr of the loan balance, cancels at 78% LTV. Factor in manually for the 3.5% down scenario.",
         ],
       },
       {
@@ -314,12 +319,13 @@ const STRINGS = {
     btnPrimary: "自住",
     btnRefiBalance: "剩余贷款",
     labelIncludes: "计入：",
+    labelPmFee: "物业管理费：",
     btnTaxBenefits: "税务优惠",
     btnTaxBill: "税务负担",
     btnDepreciation: "折旧",
     btnCosts: "运营成本",
     tipCosts:
-      "房产税（税率因地区而异）。\n保险：购入价0.5%/年，+4%/年建筑成本通胀。\n维护费：购入价1%/年，+4%/年建筑成本通胀。",
+      "房产税（税率因地区而异）。\n保险：购入价0.5%/年，+4%/年建筑成本通胀。\n维护费：购入价1%/年，+4%/年建筑成本通胀。\n空置率：按地区（美国人口普查ACS）。降低实际收租金额。\n物业管理费：占实收租金百分比，适用专业管理（可关闭开关）。\nHOA/共管费：未计入——各楼盘差异过大，请自行估算。",
     btnTxCosts: "交易成本",
     tipTxCosts:
       "买入：产权、托管、验房、评估（约为房价1–2%）。\n卖出：佣金（双方）、产权、转让税、保修（约为售价6–9%）。\n税率因地区而异，详见明细。",
@@ -447,6 +453,10 @@ const STRINGS = {
           "维护费：购入价的1%/年，按4%/年建筑成本通胀递增。跟踪人工和材料成本，而非房价涨幅。30年累计约增长3倍，50年约增长7倍。",
           "折旧（仅适用出租）：IRS 27.5年直线折旧，仅适用于建筑物（非土地）。建筑占比决定可折旧部分，可在上方调整。自住房产不适用。",
           `所得税：${getTaxNote(activeLocConfig, incomeTier, true)} 边际税率，适用于净租金收入（租金减去利息、房产税、保险、维护费及折旧）。可在上方选择税率档。当各项扣除超过租金时，产生「纸面亏损」——即使每月收租，报税仍显示亏损并可获退税。`,
+          `空置率：${(activeLocConfig.vacancyRate * 100).toFixed(0)}%的毛租金（美国人口普查ACS 2022–23年租赁空置调查，定期更新）。空置月份无租金收入，但固定成本（房贷、税、保险）持续支出。`,
+          `物业管理（若启用）：实收租金的${(activeLocConfig.mgmtFeeRate * 100).toFixed(0)}%用于专业管理（NARPM/AppFolio 2023行业均值）。可在IRS Schedule E中扣除。关闭此项则模拟自主管理。`,
+          "HOA/共管费：未建模。楼盘管理费每月$200–$2,000+，差异极大。共管公寓请将每月HOA费用自行加入现金流估算。",
+          "PMI（私人房贷保险）：未建模。传统贷款首付不足20%时通常需要缴纳，约为贷款余额的0.5–1.5%/年，LTV降至78%后自动取消。3.5%首付情景请自行估算。",
         ],
       },
       {
@@ -588,6 +598,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -633,6 +645,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -677,6 +691,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -717,6 +733,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -757,6 +775,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -797,6 +817,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -837,6 +859,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -877,6 +901,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -921,6 +947,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -965,6 +993,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1013,6 +1043,8 @@ const LOC_CONFIG = {
     taxNote: "35% (35% fed + 0% FL — no income tax)",
     taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.06,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -1057,6 +1089,8 @@ const LOC_CONFIG = {
     taxNote: "35% (35% fed + 0% TX — no income tax)",
     taxNoteZh: "35%（联邦35% + 德州0%，无州所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.08,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -1102,6 +1136,8 @@ const LOC_CONFIG = {
     taxNote: "35% (35% fed + 0% WA — no income tax)",
     taxNoteZh: "35%（联邦35% + 华州0%，无州所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -1151,6 +1187,8 @@ const LOC_CONFIG = {
     taxNote: "45.7% (35% fed + 10.9% NY)",
     taxNoteZh: "45.7%（联邦35% + 纽约州10.9%）",
     stateCapGainsRate: 0.109,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1196,6 +1234,8 @@ const LOC_CONFIG = {
     taxNote: "38% (35% fed + ~3% avg state)",
     taxNoteZh: "38%（联邦35% + 州均约3%）",
     stateCapGainsRate: 0.03,
+    vacancyRate: 0.07,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -1244,6 +1284,8 @@ const LOC_CONFIG = {
     taxNote: "35% (35% fed + 0% TX — no income tax)",
     taxNoteZh: "35%（联邦35% + 德州0%，无州所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.08,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -1292,6 +1334,8 @@ const LOC_CONFIG = {
     taxNote: "35% (35% fed + 0% FL — no income tax)",
     taxNoteZh: "35%（联邦35% + 佛州0%，无州所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.07,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -1337,6 +1381,8 @@ const LOC_CONFIG = {
     taxNote: "35% (35% fed + 0% WA — no income tax)",
     taxNoteZh: "35%（联邦35% + 华州0%，无州所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -1383,6 +1429,8 @@ const LOC_CONFIG = {
     taxNote: "45.7% (35% fed + 10.9% NY)",
     taxNoteZh: "45.7%（联邦35% + 纽约州10.9%）",
     stateCapGainsRate: 0.03,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1428,6 +1476,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1468,6 +1518,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1508,6 +1560,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1548,6 +1602,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1588,6 +1644,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1628,6 +1686,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1668,6 +1728,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1708,6 +1770,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1748,6 +1812,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1788,6 +1854,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1828,6 +1896,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1868,6 +1938,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1908,6 +1980,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1948,6 +2022,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -1988,6 +2064,8 @@ const LOC_CONFIG = {
     taxNote: "44% (35% fed + 9.3% CA)",
     taxNoteZh: "44%（联邦35% + 加州9.3%）",
     stateCapGainsRate: 0.133,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -2028,6 +2106,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.07,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -2068,6 +2148,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.07,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -2108,6 +2190,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.07,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -2148,6 +2232,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.08,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -2188,6 +2274,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no TX income tax)",
     taxNoteZh: "37%（联邦37%，德州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.08,
+    mgmtFeeRate: 0.1,
     sources: {
       homePrice: [
         {
@@ -2230,6 +2318,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.06,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2272,6 +2362,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.06,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2314,6 +2406,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.06,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2356,6 +2450,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.06,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2398,6 +2494,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no FL income tax)",
     taxNoteZh: "37%（联邦37%，佛州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.06,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2439,6 +2537,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -2481,6 +2581,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.04,
+    mgmtFeeRate: 0.08,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -2523,6 +2625,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -2565,6 +2669,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -2607,6 +2713,8 @@ const LOC_CONFIG = {
     taxNote: "37% (37% fed, no WA income tax)",
     taxNoteZh: "37%（联邦37%，华州无个人所得税）",
     stateCapGainsRate: 0,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     capGainsRateSPBonus: 0.07,
     sources: {
       homePrice: [
@@ -2650,6 +2758,8 @@ const LOC_CONFIG = {
     taxNote: "~50% (37% fed + 10.9% NY state + 3.876% NYC)",
     taxNoteZh: "约50%（联邦37% + 纽约州10.9% + 纽约市3.876%）",
     stateCapGainsRate: 0.148,
+    vacancyRate: 0.03,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -2692,6 +2802,8 @@ const LOC_CONFIG = {
     taxNote: "~50% (37% fed + 10.9% NY state + 3.876% NYC)",
     taxNoteZh: "约50%（联邦37% + 纽约州10.9% + 纽约市3.876%）",
     stateCapGainsRate: 0.148,
+    vacancyRate: 0.03,
+    mgmtFeeRate: 0.08,
     sources: {
       homePrice: [
         {
@@ -2734,6 +2846,8 @@ const LOC_CONFIG = {
     taxNote: "47% (37% fed + 10.75% NJ state)",
     taxNoteZh: "47%（联邦37% + 新泽西州10.75%）",
     stateCapGainsRate: 0.108,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2775,6 +2889,8 @@ const LOC_CONFIG = {
     taxNote: "49% (37% fed + 10.9% NY state + 1% local)",
     taxNoteZh: "49%（联邦37% + 纽约州10.9% + 地方税1%）",
     stateCapGainsRate: 0.119,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {
@@ -2816,6 +2932,8 @@ const LOC_CONFIG = {
     taxNote: "49% (37% fed + 10.9% NY state + 1% local)",
     taxNoteZh: "49%（联邦37% + 纽约州10.9% + 地方税1%）",
     stateCapGainsRate: 0.119,
+    vacancyRate: 0.05,
+    mgmtFeeRate: 0.09,
     sources: {
       homePrice: [
         {

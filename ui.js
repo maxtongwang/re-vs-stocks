@@ -60,6 +60,7 @@ let inclTaxBenefits = true,
   inclDepreciation = true,
   inclCosts = true,
   inclTxCosts = false;
+let inclMgmtFee = true;
 let inclCapGains = false,
   use1031 = true,
   primaryExclusion = "married";
@@ -336,6 +337,7 @@ function applyLang() {
   document.querySelector("#btn-refi-rate .tip-text").textContent =
     s.btnRefiBalance;
   document.getElementById("label-includes").textContent = s.labelIncludes;
+  document.getElementById("label-pm-fee").textContent = s.labelPmFee;
   document.getElementById("btn-incl-taxbenefit").textContent = s.btnTaxBenefits;
   document.getElementById("btn-incl-depreciation").textContent =
     s.btnDepreciation;
@@ -461,6 +463,19 @@ document.getElementById("btn-primary").addEventListener("click", () => {
     allWealth = buildAllWealth(startYear);
     draw(curMonth - 1);
   });
+});
+
+// ── PM fee toggle ────────────────────────────────────────────────────────
+document.getElementById("btn-incl-mgmt").addEventListener("click", () => {
+  inclMgmtFee = !inclMgmtFee;
+  document
+    .getElementById("btn-incl-mgmt")
+    .classList.toggle("active", inclMgmtFee);
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
 });
 
 // ── Cap Gains toggles ─────────────────────────────────────────────────────
@@ -598,6 +613,7 @@ function getShareParams() {
   if (!inclDepreciation) p.set("dep", "0");
   if (!inclCosts) p.set("cos", "0");
   if (!inclTxCosts) p.set("tx", "0");
+  if (!inclMgmtFee) p.set("pm", "0");
   if (inclCapGains) p.set("cg", "1");
   if (inclCapGains && !use1031) p.set("1031", "0");
   if (inclCapGains && primaryExclusion === "single") p.set("excl", "single");
@@ -668,6 +684,7 @@ function loadFromHash() {
   if (p.has("dep")) inclDepreciation = p.get("dep") !== "0";
   if (p.has("cos")) inclCosts = p.get("cos") !== "0";
   if (p.has("tx")) inclTxCosts = p.get("tx") !== "0";
+  if (p.has("pm")) inclMgmtFee = p.get("pm") !== "0";
   if (p.has("cg")) inclCapGains = p.get("cg") === "1";
   if (p.has("1031")) use1031 = p.get("1031") !== "0";
   if (p.has("excl") && p.get("excl") === "single") primaryExclusion = "single";
@@ -1024,9 +1041,20 @@ function renderDecomp(monthsToShow) {
                   : isZh
                     ? `典型市场回报率区间（${fmtYield(yLo)}–${fmtYield(yHi)}%）`
                     : `within typical market range (${fmtYield(yLo)}–${fmtYield(yHi)}%)`;
+            const vacPct = (
+              (activeLocConfig.vacancyRate ?? 0.05) * 100
+            ).toFixed(0);
+            const mgmtPct = (
+              (activeLocConfig.mgmtFeeRate ?? 0.09) * 100
+            ).toFixed(0);
+            const mgmtLine = inclMgmtFee
+              ? isZh
+                ? `<br>• ${mgmtPct}%物业管理费（占实收租金）`
+                : `<br>• ${mgmtPct}% mgmt fee on collected rent`
+              : "";
             return isZh
-              ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩`
-              : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time`;
+              ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 起始 ${fmt(initMonthlyRent)}/月（${W(yieldPct + "%回报率")}）| 均值 ${fmt(avgMonthlyRent)}/月<br>&nbsp;&nbsp;· 租金 ÷ 利息 = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | 租金 ÷ 成本 = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")}回报率 = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩<br>• ${vacPct}%空置率（人口普查ACS）——实收租金 = 毛租金×${100 - parseInt(vacPct)}%${mgmtLine}<br>• 租金管控未建模——若受租金管制，实际租金涨幅可能低于市场水平`
+              : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | start ${fmt(initMonthlyRent)}/mo (${W(yieldPct + "% yield")}) | avg ${fmt(avgMonthlyRent)}/mo<br>&nbsp;&nbsp;· rent ÷ interest = <strong style="color:${DC.hi}">${rentToIntPct}%</strong> | rent ÷ costs = <strong style="color:${DC.hi}">${rentToCostsPct}%</strong><br>• ${W(yieldPct + "%")} yield = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent growth → yield compresses over time<br>• ${vacPct}% vacancy (Census ACS) — collected rent = gross × ${100 - parseInt(vacPct)}%${mgmtLine}<br>• Rent control not modeled — if rent-stabilized, actual growth may be lower than market`;
           },
         });
       }
@@ -2206,6 +2234,8 @@ if (!inclCosts)
   document.getElementById("btn-incl-costs").classList.remove("active");
 if (!inclTxCosts)
   document.getElementById("btn-incl-tx-costs").classList.remove("active");
+if (!inclMgmtFee)
+  document.getElementById("btn-incl-mgmt").classList.remove("active");
 if (inclCapGains) {
   document.getElementById("btn-incl-cap-gains").classList.add("active");
   syncCapGainsSubBtn();
