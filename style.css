@@ -237,9 +237,6 @@ input[type="range"] {
 #row-ltv-pct {
   display: none;
 }
-#label-ltv-pct {
-  min-width: 92px;
-}
 .toggle-btn.active {
   border-color: var(--accent);
   color: var(--accent);
@@ -579,9 +576,19 @@ th:first-child {
   }
 }
 .tip {
-  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
 }
-.tip[data-tip]::before {
+.tip-icon {
+  position: relative;
+  font-size: 9px;
+  color: var(--text-mid);
+  opacity: 0.7;
+  cursor: help;
+  user-select: none;
+}
+.tip-icon[data-tip]::before {
   content: attr(data-tip);
   position: absolute;
   bottom: calc(100% + 6px);
@@ -603,24 +610,18 @@ th:first-child {
   transition: opacity 0.12s;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
-.tip[data-tip]:hover::before,
-.tip[data-tip].open::before {
+.tip-icon[data-tip]:hover::before,
+.tip-icon[data-tip].open::before {
   opacity: 1;
 }
-.tip-right[data-tip]::before {
+.tip-right .tip-icon[data-tip]::before {
   left: 0;
   transform: none;
 }
-.tip-left[data-tip]::before {
+.tip-left .tip-icon[data-tip]::before {
   left: auto;
   right: 0;
   transform: none;
-}
-.tip[data-tip]::after {
-  content: " ⓘ";
-  font-size: 9px;
-  color: var(--text-mid);
-  opacity: 0.7;
 }
 .leg-cagr {
   font-size: 10px;

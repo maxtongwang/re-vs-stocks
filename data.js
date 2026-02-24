@@ -103,7 +103,6 @@ const STRINGS = {
     labelImprov: "Improvement %",
     labelPropMode: "Prop:",
     labelRefi: "Refi:",
-    labelLTVPct: "LTV %:",
     tipBalLine:
       "Rate-and-term: keeps the same remaining balance, resets to a new 30-yr schedule at the lower rate.",
     tipLtvLine:
@@ -284,7 +283,6 @@ const STRINGS = {
     labelImprov: "建筑占比",
     labelPropMode: "类型：",
     labelRefi: "重贷：",
-    labelLTVPct: "LTV比例：",
     tipBalLine:
       "利率调整型：维持剩余贷款金额不变，以新低利率重新计算30年还款计划。",
     tipLtvLine: "贷款价值比：新贷款 ÷ 当前房产价值。银行不超此比例放贷。",

@@ -309,26 +309,37 @@ function applyLang() {
   document.getElementById("disclaimer").textContent = s.disclaimer;
   document.getElementById("label-start").textContent = s.labelStart;
   document.getElementById("label-end").textContent = s.labelEnd;
-  document.getElementById("label-cashflow").textContent = s.labelCashflow;
-  document.getElementById("label-improv").textContent = s.labelImprov;
+  document.querySelector("#label-cashflow .tip-text").textContent =
+    s.labelCashflow;
+  document.querySelector("#label-improv .tip-text").textContent = s.labelImprov;
   document.getElementById("label-propmode").textContent = s.labelPropMode;
   document.getElementById("label-refi").textContent = s.labelRefi;
-  document.getElementById("label-ltv-pct").textContent = s.labelLTVPct;
-  document.getElementById("btn-refi-ltv").dataset.tip = s.tipLtvLine;
-  document.getElementById("btn-refi-rate").dataset.tip = s.tipBalLine;
-  document.getElementById("label-improv").dataset.tip = s.tipImprov;
-  document.getElementById("label-cashflow").dataset.tip = s.tipCashflow;
+  document
+    .querySelector("#btn-refi-ltv .tip-icon")
+    .setAttribute("data-tip", s.tipLtvLine);
+  document
+    .querySelector("#btn-refi-rate .tip-icon")
+    .setAttribute("data-tip", s.tipBalLine);
+  document
+    .querySelector("#label-improv .tip-icon")
+    .setAttribute("data-tip", s.tipImprov);
+  document
+    .querySelector("#label-cashflow .tip-icon")
+    .setAttribute("data-tip", s.tipCashflow);
   document.getElementById("btn-additive").textContent = s.btnAdditive;
   document.getElementById("btn-reinvest").textContent = s.btnReinvest;
   document.getElementById("btn-rental").textContent = s.btnRental;
   document.getElementById("btn-primary").textContent = s.btnPrimary;
-  document.getElementById("btn-refi-rate").textContent = s.btnRefiBalance;
+  document.querySelector("#btn-refi-rate .tip-text").textContent =
+    s.btnRefiBalance;
   document.getElementById("label-includes").textContent = s.labelIncludes;
   document.getElementById("btn-incl-taxbenefit").textContent = s.btnTaxBenefits;
   document.getElementById("btn-incl-depreciation").textContent =
     s.btnDepreciation;
-  document.getElementById("btn-incl-costs").textContent = s.btnCosts;
-  document.getElementById("btn-incl-costs").dataset.tip = s.tipCosts;
+  document.querySelector("#btn-incl-costs .tip-text").textContent = s.btnCosts;
+  document
+    .querySelector("#btn-incl-costs .tip-icon")
+    .setAttribute("data-tip", s.tipCosts);
   const legLabels = isPrimary ? s.legendLabelsPrimary : s.legendLabels;
   document.querySelectorAll(".leg-text").forEach((el, i) => {
     el.innerHTML = legLabels[i];
@@ -1955,23 +1966,20 @@ applyLang();
 updateLabel(curMonth);
 draw(curMonth - 1);
 
-document.addEventListener(
-  "click",
-  (e) => {
-    const t = e.target.closest(".tip[data-tip]");
-    document.querySelectorAll(".tip.open").forEach((el) => {
-      if (el !== t) el.classList.remove("open");
-    });
-    if (t) {
-      if (!t.classList.contains("open")) {
-        // First tap: show tooltip, block button action
-        e.stopImmediatePropagation();
-        t.classList.add("open");
-      } else {
-        // Second tap: close tooltip, let button action through
-        t.classList.remove("open");
-      }
-    }
-  },
-  true, // capture phase — fires before button's own listeners
-);
+// Tooltip icon click: toggle tooltip, never fire parent button action
+document.querySelectorAll(".tip-icon").forEach((icon) => {
+  icon.addEventListener("click", (e) => {
+    e.stopPropagation(); // block event from reaching parent button
+    const isOpen = icon.classList.contains("open");
+    document
+      .querySelectorAll(".tip-icon.open")
+      .forEach((i) => i.classList.remove("open"));
+    if (!isOpen) icon.classList.add("open");
+  });
+});
+// Close any open tooltip when clicking outside
+document.addEventListener("click", () => {
+  document
+    .querySelectorAll(".tip-icon.open")
+    .forEach((i) => i.classList.remove("open"));
+});
