@@ -1314,11 +1314,11 @@ function renderDecomp(monthsToShow) {
   // Sum(positive bars) - sum(negative bars) = total bar width. ✓
   function buildTable(rows, headerLabel, headerColor) {
     if (!rows.length) return "";
-    const totalVal = Math.abs(rows.find((r) => r.total)?.val || 1) || 1;
+    const maxVal = Math.max(...rows.map((r) => Math.abs(r.val)), 1);
     let h = `<table class="decomp-table"><thead><tr><td colspan="3" class="decomp-table-head" style="color:${headerColor}">${headerLabel}</td></tr></thead><tbody>`;
     rows.forEach((row) => {
       const isNeg = row.val < 0;
-      const w = Math.min(150, Math.round((Math.abs(row.val) / totalVal) * 100));
+      const w = Math.round((Math.abs(row.val) / maxVal) * 100);
       const opacity = row.total ? 1 : row.base ? 0.8 : 0.7;
       const barPos = isNeg ? "left:auto;right:0" : "left:0";
       const bold = row.total ? ";font-weight:bold" : "";
