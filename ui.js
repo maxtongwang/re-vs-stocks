@@ -1923,9 +1923,10 @@ function populateCitySelect() {
   }
   wrap.style.display = "";
   div.style.display = "";
-  sel.innerHTML = metro.cities
-    .map((c) => `<option value="${c.key}">${c.label}</option>`)
-    .join("");
+  sel.innerHTML =
+    metro.cities
+      .map((c) => `<option value="${c.key}">${c.label}</option>`)
+      .join("") + `<option value="${metro.key}">County Wide</option>`;
 }
 
 populateMetroSelect();

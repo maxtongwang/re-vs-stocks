@@ -64,7 +64,7 @@ function updateSelectAbbr() {
   const cw = document.getElementById("city-wrap");
   if (cw && cw.style.display !== "none")
     document.getElementById("city-abbr").textContent =
-      SELECT_ABBR[locKey] || locKey;
+      locKey === metroKey ? "All" : SELECT_ABBR[locKey] || locKey;
 }
 
 function refreshDatasets() {
