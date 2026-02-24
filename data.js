@@ -1,11 +1,14 @@
+// ── Down payment config — change here to update ALL labels + simulation ────
+const RE_DOWN_PMTS = [0.6, 0.4, 0.25, 0.035]; // s2–s5; s1 = All Cash
+function dpLabel(p) {
+  return `${+(p * 100)}% Down`;
+}
+
 // ── Scenario metadata ──────────────────────────────────────────────────────
 const SCENARIOS = [
   { label: "S&P 500 (total)" },
   { label: "RE All Cash" },
-  { label: "RE 50% Down" },
-  { label: "RE 25% Down" },
-  { label: "RE 10% Down" },
-  { label: "RE 3.5% Down" },
+  ...RE_DOWN_PMTS.map((p) => ({ label: `RE ${dpLabel(p)}` })),
 ];
 
 // ── Market events (crashes + spikes) ─────────────────────────────────────
@@ -127,18 +130,12 @@ const STRINGS = {
     legendLabels: [
       "S&P 500 (total)",
       "RE All Cash",
-      "RE 50% Down",
-      "RE 25% Down",
-      "RE 10% Down",
-      "RE 3.5% Down",
+      ...RE_DOWN_PMTS.map((p) => `RE ${dpLabel(p)}`),
     ],
     legendLabelsPrimary: [
       "S&P 500 (total)",
       "Primary All Cash",
-      "Primary 50% Down",
-      "Primary 25% Down",
-      "Primary 10% Down",
-      "Primary 3.5% Down",
+      ...RE_DOWN_PMTS.map((p) => `Primary ${dpLabel(p)}`),
     ],
     thYear: "Year",
     assmDyn: "Assumptions (dynamic)",
@@ -309,18 +306,12 @@ const STRINGS = {
     legendLabels: [
       "S&P 500 (总回报)",
       "房产 全现金",
-      "房产 50%首付",
-      "房产 25%首付",
-      "房产 10%首付",
-      "房产 3.5%首付",
+      ...RE_DOWN_PMTS.map((p) => `房产 ${+(p * 100)}%首付`),
     ],
     legendLabelsPrimary: [
       "S&P 500 (总回报)",
       "自住 全现金",
-      "自住 50%首付",
-      "自住 25%首付",
-      "自住 10%首付",
-      "自住 3.5%首付",
+      ...RE_DOWN_PMTS.map((p) => `自住 ${+(p * 100)}%首付`),
     ],
     thYear: "年份",
     assmDyn: "动态假设",

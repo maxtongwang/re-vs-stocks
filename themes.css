@@ -100,9 +100,9 @@
   /* ── Scenario line / dot colors — VS Code palette ── */
   --color-s0: #4ec9b0; /* S&P 500 — teal */
   --color-s1: #6a9955; /* RE All Cash — green */
-  --color-s2: #b8d7a3; /* RE 50% Down — light green */
-  --color-s3: #dcdcaa; /* RE 25% Down — yellow */
-  --color-s4: #ce9178; /* RE 10% Down — orange */
+  --color-s2: #b8d7a3; /* RE 60% Down — light green */
+  --color-s3: #dcdcaa; /* RE 40% Down — yellow */
+  --color-s4: #ce9178; /* RE 25% Down — orange */
   --color-s5: #f44747; /* RE 3.5% Down — red */
 
   /* ── Dropdown arrow SVGs (can't use var() inside url()) ── */
@@ -201,9 +201,9 @@
   /* ── Scenario line / dot colors — readable on light bg ── */
   --color-s0: #1e6bc4; /* S&P 500 */
   --color-s1: #1a7a1a; /* RE All Cash */
-  --color-s2: #5a7a00; /* RE 50% Down */
-  --color-s3: #c07a00; /* RE 25% Down */
-  --color-s4: #c04400; /* RE 10% Down */
+  --color-s2: #5a7a00; /* RE 60% Down */
+  --color-s3: #c07a00; /* RE 40% Down */
+  --color-s4: #c04400; /* RE 25% Down */
   --color-s5: #bb2020; /* RE 3.5% Down */
 
   /* ── Dropdown arrow SVGs — light-theme colors ── */

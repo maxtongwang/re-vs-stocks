@@ -84,6 +84,11 @@ function fmt(v) {
 const tbody = document.getElementById("table-body");
 function buildTable() {
   const s = STRINGS[lang];
+  // Sync RE scenario column headers from RE_DOWN_PMTS
+  RE_DOWN_PMTS.forEach((p, i) => {
+    const th = document.getElementById(`th-s${i + 2}`);
+    if (th) th.textContent = `${+(p * 100)}%Dn`;
+  });
   tbody.innerHTML = "";
   const dur = endYear - startYear + 1;
   const crashYearSet = new Set(
@@ -1332,10 +1337,7 @@ function draw(monthsToShow) {
     document.getElementById("index-select")?.selectedOptions[0]?.text ||
       "S&P 500",
     "All Cash",
-    "50% Down",
-    "25% Down",
-    "10% Down",
-    "3.5% Down",
+    ...RE_DOWN_PMTS.map((p) => `${+(p * 100)}% Down`),
   ];
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
