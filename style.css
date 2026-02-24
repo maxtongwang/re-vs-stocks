@@ -218,6 +218,9 @@ input[type="range"] {
 #label-propmode {
   min-width: 74px;
 }
+#label-tax-bracket {
+  min-width: 74px;
+}
 #label-refi {
   min-width: 74px;
 }
