@@ -237,7 +237,7 @@ input[type="range"] {
 #row-ltv-pct {
   display: none;
 }
-#refi-type-group .toggle-btn {
+#sg-refi .toggle-btn {
   flex: 1;
   justify-content: center;
 }
