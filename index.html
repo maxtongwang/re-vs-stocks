@@ -5415,11 +5415,10 @@
         const chartW = W - PL - PR,
           chartH = H - PT - PB;
 
-        // Y range (log scale) — restored to original working version.
-        // yMax: full revealed range 0..fullM for stable ceiling.
-        // yMin: lowest value > 1000 in 0..fullM for tight floor.
-        // fullM = Math.floor(monthsToShow), so scan is identical for all
-        // sub-month frames within the same integer month — no per-frame jitter.
+        // Y range (log scale) — expand-only with smooth lerp.
+        // Scan visible months for targets; lerp toward them but never contract.
+        // lerpYLo/lerpYHi initialized in rebuild() from full dataset so lines
+        // start near the bottom and grow upward naturally.
         let yMin = Infinity,
           yMax = 200000;
         for (let i = 0; i < allWealth.length; i++) {
@@ -5427,23 +5426,26 @@
           const w = allWealth[i];
           for (let m = 0; m <= fullM && m < w.length; m++) {
             if (w[m] > yMax) yMax = w[m];
-          }
-          for (let m = 0; m <= fullM && m < w.length; m++) {
             if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
           }
         }
         if (!isFinite(yMin)) yMin = 50000;
-        // Quantize to 1-2-5 × 10^n (standard financial scale).
-        // Axis only moves when values cross a ~40-50% threshold — eliminates
-        // the per-month jitter from fine-grained 2-sig-fig rounding.
         const _loRaw = yMin * 0.85;
-        const _loP = Math.pow(10, Math.floor(Math.log10(_loRaw)));
-        const _loR = _loRaw / _loP;
-        const yLo = Math.max(1000, (_loR >= 5 ? 5 : _loR >= 2 ? 2 : 1) * _loP);
-        const _hiRaw = yMax * 1.1;
-        const _hiP = Math.pow(10, Math.floor(Math.log10(_hiRaw)));
-        const _hiR = _hiRaw / _hiP;
-        const yHi = (_hiR > 5 ? 10 : _hiR > 2 ? 5 : _hiR > 1 ? 2 : 1) * _hiP;
+        const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
+        const tgtLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
+        const tgtHi = yMax * 1.1;
+        // Smooth expand-only lerp — no snap, no reset between plays
+        const _s = 0.06;
+        if (tgtHi > lerpYHi)
+          lerpYHi = Math.exp(
+            Math.log(lerpYHi) + (Math.log(tgtHi) - Math.log(lerpYHi)) * _s,
+          );
+        if (tgtLo < lerpYLo)
+          lerpYLo = Math.exp(
+            Math.log(lerpYLo) + (Math.log(tgtLo) - Math.log(lerpYLo)) * _s,
+          );
+        const yLo = lerpYLo;
+        const yHi = lerpYHi;
         const tx = (m) => PL + (m / Math.max(totalMonths - 1, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
         const ty = (v) =>
@@ -5732,6 +5734,10 @@
         yearLabel.textContent = `${yr}/${mo.toString().padStart(2, "0")}${est}`;
       }
 
+      // ── Y-axis lerp state (expand-only, reset in rebuild) ────────────────────
+      let lerpYLo = 50000,
+        lerpYHi = 10000000;
+
       // ── Play state machine ────────────────────────────────────────────────────
       // States: STOPPED | PLAYING
       let playing = false,
@@ -5817,6 +5823,17 @@
         curMonth = Math.min(projStartM + 1, totalMonths);
         sliderEl.max = totalMonths;
         sliderEl.value = curMonth;
+        // Reset lerp bounds from full dataset — wide ceiling so lines start near bottom
+        let _rMax = 200000,
+          _rMin = Infinity;
+        for (const w of allWealth)
+          for (const v of w) {
+            if (v > _rMax) _rMax = v;
+            if (v > 1000 && v < _rMin) _rMin = v;
+          }
+        if (!isFinite(_rMin)) _rMin = 50000;
+        lerpYHi = _rMax * 1.1;
+        lerpYLo = Math.max(1000, _rMin * 0.85);
         updateAssumptions();
         updateLabel(curMonth);
         buildTable();
