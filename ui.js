@@ -2189,6 +2189,14 @@ window.addEventListener("resize", () => {
     draw(curMonth - 1);
   }, 80);
 });
+// Safari fires orientationchange before viewport dimensions update;
+// wait 300ms for the new geometry to settle, then force a redraw.
+window.addEventListener("orientationchange", () => {
+  setTimeout(() => {
+    resizeCanvas();
+    draw(curMonth - 1);
+  }, 300);
+});
 
 // ── Init ──────────────────────────────────────────────────────────────────
 loadFromHash();

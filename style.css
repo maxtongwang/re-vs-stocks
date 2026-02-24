@@ -1,7 +1,9 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
-  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden; /* clip stray overflow without breaking Safari viewport recalc */
 }
 * {
   box-sizing: border-box;
