@@ -5755,11 +5755,11 @@
 
       function startPlay() {
         if (playing) return; // guard: no double RAF
-        if (curMonth >= totalMonths) {
-          curMonth = 1; // restart from beginning if at end
-          animYLo = null; // force snap on first frame — stale Jan-2026 scale is wrong for month 1
-          animYHi = null;
-        }
+        if (curMonth >= totalMonths) curMonth = 1; // restart from beginning if at end
+        // Always snap y-scale on play start — static render may hold stale Jan-2026 values
+        // which would place month-1 lines at the chart floor during the lerp warm-up.
+        animYLo = null;
+        animYHi = null;
         sliderEl.value = Math.round(curMonth);
         playing = true;
         lastTs = null;
