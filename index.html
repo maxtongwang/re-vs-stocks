@@ -179,8 +179,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260223f" />
-    <link rel="stylesheet" href="style.css?v=20260223f" />
+    <link rel="stylesheet" href="themes.css?v=20260223e" />
+    <link rel="stylesheet" href="style.css?v=20260223e" />
   </head>
   <body>
     <noscript>
@@ -440,21 +440,20 @@
       </div>
 
       <!-- Cash flow -->
-      <div
-        id="sg-cf"
-        style="display: flex; align-items: center; gap: 8px; height: 24px"
-      >
-        <span id="label-cashflow">Cash flow:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-additive">Additive</button>
-          <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
+      <div id="sg-cf" style="display: flex; flex-direction: column; gap: 3px">
+        <div style="display: flex; align-items: center; gap: 8px; height: 24px">
+          <span id="label-cashflow">Cash flow:</span>
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-additive">
+              Additive
+            </button>
+            <button class="toggle-btn" id="btn-reinvest">Reinvested</button>
+          </div>
         </div>
-        <span
-          class="tip tip-right"
-          data-tip="Additive: dividends &amp; rent collected as cash, not compounded. Reinvested: income compounds back into the portfolio."
-          id="cf-tip"
-          >?</span
-        >
+        <div id="mode-desc">
+          · Additive: dividends &amp; rent collected as cash, not compounded<br />
+          · Reinvested: income compounds back into the portfolio
+        </div>
       </div>
     </div>
     <div id="assumptions-line"></div>
@@ -841,8 +840,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260223f" defer></script>
-    <script src="sim.js?v=20260223f" defer></script>
-    <script src="ui.js?v=20260223f" defer></script>
+    <script src="data.js?v=20260223e" defer></script>
+    <script src="sim.js?v=20260223e" defer></script>
+    <script src="ui.js?v=20260223e" defer></script>
   </body>
 </html>

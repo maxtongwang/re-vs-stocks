@@ -557,11 +557,12 @@ th:first-child {
 #primary-note strong {
   color: var(--primary-note-strong);
 }
-#cf-tip {
+#mode-desc {
   font-size: 10px;
-  color: var(--text-mid);
-  cursor: default;
-  line-height: 1;
+  color: var(--text-dim);
+  text-align: left;
+  margin: 0;
+  line-height: 1.7;
 }
 /* Portrait: 1 column. Landscape or wide desktop: 2 columns. */
 #settings-grid {
