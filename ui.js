@@ -402,6 +402,11 @@ function applyLang() {
   const overlayIcon = document.querySelector("#overlay-legend-row .tip-icon");
   if (overlayIcon)
     overlayIcon.setAttribute("data-tip", STRINGS[lang].tipPriceOverlay || "");
+  const overlayLegLabel = document.getElementById("overlay-legend-label");
+  if (overlayLegLabel) {
+    const locAbbr = SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase();
+    overlayLegLabel.textContent = `S\u0026P 500 vs ${locAbbr}`;
+  }
 }
 
 // ── Reinvest toggle ───────────────────────────────────────────────────────
@@ -1637,8 +1642,8 @@ function handleCanvasPointer(clientX, clientY) {
       },
       {
         v: indexReWealth[m],
-        color: "#d4950a",
-        label: "VNQ",
+        color: "#c07840",
+        label: SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase(),
       },
     ];
     for (const { v, color, label } of overlayItems) {
@@ -2092,8 +2097,8 @@ function draw(monthsToShow) {
       },
       {
         w: indexReWealth,
-        color: "#d4950a",
-        label: "VNQ",
+        color: "#c07840",
+        label: SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase(),
       },
     ];
     const hm = Math.min(fullM, totalMonths - 1);

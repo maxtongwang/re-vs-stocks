@@ -806,3 +806,7 @@ th:first-child {
 #overlay-legend-row.active:hover {
   opacity: 0.85;
 }
+#overlay-legend-row:not(.active) .leg-dot {
+  background: var(--border) !important;
+  transition: background 0.15s;
+}
