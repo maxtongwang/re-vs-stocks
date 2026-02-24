@@ -1955,10 +1955,23 @@ applyLang();
 updateLabel(curMonth);
 draw(curMonth - 1);
 
-document.addEventListener("click", (e) => {
-  const t = e.target.closest(".tip");
-  document.querySelectorAll(".tip.open").forEach((el) => {
-    if (el !== t) el.classList.remove("open");
-  });
-  if (t) t.classList.toggle("open");
-});
+document.addEventListener(
+  "click",
+  (e) => {
+    const t = e.target.closest(".tip[data-tip]");
+    document.querySelectorAll(".tip.open").forEach((el) => {
+      if (el !== t) el.classList.remove("open");
+    });
+    if (t) {
+      if (!t.classList.contains("open")) {
+        // First tap: show tooltip, block button action
+        e.stopImmediatePropagation();
+        t.classList.add("open");
+      } else {
+        // Second tap: close tooltip, let button action through
+        t.classList.remove("open");
+      }
+    }
+  },
+  true, // capture phase — fires before button's own listeners
+);
