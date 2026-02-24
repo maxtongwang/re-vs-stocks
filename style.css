@@ -245,6 +245,18 @@ input[type="range"] {
   border-color: var(--accent);
   color: var(--accent);
 }
+.settings-divider {
+  border: none;
+  border-top: 1px solid var(--border-dim);
+  margin: 8px 0 8px;
+}
+.assm-title {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--text-sub);
+  text-align: center;
+  margin-bottom: 4px;
+}
 #assumptions-line {
   font-size: 10px;
   line-height: 14px; /* 2 lines × 14px = 28px */

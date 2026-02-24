@@ -254,22 +254,6 @@ function updateAssumptions() {
     actualRefis,
   );
 
-  document.getElementById("note-dynamic-line").innerHTML = s.dynamicLine(
-    startYear,
-    endYear,
-    yrs,
-    mr,
-    ry,
-    p2r,
-    ip,
-    modeLabel,
-    isPrimary,
-    numRefis,
-    refis,
-    refiLTV,
-    actualRefis,
-  );
-
   document.getElementById("fixed-assumptions").innerHTML = s
     .fixedGroups(refiLTVPct)
     .flatMap((g) => [
