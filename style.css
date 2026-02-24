@@ -138,15 +138,17 @@ body {
 /* ── Icon buttons (theme toggle, share) ─────────────────────────────── */
 .icon-btn {
   background: none;
-  border: none;
-  border-bottom: 1px solid var(--border);
+  border: 1px solid var(--border);
   color: var(--text-sub);
   font-family: monospace;
   font-size: 13px;
-  padding: 0 0 1px 6px;
+  padding: 0;
+  width: 22px;
+  height: 22px;
   cursor: pointer;
-  line-height: 17px;
-  vertical-align: baseline;
+  line-height: 22px;
+  text-align: center;
+  vertical-align: middle;
 }
 /* ── Improvement % select ───────────────────────────────────────────── */
 #improv-slider {
