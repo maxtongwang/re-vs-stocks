@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224ar" />
-    <link rel="stylesheet" href="style.css?v=20260224ar" />
+    <link rel="stylesheet" href="themes.css?v=20260224as" />
+    <link rel="stylesheet" href="style.css?v=20260224as" />
   </head>
   <body>
     <noscript>
@@ -455,71 +455,98 @@
         </div>
       </div>
 
-      <!-- Includes -->
-      <div id="sg-incl" style="display: flex; align-items: center; gap: 8px">
-        <span id="label-includes">Includes:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-incl-taxbenefit">
-            Tax benefits
-          </button>
-          <button class="toggle-btn active" id="btn-incl-depreciation">
-            Depreciation
-          </button>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 3px;
-            "
-          >
+      <!-- Includes (2 rows) -->
+      <div
+        id="sg-incl"
+        style="display: flex; align-items: flex-start; gap: 8px"
+      >
+        <span id="label-includes" style="padding-top: 3px">Includes:</span>
+        <div style="display: flex; flex-direction: column; gap: 4px">
+          <!-- Row 1: core cost toggles -->
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-incl-taxbenefit">
+              Tax benefits
+            </button>
+            <button class="toggle-btn active" id="btn-incl-depreciation">
+              Depreciation
+            </button>
             <button class="toggle-btn tip tip-left active" id="btn-incl-costs">
               <span class="tip-text">Op. Costs</span
               ><span class="tip-icon">ⓘ</span>
             </button>
-          </div>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              gap: 3px;
-            "
-          >
             <button class="toggle-btn tip tip-left" id="btn-incl-tx-costs">
               <span class="tip-text">Tx Costs</span
               ><span class="tip-icon">ⓘ</span>
             </button>
+            <button class="toggle-btn active" id="btn-incl-mgmt">PM fee</button>
           </div>
-          <button class="toggle-btn active" id="btn-incl-mgmt">PM fee</button>
-          <div
-            style="
-              display: flex;
-              flex-direction: column;
-              align-items: flex-start;
-              gap: 3px;
-            "
-          >
-            <button class="toggle-btn tip tip-left" id="btn-incl-cap-gains">
-              <span class="tip-text">Cap Gains</span
-              ><span class="tip-icon">ⓘ</span>
-            </button>
-            <div
-              id="capgains-sub"
-              style="display: none; flex-direction: column; gap: 3px"
+          <!-- Row 2: HOA + cap gains -->
+          <div class="toggle-group">
+            <button class="toggle-btn" id="btn-incl-hoa">HOA</button>
+            <select
+              id="hoa-amount-select"
+              style="
+                display: none;
+                font-size: 10px;
+                font-family: monospace;
+                border: 1px solid var(--border);
+                background: var(--bg);
+                color: var(--text-mid);
+                padding: 1px 3px;
+                border-radius: 3px;
+                cursor: pointer;
+              "
             >
-              <button class="toggle-btn active tip tip-left" id="btn-1031">
-                <span class="tip-text">1031 On</span
+              <option value="100">$100/mo</option>
+              <option value="200">$200/mo</option>
+              <option value="300" selected>$300/mo</option>
+              <option value="400">$400/mo</option>
+              <option value="500">$500/mo</option>
+              <option value="600">$600/mo</option>
+              <option value="700">$700/mo</option>
+              <option value="800">$800/mo</option>
+              <option value="900">$900/mo</option>
+              <option value="1000">$1,000/mo</option>
+              <option value="1100">$1,100/mo</option>
+              <option value="1200">$1,200/mo</option>
+              <option value="1300">$1,300/mo</option>
+              <option value="1400">$1,400/mo</option>
+              <option value="1500">$1,500/mo</option>
+              <option value="1600">$1,600/mo</option>
+              <option value="1700">$1,700/mo</option>
+              <option value="1800">$1,800/mo</option>
+              <option value="1900">$1,900/mo</option>
+              <option value="2000">$2,000/mo</option>
+            </select>
+            <div
+              style="
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 3px;
+              "
+            >
+              <button class="toggle-btn tip tip-left" id="btn-incl-cap-gains">
+                <span class="tip-text">Cap Gains</span
                 ><span class="tip-icon">ⓘ</span>
               </button>
-              <button
-                class="toggle-btn active tip tip-left"
-                id="btn-excl"
-                style="display: none"
+              <div
+                id="capgains-sub"
+                style="display: none; flex-direction: column; gap: 3px"
               >
-                <span class="tip-text">Married $500K</span
-                ><span class="tip-icon">ⓘ</span>
-              </button>
+                <button class="toggle-btn active tip tip-left" id="btn-1031">
+                  <span class="tip-text">1031 On</span
+                  ><span class="tip-icon">ⓘ</span>
+                </button>
+                <button
+                  class="toggle-btn active tip tip-left"
+                  id="btn-excl"
+                  style="display: none"
+                >
+                  <span class="tip-text">Married $500K</span
+                  ><span class="tip-icon">ⓘ</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -929,8 +956,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224ar" defer></script>
-    <script src="sim.js?v=20260224ar" defer></script>
-    <script src="ui.js?v=20260224ar" defer></script>
+    <script src="data.js?v=20260224as" defer></script>
+    <script src="sim.js?v=20260224as" defer></script>
+    <script src="ui.js?v=20260224as" defer></script>
   </body>
 </html>

@@ -130,8 +130,9 @@ const STRINGS = {
     btnDepreciation: "Depreciation",
     btnCosts: "Op. Costs",
     btnPmFee: "PM fee",
+    btnHoa: "HOA",
     tipCosts:
-      "Property tax (location-specific rate).\nInsurance: 0.5%/yr of purchase price, +4%/yr construction cost inflation.\nMaintenance: 1%/yr of purchase price, +4%/yr construction cost inflation.\nVacancy: location-specific (Census ACS). Reduces gross rent collected.\nMgmt fee: % of collected rent for professional management (optional toggle).\nHOA/condo fees: excluded — vary too widely by building. Factor in manually.",
+      "Property tax (location-specific rate).\nInsurance: 0.5%/yr of purchase price, +4%/yr construction cost inflation.\nMaintenance: 1%/yr of purchase price, +4%/yr construction cost inflation.\nVacancy: location-specific (Census ACS). Reduces gross rent collected.\nMgmt fee: % of collected rent for professional management (optional toggle).\nHOA/condo fees: optional — toggle on and select $100–$2,000/mo. Deductible for rental (Schedule E); non-deductible for primary.",
     btnTxCosts: "Tx Costs",
     tipTxCosts:
       "Buy: title, escrow, inspection, appraisal (1–2% of purchase).\nSell: commission (both sides), title, transfer taxes, warranty (6–9% of sale).\nRates vary by location — hover the breakdown for details.",
@@ -271,7 +272,7 @@ const STRINGS = {
           `Income tax: ${getTaxNote(activeLocConfig, incomeTier, false)} marginal rate applied to net rental income (rent minus mortgage interest, property tax, insurance, maintenance, and depreciation). Select your bracket above. When deductions exceed rent, the result is a paper loss — you collect rent but show a taxable loss and may receive a refund.`,
           `Vacancy: ${(activeLocConfig.vacancyRate * 100).toFixed(0)}% of gross rent (Census ACS 2022–23 rental vacancy survey, updated periodically). An unoccupied month earns no rent; fixed costs (mortgage, tax, insurance) continue.`,
           `Property management (if enabled): ${(activeLocConfig.mgmtFeeRate * 100).toFixed(0)}% of collected rent for professional management (NARPM/AppFolio 2023 industry avg). Deductible on IRS Schedule E. Disable to model self-management.`,
-          "HOA / condo fees: not modeled. Building dues range $200–$2,000+/mo and are property-specific. For condos, add the monthly HOA to your own cash-flow estimate.",
+          "HOA / condo fees: optional toggle (row 2 of Includes). Select $100–$2,000/mo in $100 steps; default $300/mo. Deductible operating expense for rentals (IRS Schedule E); non-deductible for primary residences. Building dues vary widely — use this to model your specific property.",
           "PMI (private mortgage insurance): not modeled. Required for conventional loans under 20% down — typically 0.5–1.5%/yr of the loan balance, cancels at 78% LTV. Factor in manually for the 3.5% down scenario.",
         ],
       },
@@ -334,8 +335,9 @@ const STRINGS = {
     btnDepreciation: "折旧",
     btnCosts: "运营成本",
     btnPmFee: "物管费",
+    btnHoa: "HOA",
     tipCosts:
-      "房产税（税率因地区而异）。\n保险：购入价0.5%/年，+4%/年建筑成本通胀。\n维护费：购入价1%/年，+4%/年建筑成本通胀。\n空置率：按地区（美国人口普查ACS）。降低实际收租金额。\n物业管理费：占实收租金百分比，适用专业管理（可关闭开关）。\nHOA/共管费：未计入——各楼盘差异过大，请自行估算。",
+      "房产税（税率因地区而异）。\n保险：购入价0.5%/年，+4%/年建筑成本通胀。\n维护费：购入价1%/年，+4%/年建筑成本通胀。\n空置率：按地区（美国人口普查ACS）。降低实际收租金额。\n物业管理费：占实收租金百分比，适用专业管理（可关闭开关）。\nHOA/共管费：可选——开启后选择$100–$2,000/月。出租可在IRS Schedule E中扣除；自住不可抵税。",
     btnTxCosts: "交易成本",
     tipTxCosts:
       "买入：产权、托管、验房、评估（约为房价1–2%）。\n卖出：佣金（双方）、产权、转让税、保修（约为售价6–9%）。\n税率因地区而异，详见明细。",
@@ -475,7 +477,7 @@ const STRINGS = {
           `所得税：${getTaxNote(activeLocConfig, incomeTier, true)} 边际税率，适用于净租金收入（租金减去利息、房产税、保险、维护费及折旧）。可在上方选择税率档。当各项扣除超过租金时，产生「纸面亏损」——即使每月收租，报税仍显示亏损并可获退税。`,
           `空置率：${(activeLocConfig.vacancyRate * 100).toFixed(0)}%的毛租金（美国人口普查ACS 2022–23年租赁空置调查，定期更新）。空置月份无租金收入，但固定成本（房贷、税、保险）持续支出。`,
           `物业管理（若启用）：实收租金的${(activeLocConfig.mgmtFeeRate * 100).toFixed(0)}%用于专业管理（NARPM/AppFolio 2023行业均值）。可在IRS Schedule E中扣除。关闭此项则模拟自主管理。`,
-          "HOA/共管费：未建模。楼盘管理费每月$200–$2,000+，差异极大。共管公寓请将每月HOA费用自行加入现金流估算。",
+          "HOA/共管费：可选（在「计入」第2行开启）。选择每月$100–$2,000，步长$100，默认$300/月。出租房可在IRS Schedule E中扣除；自住房不可抵税。各楼盘费用差异较大，按实际情况输入。",
           "PMI（私人房贷保险）：未建模。传统贷款首付不足20%时通常需要缴纳，约为贷款余额的0.5–1.5%/年，LTV降至78%后自动取消。3.5%首付情景请自行估算。",
         ],
       },

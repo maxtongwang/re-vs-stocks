@@ -61,6 +61,8 @@ let inclTaxBenefits = true,
   inclCosts = true,
   inclTxCosts = false;
 let inclMgmtFee = true;
+let inclHoa = false,
+  hoaMonthly = 300;
 let inclCapGains = false,
   use1031 = true,
   primaryExclusion = "married";
@@ -339,6 +341,7 @@ function applyLang() {
   document.getElementById("label-includes").textContent = s.labelIncludes;
   document.getElementById("btn-incl-taxbenefit").textContent = s.btnTaxBenefits;
   document.getElementById("btn-incl-mgmt").textContent = s.btnPmFee;
+  document.getElementById("btn-incl-hoa").textContent = s.btnHoa;
   document.getElementById("btn-incl-depreciation").textContent =
     s.btnDepreciation;
   document.querySelector("#btn-incl-costs .tip-text").textContent = s.btnCosts;
@@ -471,6 +474,28 @@ document.getElementById("btn-incl-mgmt").addEventListener("click", () => {
   document
     .getElementById("btn-incl-mgmt")
     .classList.toggle("active", inclMgmtFee);
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+});
+
+// ── HOA toggle + amount ───────────────────────────────────────────────────
+document.getElementById("btn-incl-hoa").addEventListener("click", () => {
+  inclHoa = !inclHoa;
+  document.getElementById("btn-incl-hoa").classList.toggle("active", inclHoa);
+  document.getElementById("hoa-amount-select").style.display = inclHoa
+    ? ""
+    : "none";
+  allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+});
+document.getElementById("hoa-amount-select").addEventListener("change", (e) => {
+  hoaMonthly = parseInt(e.target.value);
   allWealth = buildAllWealth(startYear);
   updateAssumptions();
   buildTable();
@@ -614,6 +639,7 @@ function getShareParams() {
   if (!inclCosts) p.set("cos", "0");
   if (!inclTxCosts) p.set("tx", "0");
   if (!inclMgmtFee) p.set("pm", "0");
+  if (inclHoa) p.set("hoa", hoaMonthly);
   if (inclCapGains) p.set("cg", "1");
   if (inclCapGains && !use1031) p.set("1031", "0");
   if (inclCapGains && primaryExclusion === "single") p.set("excl", "single");
@@ -685,6 +711,13 @@ function loadFromHash() {
   if (p.has("cos")) inclCosts = p.get("cos") !== "0";
   if (p.has("tx")) inclTxCosts = p.get("tx") !== "0";
   if (p.has("pm")) inclMgmtFee = p.get("pm") !== "0";
+  if (p.has("hoa")) {
+    const v = parseInt(p.get("hoa"));
+    if (v >= 100 && v <= 2000 && v % 100 === 0) {
+      inclHoa = true;
+      hoaMonthly = v;
+    }
+  }
   if (p.has("cg")) inclCapGains = p.get("cg") === "1";
   if (p.has("1031")) use1031 = p.get("1031") !== "0";
   if (p.has("excl") && p.get("excl") === "single") primaryExclusion = "single";
@@ -2239,6 +2272,12 @@ if (!inclTxCosts)
   document.getElementById("btn-incl-tx-costs").classList.remove("active");
 if (!inclMgmtFee)
   document.getElementById("btn-incl-mgmt").classList.remove("active");
+if (inclHoa) {
+  document.getElementById("btn-incl-hoa").classList.add("active");
+  const sel = document.getElementById("hoa-amount-select");
+  sel.value = hoaMonthly;
+  sel.style.display = "";
+}
 if (inclCapGains) {
   document.getElementById("btn-incl-cap-gains").classList.add("active");
   syncCapGainsSubBtn();

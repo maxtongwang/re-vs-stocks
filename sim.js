@@ -516,6 +516,8 @@ function simRE(
       !isPrimary && inclCosts && inclMgmtFee
         ? r * (locCfg.mgmtFeeRate ?? 0.09)
         : 0;
+    // HOA: deductible for rental (Schedule E), pure cost for primary
+    const hoa = inclHoa ? hoaMonthly : 0;
     let int = 0,
       prin = 0;
     const si = m - schedOffset;
@@ -525,7 +527,7 @@ function simRE(
       prin = prevBal - sched[si].balance;
       rem = sched[si].balance;
     }
-    const gross = r - mgmt - (int + prin) - t - ins - mai;
+    const gross = r - mgmt - (int + prin) - t - ins - mai - hoa;
     // Rental: full income/expense taxable calc (rent income offset by expenses + depreciation).
     // Primary: standard deduction assumed — no incremental tax benefit; taxBenefit = 0.
     // Rental tax benefits ON:  taxable = rent - interest - costs - depreciation
@@ -533,15 +535,15 @@ function simRE(
     const taxBenefit = isPrimary
       ? 0
       : !inclTaxBenefits
-        ? -(r - mgmt - t - ins - mai) * locCfg.taxRate // remove interest + dep; costs still deductible
-        : -(r - mgmt - int - t - ins - mai - (m < 330 ? dep : 0)) *
+        ? -(r - mgmt - hoa - t - ins - mai) * locCfg.taxRate // remove interest + dep; costs still deductible
+        : -(r - mgmt - hoa - int - t - ins - mai - (m < 330 ? dep : 0)) *
           locCfg.taxRate;
     const netCF = gross + taxBenefit;
 
     // Decomp: accumulate components (additive basis regardless of reinvest)
     cumRentD += r;
     cumIntD += int;
-    cumCostsD += t + ins + mai + mgmt;
+    cumCostsD += t + ins + mai + mgmt + hoa;
     cumTaxD += taxBenefit;
     periodIntD += int;
     if (!isPrimary && inclDepreciation && m < 330) cumulativeDeprec += dep;
