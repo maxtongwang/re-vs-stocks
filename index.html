@@ -5433,11 +5433,17 @@
           }
         }
         if (!isFinite(yMin)) yMin = 50000;
-        // Floor: 2-sig-fig round-down of yMin*0.85 — keeps lines near bottom
+        // Quantize to 1-2-5 × 10^n (standard financial scale).
+        // Axis only moves when values cross a ~40-50% threshold — eliminates
+        // the per-month jitter from fine-grained 2-sig-fig rounding.
         const _loRaw = yMin * 0.85;
-        const _mag = Math.pow(10, Math.floor(Math.log10(_loRaw)) - 1);
-        const yLo = Math.max(1000, Math.floor(_loRaw / _mag) * _mag);
-        const yHi = yMax * 1.1;
+        const _loP = Math.pow(10, Math.floor(Math.log10(_loRaw)));
+        const _loR = _loRaw / _loP;
+        const yLo = Math.max(1000, (_loR >= 5 ? 5 : _loR >= 2 ? 2 : 1) * _loP);
+        const _hiRaw = yMax * 1.1;
+        const _hiP = Math.pow(10, Math.floor(Math.log10(_hiRaw)));
+        const _hiR = _hiRaw / _hiP;
+        const yHi = (_hiR > 5 ? 10 : _hiR > 2 ? 5 : _hiR > 1 ? 2 : 1) * _hiP;
         const tx = (m) => PL + (m / Math.max(totalMonths - 1, 1)) * chartW;
         const logRange = Math.log(yHi) - Math.log(yLo);
         const ty = (v) =>
