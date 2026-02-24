@@ -604,16 +604,11 @@ th:first-child {
     order: 4;
   }
 }
-/* ── Landscape (all screens): cap chart height so content below stays visible ── */
-@media (orientation: landscape) {
-  #chart-wrap {
-    max-height: 50vh;
-  }
-}
+/* ── Landscape chart height: managed by JS updateChartMaxHeight() (accounts for body zoom) ── */
 /* ── Landscape mobile: tighter cap + compressed hero ── */
 @media (orientation: landscape) and (max-height: 500px) {
   #chart-wrap {
-    max-height: 44vh;
+    max-height: 44vh; /* fallback only — JS overrides with zoom-corrected value */
   }
   .hero {
     margin-bottom: 6px;
@@ -800,4 +795,14 @@ th:first-child {
   color: var(--text-dim);
   margin-top: 4px;
   padding-left: 8px;
+}
+/* ── Overlay legend row (above chart) ── */
+#overlay-legend-row.active {
+  opacity: 1;
+}
+#overlay-legend-row:hover {
+  opacity: 0.7;
+}
+#overlay-legend-row.active:hover {
+  opacity: 0.85;
 }

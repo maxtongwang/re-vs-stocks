@@ -399,7 +399,9 @@ function applyLang() {
   buildSourcesList();
   buildTable();
   syncTableCols();
-  syncOverlayBtnLabel();
+  const overlayIcon = document.querySelector("#overlay-legend-row .tip-icon");
+  if (overlayIcon)
+    overlayIcon.setAttribute("data-tip", STRINGS[lang].tipPriceOverlay || "");
 }
 
 // ── Reinvest toggle ───────────────────────────────────────────────────────
@@ -448,27 +450,12 @@ document.getElementById("btn-additive").addEventListener("click", () => {
   });
 });
 
-// ── Price-only overlay toggle ─────────────────────────────────────────────
-function syncOverlayBtnLabel() {
-  const abbr = { sp500: "S&P", nasdaq: "NQ", sixty40: "60/40" };
-  const idxKey = document.getElementById("index-select").value;
-  const short = abbr[idxKey] || "S&P";
-  const s = STRINGS[lang];
-  const textEl = document.querySelector("#btn-show-overlay .tip-text");
-  const iconEl = document.querySelector("#btn-show-overlay .tip-icon");
-  if (textEl)
-    textEl.textContent = showIndexOverlay
-      ? `${short} vs FHFA`
-      : s.btnPriceOnly || "Price Only";
-  if (iconEl) iconEl.setAttribute("data-tip", s.tipPriceOverlay || "");
-}
-
-document.getElementById("btn-show-overlay").addEventListener("click", () => {
+// ── S&P 500 price vs VNQ overlay toggle ──────────────────────────────────
+document.getElementById("overlay-legend-row").addEventListener("click", () => {
   showIndexOverlay = !showIndexOverlay;
   document
-    .getElementById("btn-show-overlay")
+    .getElementById("overlay-legend-row")
     .classList.toggle("active", showIndexOverlay);
-  syncOverlayBtnLabel();
   draw(curMonth - 1);
 });
 
@@ -1646,12 +1633,12 @@ function handleCanvasPointer(clientX, clientY) {
       {
         v: indexSpWealth[m],
         color: getCSSVar("--color-s0"),
-        label: isZhH ? "标普全收益" : "S&P total return",
+        label: isZhH ? "标普500(价格)" : "S&P 500 (price)",
       },
       {
         v: indexReWealth[m],
         color: "#d4950a",
-        label: isZhH ? "房价(FHFA)" : "RE price (FHFA)",
+        label: "VNQ",
       },
     ];
     for (const { v, color, label } of overlayItems) {
@@ -2101,12 +2088,12 @@ function draw(monthsToShow) {
       {
         w: indexSpWealth,
         color: CT.s[0],
-        label: isZh ? "标普全收益" : "S&P total return",
+        label: isZh ? "标普500(价格)" : "S&P 500 (price)",
       },
       {
         w: indexReWealth,
         color: "#d4950a",
-        label: isZh ? "房价指数(FHFA)" : "RE price (FHFA)",
+        label: "VNQ",
       },
     ];
     const hm = Math.min(fullM, totalMonths - 1);
@@ -2434,7 +2421,7 @@ if (isPrimary) {
 }
 syncPmFeeBtn();
 if (showIndexOverlay)
-  document.getElementById("btn-show-overlay").classList.add("active");
+  document.getElementById("overlay-legend-row").classList.add("active");
 if (numRefis > 0) {
   [0, 1, 2, 3].forEach((i) =>
     document
@@ -2598,7 +2585,23 @@ projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
 curMonth = totalMonths;
 sliderEl.max = totalMonths;
 sliderEl.value = curMonth;
-resizeCanvas();
+// ── Landscape chart height: set CSS max-height accounting for body zoom ──────
+// CSS 50vh with body{zoom:1.6} renders at 80% of viewport — too tall.
+// Setting max-height in CSS px = vh*pct/zoom ensures visual = pct of viewport.
+function updateChartMaxHeight() {
+  const wrap = document.getElementById("chart-wrap");
+  const bz = parseFloat(getComputedStyle(document.body).zoom) || 1;
+  const isLandscape = window.innerWidth > window.innerHeight;
+  if (isLandscape) {
+    const pct = window.innerHeight <= 500 ? 0.44 : 0.5;
+    wrap.style.maxHeight = Math.round((window.innerHeight * pct) / bz) + "px";
+  } else {
+    wrap.style.maxHeight = "";
+  }
+  resizeCanvas();
+}
+window.addEventListener("resize", updateChartMaxHeight);
+updateChartMaxHeight();
 applyLang();
 updateLabel(curMonth);
 draw(curMonth - 1);

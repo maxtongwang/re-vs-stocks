@@ -122,7 +122,7 @@ const STRINGS = {
       "RE: surplus cash flows (rent after costs) compound in the index selected to the right.\nStock: dividends reinvest back into the same index — not affected by the selector.\nDeficits are funded out-of-pocket — negative balance does not compound.",
     btnPriceOnly: "Price Only",
     tipPriceOverlay:
-      "FHFA HPI (Federal Housing Finance Agency House Price Index): the U.S. government's repeat-sales index tracking home price changes since 1975.\n\nThis overlay compares pure price appreciation only — the selected stock index vs. FHFA RE price — both starting at $250K with no leverage, rent, costs, or taxes applied.",
+      "S&P 500 price only (no dividends) vs VNQ total return.\n\nVNQ (Vanguard Real Estate ETF, 2004+) tracks the MSCI US Investable Market Real Estate 25/50 Index — diversified U.S. publicly-traded REITs. Pre-2004 spliced with FTSE NAREIT All Equity REITs index (see Sources).\n\nBoth lines start at $250K from your selected year. No leverage, rent, costs, or taxes.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -175,6 +175,7 @@ const STRINGS = {
       `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
       `Rent yields: estimated from ${lnk(lSrc.rentYield)}`,
       `2026 projection: S&amp;P 500 +8% &amp; NASDAQ +10% per Wall Street consensus range (<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>); home prices +1–5% by market per <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a> (formerly CoreLogic) &amp; <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> forecasts`,
+      `VNQ overlay (S&amp;P 500 price vs REIT benchmark): 1970–1971 estimated; 1972–2003 <a href="https://www.reit.com/data-research/reit-indexes/annual-index-values-returns" target="_blank">FTSE NAREIT All Equity REITs</a> total return; 2004+ <a href="https://finance.yahoo.com/quote/VNQ/history/" target="_blank">VNQ ETF</a> (Vanguard, 0.12% ER, MSCI US REIT 25/50). Index splice at 2004; pre-2004 uses gross index (no ETF expenses). Use as directional context only.`,
     ],
     builtBy: "Built by Max Wang · DRE 02225524",
     disclaimer: "for entertainment purpose only",
@@ -333,7 +334,7 @@ const STRINGS = {
       "房产：租金盈余（扣除成本后）按右侧所选指数复利增长。\n股票：股息再投资回同一指数本身，不受右侧选择影响。\n亏损由自有资金补足，负余额不复利。",
     btnPriceOnly: "仅价格",
     tipPriceOverlay:
-      "FHFA HPI（联邦住房金融局房价指数）：美国政府追踪房价涨跌的重复销售指数，覆盖1975年至今。\n\n此对比仅显示纯价格升值——所选股票指数对比FHFA房价指数——均从25万美元起始，不含杠杆、租金、成本或税务。",
+      "标普500纯价格（不含股息）对比VNQ总回报。\n\nVNQ（先锋房地产ETF，2004年至今）追踪MSCI美国可投资市场房地产25/50指数——美国上市REITs。2004年前以富时NAREIT全权益REITs指数拼接（见数据来源）。\n\n两线以25万美元为基准，不含杠杆、租金或成本。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",
@@ -386,6 +387,7 @@ const STRINGS = {
       `2015年后租金涨幅：${lnk(lSrc.rentPost2015)}`,
       `租金回报率：来源于 ${lnk(lSrc.rentYield)}`,
       `2026年预测：S&amp;P 500 +8%、纳斯达克 +10%，基于华尔街共识区间（<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>）；各市场房价 +1–5%，来自 <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a>（原CoreLogic）及 <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> 预测`,
+      `VNQ覆盖层（标普500价格 vs REIT基准）：1970–1971为估算；1972–2003采用<a href="https://www.reit.com/data-research/reit-indexes/annual-index-values-returns" target="_blank">富时NAREIT全权益REITs</a>总回报；2004年起采用<a href="https://finance.yahoo.com/quote/VNQ/history/" target="_blank">VNQ ETF</a>（先锋，0.12%费率，MSCI美国REIT 25/50）。2004年为数据拼接点；2004年前为总指数（不含ETF费率）。仅供参考，不作为投资建议。`,
     ],
     builtBy: "由 Max Wang 制作 · DRE 02225524",
     disclaimer: "仅供娱乐参考",
@@ -8819,6 +8821,26 @@ const SIX_FORTY_PRICE = SP500_PRICE.map(
 const SIX_FORTY_DIV = SP500_DIV.map((r, i) => 0.6 * r + 0.4 * TLT_YIELD[i]);
 
 let SP500_ANN = SP500_PRICE.map((r, i) => r + SP500_DIV[i]);
+
+// VNQ overlay — FTSE NAREIT All Equity REITs total return (1970–2003 proxy) + VNQ ETF (2004–)
+// 1970–1971: estimated (pre-NAREIT). 2025: placeholder. 2026–2045: projected 7%/yr.
+// Composition note: NAREIT pre-2004, then Vanguard VNQ (0.12% ER). Index splice at 2004.
+const VNQ_ANN = [
+  // 1970–1971 (estimated, pre-NAREIT reliable data)
+  -0.013, 0.085,
+  // 1972–2003 — FTSE NAREIT All Equity REITs total return
+  0.087, -0.155, -0.214, 0.193, 0.476, 0.224, 0.103, 0.359, 0.244, 0.06, 0.216,
+  0.306, 0.209, 0.191, 0.192, -0.036, 0.135, 0.088, -0.154, 0.357, 0.146, 0.197,
+  0.032, 0.153, 0.353, 0.203, -0.175, -0.046, 0.264, 0.139, 0.038, 0.371,
+  // 2004 — NAREIT full-year (VNQ launched Sep 2004)
+  0.316,
+  // 2005–2024 — VNQ ETF total return
+  0.122, 0.351, -0.157, -0.377, 0.28, 0.286, 0.083, 0.176, 0.014, 0.304, 0.024,
+  0.085, 0.049, -0.059, 0.289, -0.047, 0.408, -0.261, 0.122, 0.04,
+  // 2025 placeholder; 2026–2045 projected 7%/yr
+  0.0, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07,
+  0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07,
+];
 
 // California Home Price Index annual appreciation — FHFA CASTHPI (state); pre-1976 est
 const CA_ANN = [

@@ -9,6 +9,8 @@ function toMonthly(ann) {
 }
 let spMonthlyAll = toMonthly(SP500_ANN); // 912 months (1970–2045), total return
 let spPriceMonthlyAll = toMonthly(SP500_PRICE); // 912 months, price only
+const sp500PureMonthly = toMonthly(SP500_PRICE); // always S&P 500 pure price, never changes
+const vnqMonthlyAll = toMonthly(VNQ_ANN); // VNQ/NAREIT total return, never changes
 let caMonthlyAll = toMonthly(OC_ANN); // 912 months — default matches dropdown
 let reinvestMonthlyAll = spMonthlyAll; // index used to compound RE cash flows (reinvest mode)
 
@@ -731,16 +733,18 @@ function buildAllWealth(yr) {
         }
       : r.decomp,
   );
-  // Simple price-index series for "common chart" overlay:
-  // S&P total return and RE price appreciation, both starting at INIT, no leverage/income.
+  // "Common chart" overlay: S&P 500 pure price vs VNQ total return, both from INIT.
+  // Always uses S&P 500 price (sp500PureMonthly) regardless of main index selection.
+  const sp500Slice = sp500PureMonthly.slice(i * 12, i * 12 + months);
+  const vnqSlice = vnqMonthlyAll.slice(i * 12, i * 12 + months);
   indexSpWealth = [INIT];
   indexReWealth = [INIT];
   for (let m = 0; m < months - 1; m++) {
     indexSpWealth.push(
-      Math.round(indexSpWealth[indexSpWealth.length - 1] * (1 + sp[m])),
+      Math.round(indexSpWealth[indexSpWealth.length - 1] * (1 + sp500Slice[m])),
     );
     indexReWealth.push(
-      Math.round(indexReWealth[indexReWealth.length - 1] * (1 + ca[m])),
+      Math.round(indexReWealth[indexReWealth.length - 1] * (1 + vnqSlice[m])),
     );
   }
   return raw.map((r) => r.wealth);

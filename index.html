@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224aas" />
-    <link rel="stylesheet" href="style.css?v=20260224aas" />
+    <link rel="stylesheet" href="themes.css?v=20260224aat" />
+    <link rel="stylesheet" href="style.css?v=20260224aat" />
   </head>
   <body>
     <noscript>
@@ -559,25 +559,31 @@
 
     <div id="primary-note"></div>
 
+    <!-- Overlay legend row: click to toggle S&P 500 price vs VNQ overlay -->
+    <div
+      id="overlay-legend-row"
+      class="tip"
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 4px 0 6px;
+        cursor: pointer;
+        font-size: 11px;
+        opacity: 0.38;
+        transition: opacity 0.15s;
+        user-select: none;
+      "
+    >
+      <div class="leg-dot" style="background: var(--color-s0)"></div>
+      <span class="tip-text" style="color: var(--text-sub)"
+        >S&amp;P 500 vs VNQ</span
+      ><span class="tip-icon" data-tip=""></span>
+      <div class="leg-dot" style="background: #d4950a"></div>
+    </div>
+
     <div id="chart-wrap">
-      <button
-        id="btn-show-overlay"
-        class="toggle-btn tip tip-right"
-        style="
-          position: absolute;
-          top: 4px;
-          left: 50%;
-          transform: translateX(-50%);
-          z-index: 1;
-          font-size: 9px;
-          padding: 1px 5px;
-          opacity: 0.7;
-          white-space: nowrap;
-        "
-      >
-        <span class="tip-text">Price Only</span
-        ><span class="tip-icon" data-tip=""></span>
-      </button>
       <canvas id="c"></canvas>
       <div id="chart-tooltip"></div>
     </div>
@@ -963,8 +969,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224aas" defer></script>
-    <script src="sim.js?v=20260224aas" defer></script>
-    <script src="ui.js?v=20260224aas" defer></script>
+    <script src="data.js?v=20260224aat" defer></script>
+    <script src="sim.js?v=20260224aat" defer></script>
+    <script src="ui.js?v=20260224aat" defer></script>
   </body>
 </html>
