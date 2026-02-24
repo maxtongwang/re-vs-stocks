@@ -590,6 +590,25 @@ th:first-child {
     order: 4;
   }
 }
+/* ── Landscape mobile: prevent chart from filling the entire viewport ── */
+@media (orientation: landscape) and (max-height: 500px) {
+  #chart-wrap {
+    max-height: 44vh;
+  }
+  .hero {
+    margin-bottom: 6px;
+  }
+  .hero-title {
+    font-size: 16px;
+    line-height: 20px;
+    min-height: 0;
+    margin-bottom: 4px;
+  }
+  .hero-sub {
+    gap: 4px;
+    font-size: 11px;
+  }
+}
 .tip {
   display: inline-flex;
   align-items: center;
