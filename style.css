@@ -300,11 +300,12 @@ canvas {
   background: var(--btn-active-bg);
 }
 .legend {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 16px;
+  display: grid;
+  grid-template-columns: 14px max-content 1fr;
+  column-gap: 6px;
+  row-gap: 4px;
   margin-top: 10px;
+  width: fit-content;
 }
 #leader-bar {
   text-align: center;
@@ -317,9 +318,10 @@ canvas {
   white-space: nowrap;
 }
 .leg-item {
-  display: flex;
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: subgrid;
   align-items: center;
-  gap: 5px;
   font-size: 11px;
   cursor: pointer;
   user-select: none;
@@ -593,7 +595,6 @@ th:first-child {
 .leg-cagr {
   font-size: 10px;
   color: var(--text-sub);
-  margin-left: 2px;
 }
 /* ── Return decomposition panel ─────────────────────────────────── */
 #decomp-panel {
