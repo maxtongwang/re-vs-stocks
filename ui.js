@@ -78,8 +78,8 @@ let totalMonths = (endYear - startYear + 1) * 12;
 let projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
 let curMonth = Math.min(projStartM + 1, totalMonths);
 
-// Initially hidden: 20% Down (idx 3), 10% Down (idx 4), 3.5% Down (idx 5)
-const hidden = new Set([3, 4, 5]);
+// Initially hidden: 25% Down (idx 4), 3.5% Down (idx 5) — 40% Down (idx 3) shown by default
+const hidden = new Set([4, 5]);
 
 // ── Formatting ────────────────────────────────────────────────────────────
 function fmt(v) {
@@ -663,8 +663,7 @@ function getShareParams() {
   if (incomeTier !== 1) p.set("br", incomeTier);
   if (lang !== "en") p.set("l", lang);
   const hArr = [...hidden].sort((a, b) => a - b);
-  const isDefault =
-    hArr.length === 3 && hArr[0] === 3 && hArr[1] === 4 && hArr[2] === 5;
+  const isDefault = hArr.length === 2 && hArr[0] === 4 && hArr[1] === 5;
   if (!isDefault) p.set("h", hArr.join(","));
   if (!inclTaxBenefits) p.set("tb", "0");
   if (!inclDepreciation) p.set("dep", "0");
