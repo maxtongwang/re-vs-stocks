@@ -796,7 +796,7 @@ function renderDecomp(monthsToShow) {
       const appPct = price > 0 ? ((reDc.appr / price) * 100).toFixed(0) : 0;
       const yrs = years.toFixed(1);
       const propVal = price + reDc.appr;
-      const downPct = Math.round(down * 100);
+      const downPct = dpLabel(down);
 
       reRows.push({
         key: "re-appr",
@@ -1100,9 +1100,7 @@ function renderDecomp(monthsToShow) {
           },
         });
       }
-      const atLastMonth = m >= allWealth[0].length - 1;
-      const displayTotal =
-        !inclTxCosts || atLastMonth ? bestVal : bestVal - txSellCost;
+      const displayTotal = inclTxCosts ? bestVal - txSellCost : bestVal;
       reRows.push({
         key: "re-total",
         label: lbl.total,
@@ -1596,6 +1594,16 @@ function draw(monthsToShow) {
     const color = CT.s[i];
     const lw = i === 0 ? 2 : 1.5;
 
+    // Sell cost adjustment: subtract from the final drawn point only (RE lines).
+    // This mirrors the decomp table which shows "net if sold today" at the endpoint.
+    const dc = i > 0 ? allDecomp[i] : null;
+    const endSellCost =
+      dc && inclTxCosts && dc.txSellRate > 0 && dc.dComp?.[fullM] != null
+        ? Math.round((dc.price + dc.dComp[fullM].appr) * dc.txSellRate)
+        : 0;
+    // Helper: Y value with optional sell cost deduction at endpoint
+    const wyEnd = (m) => w[m] - (endSellCost > 0 ? endSellCost : 0);
+
     ctx.strokeStyle = color;
     ctx.lineWidth = lw;
     ctx.lineJoin = "round";
@@ -1607,13 +1615,14 @@ function draw(monthsToShow) {
     ctx.moveTo(tx(0), ty(INIT));
     for (let m = 0; m <= solidEnd && m < w.length; m++) {
       if (fullM === 0 && frac === 0) break; // only INIT anchor at start
-      ctx.lineTo(tx(m + 1), ty(w[m]));
+      const isEnd = m === fullM && frac === 0;
+      ctx.lineTo(tx(m + 1), ty(isEnd ? wyEnd(m) : w[m]));
     }
     // Fractional leading edge in solid zone
     if (fullM < projStartM && frac > 0 && fullM + 1 < w.length)
       ctx.lineTo(
         tx(fullM + 1 + frac),
-        ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+        ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]) - endSellCost),
       );
     ctx.stroke();
     // Dashed: projection portion
@@ -1623,13 +1632,15 @@ function draw(monthsToShow) {
       ctx.globalAlpha = 0.7;
       ctx.beginPath();
       ctx.moveTo(tx(solidEnd + 1), ty(w[solidEnd]));
-      for (let m = solidEnd + 1; m <= fullM && m < w.length; m++)
-        ctx.lineTo(tx(m + 1), ty(w[m]));
+      for (let m = solidEnd + 1; m <= fullM && m < w.length; m++) {
+        const isEnd = m === fullM && frac === 0;
+        ctx.lineTo(tx(m + 1), ty(isEnd ? wyEnd(m) : w[m]));
+      }
       // Fractional leading edge in dash zone
       if (frac > 0 && fullM + 1 < w.length)
         ctx.lineTo(
           tx(fullM + 1 + frac),
-          ty(w[fullM] + frac * (w[fullM + 1] - w[fullM])),
+          ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]) - endSellCost),
         );
       ctx.stroke();
       ctx.setLineDash([]);
@@ -1645,9 +1656,18 @@ function draw(monthsToShow) {
       const hm = Math.min(fullM, w.length - 1);
       const canInterp = frac > 0 && fullM + 1 < w.length;
       const dotX = canInterp ? tx(fullM + 1 + frac) : tx(hm + 1);
+      // Apply sell cost adjustment to tip dot position (mirrors line endpoint)
+      const dotDc = i > 0 ? allDecomp[i] : null;
+      const dotSellCost =
+        dotDc &&
+        inclTxCosts &&
+        dotDc.txSellRate > 0 &&
+        dotDc.dComp?.[hm] != null
+          ? Math.round((dotDc.price + dotDc.dComp[hm].appr) * dotDc.txSellRate)
+          : 0;
       const dotY = canInterp
-        ? ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]))
-        : ty(w[hm]);
+        ? ty(w[fullM] + frac * (w[fullM + 1] - w[fullM]) - dotSellCost)
+        : ty(w[hm] - dotSellCost);
       ctx.fillStyle = CT.s[i];
       ctx.beginPath();
       ctx.arc(dotX, dotY, 3, 0, Math.PI * 2);
@@ -1665,11 +1685,18 @@ function draw(monthsToShow) {
       ctx.textAlign = "left";
       const items = SCENARIOS.map((s, i) => {
         const v0 = atStart ? INIT : allWealth[i][hm];
-        const v = atStart
+        const vRaw = atStart
           ? INIT
           : canInterp
             ? v0 + frac * (allWealth[i][hm + 1] - v0)
             : v0;
+        // Subtract sell cost at current endpoint for RE lines
+        const lDc = i > 0 ? allDecomp[i] : null;
+        const lSell =
+          lDc && inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm] != null
+            ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
+            : 0;
+        const v = atStart ? INIT : vRaw - lSell;
         return { s, i, v };
       })
         .filter(({ i }) => !hidden.has(i))
