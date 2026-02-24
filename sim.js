@@ -305,8 +305,12 @@ function refreshDatasets() {
   activeCaRent = lRent;
   activeCaRentYields = lYield;
   activeLocConfig = LOC_CONFIG[locKey];
-  const locImprov = Math.round(activeLocConfig.improvPct * 100);
-  improvPct = activeLocConfig.improvPct;
+  const locImprovRaw = Math.round(activeLocConfig.improvPct * 100);
+  const improvOpts = [22, 28, 32, 33, 35, 38, 40, 50, 55, 60, 65, 70];
+  const locImprov = improvOpts.reduce((a, b) =>
+    Math.abs(b - locImprovRaw) < Math.abs(a - locImprovRaw) ? b : a,
+  );
+  improvPct = locImprov / 100;
   document.getElementById("improv-slider").value = locImprov;
   SP500_ANN = iPrice.map((r, i) => r + iDiv[i]);
   spMonthlyAll = toMonthly(SP500_ANN);
