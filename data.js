@@ -256,7 +256,7 @@ const STRINGS = {
         label: "About This Tool",
         items: [
           "This is a fully dynamic, live simulation. Every number you see — property tax rates, vacancy rates, rent yields, appreciation history, income tax rates, mortgage rates — is location- and scenario-specific and recalculates instantly whenever you change any input. No static assumptions, no page reload.",
-          `Five scenarios run in parallel: S&P 500 total return vs. real estate at All Cash, 60%, 40%, 25%, and 3.5% down — all starting from the same <span style="color:var(--accent);font-weight:500">${INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "K"}</span> of capital on the same date.`,
+          `<span style="color:var(--accent);font-weight:500">${RE_DOWN_PMTS.length + 2}</span> scenarios run in parallel: S&P 500 total return vs. real estate at All Cash, 60%, 40%, 25%, and 3.5% down — all starting from the same <span style="color:var(--accent);font-weight:500">${INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "K"}</span> of capital on the same date.`,
           "Everything is adjustable: location, hold period, income bracket, rental vs. primary, number of refis, improvement %, cash-flow reinvestment mode, and which cost/tax items to include.",
           "The goal is intuition: historical outcomes vary wildly by entry year, leverage, and city. Drag the start year, flip rental to primary, toggle costs on and off — notice how the winner changes. No single answer is correct.",
           "All figures are nominal (not inflation-adjusted). Data: FHFA house price index (location-adjusted), S&P 500 total return (CRSP / Macrotrends), 30-yr mortgage rates (FRED), local property tax rates, historical dividend yields, CPI.",
@@ -462,7 +462,7 @@ const STRINGS = {
         label: "关于本工具",
         items: [
           "这是一个全动态实时模拟工具。所有数据——房产税率、空置率、租金收益率、历史升值、所得税率、贷款利率——均按城市和情景实时计算，任意输入变更即刻更新。无静态假设，无需刷新页面。",
-          `五种方案并行对比：标普500总回报 vs. 全现金购房、60%、40%、25%和3.5%首付——所有方案从相同日期、相同<span style="color:var(--accent);font-weight:500">${INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "K"}</span>本金出发。`,
+          `<span style="color:var(--accent);font-weight:500">${RE_DOWN_PMTS.length + 2}</span>种方案并行对比：标普500总回报 vs. 全现金购房、60%、40%、25%和3.5%首付——所有方案从相同日期、相同<span style="color:var(--accent);font-weight:500">${INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "K"}</span>本金出发。`,
           "所有参数均可调整：城市、持有年限、收入税率档、出租或自住、重贷次数、建筑占比、现金流再投资方式，以及各项成本和税务是否计入。",
           "目标是建立直觉：历史结果因入场年份、杠杆率和城市不同而差异极大，没有唯一正确答案。拖动起始年、切换出租与自住、开关各项成本——观察领先者如何随条件变化而转换。",
           "所有数据均为名义值（未经通胀调整）。数据来源：FHFA房价指数（按城市调整）、标普500总回报（CRSP/Macrotrends）、30年固定房贷利率（FRED）、各地房产税率、历史股息率及CPI。",
