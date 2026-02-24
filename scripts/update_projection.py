@@ -77,6 +77,12 @@ RENT_SERIES = {
 # scale_factor reflects luxury premium cyclicality (boom amplification).
 # Format: city_var → (parent_hpi_var, price_scale, parent_rent_var, rent_scale)
 CITY_FROM_METRO = {
+    # OC cities
+    "NB_ANN":              ("OC_ANN",      1.12, "OC_RENT_GROWTH",      0.90),
+    "IRVINE_ANN":          ("OC_ANN",      1.05, "OC_RENT_GROWTH",      1.08),
+    "YORBA_ANN":           ("OC_ANN",      0.95, "OC_RENT_GROWTH",      0.96),
+    "LAGUNA_ANN":          ("OC_ANN",      1.15, "OC_RENT_GROWTH",      0.85),
+    "HB_ANN":              ("OC_ANN",      0.98, "OC_RENT_GROWTH",      1.02),
     # LA cities
     "BEVHILLS_ANN":        ("LA_ANN",      1.10, "LA_RENT_GROWTH",      0.88),
     "SM_ANN":              ("LA_ANN",      1.06, "LA_RENT_GROWTH",      0.93),
