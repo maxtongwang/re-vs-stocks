@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224as" />
-    <link rel="stylesheet" href="style.css?v=20260224as" />
+    <link rel="stylesheet" href="themes.css?v=20260224at" />
+    <link rel="stylesheet" href="style.css?v=20260224at" />
   </head>
   <body>
     <noscript>
@@ -405,15 +405,7 @@
           style="height: 24px; display: flex; align-items: center"
           >Refi:</span
         >
-        <div
-          style="
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            flex: 1;
-            min-width: 0;
-          "
-        >
+        <div style="display: flex; flex-direction: column; gap: 5px">
           <div class="toggle-group">
             <button class="toggle-btn active" id="btn-refi-0">0</button>
             <button class="toggle-btn" id="btn-refi-1">1</button>
@@ -462,7 +454,7 @@
       >
         <span id="label-includes" style="padding-top: 3px">Includes:</span>
         <div style="display: flex; flex-direction: column; gap: 4px">
-          <!-- Row 1: core cost toggles -->
+          <!-- Row 1: tax toggles -->
           <div class="toggle-group">
             <button class="toggle-btn active" id="btn-incl-taxbenefit">
               Tax benefits
@@ -478,10 +470,10 @@
               <span class="tip-text">Tx Costs</span
               ><span class="tip-icon">ⓘ</span>
             </button>
-            <button class="toggle-btn active" id="btn-incl-mgmt">PM fee</button>
           </div>
-          <!-- Row 2: HOA + cap gains -->
+          <!-- Row 2: PM fee + HOA + cap gains -->
           <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-incl-mgmt">PM fee</button>
             <button class="toggle-btn" id="btn-incl-hoa">HOA</button>
             <select
               id="hoa-amount-select"
@@ -656,15 +648,7 @@
     <div class="note" id="note-section">
       <strong id="label-assm-fix" role="heading" aria-level="2"
         >Assumptions (fixed)</strong
-      ><span
-        id="assm-fix-note"
-        style="
-          color: var(--text-sub);
-          font-weight: normal;
-          margin-left: 6px;
-          font-size: 10px;
-        "
-      ></span>
+      >
       <ul id="fixed-assumptions">
         <li class="group-hd">Property &amp; Tax</li>
         <li id="static-prop-tax">
@@ -956,8 +940,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224as" defer></script>
-    <script src="sim.js?v=20260224as" defer></script>
-    <script src="ui.js?v=20260224as" defer></script>
+    <script src="data.js?v=20260224at" defer></script>
+    <script src="sim.js?v=20260224at" defer></script>
+    <script src="ui.js?v=20260224at" defer></script>
   </body>
 </html>

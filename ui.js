@@ -386,7 +386,6 @@ function applyLang() {
   document.getElementById("th-year").textContent = s.thYear;
   document.getElementById("label-assm-dyn").textContent = s.assmDyn;
   document.getElementById("label-assm-fix").textContent = s.assmFix;
-  document.getElementById("assm-fix-note").textContent = s.assmFixNote;
   document.getElementById("label-sources").textContent = s.labelSources;
   document.getElementById("label-built-by").textContent = s.builtBy;
   document.getElementById("methodology-note").innerHTML = s.methodologyNote;
