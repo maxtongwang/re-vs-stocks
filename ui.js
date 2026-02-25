@@ -2297,7 +2297,9 @@ function draw(monthsToShow) {
   for (let yr = 0; yr <= fullDur; yr += step) {
     const m = yr * 12;
     ctx.fillStyle = CT.label;
-    ctx.fillText(startYear + yr, tx(m), H - 6);
+    // Shift label to tx(m+1) so "2008" aligns with the January 2008 data vertex
+    // (data for month m is drawn at tx(m+1), not tx(m)). Clamp to right edge.
+    ctx.fillText(startYear + yr, Math.min(tx(m + 1), PL + chartW), H - 6);
   }
 
   // Tip dots + chasing labels share the same dim level as lines when overlay active
