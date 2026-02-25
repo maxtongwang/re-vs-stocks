@@ -2373,7 +2373,7 @@ function draw(monthsToShow) {
     const overlayPairs = [
       {
         w: indexSpWealth,
-        color: CT.s[0],
+        color: "#9898d8",
         label: "S&P 500",
       },
       {
