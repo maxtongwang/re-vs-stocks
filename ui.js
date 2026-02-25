@@ -1907,7 +1907,7 @@ let cW = 0,
 function handleCanvasPointer(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
   const PL = 52,
-    PR = 90;
+    PR = lastPR;
   const chartW = cW - PL - PR;
   const cx = (clientX - rect.left) * (cW / rect.width);
   if (cx < PL || cx > cW - PR) {
