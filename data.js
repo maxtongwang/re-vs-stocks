@@ -331,7 +331,7 @@ const STRINGS = {
       },
     ],
     methodologyNote:
-      'Historical data: S&amp;P CoreLogic Case-Shiller · FHFA · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
+      'Data: S&amp;P CS · FHFA · S&amp;P 500 · FRED · <a href="#note-section">methodology ↓</a>',
     primaryNote:
       "ℹ <strong>Primary mode:</strong> no rental income — PITI is a pure cost. Leveraged scenarios can go <strong>deeply negative</strong> during downturns (cumulative costs exceed equity). The log-scale chart cannot display ≤ $0, so those lines hug the floor. <em>Not a display bug.</em>",
     outcomeAhead: (pct, isRE) =>
