@@ -2081,7 +2081,10 @@ function draw(monthsToShow) {
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
-  const effProjPX = hasProjZone ? PROJ_PX : 0;
+  // Cap to 12% of chartW so mobile portrait doesn't lose too much data area
+  const effProjPX = hasProjZone
+    ? Math.min(PROJ_PX, Math.max(20, Math.round(chartW * 0.12)))
+    : 0;
   const histW = chartW - effProjPX;
   const histEndM = projStartM + 1;
   lastProjPX = effProjPX;

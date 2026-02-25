@@ -1,6 +1,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  overflow-x: hidden; /* prevent fixed-element horizontal scroll on mobile */
 }
 body {
   overflow-x: hidden; /* clip stray overflow without breaking Safari viewport recalc */
@@ -31,6 +32,7 @@ body {
   min-height: 56px; /* 2 lines × 28px */
   letter-spacing: -0.3px;
   margin-bottom: 8px;
+  padding-right: 40px; /* clear fixed top-right buttons */
 }
 .hero-sub {
   display: flex;
