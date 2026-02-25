@@ -87,7 +87,7 @@ let allDecomp = [];
 let allWealth = buildAllWealth(startYear);
 let totalMonths = (endYear - startYear + 1) * 12;
 let projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
-let curMonth = Math.min(projStartM + 1, totalMonths);
+let curMonth = totalMonths;
 
 // Initially hidden: 25% Down (idx 4), 3.5% Down (idx 5) — 40% Down (idx 3) shown by default
 const hidden = new Set([4, 5]);
@@ -2074,7 +2074,7 @@ function draw(monthsToShow) {
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
   const PL = Math.min(44, Math.max(36, Math.round(W * 0.08))),
-    PR = Math.min(66, Math.max(50, Math.round(W * 0.1))),
+    PR = Math.min(58, Math.max(50, Math.round(W * 0.09))),
     PT = 16,
     PB = 28;
   lastPL = PL;
@@ -2677,7 +2677,7 @@ function rebuild() {
   allWealth = buildAllWealth(startYear);
   totalMonths = (endYear - startYear + 1) * 12;
   projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
-  curMonth = Math.min(projStartM + 1, totalMonths);
+  curMonth = totalMonths;
   sliderEl.max = totalMonths;
   sliderEl.value = curMonth;
   // Reset lerp so draw() snaps to the correct range for curMonth on first frame
