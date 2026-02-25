@@ -327,8 +327,7 @@ function applyLang() {
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   document.getElementById("hero-title").innerHTML = s.heroTitle;
   document.getElementById("disclaimer").textContent = s.disclaimer;
-  document.getElementById("label-start").textContent = s.labelStart;
-  document.getElementById("label-end").textContent = s.labelEnd;
+  document.getElementById("label-years").textContent = s.labelYears;
   document.querySelector("#label-cashflow .tip-text").textContent =
     s.labelCashflow;
   document.getElementById("label-propmode").textContent = s.labelPropMode;
@@ -2614,47 +2613,61 @@ function rebuild() {
   draw(curMonth - 1);
 }
 
+function updateRangeTrack() {
+  const MIN = 1970,
+    MAX = 2026;
+  const pS = (((startYear - MIN) / (MAX - MIN)) * 100).toFixed(2);
+  const pE = (((endYear - MIN) / (MAX - MIN)) * 100).toFixed(2);
+  document.getElementById("year-range-track").style.background =
+    `linear-gradient(to right, var(--border) ${pS}%, var(--text-mid) ${pS}%, var(--text-mid) ${pE}%, var(--border) ${pE}%)`;
+  document.getElementById("year-range-val").textContent =
+    `${startYear}\u2013${endYear}`;
+}
+
 function setStartYear(yr) {
   startYear = yr;
-  document.getElementById("start-year-val").textContent = yr;
-  // keep end year at least 1 year ahead
-  const endSlider = document.getElementById("end-year-slider");
-  endSlider.min = yr + 1;
+  // clamp: end must be at least 1 year ahead
   if (endYear <= yr) {
     endYear = yr + 1;
-    endSlider.value = endYear;
-    document.getElementById("end-year-val").textContent = endYear;
+    document.getElementById("end-year-slider").value = endYear;
   }
+  updateRangeTrack();
   rebuild();
 }
 
 function setEndYear(yr) {
   endYear = yr;
-  document.getElementById("end-year-val").textContent = yr;
-  // keep start year at least 1 year behind
-  const startSlider = document.getElementById("start-year-slider");
-  startSlider.max = yr - 1;
+  // clamp: start must be at least 1 year behind
   if (startYear >= yr) {
     startYear = yr - 1;
-    startSlider.value = startYear;
-    document.getElementById("start-year-val").textContent = startYear;
+    document.getElementById("start-year-slider").value = startYear;
   }
+  updateRangeTrack();
   rebuild();
 }
 
-document
-  .getElementById("start-year-slider")
-  .addEventListener("input", function () {
-    stopPlay();
-    setStartYear(parseInt(this.value));
-  });
+const _startSlider = document.getElementById("start-year-slider");
+const _endSlider = document.getElementById("end-year-slider");
 
-document
-  .getElementById("end-year-slider")
-  .addEventListener("input", function () {
-    stopPlay();
-    setEndYear(parseInt(this.value));
-  });
+// Bring the active thumb to the top so it always responds to drags
+_startSlider.addEventListener("pointerdown", () => {
+  _startSlider.style.zIndex = 3;
+  _endSlider.style.zIndex = 2;
+});
+_endSlider.addEventListener("pointerdown", () => {
+  _endSlider.style.zIndex = 3;
+  _startSlider.style.zIndex = 2;
+});
+
+_startSlider.addEventListener("input", function () {
+  stopPlay();
+  setStartYear(parseInt(this.value));
+});
+
+_endSlider.addEventListener("input", function () {
+  stopPlay();
+  setEndYear(parseInt(this.value));
+});
 
 // ── Resize ────────────────────────────────────────────────────────────────
 // Debounced: rotation fires many rapid events; only redraw after it settles
@@ -2680,15 +2693,11 @@ window.addEventListener("orientationchange", () => {
 loadFromHash();
 // Sync DOM to (possibly hash-loaded) state
 document.getElementById("start-year-slider").value = startYear;
-document.getElementById("start-year-val").textContent = startYear;
 document.getElementById("end-year-slider").value = endYear;
-document.getElementById("end-year-val").textContent = endYear;
+updateRangeTrack();
 document.getElementById("init-select").value = INIT;
 document.getElementById("init-abbr").textContent =
   INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "k";
-
-document.getElementById("end-year-slider").min = startYear + 1;
-document.getElementById("start-year-slider").max = endYear - 1;
 if (reinvest) {
   document.getElementById("btn-reinvest").classList.add("active");
   document.getElementById("btn-additive").classList.remove("active");

@@ -151,10 +151,85 @@ body {
 .ctrl-row input[type="range"] {
   flex: 1;
 }
+/* ── Dual-thumb year range slider ── */
+.range-dual {
+  position: relative;
+  flex: 1;
+  height: 24px;
+  display: flex;
+  align-items: center;
+}
+.range-dual-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 2px;
+  pointer-events: none;
+  background: var(--border);
+}
+.range-dual input[type="range"] {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  pointer-events: none;
+  -webkit-appearance: none;
+  appearance: none;
+  accent-color: var(--text-mid);
+}
+.range-dual input[type="range"]::-webkit-slider-runnable-track {
+  background: transparent;
+  height: 4px;
+}
+.range-dual input[type="range"]::-moz-range-track {
+  background: transparent;
+  height: 4px;
+}
+.range-dual input[type="range"]::-moz-range-progress {
+  background: transparent;
+}
+.range-dual input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-mid);
+  cursor: grab;
+  margin-top: -5px;
+}
+.range-dual input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--text-mid);
+  cursor: grab;
+  border: none;
+}
+.range-dual input[type="range"]:active::-webkit-slider-thumb {
+  cursor: grabbing;
+}
+.range-dual input[type="range"]:active::-moz-range-thumb {
+  cursor: grabbing;
+}
+#start-year-slider {
+  z-index: 1;
+}
+#end-year-slider {
+  z-index: 2;
+}
 .ctrl-row .val {
   color: var(--val);
   font-weight: bold;
   min-width: 36px;
+}
+#year-range-val {
+  min-width: 72px;
+  white-space: nowrap;
 }
 /* ── Icon buttons (theme toggle, share) ─────────────────────────────── */
 .icon-btn {
