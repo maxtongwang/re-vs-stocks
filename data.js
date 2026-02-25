@@ -188,7 +188,7 @@ const STRINGS = {
     ],
     builtBy: "Built by Max Wang · DRE 02225524",
     disclaimer: "for entertainment purpose only",
-    labelHpiSource: "HPI:",
+    labelHpiSource: "House Price Index:",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
     labelPriceOnlyComparison: "Price only",
@@ -216,7 +216,7 @@ const STRINGS = {
         `<strong style="color:${getCSSVar("--decomp-hi")}">${s}</strong>`;
       const line2 = isPrimary
         ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
-        : `Rent yield: ${W(ry + "%")} · Improvement: <span class="tip" style="display:inline-flex;align-items:center;gap:2px">${W(ip + "%")}<span class="tip-icon" data-tip="Building/structure share of purchase price used for IRS 27.5-yr depreciation (land is not depreciable). Preset per location from county assessor records: ~35% Manhattan to ~70% DFW." style="font-size:9px;margin-left:2px">ⓘ</span></span>`;
+        : `Rent yield: ${W(ry + "%")} · Improvement<span class="tip-icon" data-tip="Building/structure share of purchase price used for IRS 27.5-yr depreciation (land is not depreciable). Preset per location from county assessor records: ~35% Manhattan to ~70% DFW." style="font-size:9px;margin:0 1px">ⓘ</span>: ${W(ip + "%")}`;
       const refiLabel =
         actual < nr ? `${actual}/${nr}x ⚠ skip: higher rates` : `${nr}x`;
       const refiStr =
@@ -413,7 +413,7 @@ const STRINGS = {
     ],
     builtBy: "由 Max Wang 制作 · DRE 02225524",
     disclaimer: "仅供娱乐参考",
-    labelHpiSource: "房价指数：",
+    labelHpiSource: "房价指数 (HPI)：",
     btnFhfa: "FHFA",
     btnCs: "CS",
     labelPriceOnlyComparison: "纯价格对比",
@@ -441,7 +441,7 @@ const STRINGS = {
         `<strong style="color:${getCSSVar("--decomp-hi")}">${s}</strong>`;
       const line2 = isPrimary
         ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
-        : `租金回报率：${W(ry + "%")} · 建筑：<span class="tip" style="display:inline-flex;align-items:center;gap:2px">${W(ip + "%")}<span class="tip-icon" data-tip="建筑/结构占购价比例，用于IRS 27.5年折旧（土地不可折旧）。按地区预设，来源于县评估记录：曼哈顿约35%，DFW约70%。" style="font-size:9px;margin-left:2px">ⓘ</span></span>`;
+        : `租金回报率：${W(ry + "%")} · 建筑<span class="tip-icon" data-tip="建筑/结构占购价比例，用于IRS 27.5年折旧（土地不可折旧）。按地区预设，来源于县评估记录：曼哈顿约35%，DFW约70%。" style="font-size:9px;margin:0 1px">ⓘ</span>：${W(ip + "%")}`;
       const refiLabel =
         actual < nr ? `${actual}/${nr}次 ⚠ 跳过：利率偏高` : `${nr}次`;
       const refiStr =
