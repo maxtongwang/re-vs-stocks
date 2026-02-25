@@ -57,7 +57,9 @@ const RB_MAX = DATA_THROUGH_YEAR; // advances when data.js updates
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
 let endYear = RB_MAX;
+const PROJ_PX = 48; // fixed pixel width of the EST. projection zone
 let lastPR = 100; // chart right-padding — static 100px, read by updateRangeBar()
+let lastProjPX = 0; // set by draw(), read by handleCanvasPointer + updateRangeBar
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
@@ -1918,10 +1920,23 @@ function handleCanvasPointer(clientX, clientY) {
     chartTooltip.style.display = "none";
     return;
   }
-  const ratio = (cx - PL) / chartW;
-  const m = Math.round(
-    Math.max(0, Math.min(totalMonths - 1, ratio * totalMonths - 1)),
-  );
+  const xInChart = cx - PL;
+  const hasProjZoneH = projStartM + 1 < totalMonths;
+  const effProjPXH = hasProjZoneH ? lastProjPX : 0;
+  const histWH = chartW - effProjPXH;
+  const histEndMH = projStartM + 1;
+  let m;
+  if (!hasProjZoneH || xInChart <= histWH) {
+    m = Math.round((xInChart * histEndMH) / Math.max(histWH, 1) - 1);
+  } else {
+    const xInProj = xInChart - histWH;
+    m = Math.round(
+      histEndMH -
+        1 +
+        (xInProj * (totalMonths - histEndMH)) / Math.max(effProjPXH, 1),
+    );
+  }
+  m = Math.max(0, Math.min(totalMonths - 1, m));
   const yr = startYear + Math.floor(m / 12);
   const mo = (m % 12) + 1;
   const years = (m + 1) / 12;
@@ -2054,6 +2069,11 @@ function draw(monthsToShow) {
   lastPR = PR; // static 100px — keeps year-range-bar aligned regardless of label widths
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
+  const hasProjZone = projStartM + 1 < totalMonths;
+  const effProjPX = hasProjZone ? PROJ_PX : 0;
+  const histW = chartW - effProjPX;
+  const histEndM = projStartM + 1;
+  lastProjPX = effProjPX;
 
   // Y range (log scale) — bidirectional smooth lerp during play, instant snap
   // during slider. Null means first frame: snap immediately.
@@ -2086,7 +2106,15 @@ function draw(monthsToShow) {
   );
   const yLo = lerpYLo;
   const yHi = lerpYHi;
-  const tx = (m) => PL + (m / Math.max(totalMonths, 1)) * chartW;
+  const tx = (m) => {
+    if (!hasProjZone || m <= histEndM)
+      return PL + (m / Math.max(histEndM, 1)) * histW;
+    return (
+      PL +
+      histW +
+      ((m - histEndM) / Math.max(totalMonths - histEndM, 1)) * effProjPX
+    );
+  };
   const logRange = Math.log(yHi) - Math.log(yLo);
   const ty = (v) =>
     PT + ((Math.log(yHi) - Math.log(Math.max(v, yLo))) / logRange) * chartH;
@@ -2647,8 +2675,9 @@ function rebuild() {
 }
 
 function updateRangeBar() {
-  // Sync label widths with chart's axis areas (PL=52 fixed, PR=lastPR dynamic)
-  document.getElementById("yr-end-label").style.width = lastPR + "px";
+  // Sync label widths with chart's axis areas (PL=52 fixed, proj+PR on right)
+  document.getElementById("yr-end-label").style.width =
+    lastProjPX + lastPR + "px";
 
   const pS = (startYear - RB_MIN) / (RB_MAX - RB_MIN);
   const pE = (endYear - RB_MIN) / (RB_MAX - RB_MIN);
