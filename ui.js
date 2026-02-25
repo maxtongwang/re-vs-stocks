@@ -2268,6 +2268,9 @@ function draw(monthsToShow) {
     ctx.fillText(startYear + yr, tx(m), H - 6);
   }
 
+  // Tip dots + chasing labels share the same dim level as lines when overlay active
+  if (showIndexOverlay) ctx.globalAlpha = 0.18;
+
   // Tip dots (interpolated for smooth movement)
   if (monthsToShow > 1) {
     for (let i = 0; i < SCENARIOS.length; i++) {
@@ -2356,6 +2359,8 @@ function draw(monthsToShow) {
       });
     }
   }
+
+  ctx.globalAlpha = 1.0;
 
   // ── Common-chart overlay: S&P total return vs RE price-only (no leverage/income) ──
   if (
