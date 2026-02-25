@@ -2733,6 +2733,7 @@ window.addEventListener("resize", () => {
 // wait 300ms for the new geometry to settle, then force a redraw.
 window.addEventListener("orientationchange", () => {
   setTimeout(() => {
+    updateChartMaxHeight(); // re-run after viewport settles (resize may not fire reliably)
     resizeCanvas();
     draw(curMonth - 1);
   }, 300);
