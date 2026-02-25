@@ -1512,16 +1512,24 @@ function renderDecomp(monthsToShow) {
           if (displayTotal < 0) {
             // Find first month wealth went negative
             let brokeMonth = -1;
+            let maxLossMonth = -1;
+            let maxLossVal = 0;
             for (let mi = 0; mi < allWealth[ri].length; mi++) {
-              if (allWealth[ri][mi] < 0) {
-                brokeMonth = mi;
-                break;
+              const v = allWealth[ri][mi];
+              if (v < 0 && brokeMonth < 0) brokeMonth = mi;
+              if (v < maxLossVal) {
+                maxLossVal = v;
+                maxLossMonth = mi;
               }
             }
             const brokeYr =
               brokeMonth >= 0 ? startYear + Math.floor(brokeMonth / 12) : "?";
+            const maxLossYr =
+              maxLossMonth >= 0
+                ? startYear + Math.floor(maxLossMonth / 12)
+                : brokeYr;
             const leverageFactor = down > 0 ? (1 / down).toFixed(1) : "∞";
-            const lossAmt = fmt(Math.abs(displayTotal));
+            const lossAmt = fmt(Math.abs(maxLossVal || displayTotal));
             const avoidItems = isZh
               ? [
                   `提高首付比例 — 选择 ${down > 0.2 ? "全款" : "20%+首付"} 降低杠杆倍数`,
@@ -1542,8 +1550,8 @@ function renderDecomp(monthsToShow) {
                   "toggle <em>Down Payment</em> options to compare scenarios side-by-side",
                 ];
             return isZh
-              ? `<strong style="color:${DC.taxNeg}">破产 — 净值为负</strong><br>• 定义：房产市值 − 剩余贷款 + 现金流 < 0 → 模拟视为资不抵债<br>&nbsp;&nbsp;· 一旦净值跌破零，模型冻结于最大亏损点（不允许虚假反弹）<br>&nbsp;&nbsp;· 首次破产：${W(String(brokeYr))}年 | 最大亏损：${W(lossAmt)}<br>• 成因：${leverageFactor}x 杠杆放大了房价下跌 → 权益归零 → 负现金流耗尽储备<br>&nbsp;&nbsp;· 升值部分 ≈ ${W(fmt(appreciationPart))} | 现金流部分 ≈ ${W(fmt(cashFlowPart))}<br>• 如何避免：<br>&nbsp;&nbsp;· ${avoidItems.join("<br>&nbsp;&nbsp;· ")}`
-              : `<strong style="color:${DC.taxNeg}">Bankrupted — Negative Net Worth</strong><br>• Definition: property value − loan balance + cash flows < 0 → simulation treats as insolvent<br>&nbsp;&nbsp;· once net worth crosses zero, model freezes at max loss (no false recovery modeled)<br>&nbsp;&nbsp;· first went negative: ${W(String(brokeYr))} | max loss: ${W(lossAmt)}<br>• Why it happened: ${leverageFactor}x leverage amplified the price drop → equity wiped → negative cash flow consumed reserves<br>&nbsp;&nbsp;· appreciation part ≈ ${W(fmt(appreciationPart))} | cash flow part ≈ ${W(fmt(cashFlowPart))}<br>• How to avoid:<br>&nbsp;&nbsp;· ${avoidItems.join("<br>&nbsp;&nbsp;· ")}`;
+              ? `<strong style="color:${DC.taxNeg}">破产 — 净值为负</strong><br>• 定义：房产市值 − 剩余贷款 + 现金流 < 0 → 模拟视为资不抵债<br>&nbsp;&nbsp;· 一旦净值跌破零，模型冻结于最大亏损点（不允许虚假反弹）<br>&nbsp;&nbsp;· 首次破产：${W(String(brokeYr))}年 | 峰值亏损年：${W(String(maxLossYr))}年 | 峰值亏损：${W(lossAmt)}<br>• 成因：${leverageFactor}x 杠杆放大了房价下跌 → 权益归零 → 负现金流耗尽储备<br>&nbsp;&nbsp;· 升值部分 ≈ ${W(fmt(appreciationPart))} | 现金流部分 ≈ ${W(fmt(cashFlowPart))}<br>• 如何避免：<br>&nbsp;&nbsp;· ${avoidItems.join("<br>&nbsp;&nbsp;· ")}`
+              : `<strong style="color:${DC.taxNeg}">Bankrupted — Negative Net Worth</strong><br>• Definition: property value − loan balance + cash flows < 0 → simulation treats as insolvent<br>&nbsp;&nbsp;· once net worth crosses zero, model freezes at max loss (no false recovery modeled)<br>&nbsp;&nbsp;· first went negative: ${W(String(brokeYr))} | peak loss year: ${W(String(maxLossYr))} | peak loss: ${W(lossAmt)}<br>• Why it happened: ${leverageFactor}x leverage amplified the price drop → equity wiped → negative cash flow consumed reserves<br>&nbsp;&nbsp;· appreciation part ≈ ${W(fmt(appreciationPart))} | cash flow part ≈ ${W(fmt(cashFlowPart))}<br>• How to avoid:<br>&nbsp;&nbsp;· ${avoidItems.join("<br>&nbsp;&nbsp;· ")}`;
           }
 
           const reCagr = (
