@@ -2734,8 +2734,17 @@ function makeYrHandleDraggable(handleEl, which) {
       .getElementById("year-range-bar")
       .getBoundingClientRect();
 
+    // Grab offset: finger position minus handle center so drag tracks
+    // relative motion without jumping to the touch point.
+    const curYr = which === "start" ? startYear : endYear;
+    const handlePx = ((curYr - RB_MIN) / (RB_MAX - RB_MIN)) * barRect.width;
+    const grabOffset = e.clientX - barRect.left - handlePx;
+
     const onMove = (mv) => {
-      const x = Math.max(0, Math.min(barRect.width, mv.clientX - barRect.left));
+      const x = Math.max(
+        0,
+        Math.min(barRect.width, mv.clientX - barRect.left - grabOffset),
+      );
       const yr = Math.round(RB_MIN + (x / barRect.width) * (RB_MAX - RB_MIN));
       if (which === "start" && yr < endYear) setStartYear(yr);
       if (which === "end" && yr > startYear) setEndYear(yr);

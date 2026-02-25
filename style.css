@@ -227,15 +227,15 @@ body {
   transform: translateX(-50%);
   touch-action: none;
 }
-/* invisible 44px-wide touch target centered on the 6px visual bar */
+/* invisible touch target centered on the 6px visual bar */
 .yr-handle::after {
   content: "";
   position: absolute;
-  top: 0;
-  bottom: 0;
+  top: -6px;
+  bottom: -6px;
   left: 50%;
   transform: translateX(-50%);
-  width: 44px;
+  width: 56px;
 }
 /* three grip lines */
 .yr-handle::before {
