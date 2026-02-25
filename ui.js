@@ -763,6 +763,22 @@ function getShareParams() {
   return p.toString();
 }
 
+function syncUrl() {
+  const qs = getShareParams();
+  history.replaceState(
+    null,
+    "",
+    qs ? location.pathname + "?" + qs : location.pathname,
+  );
+}
+
+// Update URL whenever any setting button/select inside #settings-grid is interacted with
+const _settingsGrid = document.getElementById("settings-grid");
+if (_settingsGrid) {
+  _settingsGrid.addEventListener("click", syncUrl);
+  _settingsGrid.addEventListener("change", syncUrl);
+}
+
 function loadFromHash() {
   const qs = location.search.slice(1) || location.hash.slice(1);
   if (!qs) return;
@@ -837,6 +853,7 @@ document.getElementById("lang-select").addEventListener("change", (e) => {
     lang === "zh" ? "🇨🇳" : "🇺🇸";
   applyLang();
   draw(curMonth - 1);
+  syncUrl();
 });
 
 // ── Cap Gains sub-button visibility ──────────────────────────────────────
@@ -2259,15 +2276,6 @@ function draw(monthsToShow) {
   updateOutcomeCallout(fullM);
   updateLegendCagr(fullM);
   renderDecomp(fullM);
-
-  if (!playing) {
-    const qs = getShareParams();
-    history.replaceState(
-      null,
-      "",
-      qs ? location.pathname + "?" + qs : location.pathname,
-    );
-  }
 }
 
 // ── Year label ────────────────────────────────────────────────────────────
