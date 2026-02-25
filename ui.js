@@ -58,7 +58,8 @@ const RB_MAX = DATA_THROUGH_YEAR; // advances when data.js updates
 let startYear = 1995;
 let endYear = RB_MAX;
 const PROJ_PX = 48; // fixed pixel width of the EST. projection zone
-let lastPR = 100; // chart right-padding — static 100px, read by updateRangeBar()
+let lastPL = 52; // set by draw(), read by updateRangeBar
+let lastPR = 100; // set by draw(), read by updateRangeBar
 let lastProjPX = 0; // set by draw(), read by updateRangeBar
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
@@ -1912,7 +1913,7 @@ let cW = 0,
 
 function handleCanvasPointer(clientX, clientY) {
   const rect = canvas.getBoundingClientRect();
-  const PL = 52,
+  const PL = lastPL,
     PR = lastPR;
   const chartW = cW - PL - PR;
   const cx = (clientX - rect.left) * (cW / rect.width);
@@ -2073,11 +2074,12 @@ function draw(monthsToShow) {
   ];
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
-  const PL = 52,
-    PR = Math.min(100, Math.max(55, Math.round(W * 0.2))),
+  const PL = Math.min(52, Math.max(40, Math.round(W * 0.11))),
+    PR = Math.min(100, Math.max(55, Math.round(W * 0.18))),
     PT = 16,
     PB = 28;
-  lastPR = PR; // responsive: ~20% of W, clamped [55, 100] — year-range-bar reads lastPR
+  lastPL = PL; // responsive: ~11% of W, clamped [40, 52]
+  lastPR = PR; // responsive: ~18% of W, clamped [55, 100]
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
@@ -2689,7 +2691,8 @@ function rebuild() {
 }
 
 function updateRangeBar() {
-  // Sync label widths: PL=52 left, proj zone + PR right (proj=0 when no prediction)
+  // Sync label widths with chart PL/PR so track aligns with data area
+  document.getElementById("yr-start-label").style.width = lastPL + "px";
   document.getElementById("yr-end-label").style.width =
     lastProjPX + lastPR + "px";
 

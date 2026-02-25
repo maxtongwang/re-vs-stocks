@@ -171,7 +171,7 @@ body {
   margin: 6px 0 4px;
 }
 #yr-start-label {
-  width: 52px; /* matches chart PL=52 — right-aligns under left axis */
+  width: 52px; /* fallback; JS overrides via lastPL in updateRangeBar() */
   flex-shrink: 0;
   font-size: 11px;
   font-family: monospace;
