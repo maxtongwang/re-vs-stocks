@@ -854,6 +854,12 @@ document.getElementById("lang-select").addEventListener("change", (e) => {
     lang === "zh" ? "🇨🇳" : "🇺🇸";
   applyLang();
   draw(curMonth - 1);
+  const qs = getShareParams();
+  history.replaceState(
+    null,
+    "",
+    qs ? location.pathname + "?" + qs : location.pathname,
+  );
 });
 
 // ── Cap Gains sub-button visibility ──────────────────────────────────────
