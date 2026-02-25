@@ -602,14 +602,13 @@ const STRINGS = {
   },
 };
 
-// ── Historical data (1970–2025, 56 entries) ──────────────────────────────────────
-// 2025 values are preliminary estimates
-const BASE_YEAR = 1970,
-  HIST_YEAR = 2026, // last year with real data
-  MAX_YEAR = 2026;
+// ── Historical data ───────────────────────────────────────────────────────────
 // DATA_THROUGH: most recent month with reliable data (auto-updated by script)
 // prettier-ignore
 const DATA_THROUGH_YEAR = 2026, DATA_THROUGH_MONTH = 1; // DATA_THROUGH_MARKER
+const BASE_YEAR = 1970,
+  HIST_YEAR = DATA_THROUGH_YEAR, // auto-derives: advances when data.js updates
+  MAX_YEAR = DATA_THROUGH_YEAR; // auto-derives: advances when data.js updates
 let INIT = 1000000;
 const AMORT_TERMS = 360;
 

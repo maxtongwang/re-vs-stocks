@@ -2,13 +2,14 @@ name: Monthly projection update
 
 on:
   schedule:
-    # Runs monthly on the 1st at 8am UTC.
-    # FMP (stocks, mortgage) always succeeds.
+    # Runs every Monday at 8am UTC (weekly retry cadence).
+    # FMP (stocks, mortgage) always updates.
     # FRED groups (FHFA, S&P CS, BLS rent) are skipped silently when prior-year
-    # data isn't published yet (Jan–Feb); they land automatically once available
-    # (~March) without any retry logic or manual intervention.
-    - cron: "0 8 3 * *"
-  workflow_dispatch: # manual trigger if needed
+    # data isn't published yet; they are picked up automatically once available
+    # (~late Feb for Dec data) — typically within 7 days instead of 30.
+    # workflow_dispatch allows on-demand runs without waiting for the next Monday.
+    - cron: "0 8 * * 1"
+  workflow_dispatch: # manual trigger at any time
 
 jobs:
   update:
@@ -31,11 +32,15 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
+            // Check data.js (primary patch target)
+            try { new Function(fs.readFileSync('data.js', 'utf8')); }
+            catch(e) { console.error('data.js error:', e.message); process.exit(1); }
+            // Check inline <script> blocks in index.html
             const html = fs.readFileSync('index.html', 'utf8');
             const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
             scripts.forEach((s, i) => {
               try { new Function(s.replace(/<\/?script>/g, '')); }
-              catch(e) { console.error('JS error block', i, ':', e.message); process.exit(1); }
+              catch(e) { console.error('index.html block', i, ':', e.message); process.exit(1); }
             });
             console.log('JS OK');
           "
@@ -46,8 +51,8 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html data.js
           if git diff --staged --quiet; then
-            echo "No changes — projection data unchanged."
+            echo "No changes — data unchanged this week."
           else
-            git commit -m "chore: monthly projection update $(date +%Y-%m) [skip ci]"
+            git commit -m "chore: projection update $(date +%Y-%m-%d) [skip ci]"
             git push
           fi

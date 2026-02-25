@@ -410,22 +410,136 @@ def _patch_marker(html: str, start_tag: str, new_val: float) -> str:
     )
 
 
+def detect_array_max_year(data: str) -> int:
+    """Find the highest year in JS array estimate markers.
+
+    Handles all three formats:
+      Format 1: // YYYY (estimate...)   — comment before value, separate line
+      Format 2: // YYYY–YYYY            — range comment covering two years
+      Format 3: value, // YYYY (estimate...) — inline comment on value line
+    """
+    # Format 1 & 3: // YYYY (estimate...) or // YYYY (preliminary estimate...)
+    years = [int(y) for y in re.findall(r'//\s*(20\d{2})\s*\((?:estimate|preliminary)', data)]
+    # Format 2: // YYYY–YYYY range (only short ranges; excludes projection glide "2026–2045")
+    for start_s, end_s in re.findall(r'//\s*(20\d{2})[-\u2013](20\d{2})', data):
+        if int(end_s) - int(start_s) <= 3:
+            years.append(int(end_s))
+    return max(years) if years else 0
+
+
+def maybe_rollover_year(data: str, est_year: int, cur_year: int) -> str:
+    """Extend all JS arrays with cur_year estimate entries when cur_year > array max.
+
+    Called once per year (Jan rollover). Handles three array formats:
+      Format 1: // YYYY (estimate)\n  val,  → adds // new_year (estimate)\n  val,
+      Format 2: // YYYY–YYYY\n  v1, v2,    → adds // new_year (estimate)\n  v2,
+      Format 3: val, // YYYY (estimate)\n]; → adds val, // new_year (estimate) before ]
+
+    Also promotes SP500/NASDAQ/TLT CUR blocks into new annual START/END blocks
+    and creates fresh CUR blocks for the incoming year.
+    """
+    old_year = detect_array_max_year(data)
+    if cur_year <= old_year:
+        return data  # already up to date
+
+    new_year = cur_year
+    print(f"\n[rollover] Arrays end at {old_year} — extending to {new_year}")
+
+    # ── Step 1: Promote SP500/NASDAQ/TLT CUR blocks ──────────────────────────
+    # CUR block (old_year estimate) → new annual START/END block + fresh CUR block
+    cur_cfg = {
+        "SP500":  "Bloomberg Wall St consensus",
+        "NASDAQ": "Bloomberg analyst consensus",
+        "TLT":    None,  # no label suffix
+    }
+    for tok, label in cur_cfg.items():
+        cur_pat = (
+            r'  // ' + tok + r'_CUR_START[^\n]*\n'
+            r'  ([-\d.]+), // [^\n]*\n'
+            r'  // ' + tok + r'_CUR_END'
+        )
+        m = re.search(cur_pat, data)
+        if not m:
+            print(f"  WARNING: {tok}_CUR_START block not found, skipping")
+            continue
+        val = m.group(1)
+        cur_cmt = (f"// {new_year} (estimate — {label})" if label
+                   else f"// {new_year} (estimate)")
+        replacement = (
+            f"  // {tok}_{est_year}_START (auto-updated monthly from FMP)\n"
+            f"  {val}, // {est_year} (preliminary estimate)\n"
+            f"  // {tok}_{est_year}_END\n"
+            f"  // {tok}_CUR_START (auto-updated monthly — current year YTD estimate)\n"
+            f"  {val}, {cur_cmt}\n"
+            f"  // {tok}_CUR_END"
+        )
+        data = re.sub(cur_pat, replacement, data)
+        print(f"  {tok}: inserted _{est_year}_START/END, updated CUR → {new_year}")
+
+    # ── Step 2: Format 1 — standard comment-before-value ─────────────────────
+    # Pattern: \n  // old_year (estimate...)\n  val,
+    count1 = [0]
+    def _fmt1(m):
+        count1[0] += 1
+        indent = m.group(2)
+        val    = m.group(3)
+        return m.group(0) + f'\n{indent}// {new_year} (estimate)\n{indent}{val},'
+    data = re.sub(
+        r'(\n(\s+)// ' + str(old_year) + r' \(estimate[^\n]*\)\n\2)([-\d.]+)(,)',
+        _fmt1, data,
+    )
+    print(f"  Format 1: {count1[0]} entries extended")
+
+    # ── Step 3: Format 2 — range comment + two values on one line ────────────
+    # Pattern: \n  // YYYY–old_year [optional (...)]\n  val1, val2,
+    count2 = [0]
+    def _fmt2(m):
+        count2[0] += 1
+        val2 = m.group(3)
+        return m.group(0) + f'\n  // {new_year} (estimate)\n  {val2},'
+    data = re.sub(
+        r'(  // \d{4}[-\u2013]' + str(old_year) + r'[^\n]*\n  )([-\d.]+), ([-\d.]+)(,)',
+        _fmt2, data,
+    )
+    print(f"  Format 2: {count2[0]} entries extended")
+
+    # ── Step 4: Format 3 — inline comment, directly before ]; ────────────────
+    # Pattern: {indent}val, // old_year (estimate*)\n];\n
+    count3 = [0]
+    def _fmt3(m):
+        count3[0] += 1
+        indent = m.group(1)
+        val    = m.group(2)
+        cmt    = m.group(3)   # ", // old_year (estimate...)"
+        close  = m.group(4)   # "];" possibly with leading whitespace
+        return f'{indent}{val}{cmt}\n{indent}{val}, // {new_year} (estimate)\n{close}'
+    data = re.sub(
+        r'( {2,})([-\d.]+)(, // ' + str(old_year) + r'[^\n]*)\n(\s*\];)',
+        _fmt3, data,
+    )
+    print(f"  Format 3: {count3[0]} entries extended")
+
+    print(f"[rollover] Done — arrays now include {new_year} estimates\n")
+    return data
+
+
 def patch_html(html: str,
                sp500_return: float | None, sp500_cur: float | None,
                nasdaq_return: float | None, nasdaq_cur: float | None,
                tlt_return: float | None, tlt_cur: float | None,
                mort_rate: float | None, date: str,
                data_through_year: int | None = None,
-               data_through_month: int | None = None) -> str:
+               data_through_month: int | None = None,
+               est_year: int = 2025) -> str:
 
     if sp500_return is not None:
-        html = _patch_marker(html, "SP500_2025_START", sp500_return)
+        html = _patch_marker(html, f"SP500_{est_year}_START", sp500_return)
 
     if nasdaq_return is not None:
-        html = _patch_marker(html, "NASDAQ_2025_START", nasdaq_return)
+        html = _patch_marker(html, f"NASDAQ_{est_year}_START", nasdaq_return)
 
     if tlt_return is not None:
-        html = _patch_marker(html, "TLT_2025_START", tlt_return)
+        html = _patch_marker(html, f"TLT_{est_year}_START", tlt_return)
 
     if mort_rate is not None:
         rates     = generate_glide(mort_rate)
@@ -595,6 +709,9 @@ def main():
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         data = f.read()
 
+    # Year rollover: extend all arrays if cur_year is new (runs once per year in Jan)
+    data = maybe_rollover_year(data, est_year, cur_year)
+
     # FMP patches to data.js (SP500, NASDAQ, TLT arrays + mortgage + DATA_THROUGH)
     data = patch_html(data,
                       sp_ret, sp_cur,
@@ -602,7 +719,8 @@ def main():
                       tlt_ret, tlt_cur,
                       mort, date,
                       data_through_year=cur_year,
-                      data_through_month=cur_month)
+                      data_through_month=cur_month,
+                      est_year=est_year)
 
     # Date display and mortgage-rate badge in index.html
     rate_pct = f"{mort * 100:.2f}%"

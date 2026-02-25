@@ -901,8 +901,8 @@ function syncOgMeta(l) {
 }
 
 // ── Lang select ──────────────────────────────────────────────────────────
-document.getElementById("lang-select").addEventListener("change", (e) => {
-  lang = e.target.value;
+document.getElementById("lang-select").addEventListener("click", () => {
+  lang = lang === "en" ? "zh" : "en";
   // Navigate so Chrome fetches fresh HTML with correct OG tags from Worker
   const qs = getShareParams();
   location.href = qs ? location.pathname + "?" + qs : location.pathname;
@@ -2837,7 +2837,6 @@ if (refiLTV && numRefis > 0) {
     .getElementById(`btn-tier-${i}`)
     .classList.toggle("active", i === incomeTier),
 );
-document.getElementById("lang-select").value = lang;
 document.getElementById("lang-abbr").textContent = lang === "zh" ? "🇨🇳" : "🇺🇸";
 if (!inclTaxBenefits)
   document.getElementById("btn-incl-taxbenefit").classList.remove("active");
