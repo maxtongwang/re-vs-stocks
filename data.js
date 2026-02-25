@@ -101,6 +101,10 @@ const MARKET_EVENTS = [
 // ── Localization strings ──────────────────────────────────────────────────
 const STRINGS = {
   en: {
+    ogTitle:
+      "Stocks vs. Real Estate: The Honest Answer Nobody Wants to Give You",
+    ogDesc:
+      "Compare S&P 500, NASDAQ, or 60/40 against real estate across 54 locations in CA, TX, FL, WA, and NY using real 1970\u20132025 data with 2026 estimates. Case-Shiller & FHFA HPI, 5 leverage scenarios, cash-out refi, rental income, depreciation, and capital gains tax modeled.",
     heroTitle: "The Last Chart To Understand<br>Real Estate vs Stock Market",
     heroRe: "CA Real Estate",
     labelStart: "Start:",
@@ -338,6 +342,9 @@ const STRINGS = {
       isRE ? `RE leads +${pct}%` : `Index leads +${pct}%`,
   },
   zh: {
+    ogTitle: "看懂房产 vs 股市的终极图表",
+    ogDesc:
+      "真实数据对比54个美国城市的房产与股市（标普500、纳斯达克、六四组合）收益。涵盖1970–2025年实际数据及2026年预测，支持Case-Shiller与FHFA房价指数切换、5种杠杆方案、套现再融资、租金收入、折旧税盾及资本利得税模拟。",
     heroTitle: "<br>看懂房产 vs 股市的终极图表",
     heroRe: "加州房产",
     labelStart: "起始年：",
