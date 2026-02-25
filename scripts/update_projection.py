@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """Monthly projection updater — fetches live data from FMP and FRED.
 
+ALL-OR-NOTHING: fetches all data sources first; only writes files if every
+fetch succeeds. A single failure aborts the run with no file changes.
+
 Updates in data.js:
   1. SP500_PRICE current-year estimate  → actual annual return from FMP price history
   2. MORTGAGE_RATES projection          → derived from FMP 10yr Treasury + 180bps spread
@@ -11,14 +14,13 @@ Updates in data.js:
   7. CS_{LOC}_ANN estimates (8 metros)  → S&P CS HPI Dec-to-Dec annual return via FRED
 
 Updates in index.html:
-  7. Displayed mortgage rate            → <strong id="proj-mort-rate">
-  8. Data date                          → <!-- PROJ_DATE_START -->...<!-- PROJ_DATE_END -->
+  8. Displayed mortgage rate            → <strong id="proj-mort-rate">
+  9. Data date                          → <!-- PROJ_DATE_START -->...<!-- PROJ_DATE_END -->
 
 Usage:
     FMP_API_KEY=<key> FRED_API_KEY=<key> python3 scripts/update_projection.py [YYYY-MM]
     (date defaults to current YYYY-MM if not supplied)
-    FRED_API_KEY is optional; FHFA/BLS updates skipped if absent.
-    Free FRED API keys: https://fred.stlouisfed.org/docs/api/api_key.html
+    Both keys are required. Free FRED API keys: https://fred.stlouisfed.org/docs/api/api_key.html
 """
 
 import json
@@ -370,11 +372,13 @@ def format_rates_js(rates: list[float], indent: str = "        ") -> str:
 
 # ── HTML patching helpers ─────────────────────────────────────────────────────
 
-def patch_loc_estimate(html: str, var_name: str, new_val: float, year: int) -> str:
+def patch_loc_estimate(content: str, var_name: str, new_val: float, year: int) -> str:
     """Update the year's (estimate) or (preliminary) value inside a JS array.
 
     Matches:  <number>,  // {year} (estimate|preliminary...)
     inside:   const {var_name} = [ ... ]
+
+    Raises ValueError if the marker is not found (structural error in data.js).
     """
     pattern = (
         rf"(?s)(const {re.escape(var_name)}\s*=\s*\[.*?)"
@@ -382,10 +386,10 @@ def patch_loc_estimate(html: str, var_name: str, new_val: float, year: int) -> s
         rf"(,\s*//\s*{year}[^\n]*(?:preliminary|estimate)[^\n]*)"
     )
     val_str = str(new_val)
-    new_html, n = re.subn(pattern, rf"\g<1>{val_str}\g<3>", html)
+    new_content, n = re.subn(pattern, rf"\g<1>{val_str}\g<3>", content)
     if n == 0:
-        print(f"    WARNING: no {year} (estimate/preliminary) marker found in {var_name}")
-    return new_html
+        raise ValueError(f"no {year} (estimate/preliminary) marker found in {var_name}")
+    return new_content
 
 
 def _patch_marker(html: str, start_tag: str, new_val: float) -> str:
@@ -461,56 +465,109 @@ def main():
     if not fmp_key:
         print("ERROR: FMP_API_KEY env var not set", file=sys.stderr)
         sys.exit(1)
-
     if not fred_key:
-        print("WARNING: FRED_API_KEY not set — FHFA/BLS updates will be skipped")
+        print("ERROR: FRED_API_KEY env var not set — both keys required (all-or-nothing)", file=sys.stderr)
+        sys.exit(1)
 
-    date     = sys.argv[1] if len(sys.argv) > 1 else datetime.utcnow().strftime("%Y-%m")
-    est_year = int(date[:4]) - 1   # e.g. running in 2026 → update 2025
-
-    # ── FMP: prior-year annual returns ────────────────────────────────────────
-    print(f"Fetching S&P 500 {est_year} annual return from FMP…")
-    sp_ret = sp500_price_for_year(est_year, fmp_key)
-    print(f"  → {sp_ret}" if sp_ret is not None else "  → fetch failed, skipping")
-
-    print(f"Fetching NASDAQ {est_year} annual return from FMP…")
-    nasdaq_ret = _annual_return("%5EIXIC", est_year, fmp_key)
-    print(f"  → {nasdaq_ret}" if nasdaq_ret is not None else "  → fetch failed, skipping")
-
-    print(f"Fetching TLT {est_year} annual return from FMP…")
-    tlt_ret = _annual_return("TLT", est_year, fmp_key)
-    print(f"  → {tlt_ret}" if tlt_ret is not None else "  → fetch failed, skipping")
-
-    # ── FMP: mortgage rate from Treasury ──────────────────────────────────────
-    print("Fetching 10yr Treasury rate from FMP…")
-    mort = mortgage_rate_from_treasury(fmp_key)
-    print(f"  → {mort*100:.2f}%" if mort is not None else "  → fetch failed, skipping")
-
-    # ── FMP: current-year YTD estimates (all three indices together) ──────────
-    cur_year = int(date[:4])
+    date      = sys.argv[1] if len(sys.argv) > 1 else datetime.utcnow().strftime("%Y-%m")
+    est_year  = int(date[:4]) - 1   # e.g. running in 2026 → update 2025
+    cur_year  = int(date[:4])
     cur_month = int(date[5:7]) - 1  # month BEFORE current (last complete month)
     if cur_month == 0:
         cur_month = 12
         cur_year -= 1
-    print(f"Fetching S&P 500 {cur_year} YTD return from FMP…")
-    sp_cur = sp500_ytd_return(cur_year, fmp_key)
-    print(f"  → {sp_cur}" if sp_cur is not None else "  → fetch failed, skipping")
 
-    print(f"Fetching NASDAQ {cur_year} YTD return from FMP…")
-    nasdaq_cur = nasdaq_ytd_return(cur_year, fmp_key)
-    print(f"  → {nasdaq_cur}" if nasdaq_cur is not None else "  → fetch failed, skipping")
+    failures: list[str] = []
 
-    print(f"Fetching TLT {cur_year} YTD return from FMP…")
-    tlt_cur = tlt_ytd_return(cur_year, fmp_key)
-    print(f"  → {tlt_cur}" if tlt_cur is not None else "  → fetch failed, skipping")
+    def require(label: str, val):
+        """Register a fetch result; None → failure. Returns val unchanged."""
+        if val is None:
+            failures.append(label)
+        return val
 
-    # ── Read files ───────────────────────────────────────────────────────────
+    # ── Phase 1: Fetch ALL data — no files touched yet ────────────────────────
+    print(f"=== Phase 1: fetching all data (run date={date}, est_year={est_year}) ===\n")
+
+    print(f"FMP: S&P 500 {est_year} annual…")
+    sp_ret = require(f"SP500 {est_year} annual", sp500_price_for_year(est_year, fmp_key))
+    print(f"  → {sp_ret}" if sp_ret is not None else "  → FAILED")
+
+    print(f"FMP: NASDAQ {est_year} annual…")
+    nasdaq_ret = require(f"NASDAQ {est_year} annual", _annual_return("%5EIXIC", est_year, fmp_key))
+    print(f"  → {nasdaq_ret}" if nasdaq_ret is not None else "  → FAILED")
+
+    print(f"FMP: TLT {est_year} annual…")
+    tlt_ret = require(f"TLT {est_year} annual", _annual_return("TLT", est_year, fmp_key))
+    print(f"  → {tlt_ret}" if tlt_ret is not None else "  → FAILED")
+
+    print("FMP: 10yr Treasury → mortgage rate…")
+    mort = require("mortgage rate", mortgage_rate_from_treasury(fmp_key))
+    print(f"  → {mort*100:.2f}%" if mort is not None else "  → FAILED")
+
+    print(f"FMP: S&P 500 {cur_year} YTD…")
+    sp_cur = require(f"SP500 {cur_year} YTD", sp500_ytd_return(cur_year, fmp_key))
+    print(f"  → {sp_cur}" if sp_cur is not None else "  → FAILED")
+
+    print(f"FMP: NASDAQ {cur_year} YTD…")
+    nasdaq_cur = require(f"NASDAQ {cur_year} YTD", nasdaq_ytd_return(cur_year, fmp_key))
+    print(f"  → {nasdaq_cur}" if nasdaq_cur is not None else "  → FAILED")
+
+    print(f"FMP: TLT {cur_year} YTD…")
+    tlt_cur = require(f"TLT {cur_year} YTD", tlt_ytd_return(cur_year, fmp_key))
+    print(f"  → {tlt_cur}" if tlt_cur is not None else "  → FAILED")
+
+    # FRED: FHFA HPI
+    metro_returns: dict[str, float | None] = {}
+    print(f"\nFRED: FHFA HPI {est_year} Q4-to-Q4…")
+    for var_name, series_id in HPI_SERIES.items():
+        ret = require(f"FHFA {var_name} ({series_id})",
+                      hpi_annual_return(series_id, est_year, fred_key))
+        metro_returns[var_name] = ret
+        print(f"  {var_name}: {ret:+.4f}" if ret is not None else f"  {var_name}: FAILED")
+
+    # FRED: S&P CS HPI
+    cs_returns: dict[str, float | None] = {}
+    print(f"\nFRED: S&P CS HPI {est_year} Dec-to-Dec…")
+    for var_name, series_id in CS_HPI_SERIES.items():
+        ret = require(f"CS HPI {var_name} ({series_id})",
+                      cs_hpi_annual_return(series_id, est_year, fred_key))
+        cs_returns[var_name] = ret
+        print(f"  {var_name}: {ret:+.4f}" if ret is not None else f"  {var_name}: FAILED")
+
+    # FRED: BLS rent (deduplicated by series_id — multiple var_names share one series)
+    rent_returns: dict[str, float | None] = {}
+    seen_series:  dict[str, float | None] = {}
+    print(f"\nFRED: BLS CPI rent {est_year} Dec-to-Dec…")
+    for var_name, series_id in RENT_SERIES.items():
+        if series_id not in seen_series:
+            ret = rent_growth_annual(series_id, est_year, fred_key)
+            seen_series[series_id] = ret
+            if ret is None:
+                failures.append(f"BLS rent {series_id}")
+                print(f"  {series_id}: FAILED")
+            else:
+                print(f"  {series_id}: {ret:+.4f}")
+        rent_returns[var_name] = seen_series[series_id]
+
+    # ── Phase 2: All-or-nothing gate ──────────────────────────────────────────
+    if failures:
+        print(f"\nERROR: {len(failures)} fetch(es) failed — aborting without writing files:",
+              file=sys.stderr)
+        for name in failures:
+            print(f"  ✗ {name}", file=sys.stderr)
+        print("\nNo files written. Fix API issues and re-run.", file=sys.stderr)
+        sys.exit(1)
+
+    n_fetches = 7 + len(HPI_SERIES) + len(CS_HPI_SERIES) + len(seen_series)
+    print(f"\n=== Phase 2: all {n_fetches} fetches OK — patching files ===\n")
+
+    # ── Phase 3: Read → patch (in memory) → write ─────────────────────────────
     with open(HTML_FILE, "r", encoding="utf-8") as f:
         html = f.read()
     with open(DATA_FILE, "r", encoding="utf-8") as f:
         data = f.read()
 
-    # patch_html writes to data (SP500, mortgage arrays) and html (display elements)
+    # FMP patches to data.js (SP500, NASDAQ, TLT arrays + mortgage + DATA_THROUGH)
     data = patch_html(data,
                       sp_ret, sp_cur,
                       nasdaq_ret, nasdaq_cur,
@@ -518,78 +575,49 @@ def main():
                       mort, date,
                       data_through_year=cur_year,
                       data_through_month=cur_month)
-    # Date display and mortgage-rate badge stay in HTML
-    if mort is not None:
-        rate_pct = f"{mort * 100:.2f}%"
-        html = re.sub(
-            r"<!-- PROJ_DATE_START -->.*?<!-- PROJ_DATE_END -->",
-            f"<!-- PROJ_DATE_START -->{date}<!-- PROJ_DATE_END -->",
-            html,
-        )
-        html = re.sub(
-            r'(<strong id="proj-mort-rate"[^>]*>)[^<]*(</strong>)',
-            rf"\g<1>{rate_pct}\g<2>",
-            html,
-        )
 
-    # ── FRED: FHFA HPI annual returns for metro/state locations ──────────────
-    metro_returns: dict[str, float | None] = {}   # cache for city scaling
-    rent_returns:  dict[str, float | None] = {}
-    if fred_key:
-        print(f"\nFetching FHFA HPI {est_year} Q4-to-Q4 returns from FRED…")
-        for var_name, series_id in HPI_SERIES.items():
-            ret = hpi_annual_return(series_id, est_year, fred_key)
-            metro_returns[var_name] = ret
-            if ret is not None:
-                print(f"  {var_name} ({series_id}): {ret:+.4f}")
-                data = patch_loc_estimate(data, var_name, ret, est_year)
-            else:
-                print(f"  {var_name} ({series_id}): no data yet, skipping")
+    # Date display and mortgage-rate badge in index.html
+    rate_pct = f"{mort * 100:.2f}%"
+    html = re.sub(
+        r"<!-- PROJ_DATE_START -->.*?<!-- PROJ_DATE_END -->",
+        f"<!-- PROJ_DATE_START -->{date}<!-- PROJ_DATE_END -->",
+        html,
+    )
+    html = re.sub(
+        r'(<strong id="proj-mort-rate"[^>]*>)[^<]*(</strong>)',
+        rf"\g<1>{rate_pct}\g<2>",
+        html,
+    )
 
-        # ── FRED: S&P CS HPI annual returns ───────────────────────────────────
-        print(f"\nFetching S&P CS HPI {est_year} Dec-to-Dec returns from FRED…")
-        for var_name, series_id in CS_HPI_SERIES.items():
-            ret = cs_hpi_annual_return(series_id, est_year, fred_key)
-            if ret is not None:
-                print(f"  {var_name} ({series_id}): {ret:+.4f}")
-                data = patch_loc_estimate(data, var_name, ret, est_year)
-            else:
-                print(f"  {var_name} ({series_id}): no data yet, skipping")
+    # FHFA HPI patches (all non-None guaranteed by phase 2 gate)
+    print("Patching FHFA HPI…")
+    for var_name, ret in metro_returns.items():
+        print(f"  {var_name}: {ret:+.4f}")
+        data = patch_loc_estimate(data, var_name, ret, est_year)
 
-        # ── FRED: BLS CPI rent growth for metro/state locations ────────────────
-        print(f"\nFetching BLS CPI rent growth {est_year} Dec-to-Dec from FRED…")
-        seen_series: dict[str, float | None] = {}
-        for var_name, series_id in RENT_SERIES.items():
-            if series_id not in seen_series:
-                seen_series[series_id] = rent_growth_annual(series_id, est_year, fred_key)
-            ret = seen_series[series_id]
-            rent_returns[var_name] = ret
-            if ret is not None:
-                print(f"  {var_name} ({series_id}): {ret:+.4f}")
-                data = patch_loc_estimate(data, var_name, ret, est_year)
-            else:
-                print(f"  {var_name} ({series_id}): no data yet, skipping")
+    # S&P CS HPI patches
+    print("Patching S&P CS HPI…")
+    for var_name, ret in cs_returns.items():
+        print(f"  {var_name}: {ret:+.4f}")
+        data = patch_loc_estimate(data, var_name, ret, est_year)
 
-        # ── Derive city estimates from parent metro returns × scale factor ──────
-        print(f"\nDeriving city estimates from parent metro returns…")
-        for city_ann, (parent_hpi, price_scale, parent_rent, rent_scale) in CITY_FROM_METRO.items():
-            city_rent = city_ann.replace("_ANN", "_RENT_GROWTH")
-            p_ret = metro_returns.get(parent_hpi)
-            r_ret = rent_returns.get(parent_rent)
-            if p_ret is not None:
-                city_val = round(p_ret * price_scale, 4)
-                print(f"  {city_ann}: {parent_hpi} {p_ret:+.4f} × {price_scale} = {city_val:+.4f}")
-                data = patch_loc_estimate(data, city_ann, city_val, est_year)
-            else:
-                print(f"  {city_ann}: parent {parent_hpi} unavailable, skipping")
-            if r_ret is not None:
-                city_rent_val = round(r_ret * rent_scale, 4)
-                print(f"  {city_rent}: {parent_rent} {r_ret:+.4f} × {rent_scale} = {city_rent_val:+.4f}")
-                data = patch_loc_estimate(data, city_rent, city_rent_val, est_year)
-            else:
-                print(f"  {city_rent}: parent {parent_rent} unavailable, skipping")
+    # BLS rent patches
+    print("Patching BLS rent…")
+    for var_name, ret in rent_returns.items():
+        print(f"  {var_name}: {ret:+.4f}")
+        data = patch_loc_estimate(data, var_name, ret, est_year)
 
-    # ── Write files ───────────────────────────────────────────────────────────
+    # City estimates — parents guaranteed non-None
+    print("Patching city estimates…")
+    for city_ann, (parent_hpi, price_scale, parent_rent, rent_scale) in CITY_FROM_METRO.items():
+        city_rent     = city_ann.replace("_ANN", "_RENT_GROWTH")
+        city_val      = round(metro_returns[parent_hpi] * price_scale, 4)
+        city_rent_val = round(rent_returns[parent_rent] * rent_scale, 4)
+        print(f"  {city_ann}: {parent_hpi} × {price_scale} = {city_val:+.4f}")
+        print(f"  {city_rent}: {parent_rent} × {rent_scale} = {city_rent_val:+.4f}")
+        data = patch_loc_estimate(data, city_ann, city_val, est_year)
+        data = patch_loc_estimate(data, city_rent, city_rent_val, est_year)
+
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
