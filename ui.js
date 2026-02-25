@@ -731,7 +731,6 @@ function getShareParams() {
   if (endYear !== MAX_YEAR) p.set("e", endYear);
   if (reinvest) p.set("m", "r");
   if (reinvest && reinvestIdx !== "sp500") p.set("ri", reinvestIdx);
-  if (showIndexOverlay) p.set("ov", "1");
   if (isPrimary) p.set("p", "1");
   if (numRefis > 0) p.set("r", numRefis);
   if (refiLTV) p.set("t", "l");
