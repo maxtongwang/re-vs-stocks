@@ -2074,7 +2074,7 @@ function draw(monthsToShow) {
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
   const PL = Math.min(44, Math.max(36, Math.round(W * 0.08))),
-    PR = Math.min(58, Math.max(50, Math.round(W * 0.09))),
+    PR = Math.min(70, Math.max(62, Math.round(W * 0.11))),
     PT = 16,
     PB = 28;
   lastPL = PL;
@@ -2426,9 +2426,9 @@ function draw(monthsToShow) {
       for (let k = 0; k < positions.length; k++)
         if (positions[k] < PT + lfs) positions[k] = PT + lfs;
       const lx =
-        (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
+        (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 14;
       items.forEach(({ s, i, v }, k) => {
-        const dotX = lx - 6;
+        const dotX = lx - 14;
         const actualY = ty(v);
         const bumpedY = positions[k];
         // TradingView-style leader: vertical from dot to bumped Y, then horizontal tick to label
@@ -2440,7 +2440,7 @@ function draw(monthsToShow) {
         ctx.beginPath();
         ctx.moveTo(dotX, actualY);
         if (Math.abs(bumpedY - actualY) > 1) ctx.lineTo(dotX, bumpedY);
-        ctx.lineTo(lx - 2, bumpedY);
+        ctx.lineTo(lx - 4, bumpedY);
         ctx.stroke();
         ctx.globalAlpha = savedAlpha;
         ctx.fillStyle = CT.s[i];
@@ -2476,7 +2476,7 @@ function draw(monthsToShow) {
     const canInterp = frac > 0 && hm + 1 < indexSpWealth.length;
     const atStart = fullM === 0 && frac === 0;
     const lx =
-      (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
+      (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 14;
     const overlayPositions = overlayPairs.map(({ w }) => {
       const v0 = atStart ? INIT : w[hm];
       return ty(
@@ -2550,10 +2550,10 @@ function draw(monthsToShow) {
       ctx.lineWidth = 0.75;
       ctx.setLineDash([]);
       ctx.beginPath();
-      ctx.moveTo(lx - 6, ty(v));
+      ctx.moveTo(lx - 14, ty(v));
       if (Math.abs(overlayPositions[oi] - ty(v)) > 1)
-        ctx.lineTo(lx - 6, overlayPositions[oi]);
-      ctx.lineTo(lx - 2, overlayPositions[oi]);
+        ctx.lineTo(lx - 14, overlayPositions[oi]);
+      ctx.lineTo(lx - 4, overlayPositions[oi]);
       ctx.stroke();
       ctx.globalAlpha = savedAlpha;
       ctx.fillStyle = color;
