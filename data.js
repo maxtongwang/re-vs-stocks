@@ -428,7 +428,7 @@ const STRINGS = {
     tipHpiSource:
       "房价指数。Case-Shiller（默认）：覆盖所有等价转让含现金及巨额贷款，更适合高端滨海市场。FHFA：仅限合规贷款，县级粒度更细。详见下方「房价指数（HPI）」说明。",
     btnFhfa: "FHFA",
-    btnCs: "CS",
+    btnCs: "Case-Shiller",
     labelPriceOnlyComparison: "纯价格对比",
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
