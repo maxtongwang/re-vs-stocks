@@ -57,7 +57,6 @@ const RB_MAX = DATA_THROUGH_YEAR; // advances when data.js updates
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
 let endYear = RB_MAX;
-const PROJ_PX = 48; // fixed pixel width of the EST. projection zone overlay
 let lastPL = 52; // set by draw(), read by updateRangeBar
 let lastPR = 100; // set by draw(), read by updateRangeBar
 let reinvest = false;
@@ -2061,10 +2060,6 @@ function draw(monthsToShow) {
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
-  // Fixed-width overlay for projection zone — does NOT reduce chartW/histW
-  const effProjPX = hasProjZone
-    ? Math.min(PROJ_PX, Math.max(20, Math.round(chartW * 0.12)))
-    : 0;
 
   // Y range (log scale) — bidirectional smooth lerp during play, instant snap
   // during slider. Null means first frame: snap immediately.
@@ -2203,24 +2198,24 @@ function draw(monthsToShow) {
   }
   ctx.globalAlpha = 1.0;
 
-  // Projection zone shading — fixed-width overlay at right edge of chartW
-  if (hasProjZone) {
-    const pxStart = PL + chartW - effProjPX;
+  // Projection zone shading — starts at actual data boundary, fills to right edge
+  const pxProjStart = tx(projStartM + 1);
+  if (hasProjZone && pxProjStart < PL + chartW) {
     ctx.fillStyle = CT.projFill;
-    ctx.fillRect(pxStart, PT, effProjPX, chartH);
+    ctx.fillRect(pxProjStart, PT, PL + chartW - pxProjStart, chartH);
     // Boundary line
     ctx.strokeStyle = CT.projStroke;
     ctx.lineWidth = 1;
     ctx.setLineDash([3, 3]);
     ctx.beginPath();
-    ctx.moveTo(pxStart, PT);
-    ctx.lineTo(pxStart, PT + chartH);
+    ctx.moveTo(pxProjStart, PT);
+    ctx.lineTo(pxProjStart, PT + chartH);
     ctx.stroke();
     ctx.setLineDash([]);
     ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
     ctx.fillStyle = CT.projLabel;
     ctx.textAlign = "left";
-    ctx.fillText("EST.", pxStart + 4, PT - 3);
+    ctx.fillText("EST.", pxProjStart + 4, PT - 3);
   }
 
   // Lines — dim to background when overlay is active
