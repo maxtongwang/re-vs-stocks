@@ -59,6 +59,7 @@ let startYear = 1995;
 let endYear = RB_MAX;
 let lastPL = 52; // set by draw(), read by updateRangeBar
 let lastPR = 100; // set by draw(), read by updateRangeBar
+let lastProjPX = 0; // set by draw(), read by updateRangeBar
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
@@ -1920,12 +1921,33 @@ function handleCanvasPointer(clientX, clientY) {
     return;
   }
   const xInChart = cx - PL;
-  const m = Math.round(
-    Math.max(
-      0,
-      Math.min(totalMonths - 1, (xInChart * totalMonths) / chartW - 1),
-    ),
-  );
+  const hasProjH = projStartM + 1 < totalMonths;
+  const effProjH = hasProjH ? lastProjPX : 0;
+  const histWH = chartW - effProjH;
+  const histEndMH = projStartM + 1;
+  let m;
+  if (!hasProjH) {
+    m = Math.round(
+      Math.max(
+        0,
+        Math.min(totalMonths - 1, (xInChart * totalMonths) / chartW - 1),
+      ),
+    );
+  } else if (xInChart <= histWH) {
+    m = Math.round(
+      Math.max(0, (xInChart * histEndMH) / Math.max(histWH, 1) - 1),
+    );
+  } else {
+    const xInProj = xInChart - histWH;
+    m = Math.round(
+      Math.min(
+        totalMonths - 1,
+        histEndMH -
+          1 +
+          (xInProj * (totalMonths - histEndMH)) / Math.max(effProjH, 1),
+      ),
+    );
+  }
   const yr = startYear + Math.floor(m / 12);
   const mo = (m % 12) + 1;
   const years = (m + 1) / 12;
@@ -2060,6 +2082,13 @@ function draw(monthsToShow) {
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
+  // Responsive fixed-width projection zone: ~12% of chartW, clamped [20, 48]px
+  const effProjPX = hasProjZone
+    ? Math.min(48, Math.max(20, Math.round(chartW * 0.12)))
+    : 0;
+  const histW = chartW - effProjPX;
+  const histEndM = projStartM + 1;
+  lastProjPX = effProjPX;
 
   // Y range (log scale) — bidirectional smooth lerp during play, instant snap
   // during slider. Null means first frame: snap immediately.
@@ -2092,7 +2121,15 @@ function draw(monthsToShow) {
   );
   const yLo = lerpYLo;
   const yHi = lerpYHi;
-  const tx = (m) => PL + (m / Math.max(totalMonths, 1)) * chartW;
+  const tx = (m) => {
+    if (!hasProjZone) return PL + (m / Math.max(totalMonths, 1)) * chartW;
+    if (m <= histEndM) return PL + (m / histEndM) * histW;
+    return (
+      PL +
+      histW +
+      ((m - histEndM) / Math.max(totalMonths - histEndM, 1)) * effProjPX
+    );
+  };
   const logRange = Math.log(yHi) - Math.log(yLo);
   const ty = (v) =>
     PT + ((Math.log(yHi) - Math.log(Math.max(v, yLo))) / logRange) * chartH;
@@ -2198,7 +2235,7 @@ function draw(monthsToShow) {
   }
   ctx.globalAlpha = 1.0;
 
-  // Projection zone shading — starts at actual data boundary, fills to right edge
+  // Projection zone shading — split tx() makes this exactly effProjPX wide
   const pxProjStart = tx(projStartM + 1);
   if (hasProjZone && pxProjStart < PL + chartW) {
     ctx.fillStyle = CT.projFill;
@@ -2655,7 +2692,8 @@ function rebuild() {
 function updateRangeBar() {
   // Sync label widths with chart PL/PR so track aligns with data area
   document.getElementById("yr-start-label").style.width = lastPL + "px";
-  document.getElementById("yr-end-label").style.width = lastPR + "px";
+  document.getElementById("yr-end-label").style.width =
+    lastProjPX + lastPR + "px";
 
   const pS = (startYear - RB_MIN) / (RB_MAX - RB_MIN);
   const pE = (endYear - RB_MIN) / (RB_MAX - RB_MIN);
