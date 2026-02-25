@@ -2674,10 +2674,12 @@ function updateChartMaxHeight() {
   } else {
     wrap.style.maxHeight = "";
   }
-  resizeCanvas();
+  // resizeCanvas() intentionally omitted — debounced resize handler calls it.
+  // Calling it here would clear the canvas 80ms before the redraw, causing flash.
 }
 window.addEventListener("resize", updateChartMaxHeight);
 updateChartMaxHeight();
+resizeCanvas(); // explicit init sizing (debounced handler won't fire on load)
 applyLang();
 updateLabel(curMonth);
 draw(curMonth - 1);
