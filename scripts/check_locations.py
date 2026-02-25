@@ -31,6 +31,11 @@ INDEX_HTML = ROOT / "index.html"
 # NYC uses NY statewide HPI as a proxy instead.
 HPI_EXCEPTIONS = {"nyc"}
 
+# Cities whose actual state/abbr differs from their group in LOCATION_HIERARCHY.
+GEO_CITY_OVERRIDES = {
+    "hoboken": {"abbr": "NJ", "state": "New Jersey"},
+}
+
 # ── Bracket-counting block extractor ─────────────────────────────────────────
 
 
@@ -242,7 +247,9 @@ def build_geo_placename(states: list) -> str:
             if not is_statewide:
                 parts.append(f"{metro['label']} {abbr}")
             for city in metro["cities"]:
-                parts.append(f"{city['label']} {abbr}")
+                ov = GEO_CITY_OVERRIDES.get(city["key"], {})
+                city_abbr = ov.get("abbr", abbr)
+                parts.append(f"{city['label']} {city_abbr}")
         parts.append(state["label"])
     parts.append("United States")
     return ", ".join(parts)
@@ -266,8 +273,10 @@ def build_jsonld_about(states: list) -> str:
                 f'{_ITEM_INDENT}{{ "@type": "Place", "name": "{name}" }}'
             )
             for city in metro["cities"]:
+                ov = GEO_CITY_OVERRIDES.get(city["key"], {})
+                city_state = ov.get("state", state_name)
                 lines.append(
-                    f'{_ITEM_INDENT}{{ "@type": "Place", "name": "{city["label"]}, {state_name}" }}'
+                    f'{_ITEM_INDENT}{{ "@type": "Place", "name": "{city["label"]}, {city_state}" }}'
                 )
     return "[\n" + ",\n".join(lines) + f"\n{_CLOSE_INDENT}]"
 
