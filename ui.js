@@ -772,11 +772,16 @@ function syncUrl() {
   );
 }
 
-// Update URL whenever any setting button/select inside #settings-grid is interacted with
+// Update URL whenever any setting button/select is interacted with
 const _settingsGrid = document.getElementById("settings-grid");
 if (_settingsGrid) {
   _settingsGrid.addEventListener("click", syncUrl);
   _settingsGrid.addEventListener("change", syncUrl);
+}
+// Hero controls: initial capital, index, state, metro, city
+const _heroControls = document.querySelector(".hero-controls");
+if (_heroControls) {
+  _heroControls.addEventListener("change", syncUrl);
 }
 
 function loadFromHash() {
