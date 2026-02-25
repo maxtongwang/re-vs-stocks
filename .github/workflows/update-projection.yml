@@ -7,7 +7,7 @@ on:
     # FRED groups (FHFA, S&P CS, BLS rent) are skipped silently when prior-year
     # data isn't published yet (Jan–Feb); they land automatically once available
     # (~March) without any retry logic or manual intervention.
-    - cron: "0 8 1 * *"
+    - cron: "0 8 3 * *"
   workflow_dispatch: # manual trigger if needed
 
 jobs:
