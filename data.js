@@ -177,8 +177,8 @@ const STRINGS = {
       hpiSrc = "cs",
     ) => [
       `${idxLabel} returns: ${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)} (current year live)`,
-      `${hpiSrc === "cs" ? "<strong>← active</strong> " : ""}S&amp;P CoreLogic Case-Shiller HPI: all arm's-length repeat-sale transactions (broader than FHFA's conforming-loan-only). ${locLabel} mapped to ${lnk([csSrc])}. Pre-series years use FHFA fallback.`,
-      `${hpiSrc === "fhfa" ? "<strong>← active</strong> " : ""}FHFA House Price Index (HPI): conforming-loan-only repeat-sale index (Freddie Mac &amp; Fannie Mae records). ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources.`,
+      `${hpiSrc === "cs" ? "<b>← active</b> " : ""}S&amp;P CoreLogic Case-Shiller HPI: all arm's-length repeat-sale transactions (broader than FHFA's conforming-loan-only). ${locLabel} mapped to ${lnk([csSrc])}. Pre-series years use FHFA fallback.`,
+      `${hpiSrc === "fhfa" ? "<b>← active</b> " : ""}FHFA House Price Index (HPI): conforming-loan-only repeat-sale index (Freddie Mac &amp; Fannie Mae records). ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources.`,
       `Mortgage rates: <a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">FRED MORTGAGE30US</a>`,
       `Rent growth pre-2015: ${lnk(lSrc.rentPre2015)}`,
       `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
@@ -282,6 +282,15 @@ const STRINGS = {
           "The goal is intuition: historical outcomes vary wildly by entry year, leverage, and city. Drag the start year, flip rental to primary, toggle costs on and off — notice how the winner changes. No single answer is correct.",
           "All figures are nominal (not inflation-adjusted). Data: S&P CoreLogic Case-Shiller / FHFA house price index (switchable; location-adjusted), S&P 500 total return (CRSP / Macrotrends), 30-yr mortgage rates (FRED), local property tax rates, historical dividend yields, CPI.",
           'Values highlighted in <span style="color:var(--accent);font-weight:500">blue</span> throughout the sections below are live — they reflect your current market and settings and update instantly when you change any input above.',
+        ],
+      },
+      {
+        label: "House Price Index",
+        items: [
+          "Both indices use a repeat-sale methodology — tracking price change for the same home sold twice — to eliminate quality-mix distortion. They differ in which transactions they include and how granular the geography is.",
+          "Transaction universe: Case-Shiller (CS) captures all arm's-length sales including cash purchases and jumbo loans. FHFA covers only conforming-loan transactions (Freddie Mac &amp; Fannie Mae records), capped at the conforming loan limit (~$766K in 2024). In the most expensive ZIP codes, conforming loans can represent well under half of all sales — meaning FHFA misses the majority of the market.",
+          "Geographic granularity: FHFA publishes county-level indices for 400+ MSAs and counties. CS publishes 20 metro composites — all of Greater LA (OC, Malibu, Pasadena, Manhattan Beach, etc.) shares one index; all of DFW suburbs share one Dallas composite.",
+          "Which is more accurate for this tool: Case-Shiller is the better default for most featured markets. The neighborhoods here — Newport Beach, Atherton, La Jolla, Manhattan Beach, Miami Beach, Coronado, Manhattan — have heavy concentrations of cash and jumbo transactions that FHFA systematically excludes. For mid-market inland suburbs (Plano, Frisco, Redmond), conforming loans dominate and the two indices converge — either is reasonable. Use the toggle above to compare both for your market.",
         ],
       },
       {
@@ -404,8 +413,8 @@ const STRINGS = {
       hpiSrc = "cs",
     ) => [
       `${idxLabel}收益数据：${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)}（当年实时数据）`,
-      `${hpiSrc === "cs" ? "<strong>← 当前</strong> " : ""}S&amp;P CoreLogic Case-Shiller HPI：覆盖所有等价交易（非FHFA合规贷款限定）。${locLabel}对应：${lnk([csSrc])}。CS序列开始前使用FHFA数据。`,
-      `${hpiSrc === "fhfa" ? "<strong>← 当前</strong> " : ""}FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数。${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。`,
+      `${hpiSrc === "cs" ? "<b>← 当前</b> " : ""}S&amp;P CoreLogic Case-Shiller HPI：覆盖所有等价交易（非FHFA合规贷款限定）。${locLabel}对应：${lnk([csSrc])}。CS序列开始前使用FHFA数据。`,
+      `${hpiSrc === "fhfa" ? "<b>← 当前</b> " : ""}FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数。${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。`,
       `房贷利率：<a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">美联储 FRED MORTGAGE30US</a>`,
       `2015年前租金涨幅：${lnk(lSrc.rentPre2015)}`,
       `2015年后租金涨幅：${lnk(lSrc.rentPost2015)}`,
@@ -509,6 +518,15 @@ const STRINGS = {
           "目标是建立直觉：历史结果因入场年份、杠杆率和城市不同而差异极大，没有唯一正确答案。拖动起始年、切换出租与自住、开关各项成本——观察领先者如何随条件变化而转换。",
           "所有数据均为名义值（未经通胀调整）。数据来源：S&P CS / FHFA房价指数（可切换，按城市调整）、标普500总回报（CRSP/Macrotrends）、30年固定房贷利率（FRED）、各地房产税率、历史股息率及CPI。",
           '以下各节中<span style="color:var(--accent);font-weight:500">蓝色</span>标注的数值为实时数据——反映当前所选市场和设置，任意输入变更即刻更新。',
+        ],
+      },
+      {
+        label: "房价指数（HPI）",
+        items: [
+          "两种指数均采用重复交易法——追踪同一房产两次出售之间的价格变化，排除房源结构差异带来的干扰。两者的区别在于纳入的交易类型和地理粒度。",
+          "交易范围：Case-Shiller（CS）覆盖所有等价转让，含现金交易和巨额贷款（Jumbo）。FHFA 仅收录合规贷款交易（房地美与房利美记录），上限约为76.6万美元（2024年合规贷款上限）。在最高端ZIP码，合规贷款甚至占不到全部成交的一半，意味着FHFA遗漏了大量市场成交。",
+          "地理粒度：FHFA 发布400多个MSA及县级指数；CS 仅发布20个都市圈合并指数——大洛杉矶地区（OC、马里布、帕萨迪纳、曼哈顿海滩等）共用一个指数，整个DFW郊区共用一个达拉斯指数。",
+          "哪个更适合本工具：Case-Shiller 是大多数所选市场的更准确默认选项。本工具收录的高端社区（纽波特比奇、阿瑟顿、拉霍亚、曼哈顿海滩、迈阿密海滩、科罗纳多、曼哈顿）大量依赖现金或巨额贷款成交，而这些交易均被FHFA系统性地排除。内陆中端郊区（普莱诺、弗里斯科、雷德蒙德）合规贷款占主导，两个指数差距不大——均可参考。可通过上方切换按钮对比两者差异。",
         ],
       },
       {
