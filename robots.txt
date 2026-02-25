@@ -1,5 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://maxtongwang.github.io/re-vs-stocks/sitemap.xml
-
+Sitemap: https://chart.maxwangestates.com/sitemap.xml
