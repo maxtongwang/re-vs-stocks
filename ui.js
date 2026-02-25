@@ -726,7 +726,7 @@ document.getElementById("ltv-pct-slider").addEventListener("input", (e) => {
 function getShareParams() {
   const p = new URLSearchParams();
   if (startYear !== 1995) p.set("s", startYear);
-  if (endYear !== 2026) p.set("e", endYear);
+  if (endYear !== MAX_YEAR) p.set("e", endYear);
   if (reinvest) p.set("m", "r");
   if (reinvest && reinvestIdx !== "sp500") p.set("ri", reinvestIdx);
   if (showIndexOverlay) p.set("ov", "1");
@@ -764,9 +764,9 @@ function getShareParams() {
 }
 
 function loadFromHash() {
-  const hash = location.hash.slice(1);
-  if (!hash) return;
-  const p = new URLSearchParams(hash);
+  const qs = location.search.slice(1) || location.hash.slice(1);
+  if (!qs) return;
+  const p = new URLSearchParams(qs);
   if (p.has("s")) {
     const v = parseInt(p.get("s"));
     if (v >= BASE_YEAR && v < MAX_YEAR) startYear = v;
@@ -833,14 +833,11 @@ function loadFromHash() {
 document.addEventListener("click", (e) => {
   if (!e.target.closest("#share-btn")) return;
   const qs = getShareParams();
-  history.replaceState(
-    null,
-    "",
-    qs ? "#" + qs : location.pathname + location.search,
-  );
+  const url = qs ? location.pathname + "?" + qs : location.pathname;
+  history.replaceState(null, "", url);
   const btn = document.getElementById("share-btn");
   navigator.clipboard
-    .writeText(location.href)
+    .writeText(location.origin + url)
     .then(() => {
       btn.textContent = "✓";
       setTimeout(() => {
@@ -2599,9 +2596,9 @@ populateCitySelect();
 
 // Apply URL location/index params after cascade helpers are ready
 function applyLocationFromHash() {
-  const hash = location.hash.slice(1);
-  if (!hash) return;
-  const p = new URLSearchParams(hash);
+  const qs = location.search.slice(1) || location.hash.slice(1);
+  if (!qs) return;
+  const p = new URLSearchParams(qs);
   if (p.has("idx")) {
     const sel = document.getElementById("index-select");
     const v = p.get("idx");
