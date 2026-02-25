@@ -878,6 +878,7 @@ function syncOgMeta(l) {
   document
     .querySelector('meta[name="twitter:description"]')
     ?.setAttribute("content", og.desc);
+  document.title = og.title;
 }
 
 // ── Lang select ──────────────────────────────────────────────────────────
