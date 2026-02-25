@@ -2428,9 +2428,24 @@ function draw(monthsToShow) {
       const lx =
         (atStart ? tx(0) : canInterp ? tx(fullM + 1 + frac) : tx(hm + 1)) + 6;
       items.forEach(({ s, i, v }, k) => {
+        const dotX = lx - 6;
+        const actualY = ty(v);
+        const bumpedY = positions[k];
+        // TradingView-style leader: vertical from dot to bumped Y, then horizontal tick to label
+        const savedAlpha = ctx.globalAlpha;
+        ctx.globalAlpha = savedAlpha * 0.45;
+        ctx.strokeStyle = CT.s[i];
+        ctx.lineWidth = 0.75;
+        ctx.setLineDash([]);
+        ctx.beginPath();
+        ctx.moveTo(dotX, actualY);
+        if (Math.abs(bumpedY - actualY) > 1) ctx.lineTo(dotX, bumpedY);
+        ctx.lineTo(lx - 2, bumpedY);
+        ctx.stroke();
+        ctx.globalAlpha = savedAlpha;
         ctx.fillStyle = CT.s[i];
-        ctx.fillText(fmt(v), lx, positions[k] - lfs * 0.3);
-        ctx.fillText(chartLegLabels[i], lx, positions[k] + lfs * 0.9);
+        ctx.fillText(fmt(v), lx, bumpedY - lfs * 0.3);
+        ctx.fillText(chartLegLabels[i], lx, bumpedY + lfs * 0.9);
       });
     }
   }
@@ -2528,6 +2543,19 @@ function draw(monthsToShow) {
         : canInterp
           ? w[hm] + frac * (w[Math.min(hm + 1, w.length - 1)] - w[hm])
           : w[hm];
+      // TradingView-style leader
+      const savedAlpha = ctx.globalAlpha;
+      ctx.globalAlpha = savedAlpha * 0.45;
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 0.75;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(lx - 6, ty(v));
+      if (Math.abs(overlayPositions[oi] - ty(v)) > 1)
+        ctx.lineTo(lx - 6, overlayPositions[oi]);
+      ctx.lineTo(lx - 2, overlayPositions[oi]);
+      ctx.stroke();
+      ctx.globalAlpha = savedAlpha;
       ctx.fillStyle = color;
       ctx.font = `bold ${lfs}px monospace`;
       ctx.textAlign = "left";
