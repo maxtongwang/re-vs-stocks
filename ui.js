@@ -50,9 +50,13 @@ _mq.addEventListener("change", () => {
   if (getThemePref() === "auto") applyTheme("auto");
 });
 
+// ── Year range constants (derived from data so they auto-advance on update) ──
+const RB_MIN = BASE_YEAR; // = 1970
+const RB_MAX = DATA_THROUGH_YEAR; // advances when data.js updates
+
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
-let endYear = 2025;
+let endYear = RB_MAX;
 let lastPR = 100; // chart right-padding — static 100px, read by updateRangeBar()
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
@@ -2674,8 +2678,6 @@ function setEndYear(yr) {
 }
 
 // ── Year range brush drag ──────────────────────────────────────────────────
-const RB_MIN = 1970,
-  RB_MAX = 2025;
 
 function makeYrHandleDraggable(handleEl, which) {
   handleEl.addEventListener("pointerdown", (e) => {
