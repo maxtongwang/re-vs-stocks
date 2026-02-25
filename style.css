@@ -156,11 +156,29 @@ body {
   font-weight: bold;
   min-width: 36px;
 }
-/* ── Year range brush bar (below chart) ── */
+/* ── Year range brush: [1995] ━━━━━━━━━ [2026] ── */
+#year-range-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0 4px;
+}
+#yr-start-label,
+#yr-end-label {
+  font-size: 11px;
+  font-family: monospace;
+  color: var(--text-mid);
+  white-space: nowrap;
+  min-width: 28px;
+  flex-shrink: 0;
+}
+#yr-end-label {
+  text-align: right;
+}
 #year-range-bar {
   position: relative;
+  flex: 1;
   height: 6px;
-  margin: 10px 0 0;
   background: var(--border);
   border-radius: 3px;
   user-select: none;
@@ -175,6 +193,7 @@ body {
   background: var(--text-mid);
   opacity: 0.4;
   pointer-events: none;
+  border-radius: 3px;
 }
 /* clamp handle: narrow vertical bar taller than the track */
 .yr-handle {
@@ -188,7 +207,7 @@ body {
   transform: translateX(-50%);
   touch-action: none;
 }
-/* three grip dots */
+/* three grip lines */
 .yr-handle::before {
   content: "";
   position: absolute;
@@ -202,14 +221,6 @@ body {
     0 -3px 0 rgba(128, 128, 128, 0.5),
     0 3px 0 rgba(128, 128, 128, 0.5);
   border-radius: 1px;
-}
-/* year labels: start left, end right */
-#year-range-labels {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 4px;
-  font-size: 10px;
-  color: var(--text-mid);
 }
 /* ── Icon buttons (theme toggle, share) ─────────────────────────────── */
 .icon-btn {
