@@ -892,12 +892,9 @@ function syncOgMeta(l) {
 // ── Lang select ──────────────────────────────────────────────────────────
 document.getElementById("lang-select").addEventListener("change", (e) => {
   lang = e.target.value;
-  document.getElementById("lang-abbr").textContent =
-    lang === "zh" ? "🇨🇳" : "🇺🇸";
-  applyLang();
-  draw(curMonth - 1);
-  syncOgMeta(lang);
-  syncUrl();
+  // Navigate so Chrome fetches fresh HTML with correct OG tags from Worker
+  const qs = getShareParams();
+  location.href = qs ? location.pathname + "?" + qs : location.pathname;
 });
 
 // ── Cap Gains sub-button visibility ──────────────────────────────────────
