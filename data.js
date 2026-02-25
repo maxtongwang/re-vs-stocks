@@ -322,6 +322,15 @@ const STRINGS = {
         ],
       },
       {
+        label: "Key Real Estate Metrics",
+        items: [
+          "NOI (Net Operating Income) = Gross Rent − Operating Expenses. Operating expenses include property tax, insurance, maintenance, vacancy loss, and management fees — but NOT mortgage interest, depreciation, or income taxes. NOI is financing-agnostic: it measures a property's standalone income power regardless of how much you borrowed.",
+          "Cap Rate = Annual NOI ÷ Current Property Value. A property generating $30K annual NOI on a $500K purchase has a 6% cap rate. Typical residential cap rates run 4–8%; higher usually means stronger cash flow but lower appreciation expectations (or higher perceived risk). Cap rate is the standard shorthand for comparing properties on equal footing.",
+          "PITI = Principal + Interest + Taxes + Insurance — your total monthly housing obligation. For primary residences, PITI is a pure cost with no income offset. For rentals, rent must exceed PITI to achieve positive cash flow. In this simulation, PITI maps to the Equity, Interest, and Costs rows in the breakdown — their sum equals the full monthly payment.",
+          "Cash-on-Cash Return = Annual pre-tax cash flow ÷ Total cash invested (down payment + closing costs). Unlike cap rate, cash-on-cash reflects your actual financing. A property with a 5% cap rate can show a negative cash-on-cash return if the mortgage payment exceeds NOI — which is common in high-leverage scenarios during peak rate environments.",
+        ],
+      },
+      {
         label: "Refinancing",
         items: [
           "Purchase rate: 30-yr fixed annual average for the start year, locked in until a refi occurs.",
@@ -558,6 +567,15 @@ const STRINGS = {
           "叠加模式：股息和房租以现金形式累计，不复利。适合将收益存入活期账户的情景。",
           "复投模式：正现金流按当月S&P 500回报率复利增长；亏损月份线性累加（视为自付成本，非市场杠杆）。适合将每笔盈余持续买入指数基金的情景。",
           "高杠杆说明：如利率高峰期首付25%，净现金流往往长期为负——此时复投与叠加结果相同，因无正值现金流可再投入。",
+        ],
+      },
+      {
+        label: "核心房产指标",
+        items: [
+          "净运营收入（NOI）= 毛租金 − 运营成本。运营成本包括房产税、保险、维护费、空置损失和物管费——但不含贷款利息、折旧和所得税。NOI与融资方式无关，衡量物业本身的盈利能力，是评估租赁资产最常用的核心指标。",
+          "资本化率（Cap Rate）= 年化NOI ÷ 当前房产价值。50万美元的房产若年化NOI为3万，资本化率即为6%。住宅典型资本化率4–8%；越高通常代表现金流越强，但也可能反映升值预期较低或风险较高。资本化率是横向对比物业的标准指标。",
+          "PITI = 本金（Principal）+ 利息（Interest）+ 房产税（Taxes）+ 保险（Insurance），即每月总住房支出。自住模式下PITI为纯成本，无收入对冲；出租模式下租金须超过PITI才能实现正现金流。本模拟中，净值、利息和成本三行之和即为PITI。",
+          "现金回报率（Cash-on-Cash Return）= 年税前现金流 ÷ 实际投入现金（首付+交易成本）。与资本化率不同，现金回报率考虑了具体融资条件。资本化率5%的物业若月供超过NOI，现金回报率可能为负——在高杠杆高利率情景中较为常见。",
         ],
       },
       {

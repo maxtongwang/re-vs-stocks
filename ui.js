@@ -1005,7 +1005,7 @@ function renderDecomp(monthsToShow) {
   const s = STRINGS[lang];
   const lbl = {
     title: isZh ? "收益明细" : "Return Breakdown",
-    appreciation: isZh ? "资本" : "Capital",
+    appreciation: isZh ? "净值" : "Equity",
     dividends: isZh ? "股息" : "Dividends",
     rentIncome: isZh ? "租金收入" : "Rent Income",
     interest: isZh ? "利息支出" : "Interest Paid",
