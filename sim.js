@@ -575,6 +575,7 @@ function simRE(
     cumIntD = 0,
     cumCostsD = 0,
     cumTaxD = 0,
+    cumPrinD = 0,
     cumulativeDeprec = 0;
   const dComp = [];
   for (let m = 0; m < caM.length; m++) {
@@ -676,6 +677,7 @@ function simRE(
     // Decomp: accumulate components (additive basis regardless of reinvest)
     cumRentD += r;
     cumIntD += int;
+    cumPrinD += prin;
     cumCostsD += t + ins + mai + mgmt + hoa;
     cumTaxD += taxBenefit;
     periodIntD += int;
@@ -684,6 +686,7 @@ function simRE(
       appr: Math.round(pv - price),
       cumRent: Math.round(cumRentD),
       cumInt: Math.round(cumIntD),
+      cumPrin: Math.round(cumPrinD),
       cumCosts: Math.round(cumCostsD),
       cumTax: Math.round(cumTaxD),
       totalDeprec: Math.round(cumulativeDeprec),

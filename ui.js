@@ -1191,6 +1191,21 @@ function renderDecomp(monthsToShow) {
             : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• down ${fmt(INIT)} + gain ${fmt(reDc.appr)} = <strong style="color:${DC.hi}">${barVal}</strong> | property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:${DC.hi}">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage, ${rePriceCagr}%/yr on property)<br>• leverage cuts both ways: −10% property → <strong style="color:${DC.int}">−${(10 / down).toFixed(0)}%</strong> on your capital`;
         },
       });
+      // ── Mortgage paydown sub-row (only when leveraged) ───────────────────
+      if (mort > 0 && reDc.cumPrin > 0) {
+        reRows.push({
+          key: `re${ri}-prin`,
+          label: `↳ ${isZh ? "还本积累权益" : "Mortgage paydown"}`,
+          val: reDc.cumPrin,
+          sub: true,
+          color: DC.appr ?? reColor,
+          edu: () =>
+            isZh
+              ? `<strong>还本积累权益</strong><br>• 累计偿还本金 ${W(fmt(reDc.cumPrin))}，全部转化为房产权益（减少贷款余额）<br>• 本金不是成本——它从现金转移至权益，财富净效应为零<br>&nbsp;&nbsp;· ↳利息行下方的"已付本金"显示对应的现金流出<br>&nbsp;&nbsp;· 两者相消：本金既不创造也不消耗财富，仅改变形态`
+              : `<strong>Mortgage paydown</strong><br>• ${W(fmt(reDc.cumPrin))} in principal repaid — converted dollar-for-dollar into property equity (reduced loan balance)<br>• Principal is not a cost — it moves cash into equity; net wealth effect = $0<br>&nbsp;&nbsp;· The matching "Principal paid" row under Interest shows the cash outflow<br>&nbsp;&nbsp;· They cancel: principal neither creates nor destroys wealth, it changes form`,
+        });
+      }
+
       if (!isPrimary) {
         // ── NOI group: parent bar + rent sub-row + costs sub-row ──────────────
         const cumNOI = reDc.cumRent - reDc.cumCosts;
@@ -1470,6 +1485,20 @@ function renderDecomp(monthsToShow) {
               : `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")}) | ${yrs}yrs<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo | month-1 interest = ${fmt(initMonthlyInt)} | total = <strong style="color:${DC.hi}">${intAsPctPrice}%</strong> of purchase price<br>• amortization front-loads interest; principal accelerates near payoff<br>&nbsp;&nbsp;· ${leverage}x leverage cost: ${fmt(price)} cash needed vs ${fmt(INIT)} down${!isPrimary ? `<br>&nbsp;&nbsp;· rental: interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
           },
         });
+        // ↳ Principal paid sub-row — offsets the Mortgage paydown equity row
+        if (reDc.cumPrin > 0) {
+          reRows.push({
+            key: `re${ri}-prin-paid`,
+            label: `↳ ${isZh ? "已付本金" : "Principal paid"}`,
+            val: -reDc.cumPrin,
+            sub: true,
+            color: DC.int,
+            edu: () =>
+              isZh
+                ? `<strong>已付本金</strong><br>• ${W(fmt(reDc.cumPrin))} 现金流出——等额转化为房产权益<br>• 对应"还本积累权益"行的正值，两者相消<br>&nbsp;&nbsp;· 财富净影响 = $0：本金是现金→权益的转换，非真实成本`
+                : `<strong>Principal paid</strong><br>• ${W(fmt(reDc.cumPrin))} left your pocket — converted dollar-for-dollar into equity<br>• Mirrors the "Mortgage paydown" row above; the two cancel<br>&nbsp;&nbsp;· Net wealth effect = $0: principal is a cash-to-equity conversion, not a real cost`,
+          });
+        }
       }
       if (inclTaxBenefits && reDc.cumTax !== 0) {
         const taxColor = reDc.cumTax >= 0 ? DC.taxPos : DC.taxNeg;
