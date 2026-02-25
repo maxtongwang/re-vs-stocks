@@ -190,7 +190,7 @@ const STRINGS = {
     disclaimer: "for entertainment purpose only",
     labelHpiSourceText: "HPI",
     tipHpiSource:
-      "House Price Index — tracks home price appreciation. Case-Shiller covers all arm's-length transactions; FHFA covers conforming-loan-only.",
+      "House Price Index. Case-Shiller (default): all arm's-length sales including cash & jumbo — better for high-end coastal markets. FHFA: conforming-loan-only — more granular by county. See "House Price Index" in methodology ↓ for full comparison.",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
     labelPriceOnlyComparison: "Price only",
@@ -426,7 +426,7 @@ const STRINGS = {
     disclaimer: "仅供娱乐参考",
     labelHpiSourceText: "HPI",
     tipHpiSource:
-      "房价指数（HPI）——追踪房价涨幅。Case-Shiller 覆盖所有等价转让交易；FHFA 仅限合规贷款交易。",
+      "房价指数。Case-Shiller（默认）：覆盖所有等价转让含现金及巨额贷款，更适合高端滨海市场。FHFA：仅限合规贷款，县级粒度更细。详见下方「房价指数（HPI）」说明。",
     btnFhfa: "FHFA",
     btnCs: "CS",
     labelPriceOnlyComparison: "纯价格对比",
