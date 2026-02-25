@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224aay" />
-    <link rel="stylesheet" href="style.css?v=20260224aay" />
+    <link rel="stylesheet" href="themes.css?v=20260224aaaa" />
+    <link rel="stylesheet" href="style.css?v=20260224aaaa" />
   </head>
   <body>
     <noscript>
@@ -414,23 +414,49 @@
         </div>
       </div>
 
-      <!-- Cash flow -->
-      <div id="sg-cf" style="display: flex; align-items: center; gap: 8px">
-        <span id="label-cashflow" class="tip tip-right"
-          ><span class="tip-text">Cash flow</span
-          ><span class="tip-icon">ⓘ</span>:</span
-        >
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-additive">Additive</button>
-          <button class="toggle-btn tip tip-right" id="btn-reinvest">
-            <span class="tip-text">Reinvested</span
-            ><span class="tip-icon">ⓘ</span>
-          </button>
+      <!-- Cash flow + HPI source (flex-wrap: same row in landscape, stacked in portrait) -->
+      <div
+        style="
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 8px;
+          row-gap: 6px;
+        "
+      >
+        <div id="sg-cf" style="display: flex; align-items: center; gap: 8px">
+          <span id="label-cashflow" class="tip tip-right"
+            ><span class="tip-text">Cash flow</span
+            ><span class="tip-icon">ⓘ</span>:</span
+          >
+          <div class="toggle-group">
+            <button class="toggle-btn active" id="btn-additive">
+              Additive
+            </button>
+            <button class="toggle-btn tip tip-right" id="btn-reinvest">
+              <span class="tip-text">Reinvested</span
+              ><span class="tip-icon">ⓘ</span>
+            </button>
+          </div>
+          <div
+            id="reinvest-idx-wrap"
+            class="toggle-group"
+            style="display: none"
+          >
+            <button class="toggle-btn active" id="btn-ri-sp500">S&amp;P</button>
+            <button class="toggle-btn" id="btn-ri-nasdaq">NQ</button>
+            <button class="toggle-btn" id="btn-ri-sixty40">60/40</button>
+          </div>
         </div>
-        <div id="reinvest-idx-wrap" class="toggle-group" style="display: none">
-          <button class="toggle-btn active" id="btn-ri-sp500">S&amp;P</button>
-          <button class="toggle-btn" id="btn-ri-nasdaq">NQ</button>
-          <button class="toggle-btn" id="btn-ri-sixty40">60/40</button>
+        <!-- HPI source selector -->
+        <div id="sg-hpi" style="display: flex; align-items: center; gap: 8px">
+          <span id="label-hpi-source">HPI:</span>
+          <div class="toggle-group">
+            <button class="toggle-btn" id="btn-hpi-fhfa">FHFA</button>
+            <button class="toggle-btn active" id="btn-hpi-cs">
+              Case-Shiller
+            </button>
+          </div>
         </div>
       </div>
 
@@ -576,6 +602,11 @@
         user-select: none;
       "
     >
+      <span
+        id="label-price-only-comparison"
+        style="color: var(--text-sub); margin-right: 4px"
+        >Price only</span
+      >
       <div class="leg-dot" style="background: var(--color-s0)"></div>
       <span
         id="overlay-legend-label"
@@ -689,9 +720,9 @@
         <li>Insurance: 0.5% of current property value/yr</li>
         <li>Maintenance: 1% of current property value/yr</li>
         <li>
-          Depreciation (rental only): IRS 27.5-yr schedule; improvement %
-          adjustable above. Primary residences are not eligible for depreciation
-          deductions.
+          Depreciation (rental only): IRS 27.5-yr schedule; improvement % preset
+          per location (county assessor records). Primary residences are not
+          eligible for depreciation deductions.
         </li>
         <li id="static-tax-rate">
           Tax rate: 44% (35% fed + 9.3% CA) on paper rental gain/loss
@@ -972,8 +1003,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224aay" defer></script>
-    <script src="sim.js?v=20260224aay" defer></script>
-    <script src="ui.js?v=20260224aay" defer></script>
+    <script src="data.js?v=20260224aaaa" defer></script>
+    <script src="sim.js?v=20260224aaaa" defer></script>
+    <script src="ui.js?v=20260224aaaa" defer></script>
   </body>
 </html>

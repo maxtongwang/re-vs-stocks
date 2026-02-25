@@ -56,6 +56,7 @@ let endYear = 2026;
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
+let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
 let indexSpWealth = []; // populated by buildAllWealth
 let indexReWealth = [];
 let improvPct = activeLocConfig.improvPct; // keep in sync with default location
@@ -305,7 +306,17 @@ function buildSourcesList() {
       .map((l) => `<a href="${l.href}" target="_blank">${l.text}</a>`)
       .join(" &amp; ");
   }
-  const items = s.buildSources(idxLabel, locLabel, iSrc, lSrc, lnk);
+  const locKey = getLocKey();
+  const csSrc = CS_LOC_MAP[locKey] || CS_LOC_MAP.national;
+  const items = s.buildSources(
+    idxLabel,
+    locLabel,
+    iSrc,
+    lSrc,
+    lnk,
+    csSrc,
+    hpiSource,
+  );
   document.getElementById("sources-list").innerHTML = items
     .map((i) => `<li>${i}</li>`)
     .join("");
@@ -407,6 +418,15 @@ function applyLang() {
     const locAbbr = SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase();
     overlayLegLabel.textContent = `S\u0026P 500 vs ${locAbbr}`;
   }
+  const labelHpiSrc = document.getElementById("label-hpi-source");
+  if (labelHpiSrc) labelHpiSrc.textContent = s.labelHpiSource || "HPI:";
+  const btnHpiFhfa = document.getElementById("btn-hpi-fhfa");
+  if (btnHpiFhfa) btnHpiFhfa.textContent = s.btnFhfa || "FHFA";
+  const btnHpiCs = document.getElementById("btn-hpi-cs");
+  if (btnHpiCs) btnHpiCs.textContent = s.btnCs || "Case-Shiller";
+  const labelPriceOnly = document.getElementById("label-price-only-comparison");
+  if (labelPriceOnly)
+    labelPriceOnly.textContent = s.labelPriceOnlyComparison || "Price only";
 }
 
 // ── Reinvest toggle ───────────────────────────────────────────────────────
@@ -495,6 +515,8 @@ document.getElementById("btn-primary").addEventListener("click", () => {
     if (key === "taxbenefit") inclTaxBenefits = !inclTaxBenefits;
     else if (key === "depreciation") inclDepreciation = !inclDepreciation;
     else if (key === "costs") inclCosts = !inclCosts;
+    else if (inclCapGains)
+      return; // tx-costs locked while cap gains is on
     else inclTxCosts = !inclTxCosts;
     const val =
       key === "taxbenefit"
@@ -561,6 +583,15 @@ document.getElementById("btn-incl-cap-gains").addEventListener("click", () => {
   document
     .getElementById("btn-incl-cap-gains")
     .classList.toggle("active", inclCapGains);
+  // Cap gains requires a transaction, so tx costs must be on
+  if (inclCapGains && !inclTxCosts) {
+    inclTxCosts = true;
+    document.getElementById("btn-incl-tx-costs").classList.add("active");
+  }
+  // Lock tx-costs button when cap gains is on
+  const txBtn = document.getElementById("btn-incl-tx-costs");
+  if (inclCapGains) txBtn.setAttribute("disabled", "");
+  else txBtn.removeAttribute("disabled");
   syncCapGainsSubBtn();
   const assBullet = document.getElementById("assump-capgains");
   if (assBullet) assBullet.style.display = inclCapGains ? "" : "none";
@@ -588,6 +619,23 @@ document.getElementById("btn-excl").addEventListener("click", () => {
       : STRINGS[lang].btnExclSingle;
   allWealth = buildAllWealth(startYear);
   draw(curMonth - 1);
+});
+
+// ── HPI source toggle ────────────────────────────────────────────────────
+["fhfa", "cs"].forEach((k) => {
+  const btn = document.getElementById(`btn-hpi-${k}`);
+  if (!btn) return;
+  btn.addEventListener("click", () => {
+    if (hpiSource === k) return;
+    hpiSource = k;
+    document
+      .getElementById("btn-hpi-fhfa")
+      .classList.toggle("active", k === "fhfa");
+    document
+      .getElementById("btn-hpi-cs")
+      .classList.toggle("active", k === "cs");
+    refreshDatasets();
+  });
 });
 
 // ── Refi count toggle ────────────────────────────────────────────────────
@@ -696,6 +744,7 @@ function getShareParams() {
   if (inclCapGains && !use1031) p.set("1031", "0");
   if (inclCapGains && primaryExclusion === "single") p.set("excl", "single");
   if (INIT !== 100000) p.set("c", INIT);
+  if (hpiSource !== "cs") p.set("hpi", hpiSource);
   const idxKey = document.getElementById("index-select").value;
   if (idxKey !== "sp500") p.set("idx", idxKey);
   const stateKey = document.getElementById("state-select").value;
@@ -772,6 +821,8 @@ function loadFromHash() {
     if ([100000, 200000, 500000, 1000000, 2000000, 5000000].includes(cv))
       INIT = cv;
   }
+  if (p.has("hpi") && ["cs", "fhfa"].includes(p.get("hpi")))
+    hpiSource = p.get("hpi");
 }
 
 document.addEventListener("click", (e) => {
@@ -1846,8 +1897,9 @@ function draw(monthsToShow) {
       ctx.fillStyle = CT.refiLabel;
       ctx.font = xLabelFont;
       ctx.textAlign = "center";
-      const labelY = PT + 8 + (refiLabelIdx % 3) * 10;
+      const labelY = PT + 8 + (refiLabelIdx % 3) * 18;
       ctx.fillText(`R${refi.year}`, x, labelY);
+      ctx.fillText(`${(refi.rate * 100).toFixed(1)}%`, x, labelY + 9);
       refiLabelIdx++;
     }
   }
@@ -2584,6 +2636,20 @@ document.documentElement.dataset.theme = resolveTheme(initPref);
 updateThemeBtn(initPref);
 document.getElementById("theme-btn").addEventListener("click", toggleTheme);
 
+// Sync HPI buttons from (possibly hash-loaded) hpiSource
+["fhfa", "cs"].forEach((k) => {
+  const btn = document.getElementById(`btn-hpi-${k}`);
+  if (btn) btn.classList.toggle("active", k === hpiSource);
+});
+// If cap gains loaded from hash, lock tx-costs
+if (inclCapGains) {
+  inclTxCosts = true;
+  const txBtn = document.getElementById("btn-incl-tx-costs");
+  if (txBtn) {
+    txBtn.classList.add("active");
+    txBtn.setAttribute("disabled", "");
+  }
+}
 allWealth = buildAllWealth(startYear);
 totalMonths = (endYear - startYear + 1) * 12;
 projStartM = (DATA_THROUGH_YEAR - startYear) * 12 + DATA_THROUGH_MONTH - 1;
@@ -2652,6 +2718,26 @@ document.querySelectorAll(".tip-icon").forEach((icon) => {
       .forEach((i) => i.classList.remove("open"));
     if (!isOpen) icon.classList.add("open");
   });
+});
+// Event delegation for dynamically injected tip-icons (e.g. assumptions-line)
+document.getElementById("assumptions-line").addEventListener(
+  "mouseenter",
+  (e) => {
+    const icon = e.target.closest(".tip-icon");
+    if (icon) positionTooltip(icon);
+  },
+  true,
+);
+document.getElementById("assumptions-line").addEventListener("click", (e) => {
+  const icon = e.target.closest(".tip-icon");
+  if (!icon) return;
+  e.stopPropagation();
+  positionTooltip(icon);
+  const isOpen = icon.classList.contains("open");
+  document
+    .querySelectorAll(".tip-icon.open")
+    .forEach((i) => i.classList.remove("open"));
+  if (!isOpen) icon.classList.add("open");
 });
 // Close any open tooltip when clicking outside
 document.addEventListener("click", () => {

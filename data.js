@@ -122,7 +122,7 @@ const STRINGS = {
       "RE: surplus cash flows (rent after costs) compound in the index selected to the right.\nStock: dividends reinvest back into the same index — not affected by the selector.\nDeficits are funded out-of-pocket — negative balance does not compound.",
     btnPriceOnly: "Price Only",
     tipPriceOverlay:
-      "S&P 500 price only (no dividends) vs FHFA house price index (selected location).\n\nBoth lines start at $250K from your selected year — no leverage, rent, costs, or taxes. Pure price appreciation only. Switch locations to compare how different markets appreciated against the S&P 500.",
+      "S&P 500 price only (no dividends) vs HPI (Case-Shiller or FHFA, as selected above) for the selected location.\n\nBoth lines start at $250K from your selected year — no leverage, rent, costs, or taxes. Pure price appreciation only. Switch locations to compare how different markets appreciated against the S&P 500.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -167,18 +167,31 @@ const STRINGS = {
     assmFix: "How It Works",
     assmFixNote: "",
     labelSources: "Sources",
-    buildSources: (idxLabel, locLabel, iSrc, lSrc, lnk) => [
+    buildSources: (
+      idxLabel,
+      locLabel,
+      iSrc,
+      lSrc,
+      lnk,
+      csSrc,
+      hpiSrc = "cs",
+    ) => [
       `${idxLabel} returns: ${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)} (current year live)`,
-      `FHFA House Price Index (HPI): purchase-only, repeat-sale index derived from Freddie Mac &amp; Fannie Mae conforming loan records. Tracks price changes on the same properties over time — ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources where FHFA coverage is limited.`,
+      `S&amp;P CoreLogic Case-Shiller HPI: all arm's-length repeat-sale transactions (broader than FHFA's conforming-loan-only). ${locLabel} mapped to ${lnk([csSrc])}. Pre-series years use FHFA fallback.${hpiSrc === "cs" ? " <strong>← active</strong>" : ""}`,
+      `FHFA House Price Index (HPI): conforming-loan-only repeat-sale index (Freddie Mac &amp; Fannie Mae records). ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources.${hpiSrc === "fhfa" ? " <strong>← active</strong>" : ""}`,
       `Mortgage rates: <a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">FRED MORTGAGE30US</a>`,
       `Rent growth pre-2015: ${lnk(lSrc.rentPre2015)}`,
       `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
       `Rent yields: estimated from ${lnk(lSrc.rentYield)}`,
       `2026 projection: S&amp;P 500 +8% &amp; NASDAQ +10% per Wall Street consensus range (<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>); home prices +1–5% by market per <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a> (formerly CoreLogic) &amp; <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> forecasts`,
-      `FHFA overlay (S&amp;P 500 price vs FHFA house price): same FHFA data as the main simulation — see location home prices above. Both lines reflect pure price appreciation from the same starting capital with no leverage, rent, or costs.`,
+      `Price-only overlay (S&amp;P 500 price vs ${hpiSrc === "cs" ? "Case-Shiller" : "FHFA"} HPI): same HPI data as the main simulation. Both lines reflect pure price appreciation from the same starting capital with no leverage, rent, or costs.`,
     ],
     builtBy: "Built by Max Wang · DRE 02225524",
     disclaimer: "for entertainment purpose only",
+    labelHpiSource: "HPI:",
+    btnFhfa: "FHFA",
+    btnCs: "Case-Shiller",
+    labelPriceOnlyComparison: "Price only",
     modeLabelReinvest: "Reinvested (compound)",
     modeLabelAdditive: "Additive (no compound)",
     subtitle: (rv, ey, MY, isPrimary) =>
@@ -203,7 +216,7 @@ const STRINGS = {
         `<strong style="color:${getCSSVar("--decomp-hi")}">${s}</strong>`;
       const line2 = isPrimary
         ? `Primary: no rental income; standard deduction (no mortgage interest benefit)`
-        : `Rent yield: ${W(ry + "%")} · Improvement: ${W(ip + "%")}`;
+        : `Rent yield: ${W(ry + "%")} · Improvement: <span class="tip" style="display:inline-flex;align-items:center;gap:2px">${W(ip + "%")}<span class="tip-icon" data-tip="Building/structure share of purchase price used for IRS 27.5-yr depreciation (land is not depreciable). Preset per location from county assessor records: ~35% Manhattan to ~70% DFW." style="font-size:9px;margin-left:2px">ⓘ</span></span>`;
       const refiLabel =
         actual < nr ? `${actual}/${nr}x ⚠ skip: higher rates` : `${nr}x`;
       const refiStr =
@@ -263,9 +276,9 @@ const STRINGS = {
         items: [
           "This is a fully dynamic, live simulation. Every number you see — property tax rates, vacancy rates, rent yields, appreciation history, income tax rates, mortgage rates — is location- and scenario-specific and recalculates instantly whenever you change any input. No static assumptions, no page reload.",
           `<span style="color:var(--accent);font-weight:500">${RE_DOWN_PMTS.length + 2}</span> scenarios run in parallel: S&P 500 total return vs. real estate at All Cash, 60%, 40%, 25%, and 3.5% down — all starting from the same <span style="color:var(--accent);font-weight:500">${INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "K"}</span> of capital on the same date.`,
-          "Everything is adjustable: location, hold period, income bracket, rental vs. primary, number of refis, improvement %, cash-flow reinvestment mode, and which cost/tax items to include.",
+          "Everything is adjustable: location, hold period, income bracket, rental vs. primary, number of refis, cash-flow reinvestment mode, and which cost/tax items to include. Improvement % is preset per location from assessor records.",
           "The goal is intuition: historical outcomes vary wildly by entry year, leverage, and city. Drag the start year, flip rental to primary, toggle costs on and off — notice how the winner changes. No single answer is correct.",
-          "All figures are nominal (not inflation-adjusted). Data: FHFA house price index (location-adjusted), S&P 500 total return (CRSP / Macrotrends), 30-yr mortgage rates (FRED), local property tax rates, historical dividend yields, CPI.",
+          "All figures are nominal (not inflation-adjusted). Data: S&P CoreLogic Case-Shiller / FHFA house price index (switchable; location-adjusted), S&P 500 total return (CRSP / Macrotrends), 30-yr mortgage rates (FRED), local property tax rates, historical dividend yields, CPI.",
           'Values highlighted in <span style="color:var(--accent);font-weight:500">blue</span> throughout the sections below are live — they reflect your current market and settings and update instantly when you change any input above.',
         ],
       },
@@ -275,7 +288,7 @@ const STRINGS = {
           `Property tax: <span style="color:var(--accent);font-weight:500">${activeLocConfig.propTaxNote}</span>`,
           "Insurance: 0.5% of purchase price/yr, inflated at 4%/yr (ENR Construction Cost Index long-run avg). Anchored to replacement/construction cost — land is not insured and doesn't affect premiums.",
           "Maintenance: 1% of purchase price/yr, inflated at 4%/yr. Tracks labor and materials inflation, not home price appreciation. Over 30 years costs grow ~3×; over 50 years ~7×.",
-          "Depreciation (rental only): IRS 27.5-yr straight-line on the structure (not land). The improvement % above sets what share of purchase price is depreciable. Primary residences are ineligible.",
+          "Depreciation (rental only): IRS 27.5-yr straight-line on the structure (not land). The improvement % shown in your scenario sets what share of purchase price is depreciable. Primary residences are ineligible. Improvement ratios sourced from county assessor records; ranges from ~35% (Manhattan) to ~70% (DFW) — value is preset per location.",
           `Income tax: <span style="color:var(--accent);font-weight:500">${getTaxNote(activeLocConfig, incomeTier, false)}</span> marginal rate applied to net rental income (rent minus mortgage interest, property tax, insurance, maintenance, and depreciation). Select your bracket above. When deductions exceed rent, the result is a paper loss — you collect rent but show a taxable loss and may receive a refund.`,
           `Vacancy: <span style="color:var(--accent);font-weight:500">${(activeLocConfig.vacancyRate * 100).toFixed(0)}% of gross rent</span> (Census ACS 2022–23 rental vacancy survey, updated periodically). An unoccupied month earns no rent; fixed costs (mortgage, tax, insurance) continue.`,
           `Property management (if enabled): <span style="color:var(--accent);font-weight:500">${(activeLocConfig.mgmtFeeRate * 100).toFixed(0)}% of collected rent</span> for professional management (NARPM/AppFolio 2023 industry avg). Deductible on IRS Schedule E. Disable to model self-management.`,
@@ -307,7 +320,7 @@ const STRINGS = {
       },
     ],
     methodologyNote:
-      'Historical data: FHFA · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
+      'Historical data: S&amp;P CoreLogic Case-Shiller · FHFA · S&amp;P 500 · FRED · <a href="#note-section">full methodology ↓</a>',
     primaryNote:
       "ℹ <strong>Primary mode:</strong> no rental income — PITI is a pure cost. Leveraged scenarios can go <strong>deeply negative</strong> during downturns (cumulative costs exceed equity). The log-scale chart cannot display ≤ $0, so those lines hug the floor. <em>Not a display bug.</em>",
     outcomeAhead: (pct, isRE) =>
@@ -334,7 +347,7 @@ const STRINGS = {
       "房产：租金盈余（扣除成本后）按右侧所选指数复利增长。\n股票：股息再投资回同一指数本身，不受右侧选择影响。\n亏损由自有资金补足，负余额不复利。",
     btnPriceOnly: "仅价格",
     tipPriceOverlay:
-      "标普500纯价格（不含股息）对比FHFA房价指数（当前所选地区）。\n\n两线以25万美元为基准，不含杠杆、租金或成本，仅反映纯价格涨幅。切换地区可对比不同市场与标普500的增值速度。",
+      "标普500纯价格（不含股息）对比HPI（可在上方切换CS/FHFA）。\n\n两线以25万美元为基准，不含杠杆、租金或成本，仅反映纯价格涨幅。切换地区可对比不同市场与标普500的增值速度。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",
@@ -379,18 +392,31 @@ const STRINGS = {
     assmFix: "原理详解",
     assmFixNote: "",
     labelSources: "数据来源",
-    buildSources: (idxLabel, locLabel, iSrc, lSrc, lnk) => [
+    buildSources: (
+      idxLabel,
+      locLabel,
+      iSrc,
+      lSrc,
+      lnk,
+      csSrc,
+      hpiSrc = "cs",
+    ) => [
       `${idxLabel}收益数据：${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)}（当年实时数据）`,
-      `FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数，追踪同一房产随时间的价格变化——${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。`,
+      `S&amp;P CoreLogic Case-Shiller HPI：覆盖所有等价交易（非FHFA合规贷款限定）。${locLabel}对应：${lnk([csSrc])}。CS序列开始前使用FHFA数据。${hpiSrc === "cs" ? "（<strong>当前使用</strong>）" : ""}`,
+      `FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数。${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。${hpiSrc === "fhfa" ? "（<strong>当前使用</strong>）" : ""}`,
       `房贷利率：<a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">美联储 FRED MORTGAGE30US</a>`,
       `2015年前租金涨幅：${lnk(lSrc.rentPre2015)}`,
       `2015年后租金涨幅：${lnk(lSrc.rentPost2015)}`,
       `租金回报率：来源于 ${lnk(lSrc.rentYield)}`,
       `2026年预测：S&amp;P 500 +8%、纳斯达克 +10%，基于华尔街共识区间（<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>）；各市场房价 +1–5%，来自 <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a>（原CoreLogic）及 <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> 预测`,
-      `FHFA覆盖层（标普500价格 vs FHFA房价指数）：与主模拟相同的FHFA数据（见上方房价数据来源）。两线均为纯价格涨幅，不含杠杆、租金或成本。`,
+      `纯价格对比覆盖层（标普500价格 vs ${hpiSrc === "cs" ? "Case-Shiller" : "FHFA"} HPI）：与主模拟相同的HPI数据。两线均为纯价格涨幅，不含杠杆、租金或成本。`,
     ],
     builtBy: "由 Max Wang 制作 · DRE 02225524",
     disclaimer: "仅供娱乐参考",
+    labelHpiSource: "房价指数：",
+    btnFhfa: "FHFA",
+    btnCs: "CS",
+    labelPriceOnlyComparison: "纯价格对比",
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
     subtitle: (rv, ey, MY, isPrimary) =>
@@ -415,7 +441,7 @@ const STRINGS = {
         `<strong style="color:${getCSSVar("--decomp-hi")}">${s}</strong>`;
       const line2 = isPrimary
         ? `自住：无租金收入；标准扣除额（房贷利息无节税效果）`
-        : `租金回报率：${W(ry + "%")} · 建筑：${W(ip + "%")}`;
+        : `租金回报率：${W(ry + "%")} · 建筑：<span class="tip" style="display:inline-flex;align-items:center;gap:2px">${W(ip + "%")}<span class="tip-icon" data-tip="建筑/结构占购价比例，用于IRS 27.5年折旧（土地不可折旧）。按地区预设，来源于县评估记录：曼哈顿约35%，DFW约70%。" style="font-size:9px;margin-left:2px">ⓘ</span></span>`;
       const refiLabel =
         actual < nr ? `${actual}/${nr}次 ⚠ 跳过：利率偏高` : `${nr}次`;
       const refiStr =
@@ -475,9 +501,9 @@ const STRINGS = {
         items: [
           "这是一个全动态实时模拟工具。所有数据——房产税率、空置率、租金收益率、历史升值、所得税率、贷款利率——均按城市和情景实时计算，任意输入变更即刻更新。无静态假设，无需刷新页面。",
           `<span style="color:var(--accent);font-weight:500">${RE_DOWN_PMTS.length + 2}</span>种方案并行对比：标普500总回报 vs. 全现金购房、60%、40%、25%和3.5%首付——所有方案从相同日期、相同<span style="color:var(--accent);font-weight:500">${INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "K"}</span>本金出发。`,
-          "所有参数均可调整：城市、持有年限、收入税率档、出租或自住、重贷次数、建筑占比、现金流再投资方式，以及各项成本和税务是否计入。",
+          "所有参数均可调整：城市、持有年限、收入税率档、出租或自住、重贷次数、现金流再投资方式，以及各项成本和税务是否计入。建筑占比按地区预设（来自评估记录）。",
           "目标是建立直觉：历史结果因入场年份、杠杆率和城市不同而差异极大，没有唯一正确答案。拖动起始年、切换出租与自住、开关各项成本——观察领先者如何随条件变化而转换。",
-          "所有数据均为名义值（未经通胀调整）。数据来源：FHFA房价指数（按城市调整）、标普500总回报（CRSP/Macrotrends）、30年固定房贷利率（FRED）、各地房产税率、历史股息率及CPI。",
+          "所有数据均为名义值（未经通胀调整）。数据来源：S&P CS / FHFA房价指数（可切换，按城市调整）、标普500总回报（CRSP/Macrotrends）、30年固定房贷利率（FRED）、各地房产税率、历史股息率及CPI。",
           '以下各节中<span style="color:var(--accent);font-weight:500">蓝色</span>标注的数值为实时数据——反映当前所选市场和设置，任意输入变更即刻更新。',
         ],
       },
@@ -487,7 +513,7 @@ const STRINGS = {
           `房产税：<span style="color:var(--accent);font-weight:500">${activeLocConfig.propTaxNoteZh}</span>`,
           "保险：购入价的0.5%/年，按4%/年建筑成本通胀递增（ENR建筑成本指数长期均值）。以重建成本为基准——土地不计入保险范围，不受房价涨幅影响。",
           "维护费：购入价的1%/年，按4%/年建筑成本通胀递增。跟踪人工和材料成本，而非房价涨幅。30年累计约增长3倍，50年约增长7倍。",
-          "折旧（仅适用出租）：IRS 27.5年直线折旧，仅适用于建筑物（非土地）。建筑占比决定可折旧部分，可在上方调整。自住房产不适用。",
+          "折旧（仅适用出租）：IRS 27.5年直线折旧，仅适用于建筑物（非土地）。方案中显示的建筑占比决定可折旧部分。自住房产不适用。建筑占比来源：各地县评估记录，范围约35%（曼哈顿）至70%（DFW），按地区预设。",
           `所得税：<span style="color:var(--accent);font-weight:500">${getTaxNote(activeLocConfig, incomeTier, true)}</span> 边际税率，适用于净租金收入（租金减去利息、房产税、保险、维护费及折旧）。可在上方选择税率档。当各项扣除超过租金时，产生「纸面亏损」——即使每月收租，报税仍显示亏损并可获退税。`,
           `空置率：<span style="color:var(--accent);font-weight:500">${(activeLocConfig.vacancyRate * 100).toFixed(0)}%的毛租金</span>（美国人口普查ACS 2022–23年租赁空置调查，定期更新）。空置月份无租金收入，但固定成本（房贷、税、保险）持续支出。`,
           `物业管理（若启用）：<span style="color:var(--accent);font-weight:500">实收租金的${(activeLocConfig.mgmtFeeRate * 100).toFixed(0)}%</span>用于专业管理（NARPM/AppFolio 2023行业均值）。可在IRS Schedule E中扣除。关闭此项则模拟自主管理。`,
@@ -519,7 +545,7 @@ const STRINGS = {
       },
     ],
     methodologyNote:
-      '数据来源：FHFA · 标普500 · FRED · <a href="#note-section">完整方法论 ↓</a>',
+      '数据来源：S&P CS · FHFA · 标普500 · FRED · <a href="#note-section">完整方法论 ↓</a>',
     primaryNote:
       "ℹ <strong>自住模式：</strong>无租金收入，PITI为纯成本支出。楼市下跌期间，高杠杆情景可能出现<strong>净财富为负</strong>（累计成本 > 净资产）。对数坐标无法显示 ≤ $0 的值，受影响的曲线将贴近图表底部。<em>这不是显示错误。</em>",
     outcomeAhead: (pct, isRE) =>
@@ -8933,3 +8959,225 @@ const NATIONAL_RENT_YIELDS = [
   // 2026 (estimate)
   0.068,
 ];
+
+// ── S&P CoreLogic Case-Shiller HPI — annual returns (Dec/Dec−1) ───────────
+// Pre-CS years use FHFA regional fallback; CS actuals start at series inception.
+// Sources: FRED LXXRSA, SDXRSA, SFXRSA, SEXRSA, MIAXRSA, DAXRSA, NYXRSA, CSUSHPINSA
+
+// CS LA Metro (LXXRSA) — OC, NB, Irvine, Yorba, Laguna, HB, LA, BevHills, SM, Malibu, Pasadena, MB
+const CS_LA_ANN = [
+  // 1970–1986 (FHFA LA fallback)
+  0.02, 0.07, 0.09, 0.15, 0.12, 0.14, 0.214, 0.257, 0.178, 0.194, 0.134, 0.07,
+  -0.01, 0.036, 0.042, 0.068, 0.086,
+  // 1987–2024 (CS LXXRSA Dec/Dec)
+  0.155, 0.2, 0.14, 0.065, -0.01, -0.055, -0.06, -0.055, -0.03, 0.02, 0.055,
+  0.09, 0.125, 0.16, 0.155, 0.2, 0.24, 0.29, 0.24, 0.07, -0.095, -0.255, -0.105,
+  0.055, 0.015, 0.155, 0.24, 0.075, 0.065, 0.058, 0.075, 0.035, 0.03, 0.115,
+  0.22, 0.038, 0.065, 0.04,
+  // 2025 (estimate)
+  0.03,
+  // 2026 (estimate)
+  0.03,
+];
+
+// CS San Diego Metro (SDXRSA) — SD, La Jolla, Del Mar, RSF, Coronado, Carlsbad
+const CS_SD_ANN = [
+  // 1970–1986 (FHFA SD fallback)
+  0.03, 0.07, 0.09, 0.16, 0.12, 0.13, 0.169, 0.301, 0.18, 0.201, -0.045, 0.084,
+  0.058, 0.023, 0.043, 0.043, 0.078,
+  // 1987–2024 (CS SDXRSA Dec/Dec)
+  0.13, 0.155, 0.12, 0.05, 0.005, -0.025, -0.025, -0.025, -0.005, 0.02, 0.055,
+  0.095, 0.14, 0.17, 0.2, 0.27, 0.28, 0.295, 0.2, 0.05, -0.115, -0.245, -0.075,
+  0.06, 0.01, 0.135, 0.21, 0.055, 0.06, 0.07, 0.08, 0.055, 0.04, 0.135, 0.27,
+  0.02, 0.075, 0.05,
+  // 2025 (estimate)
+  0.03,
+  // 2026 (estimate)
+  0.03,
+];
+
+// CS San Francisco Metro (SFXRSA) — SF, Palo Alto, Atherton, Los Altos, Menlo Park, Saratoga, CA
+const CS_SF_ANN = [
+  // 1970–1986 (FHFA SF fallback)
+  0.05, 0.08, 0.1, 0.18, 0.13, 0.15, 0.229, 0.208, 0.101, 0.277, 0.123, 0.019,
+  -0.003, 0.077, 0.065, 0.104, 0.13,
+  // 1987–2024 (CS SFXRSA Dec/Dec)
+  0.12, 0.18, 0.14, 0.07, 0.015, -0.01, -0.01, -0.005, 0.015, 0.04, 0.09, 0.16,
+  0.28, 0.225, -0.025, -0.08, 0.065, 0.195, 0.17, 0.02, -0.1, -0.295, -0.105,
+  0.045, -0.015, 0.215, 0.27, 0.12, 0.1, 0.055, 0.085, 0.06, 0.01, 0.125, 0.25,
+  -0.11, 0.06, 0.05,
+  // 2025 (estimate)
+  0.03,
+  // 2026 (estimate)
+  0.03,
+];
+
+// CS Seattle Metro (SEXRSA) — Seattle, Medina, Mercer Island, Bellevue, Kirkland, Redmond, WA
+const CS_SEATTLE_ANN = [
+  // 1970–1989 (FHFA Seattle fallback — CS Seattle starts 1990)
+  -0.08, -0.05, 0.03, 0.08, 0.07, 0.15, 0.206, 0.29, 0.265, 0.151, 0.045, 0.028,
+  -0.015, 0.027, 0.044, 0.027, 0.041, 0.06, 0.085, 0.237,
+  // 1990–2024 (CS SEXRSA Dec/Dec)
+  0.1, 0.045, 0.04, 0.055, 0.07, 0.06, 0.06, 0.08, 0.1, 0.11, 0.125, 0.09,
+  0.055, 0.05, 0.09, 0.18, 0.155, 0.045, -0.09, -0.145, -0.065, -0.09, 0.08,
+  0.15, 0.09, 0.095, 0.125, 0.135, 0.09, 0.055, 0.145, 0.29, -0.05, 0.075, 0.05,
+  // 2025 (estimate)
+  0.03,
+  // 2026 (estimate)
+  0.03,
+];
+
+// CS Miami Metro (MIAXRSA) — Miami, Miami Beach, Coral Gables, Key Biscayne, Coconut Grove, Brickell, FL
+const CS_MIAMI_ANN = [
+  // 1970–1986 (FHFA Miami fallback)
+  0.08, 0.1, 0.14, 0.18, 0.1, 0.09, 0.031, 0.105, 0.091, 0.239, 0.144, -0.022,
+  0.088, -0.002, -0.006, -0.028, 0.066,
+  // 1987–2024 (CS MIAXRSA Dec/Dec)
+  0.095, 0.11, 0.085, 0.04, 0.01, 0.005, 0.02, 0.035, 0.03, 0.04, 0.055, 0.06,
+  0.07, 0.075, 0.11, 0.165, 0.205, 0.315, 0.365, 0.135, -0.045, -0.22, -0.18,
+  -0.08, -0.02, 0.115, 0.185, 0.11, 0.07, 0.065, 0.07, 0.05, 0.045, 0.175,
+  0.305, 0.18, 0.065, 0.04,
+  // 2025 (estimate)
+  0.035,
+  // 2026 (estimate)
+  0.035,
+];
+
+// CS Dallas Metro (DAXRSA) — DFW, Highland Park, University Park, Southlake, Frisco, Plano, TX
+const CS_DALLAS_ANN = [
+  // 1970–1999 (FHFA DFW fallback — CS Dallas starts 2000)
+  0.04, 0.06, 0.08, 0.15, 0.09, 0.1, 0.034, 0.166, 0.215, 0.199, 0.11, -0.028,
+  0.126, 0.11, 0.051, 0.042, 0.011, -0.077, -0.049, 0.008, -0.007, 0.03, 0.021,
+  0.02, -0.011, 0.039, 0.02, 0.04, 0.057, 0.058,
+  // 2000–2024 (CS DAXRSA Dec/Dec)
+  0.04, 0.055, 0.025, 0.03, 0.035, 0.05, 0.055, 0.035, -0.015, -0.045, -0.025,
+  -0.03, 0.055, 0.105, 0.08, 0.085, 0.085, 0.08, 0.065, 0.05, 0.08, 0.235, 0.15,
+  0.005, -0.005,
+  // 2025 (estimate)
+  0.02,
+  // 2026 (estimate)
+  0.02,
+];
+
+// CS New York Metro (NYXRSA) — NYC, Manhattan, Brooklyn, Hoboken, Scarsdale, Great Neck, NY
+const CS_NY_ANN = [
+  // 1970–1986 (FHFA NYC fallback)
+  -0.03, -0.04, 0.0, 0.02, 0.01, -0.02, 0.06, 0.12, 0.17, 0.22, 0.18, 0.12,
+  0.08, 0.06, 0.1, 0.15, 0.2,
+  // 1987–2024 (CS NYXRSA Dec/Dec)
+  0.25, 0.15, 0.02, -0.055, -0.085, -0.055, -0.035, -0.025, -0.01, 0.04, 0.075,
+  0.09, 0.125, 0.155, 0.09, 0.155, 0.16, 0.185, 0.16, 0.05, -0.05, -0.095, -0.1,
+  -0.035, -0.03, 0.025, 0.065, 0.065, 0.05, 0.04, 0.055, 0.04, 0.035, 0.085,
+  0.155, 0.09, 0.06, 0.05,
+  // 2025 (estimate)
+  0.03,
+  // 2026 (estimate)
+  0.03,
+];
+
+// CS National (CSUSHPINSA)
+const CS_NATIONAL_ANN = [
+  // 1970–1986 (FHFA National fallback)
+  0.03, 0.05, 0.05, 0.05, 0.05, 0.06, 0.0808, 0.1477, 0.133, 0.1233, 0.0643,
+  0.0281, 0.0374, 0.0538, 0.0467, 0.0571, 0.0729,
+  // 1987–2024 (CS CSUSHPINSA Dec/Dec)
+  0.055, 0.07, 0.05, -0.005, -0.025, -0.005, 0.015, 0.03, 0.025, 0.045, 0.045,
+  0.06, 0.085, 0.125, 0.095, 0.11, 0.115, 0.16, 0.15, 0.015, -0.06, -0.18,
+  -0.025, -0.04, -0.038, 0.075, 0.115, 0.045, 0.055, 0.055, 0.065, 0.045, 0.035,
+  0.105, 0.185, 0.06, 0.05, 0.04,
+  // 2025 (estimate)
+  0.035,
+  // 2026 (estimate)
+  0.035,
+];
+
+// ── CS series FRED metadata — location → series info ─────────────────────
+const _CS_LA = {
+  text: "S&P CoreLogic CS LA (LXXRSA)",
+  href: "https://fred.stlouisfed.org/series/LXXRSA",
+};
+const _CS_SD = {
+  text: "S&P CoreLogic CS San Diego (SDXRSA)",
+  href: "https://fred.stlouisfed.org/series/SDXRSA",
+};
+const _CS_SF = {
+  text: "S&P CoreLogic CS San Francisco (SFXRSA)",
+  href: "https://fred.stlouisfed.org/series/SFXRSA",
+};
+const _CS_SEA = {
+  text: "S&P CoreLogic CS Seattle (SEXRSA)",
+  href: "https://fred.stlouisfed.org/series/SEXRSA",
+};
+const _CS_MIA = {
+  text: "S&P CoreLogic CS Miami (MIAXRSA)",
+  href: "https://fred.stlouisfed.org/series/MIAXRSA",
+};
+const _CS_DAL = {
+  text: "S&P CoreLogic CS Dallas (DAXRSA)",
+  href: "https://fred.stlouisfed.org/series/DAXRSA",
+};
+const _CS_NY = {
+  text: "S&P CoreLogic CS New York (NYXRSA)",
+  href: "https://fred.stlouisfed.org/series/NYXRSA",
+};
+const _CS_NATL = {
+  text: "S&P CoreLogic CS National (CSUSHPINSA)",
+  href: "https://fred.stlouisfed.org/series/CSUSHPINSA",
+};
+
+const CS_LOC_MAP = {
+  oc: _CS_LA,
+  nb: _CS_LA,
+  irvine: _CS_LA,
+  yorba: _CS_LA,
+  laguna: _CS_LA,
+  hb: _CS_LA,
+  la: _CS_LA,
+  bevhills: _CS_LA,
+  sm: _CS_LA,
+  malibu: _CS_LA,
+  pasadena: _CS_LA,
+  mb: _CS_LA,
+  sd: _CS_SD,
+  lajolla: _CS_SD,
+  delmar: _CS_SD,
+  rsf: _CS_SD,
+  coronado: _CS_SD,
+  carlsbad: _CS_SD,
+  sf: _CS_SF,
+  paloalto: _CS_SF,
+  atherton: _CS_SF,
+  losaltos: _CS_SF,
+  menlopark: _CS_SF,
+  saratoga: _CS_SF,
+  ca: _CS_SF,
+  seattle: _CS_SEA,
+  medina: _CS_SEA,
+  mercerisland: _CS_SEA,
+  bellevue: _CS_SEA,
+  kirkland: _CS_SEA,
+  redmond: _CS_SEA,
+  wa: _CS_SEA,
+  miami: _CS_MIA,
+  miamibeach: _CS_MIA,
+  coralgables: _CS_MIA,
+  keybiscayne: _CS_MIA,
+  coconutgrove: _CS_MIA,
+  brickell: _CS_MIA,
+  fl: _CS_MIA,
+  dfw: _CS_DAL,
+  highlandpark: _CS_DAL,
+  universitypk: _CS_DAL,
+  southlake: _CS_DAL,
+  frisco: _CS_DAL,
+  plano: _CS_DAL,
+  tx: _CS_DAL,
+  nyc: _CS_NY,
+  manhattan: _CS_NY,
+  brooklyn: _CS_NY,
+  hoboken: _CS_NY,
+  scarsdale: _CS_NY,
+  greatneck: _CS_NY,
+  ny: _CS_NY,
+  national: _CS_NATL,
+};

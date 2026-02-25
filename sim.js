@@ -10,7 +10,7 @@ function toMonthly(ann) {
 let spMonthlyAll = toMonthly(SP500_ANN); // 912 months (1970–2045), total return
 let spPriceMonthlyAll = toMonthly(SP500_PRICE); // 912 months, price only
 const sp500PureMonthly = toMonthly(SP500_PRICE); // always S&P 500 pure price, never changes
-let caMonthlyAll = toMonthly(OC_ANN); // 912 months — default matches dropdown
+let caMonthlyAll = toMonthly(CS_LA_ANN); // default: CS (OC → LA metro); refreshDatasets keeps in sync
 let reinvestMonthlyAll = spMonthlyAll; // index used to compound RE cash flows (reinvest mode)
 
 // Active dataset pointers (updated by index/location dropdowns)
@@ -96,221 +96,342 @@ function refreshDatasets() {
         ? SIX_FORTY_DIV
         : SP500_DIV;
   const LOC_DATA = {
-    oc: { ann: OC_ANN, rent: OC_RENT_GROWTH, yield: OC_RENT_YIELDS },
-    nb: { ann: NB_ANN, rent: NB_RENT_GROWTH, yield: NB_RENT_YIELDS },
+    oc: {
+      ann: OC_ANN,
+      cs: CS_LA_ANN,
+      rent: OC_RENT_GROWTH,
+      yield: OC_RENT_YIELDS,
+    },
+    nb: {
+      ann: NB_ANN,
+      cs: CS_LA_ANN,
+      rent: NB_RENT_GROWTH,
+      yield: NB_RENT_YIELDS,
+    },
     irvine: {
       ann: IRVINE_ANN,
+      cs: CS_LA_ANN,
       rent: IRVINE_RENT_GROWTH,
       yield: IRVINE_RENT_YIELDS,
     },
     yorba: {
       ann: YORBA_ANN,
+      cs: CS_LA_ANN,
       rent: YORBA_RENT_GROWTH,
       yield: YORBA_RENT_YIELDS,
     },
     laguna: {
       ann: LAGUNA_ANN,
+      cs: CS_LA_ANN,
       rent: LAGUNA_RENT_GROWTH,
       yield: LAGUNA_RENT_YIELDS,
     },
-    hb: { ann: HB_ANN, rent: HB_RENT_GROWTH, yield: HB_RENT_YIELDS },
+    hb: {
+      ann: HB_ANN,
+      cs: CS_LA_ANN,
+      rent: HB_RENT_GROWTH,
+      yield: HB_RENT_YIELDS,
+    },
     // LA cities
-    la: { ann: LA_ANN, rent: LA_RENT_GROWTH, yield: LA_RENT_YIELDS },
+    la: {
+      ann: LA_ANN,
+      cs: CS_LA_ANN,
+      rent: LA_RENT_GROWTH,
+      yield: LA_RENT_YIELDS,
+    },
     bevhills: {
       ann: BEVHILLS_ANN,
+      cs: CS_LA_ANN,
       rent: BEVHILLS_RENT_GROWTH,
       yield: BEVHILLS_RENT_YIELDS,
     },
-    sm: { ann: SM_ANN, rent: SM_RENT_GROWTH, yield: SM_RENT_YIELDS },
+    sm: {
+      ann: SM_ANN,
+      cs: CS_LA_ANN,
+      rent: SM_RENT_GROWTH,
+      yield: SM_RENT_YIELDS,
+    },
     malibu: {
       ann: MALIBU_ANN,
+      cs: CS_LA_ANN,
       rent: MALIBU_RENT_GROWTH,
       yield: MALIBU_RENT_YIELDS,
     },
     pasadena: {
       ann: PASADENA_ANN,
+      cs: CS_LA_ANN,
       rent: PASADENA_RENT_GROWTH,
       yield: PASADENA_RENT_YIELDS,
     },
-    mb: { ann: MB_ANN, rent: MB_RENT_GROWTH, yield: MB_RENT_YIELDS },
+    mb: {
+      ann: MB_ANN,
+      cs: CS_LA_ANN,
+      rent: MB_RENT_GROWTH,
+      yield: MB_RENT_YIELDS,
+    },
     // SD cities
-    sd: { ann: SD_ANN, rent: SD_RENT_GROWTH, yield: SD_RENT_YIELDS },
+    sd: {
+      ann: SD_ANN,
+      cs: CS_SD_ANN,
+      rent: SD_RENT_GROWTH,
+      yield: SD_RENT_YIELDS,
+    },
     lajolla: {
       ann: LAJOLLA_ANN,
+      cs: CS_SD_ANN,
       rent: LAJOLLA_RENT_GROWTH,
       yield: LAJOLLA_RENT_YIELDS,
     },
     delmar: {
       ann: DELMAR_ANN,
+      cs: CS_SD_ANN,
       rent: DELMAR_RENT_GROWTH,
       yield: DELMAR_RENT_YIELDS,
     },
-    rsf: { ann: RSF_ANN, rent: RSF_RENT_GROWTH, yield: RSF_RENT_YIELDS },
+    rsf: {
+      ann: RSF_ANN,
+      cs: CS_SD_ANN,
+      rent: RSF_RENT_GROWTH,
+      yield: RSF_RENT_YIELDS,
+    },
     coronado: {
       ann: CORONADO_ANN,
+      cs: CS_SD_ANN,
       rent: CORONADO_RENT_GROWTH,
       yield: CORONADO_RENT_YIELDS,
     },
     carlsbad: {
       ann: CARLSBAD_ANN,
+      cs: CS_SD_ANN,
       rent: CARLSBAD_RENT_GROWTH,
       yield: CARLSBAD_RENT_YIELDS,
     },
     // SF Bay cities
-    sf: { ann: SF_ANN, rent: SF_RENT_GROWTH, yield: SF_RENT_YIELDS },
+    sf: {
+      ann: SF_ANN,
+      cs: CS_SF_ANN,
+      rent: SF_RENT_GROWTH,
+      yield: SF_RENT_YIELDS,
+    },
     paloalto: {
       ann: PALOALTO_ANN,
+      cs: CS_SF_ANN,
       rent: PALOALTO_RENT_GROWTH,
       yield: PALOALTO_RENT_YIELDS,
     },
     atherton: {
       ann: ATHERTON_ANN,
+      cs: CS_SF_ANN,
       rent: ATHERTON_RENT_GROWTH,
       yield: ATHERTON_RENT_YIELDS,
     },
     losaltos: {
       ann: LOSALTOS_ANN,
+      cs: CS_SF_ANN,
       rent: LOSALTOS_RENT_GROWTH,
       yield: LOSALTOS_RENT_YIELDS,
     },
     menlopark: {
       ann: MENLOPARK_ANN,
+      cs: CS_SF_ANN,
       rent: MENLOPARK_RENT_GROWTH,
       yield: MENLOPARK_RENT_YIELDS,
     },
     saratoga: {
       ann: SARATOGA_ANN,
+      cs: CS_SF_ANN,
       rent: SARATOGA_RENT_GROWTH,
       yield: SARATOGA_RENT_YIELDS,
     },
-    ca: { ann: CA_ANN, rent: CA_RENT_GROWTH, yield: CA_RENT_YIELDS },
+    ca: {
+      ann: CA_ANN,
+      cs: CS_SF_ANN,
+      rent: CA_RENT_GROWTH,
+      yield: CA_RENT_YIELDS,
+    },
     // DFW cities
-    dfw: { ann: DFW_ANN, rent: DFW_RENT_GROWTH, yield: DFW_RENT_YIELDS },
+    dfw: {
+      ann: DFW_ANN,
+      cs: CS_DALLAS_ANN,
+      rent: DFW_RENT_GROWTH,
+      yield: DFW_RENT_YIELDS,
+    },
     highlandpark: {
       ann: HIGHLANDPARK_ANN,
+      cs: CS_DALLAS_ANN,
       rent: HIGHLANDPARK_RENT_GROWTH,
       yield: HIGHLANDPARK_RENT_YIELDS,
     },
     universitypk: {
       ann: UNIVERSITYPK_ANN,
+      cs: CS_DALLAS_ANN,
       rent: UNIVERSITYPK_RENT_GROWTH,
       yield: UNIVERSITYPK_RENT_YIELDS,
     },
     southlake: {
       ann: SOUTHLAKE_ANN,
+      cs: CS_DALLAS_ANN,
       rent: SOUTHLAKE_RENT_GROWTH,
       yield: SOUTHLAKE_RENT_YIELDS,
     },
     frisco: {
       ann: FRISCO_ANN,
+      cs: CS_DALLAS_ANN,
       rent: FRISCO_RENT_GROWTH,
       yield: FRISCO_RENT_YIELDS,
     },
     plano: {
       ann: PLANO_ANN,
+      cs: CS_DALLAS_ANN,
       rent: PLANO_RENT_GROWTH,
       yield: PLANO_RENT_YIELDS,
     },
-    tx: { ann: TX_ANN, rent: TX_RENT_GROWTH, yield: TX_RENT_YIELDS },
+    tx: {
+      ann: TX_ANN,
+      cs: CS_DALLAS_ANN,
+      rent: TX_RENT_GROWTH,
+      yield: TX_RENT_YIELDS,
+    },
     // Miami cities
     miami: {
       ann: MIAMI_ANN,
+      cs: CS_MIAMI_ANN,
       rent: MIAMI_RENT_GROWTH,
       yield: MIAMI_RENT_YIELDS,
     },
     miamibeach: {
       ann: MIAMIBEACH_ANN,
+      cs: CS_MIAMI_ANN,
       rent: MIAMIBEACH_RENT_GROWTH,
       yield: MIAMIBEACH_RENT_YIELDS,
     },
     coralgables: {
       ann: CORALGABLES_ANN,
+      cs: CS_MIAMI_ANN,
       rent: CORALGABLES_RENT_GROWTH,
       yield: CORALGABLES_RENT_YIELDS,
     },
     keybiscayne: {
       ann: KEYBISCAYNE_ANN,
+      cs: CS_MIAMI_ANN,
       rent: KEYBISCAYNE_RENT_GROWTH,
       yield: KEYBISCAYNE_RENT_YIELDS,
     },
     coconutgrove: {
       ann: COCONUTGROVE_ANN,
+      cs: CS_MIAMI_ANN,
       rent: COCONUTGROVE_RENT_GROWTH,
       yield: COCONUTGROVE_RENT_YIELDS,
     },
     brickell: {
       ann: BRICKELL_ANN,
+      cs: CS_MIAMI_ANN,
       rent: BRICKELL_RENT_GROWTH,
       yield: BRICKELL_RENT_YIELDS,
     },
-    fl: { ann: FL_ANN, rent: FL_RENT_GROWTH, yield: FL_RENT_YIELDS },
+    fl: {
+      ann: FL_ANN,
+      cs: CS_MIAMI_ANN,
+      rent: FL_RENT_GROWTH,
+      yield: FL_RENT_YIELDS,
+    },
     // Seattle cities
     seattle: {
       ann: SEATTLE_ANN,
+      cs: CS_SEATTLE_ANN,
       rent: SEATTLE_RENT_GROWTH,
       yield: SEATTLE_RENT_YIELDS,
     },
     medina: {
       ann: MEDINA_ANN,
+      cs: CS_SEATTLE_ANN,
       rent: MEDINA_RENT_GROWTH,
       yield: MEDINA_RENT_YIELDS,
     },
     mercerisland: {
       ann: MERCERISLAND_ANN,
+      cs: CS_SEATTLE_ANN,
       rent: MERCERISLAND_RENT_GROWTH,
       yield: MERCERISLAND_RENT_YIELDS,
     },
     bellevue: {
       ann: BELLEVUE_ANN,
+      cs: CS_SEATTLE_ANN,
       rent: BELLEVUE_RENT_GROWTH,
       yield: BELLEVUE_RENT_YIELDS,
     },
     kirkland: {
       ann: KIRKLAND_ANN,
+      cs: CS_SEATTLE_ANN,
       rent: KIRKLAND_RENT_GROWTH,
       yield: KIRKLAND_RENT_YIELDS,
     },
     redmond: {
       ann: REDMOND_ANN,
+      cs: CS_SEATTLE_ANN,
       rent: REDMOND_RENT_GROWTH,
       yield: REDMOND_RENT_YIELDS,
     },
-    wa: { ann: WA_ANN, rent: WA_RENT_GROWTH, yield: WA_RENT_YIELDS },
+    wa: {
+      ann: WA_ANN,
+      cs: CS_SEATTLE_ANN,
+      rent: WA_RENT_GROWTH,
+      yield: WA_RENT_YIELDS,
+    },
     // NYC cities
-    nyc: { ann: NYC_ANN, rent: NYC_RENT_GROWTH, yield: NYC_RENT_YIELDS },
+    nyc: {
+      ann: NYC_ANN,
+      cs: CS_NY_ANN,
+      rent: NYC_RENT_GROWTH,
+      yield: NYC_RENT_YIELDS,
+    },
     manhattan: {
       ann: MANHATTAN_ANN,
+      cs: CS_NY_ANN,
       rent: MANHATTAN_RENT_GROWTH,
       yield: MANHATTAN_RENT_YIELDS,
     },
     brooklyn: {
       ann: BROOKLYN_ANN,
+      cs: CS_NY_ANN,
       rent: BROOKLYN_RENT_GROWTH,
       yield: BROOKLYN_RENT_YIELDS,
     },
     hoboken: {
       ann: HOBOKEN_ANN,
+      cs: CS_NY_ANN,
       rent: HOBOKEN_RENT_GROWTH,
       yield: HOBOKEN_RENT_YIELDS,
     },
     scarsdale: {
       ann: SCARSDALE_ANN,
+      cs: CS_NY_ANN,
       rent: SCARSDALE_RENT_GROWTH,
       yield: SCARSDALE_RENT_YIELDS,
     },
     greatneck: {
       ann: GREATNECK_ANN,
+      cs: CS_NY_ANN,
       rent: GREATNECK_RENT_GROWTH,
       yield: GREATNECK_RENT_YIELDS,
     },
-    ny: { ann: NY_ANN, rent: NY_RENT_GROWTH, yield: NY_RENT_YIELDS },
+    ny: {
+      ann: NY_ANN,
+      cs: CS_NY_ANN,
+      rent: NY_RENT_GROWTH,
+      yield: NY_RENT_YIELDS,
+    },
     national: {
       ann: NATIONAL_ANN,
+      cs: CS_NATIONAL_ANN,
       rent: NATIONAL_RENT_GROWTH,
       yield: NATIONAL_RENT_YIELDS,
     },
   };
-  const lAnn = LOC_DATA[locKey].ann;
+  const lAnn =
+    hpiSource === "cs" && LOC_DATA[locKey].cs
+      ? LOC_DATA[locKey].cs
+      : LOC_DATA[locKey].ann;
   const lRent = LOC_DATA[locKey].rent;
   const lYield = LOC_DATA[locKey].yield;
   activeSpDiv = iDiv;
