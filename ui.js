@@ -1129,17 +1129,22 @@ function renderDecomp(monthsToShow) {
     });
   }
 
-  // RE rows
-  if (bestIdx >= 0) {
-    const reDc = allDecomp[bestIdx]?.dComp?.[m];
-    const reColor = getCSSVar("--color-s" + bestIdx);
-    const reLabel = SCENARIOS[bestIdx].label;
+  // RE rows — one table per visible RE scenario
+  const reTableSets = []; // [{rows, label, color}]
+  for (let ri = 1; ri < allWealth.length; ri++) {
+    if (hidden.has(ri)) continue;
+    const reRows = [];
+    const reDc = allDecomp[ri]?.dComp?.[m];
+    const reColor = getCSSVar("--color-s" + ri);
+    const reLabel = SCENARIOS[ri].label;
     if (reDc != null) {
-      // Update includes button label to reflect current tax outcome
-      const taxBtnEl = document.getElementById("btn-incl-taxbenefit");
-      if (taxBtnEl)
-        taxBtnEl.textContent =
-          reDc.cumTax >= 0 ? s.btnTaxBenefits : s.btnTaxBill;
+      // Update includes button label from best visible RE (first one wins)
+      if (!reTableSets.length) {
+        const taxBtnEl = document.getElementById("btn-incl-taxbenefit");
+        if (taxBtnEl)
+          taxBtnEl.textContent =
+            reDc.cumTax >= 0 ? s.btnTaxBenefits : s.btnTaxBill;
+      }
       const {
         price,
         mort,
@@ -1149,7 +1154,7 @@ function renderDecomp(monthsToShow) {
         ratePeriods = [],
         txBuyCost = 0,
         txSellRate = 0,
-      } = allDecomp[bestIdx];
+      } = allDecomp[ri];
       const propValAtM = price + reDc.appr;
       const txSellCost = Math.round(propValAtM * txSellRate);
       const txBuyRate = price > 0 ? txBuyCost / price : 0;
@@ -1160,7 +1165,7 @@ function renderDecomp(monthsToShow) {
       const downPct = dpLabel(down);
 
       reRows.push({
-        key: "re-appr",
+        key: `re${ri}-appr`,
         label: lbl.appreciation,
         val: INIT + reDc.appr,
         base: true,
@@ -1182,7 +1187,7 @@ function renderDecomp(monthsToShow) {
       });
       if (!isPrimary && reDc.cumRent > 0) {
         reRows.push({
-          key: "re-rent",
+          key: `re${ri}-rent`,
           label: lbl.rentIncome,
           val: reDc.cumRent,
           color: DC.rent,
@@ -1236,7 +1241,7 @@ function renderDecomp(monthsToShow) {
       }
       if (reDc.cumInt > 0) {
         reRows.push({
-          key: "re-int",
+          key: `re${ri}-int`,
           label: lbl.interest,
           val: -reDc.cumInt,
           color: DC.int,
@@ -1273,12 +1278,12 @@ function renderDecomp(monthsToShow) {
                   // Last period: 30yr term, payoff may be in the future
                   const payoffYr = pFromYr + 30;
                   const fullTermInt = Math.round(p.pmt * 360 - p.loan);
-                  const simEnd = allWealth[bestIdx].length - 1;
+                  const simEnd = allWealth[ri].length - 1;
                   const isBeyondSim = p.fromM + 360 > simEnd;
                   let displayWealth, wealthLabel, wealthLabelZh;
                   if (isBeyondSim) {
                     // Project forward: use historical property CAGR to extrapolate
-                    const endDc = allDecomp[bestIdx].dComp[simEnd];
+                    const endDc = allDecomp[ri].dComp[simEnd];
                     const propValEnd = price + endDc.appr;
                     const simYears = (simEnd + 1) / 12;
                     const propCagr =
@@ -1301,7 +1306,7 @@ function renderDecomp(monthsToShow) {
                           )
                         : 0;
                     const cfAtEnd =
-                      allWealth[bestIdx][simEnd] - (propValEnd - remAtEnd);
+                      allWealth[ri][simEnd] - (propValEnd - remAtEnd);
                     const propAtPayoff = Math.round(
                       propValEnd * Math.pow(1 + propCagr, yearsRem),
                     );
@@ -1318,7 +1323,7 @@ function renderDecomp(monthsToShow) {
                       : `&nbsp;&nbsp;&nbsp;&nbsp;· ${W((p.rate * 100).toFixed(2) + "%")} (${tag}): ${pFromYr}–${endYear} (${simDurYrs}yrs in sim, payoff ${payoffYr})<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· loan ${fmt(p.loan)} | ${fmt(p.pmt)}/mo${cashOutNote}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· sim interest (${simDurYrs}yrs): ${W(fmt(partialInt))} | full-term: ${W(fmt(fullTermInt))}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;· ${wealthLabel}: ${W(fmt(displayWealth))}`;
                   } else {
                     const payoffM = p.fromM + 360;
-                    displayWealth = allWealth[bestIdx][payoffM];
+                    displayWealth = allWealth[ri][payoffM];
                     wealthLabel = "simulated wealth at payoff";
                     wealthLabelZh = "还清时模拟总财富";
                   }
@@ -1356,7 +1361,7 @@ function renderDecomp(monthsToShow) {
       }
       if (reDc.cumCosts > 0) {
         reRows.push({
-          key: "re-costs",
+          key: `re${ri}-costs`,
           label: lbl.costs,
           val: -reDc.cumCosts,
           color: DC.costs,
@@ -1382,7 +1387,7 @@ function renderDecomp(monthsToShow) {
       if (inclTaxBenefits && reDc.cumTax !== 0) {
         const taxColor = reDc.cumTax >= 0 ? DC.taxPos : DC.taxNeg;
         reRows.push({
-          key: "re-tax",
+          key: `re${ri}-tax`,
           label: reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill,
           val: reDc.cumTax,
           color: taxColor,
@@ -1423,7 +1428,7 @@ function renderDecomp(monthsToShow) {
       }
       if (inclTxCosts && (txBuyCost > 0 || txSellCost > 0)) {
         reRows.push({
-          key: "re-tx",
+          key: `re${ri}-tx`,
           label: lbl.txCosts,
           val: -(txBuyCost + txSellCost),
           color: DC.tx,
@@ -1477,21 +1482,22 @@ function renderDecomp(monthsToShow) {
           },
         });
       }
-      const reCgTax = inclCapGains ? computeCapGains(bestIdx, m) : 0;
+      const reCgTax = inclCapGains ? computeCapGains(ri, m) : 0;
       if (inclCapGains && (reCgTax > 0 || isPrimary)) {
         reRows.push({
-          key: "re-cg",
+          key: `re${ri}-cg`,
           label: lbl.capGains,
           val: -reCgTax,
           color: DC.cg,
-          edu: () => buildCapGainsEdu(bestIdx, m, DC, W, isZh, lbl),
+          edu: () => buildCapGainsEdu(ri, m, DC, W, isZh, lbl),
         });
       }
+      const reWealth = allWealth[ri][m];
       const displayTotal = inclTxCosts
-        ? bestVal - txSellCost - reCgTax
-        : bestVal - reCgTax;
+        ? reWealth - txSellCost - reCgTax
+        : reWealth - reCgTax;
       reRows.push({
-        key: "re-total",
+        key: `re${ri}-total`,
         label: lbl.total,
         val: displayTotal,
         total: true,
@@ -1512,6 +1518,7 @@ function renderDecomp(monthsToShow) {
             : `<strong style="color:${reColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${W(fmt(cashFlowPart))}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
         },
       });
+      reTableSets.push({ rows: reRows, label: reLabel, color: reColor });
     }
   }
 
@@ -1544,17 +1551,18 @@ function renderDecomp(monthsToShow) {
   }
 
   const spColor = DC.sp;
-  const reColor = bestIdx >= 0 ? getCSSVar("--color-s" + bestIdx) : DC.rent;
-  const reLabel = bestIdx >= 0 ? SCENARIOS[bestIdx].label : "RE";
 
   barsEl.innerHTML =
     `<div id="decomp-grid">` +
-    buildTable(spRows, idxLabel, spColor) +
-    (bestIdx >= 0 ? buildTable(reRows, reLabel, reColor) : "") +
+    (hidden.has(0) ? "" : buildTable(spRows, idxLabel, spColor)) +
+    reTableSets.map((t) => buildTable(t.rows, t.label, t.color)).join("") +
     `</div>`;
 
   // Wire hover/click for educational content
-  const allRows = [...spRows, ...reRows];
+  const allRows = [
+    ...(hidden.has(0) ? [] : spRows),
+    ...reTableSets.flatMap((t) => t.rows),
+  ];
   const hintEl = document.getElementById("decomp-hint");
   const _showHint = () => {
     if (hintEl) hintEl.style.display = "";
