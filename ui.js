@@ -1015,7 +1015,7 @@ function renderDecomp(monthsToShow) {
     txCosts: isZh ? "交易成本" : "Tx Costs",
     capGains: s.btnCapGains,
     total: isZh ? "→ 净资产" : "→ Net Worth",
-    noi: isZh ? "净运营收入" : "NOI",
+    noi: isZh ? "总净运营收入" : "Total NOI",
   };
 
   // Find best visible RE scenario
