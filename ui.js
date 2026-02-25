@@ -868,6 +868,25 @@ function syncOgMeta(l) {
     .querySelector('meta[name="twitter:description"]')
     ?.setAttribute("content", desc);
   document.title = title;
+  // Update canonical so Chrome shares the correct localized URL
+  const canonical = document.querySelector('link[rel="canonical"]');
+  if (canonical) {
+    canonical.setAttribute(
+      "href",
+      l === "zh"
+        ? "https://chart.maxwangestates.com/?l=zh"
+        : "https://chart.maxwangestates.com/",
+    );
+  }
+  const ogUrl = document.querySelector('meta[property="og:url"]');
+  if (ogUrl) {
+    ogUrl.setAttribute(
+      "content",
+      l === "zh"
+        ? "https://chart.maxwangestates.com/?l=zh"
+        : "https://chart.maxwangestates.com/",
+    );
+  }
 }
 
 // ── Lang select ──────────────────────────────────────────────────────────
