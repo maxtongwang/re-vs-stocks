@@ -126,7 +126,7 @@ const STRINGS = {
       "RE: surplus cash flows (rent after costs) compound in the index selected to the right.\nStock: dividends reinvest back into the same index — not affected by the selector.\nDeficits are funded out-of-pocket — negative balance does not compound.",
     btnPriceOnly: "Price Only",
     tipPriceOverlay:
-      "S&P 500 price only (no dividends) vs HPI (Case-Shiller or FHFA, as selected above) for the selected location.\n\nBoth lines start at $250K from your selected year — no leverage, rent, costs, or taxes. Pure price appreciation only. Switch locations to compare how different markets appreciated against the S&P 500.",
+      "The comparison most investment debates use — and why it misleads.\n\nS&P 500 price only (no dividends) vs local home price index (no leverage, rent, or costs). One side strips out dividends; the other ignores that you borrowed 4–5× your cash to buy. Neither asset is shown fairly.\n\nThe full simulation above corrects for both. Toggle this to see the simplified narrative — then look up to see the real picture.",
     labelLang: "Lang:",
     btnAdditive: "Additive",
     btnReinvest: "Reinvested",
@@ -197,7 +197,7 @@ const STRINGS = {
       "House Price Index. Case-Shiller (default): all arm's-length sales including cash & jumbo — better for high-end coastal markets. FHFA: conforming-loan-only — more granular by county. See the HPI section in methodology \u2193 for full comparison.",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
-    labelPriceOnlyComparison: "Price only",
+    labelPriceOnlyComparison: "The Usual Story",
     modeLabelReinvest: "Reinvested (compound)",
     modeLabelAdditive: "Additive (no compound)",
     subtitle: (rv, ey, MY, isPrimary) =>
@@ -374,7 +374,7 @@ const STRINGS = {
       "房产：租金盈余（扣除成本后）按右侧所选指数复利增长。\n股票：股息再投资回同一指数本身，不受右侧选择影响。\n亏损由自有资金补足，负余额不复利。",
     btnPriceOnly: "仅价格",
     tipPriceOverlay:
-      "标普500纯价格（不含股息）对比HPI（可在上方切换CS/FHFA）。\n\n两线以25万美元为基准，不含杠杆、租金或成本，仅反映纯价格涨幅。切换地区可对比不同市场与标普500的增值速度。",
+      "多数投资讨论采用的对比口径——也是它容易误导人的原因。\n\n标普500纯价格（不含股息）对比本地房价指数（不含杠杆、租金或成本）。一边剔除了股息，另一边却忽略了你用4–5倍杠杆买入的事实。两类资产均未被公正呈现。\n\n上方的完整模拟已对两者进行修正。点击切换查看简化叙事，再回头看完整图表。",
     labelLang: "语言：",
     btnAdditive: "叠加",
     btnReinvest: "复投",
@@ -445,7 +445,7 @@ const STRINGS = {
       "房价指数。Case-Shiller（默认）：覆盖所有等价转让含现金及巨额贷款，更适合高端滨海市场。FHFA：仅限合规贷款，县级粒度更细。详见下方「房价指数（HPI）」说明。",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
-    labelPriceOnlyComparison: "纯价格对比",
+    labelPriceOnlyComparison: "常见叙事口径",
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
     subtitle: (rv, ey, MY, isPrimary) =>
