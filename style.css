@@ -863,10 +863,9 @@ th:first-child {
   background: var(--border) !important;
   transition: background 0.15s;
 }
-#legend.overlay-active > * > * {
+#legend.overlay-active .leg-dot,
+#legend.overlay-active .leg-text,
+#legend.overlay-active .leg-cagr {
   opacity: 0.2;
   transition: opacity 0.15s;
-}
-#legend.overlay-active > * > *.hidden {
-  opacity: 0.08;
 }
