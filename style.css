@@ -130,11 +130,21 @@ body {
 .abbr-wrap:not(.hero-sp):not(.hero-re):not(.hero-init) .abbr-text {
   background-image: var(--arrow-dim);
 }
-/* Lang button in fixed top-right: no arrow, no right padding */
+/* Lang button in fixed top-right: box matching theme button */
+.hero-actions .abbr-wrap {
+  width: 22px;
+  height: 22px;
+  border: 1px solid var(--border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
 .hero-actions .abbr-text {
   background-image: none;
-  padding-right: 0;
+  padding: 0;
   border-bottom: none;
+  font-size: 13px;
+  line-height: 1;
 }
 .abbr-sel {
   position: absolute;
