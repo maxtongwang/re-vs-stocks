@@ -327,7 +327,6 @@ function applyLang() {
   document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
   document.getElementById("hero-title").innerHTML = s.heroTitle;
   document.getElementById("disclaimer").textContent = s.disclaimer;
-  document.getElementById("label-years").textContent = s.labelYears;
   document.querySelector("#label-cashflow .tip-text").textContent =
     s.labelCashflow;
   document.getElementById("label-propmode").textContent = s.labelPropMode;
@@ -2613,61 +2612,71 @@ function rebuild() {
   draw(curMonth - 1);
 }
 
-function updateRangeTrack() {
-  const MIN = 1970,
-    MAX = 2026;
-  const pS = (((startYear - MIN) / (MAX - MIN)) * 100).toFixed(2);
-  const pE = (((endYear - MIN) / (MAX - MIN)) * 100).toFixed(2);
-  document.getElementById("year-range-track").style.background =
-    `linear-gradient(to right, var(--border) ${pS}%, var(--text-mid) ${pS}%, var(--text-mid) ${pE}%, var(--border) ${pE}%)`;
-  document.getElementById("year-range-val").textContent =
-    `${startYear}\u2013${endYear}`;
+function updateRangeBar() {
+  const bar = document.getElementById("year-range-bar");
+  const pS = (startYear - RB_MIN) / (RB_MAX - RB_MIN);
+  const pE = (endYear - RB_MIN) / (RB_MAX - RB_MIN);
+  document.getElementById("year-range-start-handle").style.left =
+    (pS * 100).toFixed(2) + "%";
+  document.getElementById("year-range-end-handle").style.left =
+    (pE * 100).toFixed(2) + "%";
+  document.getElementById("yr-start-label").textContent = startYear;
+  document.getElementById("yr-end-label").textContent = endYear;
+  const fill = document.getElementById("year-range-fill");
+  fill.style.left = (pS * 100).toFixed(2) + "%";
+  fill.style.width = ((pE - pS) * 100).toFixed(2) + "%";
 }
 
 function setStartYear(yr) {
   startYear = yr;
-  // clamp: end must be at least 1 year ahead
-  if (endYear <= yr) {
-    endYear = yr + 1;
-    document.getElementById("end-year-slider").value = endYear;
-  }
-  updateRangeTrack();
+  if (endYear <= yr) endYear = Math.min(yr + 1, RB_MAX);
+  updateRangeBar();
   rebuild();
 }
 
 function setEndYear(yr) {
   endYear = yr;
-  // clamp: start must be at least 1 year behind
-  if (startYear >= yr) {
-    startYear = yr - 1;
-    document.getElementById("start-year-slider").value = startYear;
-  }
-  updateRangeTrack();
+  if (startYear >= yr) startYear = Math.max(yr - 1, RB_MIN);
+  updateRangeBar();
   rebuild();
 }
 
-const _startSlider = document.getElementById("start-year-slider");
-const _endSlider = document.getElementById("end-year-slider");
+// ── Year range brush drag ──────────────────────────────────────────────────
+const RB_MIN = 1970,
+  RB_MAX = 2026;
 
-// Bring the active thumb to the top so it always responds to drags
-_startSlider.addEventListener("pointerdown", () => {
-  _startSlider.style.zIndex = 3;
-  _endSlider.style.zIndex = 2;
-});
-_endSlider.addEventListener("pointerdown", () => {
-  _endSlider.style.zIndex = 3;
-  _startSlider.style.zIndex = 2;
-});
+function makeYrHandleDraggable(handleEl, which) {
+  handleEl.addEventListener("pointerdown", (e) => {
+    e.preventDefault();
+    stopPlay();
+    handleEl.setPointerCapture(e.pointerId);
+    const barRect = document
+      .getElementById("year-range-bar")
+      .getBoundingClientRect();
 
-_startSlider.addEventListener("input", function () {
-  stopPlay();
-  setStartYear(parseInt(this.value));
-});
+    const onMove = (mv) => {
+      const x = Math.max(0, Math.min(barRect.width, mv.clientX - barRect.left));
+      const yr = Math.round(RB_MIN + (x / barRect.width) * (RB_MAX - RB_MIN));
+      if (which === "start" && yr < endYear) setStartYear(yr);
+      if (which === "end" && yr > startYear) setEndYear(yr);
+    };
 
-_endSlider.addEventListener("input", function () {
-  stopPlay();
-  setEndYear(parseInt(this.value));
-});
+    handleEl.addEventListener("pointermove", onMove);
+    handleEl.addEventListener(
+      "pointerup",
+      () => {
+        handleEl.removeEventListener("pointermove", onMove);
+      },
+      { once: true },
+    );
+  });
+}
+
+makeYrHandleDraggable(
+  document.getElementById("year-range-start-handle"),
+  "start",
+);
+makeYrHandleDraggable(document.getElementById("year-range-end-handle"), "end");
 
 // ── Resize ────────────────────────────────────────────────────────────────
 // Debounced: rotation fires many rapid events; only redraw after it settles
@@ -2678,6 +2687,7 @@ window.addEventListener("resize", () => {
     resizeTimer = null;
     resizeCanvas();
     draw(curMonth - 1);
+    updateRangeBar();
   }, 80);
 });
 // Safari fires orientationchange before viewport dimensions update;
@@ -2692,9 +2702,7 @@ window.addEventListener("orientationchange", () => {
 // ── Init ──────────────────────────────────────────────────────────────────
 loadFromHash();
 // Sync DOM to (possibly hash-loaded) state
-document.getElementById("start-year-slider").value = startYear;
-document.getElementById("end-year-slider").value = endYear;
-updateRangeTrack();
+updateRangeBar();
 document.getElementById("init-select").value = INIT;
 document.getElementById("init-abbr").textContent =
   INIT >= 1000000 ? "$" + INIT / 1000000 + "M" : "$" + INIT / 1000 + "k";

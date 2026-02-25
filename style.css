@@ -151,85 +151,82 @@ body {
 .ctrl-row input[type="range"] {
   flex: 1;
 }
-/* ── Dual-thumb year range slider ── */
-.range-dual {
-  position: relative;
-  flex: 1;
-  height: 24px;
-  display: flex;
-  align-items: center;
-}
-.range-dual-track {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 4px;
-  border-radius: 2px;
-  pointer-events: none;
-  background: var(--border);
-}
-.range-dual input[type="range"] {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  pointer-events: none;
-  -webkit-appearance: none;
-  appearance: none;
-  accent-color: var(--text-mid);
-}
-.range-dual input[type="range"]::-webkit-slider-runnable-track {
-  background: transparent;
-  height: 4px;
-}
-.range-dual input[type="range"]::-moz-range-track {
-  background: transparent;
-  height: 4px;
-}
-.range-dual input[type="range"]::-moz-range-progress {
-  background: transparent;
-}
-.range-dual input[type="range"]::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  pointer-events: auto;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--text-mid);
-  cursor: grab;
-  margin-top: -5px;
-}
-.range-dual input[type="range"]::-moz-range-thumb {
-  pointer-events: auto;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: var(--text-mid);
-  cursor: grab;
-  border: none;
-}
-.range-dual input[type="range"]:active::-webkit-slider-thumb {
-  cursor: grabbing;
-}
-.range-dual input[type="range"]:active::-moz-range-thumb {
-  cursor: grabbing;
-}
-#start-year-slider {
-  z-index: 1;
-}
-#end-year-slider {
-  z-index: 2;
-}
 .ctrl-row .val {
   color: var(--val);
   font-weight: bold;
   min-width: 36px;
 }
-#year-range-val {
-  min-width: 72px;
+/* ── Year range brush bar (below chart) ── */
+#year-range-bar {
+  position: relative;
+  height: 28px;
+  margin: 4px 0 0;
+  padding-bottom: 16px; /* space for year labels */
+  user-select: none;
+  touch-action: none;
+}
+/* dim track */
+#year-range-bar::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  pointer-events: none;
+}
+/* selected fill */
+#year-range-fill {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 4px;
+  background: var(--text-mid);
+  opacity: 0.35;
+  pointer-events: none;
+  border-radius: 1px;
+}
+/* clamp handle */
+.yr-handle {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 7px;
+  background: var(--text-mid);
+  border-radius: 2px;
+  cursor: ew-resize;
+  transform: translateX(-50%);
+  touch-action: none;
+}
+/* grip lines */
+.yr-handle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 10px;
+  background: rgba(128, 128, 128, 0.45);
+  box-shadow:
+    0 -4px 0 rgba(128, 128, 128, 0.45),
+    0 4px 0 rgba(128, 128, 128, 0.45);
+  border-radius: 1px;
+}
+/* year label below each handle */
+.yr-handle-label {
+  position: absolute;
+  top: calc(100% + 2px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--text-mid);
   white-space: nowrap;
+  pointer-events: none;
 }
 /* ── Icon buttons (theme toggle, share) ─────────────────────────────── */
 .icon-btn {

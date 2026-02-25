@@ -341,30 +341,6 @@
       </div>
     </div>
 
-    <div class="ctrl-row">
-      <span id="label-years">Years:</span>
-      <div class="range-dual" id="year-range-wrap">
-        <div class="range-dual-track" id="year-range-track"></div>
-        <input
-          type="range"
-          id="start-year-slider"
-          min="1970"
-          max="2026"
-          value="1995"
-          step="1"
-        />
-        <input
-          type="range"
-          id="end-year-slider"
-          min="1970"
-          max="2026"
-          value="2026"
-          step="1"
-        />
-      </div>
-      <span class="val" id="year-range-val">1995–2026</span>
-    </div>
-
     <!-- Shared 2-col grid: left=1fr, right=auto.
          Both right cells start at the same x so Refi: and Lang: left-edges align. -->
     <div
@@ -642,6 +618,17 @@
     <div id="chart-wrap">
       <canvas id="c"></canvas>
       <div id="chart-tooltip"></div>
+    </div>
+
+    <!-- Year range brush — full bar, two clamp handles -->
+    <div id="year-range-bar">
+      <div id="year-range-fill"></div>
+      <div id="year-range-start-handle" class="yr-handle">
+        <span class="yr-handle-label" id="yr-start-label">1995</span>
+      </div>
+      <div id="year-range-end-handle" class="yr-handle">
+        <span class="yr-handle-label" id="yr-end-label">2026</span>
+      </div>
     </div>
 
     <div class="slider-wrap">
