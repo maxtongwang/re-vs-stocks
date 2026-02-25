@@ -1204,12 +1204,25 @@ function renderDecomp(monthsToShow) {
             const initNOI = initAnnualRent - initAnnualCosts;
             const initCapRate =
               price > 0 ? ((initNOI / price) * 100).toFixed(1) : "0";
-            // Current-time cap rate (last 12 months of rent & costs)
-            // reDc is dComp[m] entry; use allDecomp[ri].dComp to reach dComp[m-12]
-            const prevDcEntry = m >= 12 ? allDecomp[ri].dComp?.[m - 12] : null;
-            const curAnnualRent = reDc.cumRent - (prevDcEntry?.cumRent ?? 0);
-            const curAnnualCosts = reDc.cumCosts - (prevDcEntry?.cumCosts ?? 0);
+            // Current-time cap rate: last 12 months when available, else annualise from yr-1 data
+            const hasFullYear = m >= 12;
+            const prevDcEntry = hasFullYear
+              ? allDecomp[ri].dComp?.[m - 12]
+              : null;
+            const curAnnualRent = hasFullYear
+              ? reDc.cumRent - (prevDcEntry?.cumRent ?? 0)
+              : initAnnualRent;
+            const curAnnualCosts = hasFullYear
+              ? reDc.cumCosts - (prevDcEntry?.cumCosts ?? 0)
+              : initAnnualCosts;
             const curNOI = curAnnualRent - curAnnualCosts;
+            const curPeriodLabel = hasFullYear
+              ? isZh
+                ? "近12月"
+                : "last 12mo"
+              : isZh
+                ? "第1年估算"
+                : "yr 1 est.";
             // propValAtM = price + reDc.appr (current property equity)
             const curCapRate =
               propValAtM > 0 ? ((curNOI / propValAtM) * 100).toFixed(1) : "0";
@@ -1224,8 +1237,8 @@ function renderDecomp(monthsToShow) {
             // Avg annual NOI for reference
             const annualNOI = cumNOI / years;
             return isZh
-              ? `<strong style="color:${noiColor}">净运营收入（NOI）</strong><br>• NOI = 租金收入 − 运营成本（不含贷款利息、折旧、所得税）<br>&nbsp;&nbsp;· 累计：${W(fmt(reDc.cumRent))} − ${W(fmt(reDc.cumCosts))} = ${W(fmt(Math.abs(cumNOI)))}${cumNOI < 0 ? "（负值）" : ""} / ${yrs}年<br>&nbsp;&nbsp;· 第1年：${fmt(initAnnualRent)} − ${fmt(initAnnualCosts)} = ${W(fmt(initNOI))}<br>• 资本化率 = 年化NOI ÷ 房产价值<br>&nbsp;&nbsp;· 购入时：${fmt(initNOI)} ÷ ${fmt(price)} = ${W(initCapRate + "%")}<br>&nbsp;&nbsp;· 当前：${fmt(curNOI)} ÷ ${fmt(propValAtM)} = ${W(curCapRate + "%")}（近12月 | 租金回报率${curRentYield}% − 运营成本率${curCostPct}%）<br>&nbsp;&nbsp;· 住宅典型资本化率 4–8%；越高 → 现金流越强，但可能反映高风险或低增值预期<br>• NOI衡量物业盈利能力，不受贷款方式影响 — 横向对比不同物业的标准指标<br>&nbsp;&nbsp;· 点击↳行查看租金与成本明细`
-              : `<strong style="color:${noiColor}">Net Operating Income (NOI)</strong><br>• NOI = Gross Rent − Operating Expenses (excl. mortgage interest, depreciation, income tax)<br>&nbsp;&nbsp;· cumulative: ${W(fmt(reDc.cumRent))} − ${W(fmt(reDc.cumCosts))} = ${W(fmt(Math.abs(cumNOI)))}${cumNOI < 0 ? " (negative)" : ""} / ${yrs}yrs<br>&nbsp;&nbsp;· yr 1: ${fmt(initAnnualRent)} − ${fmt(initAnnualCosts)} = ${W(fmt(initNOI))}<br>• Cap Rate = annual NOI ÷ property value<br>&nbsp;&nbsp;· at purchase: ${fmt(initNOI)} ÷ ${fmt(price)} = ${W(initCapRate + "%")}<br>&nbsp;&nbsp;· current: ${fmt(curNOI)} ÷ ${fmt(propValAtM)} = ${W(curCapRate + "%")} (last 12mo | rent yield ${curRentYield}% − op cost ${curCostPct}%)<br>&nbsp;&nbsp;· residential typical 4–8%; higher → stronger cash flow but may signal higher risk / lower appreciation market<br>• NOI is financing-agnostic — the standard metric for comparing properties<br>&nbsp;&nbsp;· click ↳ rows below for rent and costs detail`;
+              ? `<strong style="color:${noiColor}">净运营收入（NOI）</strong><br>• NOI = 租金收入 − 运营成本（不含贷款利息、折旧、所得税）<br>&nbsp;&nbsp;· 累计：${W(fmt(reDc.cumRent))} − ${W(fmt(reDc.cumCosts))} = ${W(fmt(Math.abs(cumNOI)))}${cumNOI < 0 ? "（负值）" : ""} / ${yrs}年<br>&nbsp;&nbsp;· 第1年：${fmt(initAnnualRent)} − ${fmt(initAnnualCosts)} = ${W(fmt(initNOI))}<br>• 资本化率 = 年化NOI ÷ 房产价值<br>&nbsp;&nbsp;· 购入时：${fmt(initNOI)} ÷ ${fmt(price)} = ${W(initCapRate + "%")}<br>&nbsp;&nbsp;· 当前：${fmt(curNOI)} ÷ ${fmt(propValAtM)} = ${W(curCapRate + "%")}（${curPeriodLabel} | 租金回报率${curRentYield}% − 运营成本率${curCostPct}%）<br>&nbsp;&nbsp;· 住宅典型资本化率 4–8%；越高 → 现金流越强，但可能反映高风险或低增值预期<br>• NOI衡量物业盈利能力，不受贷款方式影响 — 横向对比不同物业的标准指标<br>&nbsp;&nbsp;· 点击↳行查看租金与成本明细`
+              : `<strong style="color:${noiColor}">Net Operating Income (NOI)</strong><br>• NOI = Gross Rent − Operating Expenses (excl. mortgage interest, depreciation, income tax)<br>&nbsp;&nbsp;· cumulative: ${W(fmt(reDc.cumRent))} − ${W(fmt(reDc.cumCosts))} = ${W(fmt(Math.abs(cumNOI)))}${cumNOI < 0 ? " (negative)" : ""} / ${yrs}yrs<br>&nbsp;&nbsp;· yr 1: ${fmt(initAnnualRent)} − ${fmt(initAnnualCosts)} = ${W(fmt(initNOI))}<br>• Cap Rate = annual NOI ÷ property value<br>&nbsp;&nbsp;· at purchase: ${fmt(initNOI)} ÷ ${fmt(price)} = ${W(initCapRate + "%")}<br>&nbsp;&nbsp;· current: ${fmt(curNOI)} ÷ ${fmt(propValAtM)} = ${W(curCapRate + "%")} (${curPeriodLabel} | rent yield ${curRentYield}% − op cost ${curCostPct}%)<br>&nbsp;&nbsp;· residential typical 4–8%; higher → stronger cash flow but may signal higher risk / lower appreciation market<br>• NOI is financing-agnostic — the standard metric for comparing properties<br>&nbsp;&nbsp;· click ↳ rows below for rent and costs detail`;
           },
         });
         if (reDc.cumRent > 0) {
@@ -1689,7 +1702,13 @@ function renderDecomp(monthsToShow) {
   ];
   const hintEl = document.getElementById("decomp-hint");
   const _showHint = () => {
-    if (hintEl) hintEl.style.display = "";
+    if (!hintEl) return;
+    hintEl.style.display = "";
+    hintEl.querySelectorAll(".ha").forEach((el) => {
+      el.style.animation = "none";
+      void el.offsetWidth; // force reflow to reset animation
+      el.style.animation = "";
+    });
   };
   const _hideHint = () => {
     if (hintEl) hintEl.style.display = "none";
