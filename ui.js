@@ -1615,7 +1615,7 @@ function renderDecomp(monthsToShow) {
     ? "悬停或点击行查看说明"
     : "hover or click a row to explore";
   const _hintRow = `<div class="hint-row" style="color:${DC.hi}">${_arr}<span style="font-size:14px">${_hintText}</span>${_arr}</div>`;
-  if (hintEl) hintEl.innerHTML = _hintRow + _hintRow;
+  if (hintEl) hintEl.innerHTML = _hintRow + _hintRow + _hintRow;
 
   const defaultEdu = isZh
     ? `<strong style="color:${DC.hiMid}">收益明细</strong>：涨幅（杠杆放大）、现金流、成本、税收 → 正值叠加，负值抵消。悬停行查看计算逻辑。`
