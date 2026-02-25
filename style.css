@@ -130,6 +130,12 @@ body {
 .abbr-wrap:not(.hero-sp):not(.hero-re):not(.hero-init) .abbr-text {
   background-image: var(--arrow-dim);
 }
+/* Lang button in fixed top-right: no arrow, no right padding */
+.hero-actions .abbr-text {
+  background-image: none;
+  padding-right: 0;
+  border-bottom: none;
+}
 .abbr-sel {
   position: absolute;
   inset: 0;
