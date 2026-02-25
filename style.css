@@ -850,9 +850,34 @@ th:first-child {
   animation-delay: 0.36s;
 }
 /* ── Overlay legend row (above chart) ── */
+@keyframes cta-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(152, 152, 216, 0.6);
+    border-color: rgba(152, 152, 216, 0.7);
+    opacity: 0.9;
+  }
+  55% {
+    box-shadow: 0 0 0 8px rgba(152, 152, 216, 0);
+    border-color: #9898d8;
+    opacity: 1;
+  }
+}
+#overlay-legend-row:not(.active) {
+  animation: cta-pulse 1.7s ease-in-out infinite;
+  border-style: solid !important;
+  border-color: rgba(152, 152, 216, 0.7) !important;
+  border-width: 1.5px !important;
+  opacity: 1 !important;
+}
+#overlay-legend-row:not(.active) #label-price-only-comparison,
+#overlay-legend-row:not(.active) #overlay-legend-label {
+  color: var(--text) !important;
+}
 #overlay-legend-row.active {
   opacity: 1;
   border-color: transparent !important;
+  animation: none;
 }
 #overlay-legend-row:hover {
   opacity: 0.92;
