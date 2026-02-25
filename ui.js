@@ -830,23 +830,6 @@ function loadFromHash() {
     hpiSource = p.get("hpi");
 }
 
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("#share-btn")) return;
-  const qs = getShareParams();
-  const url = qs ? location.pathname + "?" + qs : location.pathname;
-  history.replaceState(null, "", url);
-  const btn = document.getElementById("share-btn");
-  navigator.clipboard
-    .writeText(location.origin + url)
-    .then(() => {
-      btn.textContent = "✓";
-      setTimeout(() => {
-        btn.textContent = "🔗";
-      }, 1500);
-    })
-    .catch(() => {});
-});
-
 // ── Lang select ──────────────────────────────────────────────────────────
 document.getElementById("lang-select").addEventListener("change", (e) => {
   lang = e.target.value;
@@ -854,12 +837,6 @@ document.getElementById("lang-select").addEventListener("change", (e) => {
     lang === "zh" ? "🇨🇳" : "🇺🇸";
   applyLang();
   draw(curMonth - 1);
-  const qs = getShareParams();
-  history.replaceState(
-    null,
-    "",
-    qs ? location.pathname + "?" + qs : location.pathname,
-  );
 });
 
 // ── Cap Gains sub-button visibility ──────────────────────────────────────
@@ -2282,6 +2259,15 @@ function draw(monthsToShow) {
   updateOutcomeCallout(fullM);
   updateLegendCagr(fullM);
   renderDecomp(fullM);
+
+  if (!playing) {
+    const qs = getShareParams();
+    history.replaceState(
+      null,
+      "",
+      qs ? location.pathname + "?" + qs : location.pathname,
+    );
+  }
 }
 
 // ── Year label ────────────────────────────────────────────────────────────
