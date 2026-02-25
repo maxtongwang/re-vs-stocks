@@ -190,7 +190,7 @@ const STRINGS = {
     disclaimer: "for entertainment purpose only",
     labelHpiSourceText: "HPI",
     tipHpiSource:
-      "House Price Index. Case-Shiller (default): all arm's-length sales including cash & jumbo — better for high-end coastal markets. FHFA: conforming-loan-only — more granular by county. See "House Price Index" in methodology ↓ for full comparison.",
+      "House Price Index. Case-Shiller (default): all arm's-length sales including cash & jumbo — better for high-end coastal markets. FHFA: conforming-loan-only — more granular by county. See the HPI section in methodology \u2193 for full comparison.",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
     labelPriceOnlyComparison: "Price only",
