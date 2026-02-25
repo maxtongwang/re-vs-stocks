@@ -851,6 +851,35 @@ function loadFromHash() {
     hpiSource = p.get("hpi");
 }
 
+// ── OG meta constants (match Cloudflare Worker) ───────────────────────────
+const OG = {
+  en: {
+    title: "Stocks vs. Real Estate: The Honest Answer Nobody Wants to Give You",
+    desc: "Compare S\u0026P 500, NASDAQ, or 60/40 against real estate across 54 locations in CA, TX, FL, WA, and NY using real 1970\u20132025 data with 2026 estimates. Case-Shiller \u0026 FHFA HPI, 5 leverage scenarios, cash-out refi, rental income, depreciation, and capital gains tax modeled.",
+  },
+  zh: {
+    title:
+      "\u770b\u61c2\u623f\u4ea7 vs \u80a1\u5e02\u7684\u7ec8\u6781\u56fe\u8868",
+    desc: "\u771f\u5b9e\u6570\u636e\u5bf9\u6bd454\u4e2a\u7f8e\u56fd\u57ce\u5e02\u7684\u623f\u4ea7\u4e0e\u80a1\u5e02\uff08\u6807\u666e500\u3001\u7eb3\u65af\u8fbe\u514b\u3001\u516d\u56db\u7ec4\u5408\uff09\u6536\u76ca\u3002\u6db5\u76961970\u20132025\u5e74\u5b9e\u9645\u6570\u636e\u53ca2026\u5e74\u9884\u6d4b\uff0c\u652f\u6301Case-Shiller\u4e0eFHFA\u623f\u4ef7\u6307\u6570\u5207\u6362\u30015\u79cd\u6760\u6746\u65b9\u6848\u3001\u5957\u73b0\u518d\u878d\u8d44\u3001\u79df\u91d1\u6536\u5165\u3001\u6298\u65e7\u7a0e\u76fe\u53ca\u8d44\u672c\u5229\u5f97\u7a0e\u6a21\u62df\u3002",
+  },
+};
+
+function syncOgMeta(l) {
+  const og = OG[l] || OG.en;
+  document
+    .querySelector('meta[property="og:title"]')
+    ?.setAttribute("content", og.title);
+  document
+    .querySelector('meta[property="og:description"]')
+    ?.setAttribute("content", og.desc);
+  document
+    .querySelector('meta[name="twitter:title"]')
+    ?.setAttribute("content", og.title);
+  document
+    .querySelector('meta[name="twitter:description"]')
+    ?.setAttribute("content", og.desc);
+}
+
 // ── Lang select ──────────────────────────────────────────────────────────
 document.getElementById("lang-select").addEventListener("change", (e) => {
   lang = e.target.value;
@@ -858,6 +887,7 @@ document.getElementById("lang-select").addEventListener("change", (e) => {
     lang === "zh" ? "🇨🇳" : "🇺🇸";
   applyLang();
   draw(curMonth - 1);
+  syncOgMeta(lang);
   syncUrl();
 });
 
