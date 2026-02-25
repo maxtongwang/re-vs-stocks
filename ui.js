@@ -1555,6 +1555,14 @@ function renderDecomp(monthsToShow) {
 
   // Wire hover/click for educational content
   const allRows = [...spRows, ...reRows];
+  const hintEl = document.getElementById("decomp-hint");
+  const _showHint = () => {
+    if (hintEl) hintEl.style.display = "";
+  };
+  const _hideHint = () => {
+    if (hintEl) hintEl.style.display = "none";
+  };
+
   const eduMap = {};
   allRows.forEach((r) => {
     if (r.edu) eduMap[r.key] = r.edu;
@@ -1571,6 +1579,7 @@ function renderDecomp(monthsToShow) {
         eduEl.innerHTML = eduMap[key]();
         decompActiveRow = key;
       }
+      _hideHint();
     };
     el.addEventListener("mouseenter", () => {
       // Don't override a pinned row unless hovering the pinned row itself
@@ -1586,13 +1595,13 @@ function renderDecomp(monthsToShow) {
           .forEach((e) => e.classList.remove("active-edu"));
         if (eduEl) eduEl.innerHTML = defaultEdu;
         decompActiveRow = null;
+        _showHint();
       } else {
         clickedKey = key;
         showEdu();
       }
     });
   });
-  const hintEl = document.getElementById("decomp-hint");
   const _arr = `<span class="hint-arrows"><span class="ha">↑</span><span class="ha">↑</span><span class="ha">↑</span></span>`;
   const _hintText = isZh
     ? "悬停或点击行查看说明"
@@ -1614,6 +1623,7 @@ function renderDecomp(monthsToShow) {
         .querySelectorAll(".decomp-row")
         .forEach((e) => e.classList.remove("active-edu"));
       if (eduEl) eduEl.innerHTML = defaultEdu;
+      _showHint();
     });
 
   // Restore active edu if row still exists, otherwise show default
@@ -1622,11 +1632,14 @@ function renderDecomp(monthsToShow) {
     if (el) {
       el.classList.add("active-edu");
       if (eduEl) eduEl.innerHTML = eduMap[decompActiveRow]();
+      _hideHint();
     } else {
       if (eduEl) eduEl.innerHTML = defaultEdu;
+      _showHint();
     }
   } else {
     if (eduEl) eduEl.innerHTML = defaultEdu;
+    _showHint();
   }
 }
 
