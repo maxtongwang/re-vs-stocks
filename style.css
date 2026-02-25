@@ -603,6 +603,9 @@ th:first-child {
   #sg-cf {
     order: 4;
   }
+  #sg-hpi {
+    order: 5;
+  }
 }
 /* ── Landscape chart height: managed by JS updateChartMaxHeight() (accounts for body zoom) ── */
 /* ── Landscape mobile: tighter cap + compressed hero ── */

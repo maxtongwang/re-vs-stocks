@@ -226,8 +226,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224aaab" />
-    <link rel="stylesheet" href="style.css?v=20260224aaab" />
+    <link rel="stylesheet" href="themes.css?v=20260224aaac" />
+    <link rel="stylesheet" href="style.css?v=20260224aaac" />
   </head>
   <body>
     <noscript>
@@ -414,49 +414,34 @@
         </div>
       </div>
 
-      <!-- Cash flow + HPI source (flex-wrap: same row in landscape, stacked in portrait) -->
-      <div
-        style="
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 8px;
-          row-gap: 6px;
-        "
-      >
-        <div id="sg-cf" style="display: flex; align-items: center; gap: 8px">
-          <span id="label-cashflow" class="tip tip-right"
-            ><span class="tip-text">Cash flow</span
-            ><span class="tip-icon">ⓘ</span>:</span
-          >
-          <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-additive">
-              Additive
-            </button>
-            <button class="toggle-btn tip tip-right" id="btn-reinvest">
-              <span class="tip-text">Reinvested</span
-              ><span class="tip-icon">ⓘ</span>
-            </button>
-          </div>
-          <div
-            id="reinvest-idx-wrap"
-            class="toggle-group"
-            style="display: none"
-          >
-            <button class="toggle-btn active" id="btn-ri-sp500">S&amp;P</button>
-            <button class="toggle-btn" id="btn-ri-nasdaq">NQ</button>
-            <button class="toggle-btn" id="btn-ri-sixty40">60/40</button>
-          </div>
+      <!-- Cash flow -->
+      <div id="sg-cf" style="display: flex; align-items: center; gap: 8px">
+        <span id="label-cashflow" class="tip tip-right"
+          ><span class="tip-text">Cash flow</span
+          ><span class="tip-icon">ⓘ</span>:</span
+        >
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-additive">Additive</button>
+          <button class="toggle-btn tip tip-right" id="btn-reinvest">
+            <span class="tip-text">Reinvested</span
+            ><span class="tip-icon">ⓘ</span>
+          </button>
         </div>
-        <!-- HPI source selector -->
-        <div id="sg-hpi" style="display: flex; align-items: center; gap: 8px">
-          <span id="label-hpi-source">HPI:</span>
-          <div class="toggle-group">
-            <button class="toggle-btn" id="btn-hpi-fhfa">FHFA</button>
-            <button class="toggle-btn active" id="btn-hpi-cs">
-              Case-Shiller
-            </button>
-          </div>
+        <div id="reinvest-idx-wrap" class="toggle-group" style="display: none">
+          <button class="toggle-btn active" id="btn-ri-sp500">S&amp;P</button>
+          <button class="toggle-btn" id="btn-ri-nasdaq">NQ</button>
+          <button class="toggle-btn" id="btn-ri-sixty40">60/40</button>
+        </div>
+      </div>
+
+      <!-- HPI source selector -->
+      <div id="sg-hpi" style="display: flex; align-items: center; gap: 8px">
+        <span id="label-hpi-source">HPI:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-hpi-cs">
+            Case-Shiller
+          </button>
+          <button class="toggle-btn" id="btn-hpi-fhfa">FHFA</button>
         </div>
       </div>
 
@@ -1003,8 +988,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224aaab" defer></script>
-    <script src="sim.js?v=20260224aaab" defer></script>
-    <script src="ui.js?v=20260224aaab" defer></script>
+    <script src="data.js?v=20260224aaac" defer></script>
+    <script src="sim.js?v=20260224aaac" defer></script>
+    <script src="ui.js?v=20260224aaac" defer></script>
   </body>
 </html>
