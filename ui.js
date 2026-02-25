@@ -2073,18 +2073,18 @@ function draw(monthsToShow) {
   ];
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
-  const PL = Math.min(52, Math.max(40, Math.round(W * 0.11))),
-    PR = Math.min(72, Math.max(56, Math.round(W * 0.11))),
+  const PL = Math.min(44, Math.max(36, Math.round(W * 0.08))),
+    PR = Math.min(66, Math.max(50, Math.round(W * 0.1))),
     PT = 16,
     PB = 28;
-  lastPL = PL; // responsive: ~11% of W, clamped [40, 52]
-  lastPR = PR; // responsive: ~18% of W, clamped [55, 100]
+  lastPL = PL;
+  lastPR = PR;
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
   // Always reserve projReservePX on the right so histW is constant in both modes.
   // No-prediction: right margin is empty. Prediction: yellow zone fills it.
-  const projReservePX = Math.min(48, Math.max(20, Math.round(chartW * 0.12)));
+  const projReservePX = Math.min(32, Math.max(14, Math.round(chartW * 0.08)));
   const effProjPX = hasProjZone ? projReservePX : 0;
   const histW = chartW - projReservePX; // constant regardless of hasProjZone
   const histEndM = projStartM + 1;
