@@ -2074,7 +2074,7 @@ function draw(monthsToShow) {
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
   const PL = Math.min(52, Math.max(40, Math.round(W * 0.11))),
-    PR = Math.min(100, Math.max(55, Math.round(W * 0.18))),
+    PR = Math.min(72, Math.max(56, Math.round(W * 0.11))),
     PT = 16,
     PB = 28;
   lastPL = PL; // responsive: ~11% of W, clamped [40, 52]
