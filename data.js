@@ -177,8 +177,8 @@ const STRINGS = {
       hpiSrc = "cs",
     ) => [
       `${idxLabel} returns: ${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)} (current year live)`,
-      `S&amp;P CoreLogic Case-Shiller HPI: all arm's-length repeat-sale transactions (broader than FHFA's conforming-loan-only). ${locLabel} mapped to ${lnk([csSrc])}. Pre-series years use FHFA fallback.${hpiSrc === "cs" ? " <strong>← active</strong>" : ""}`,
-      `FHFA House Price Index (HPI): conforming-loan-only repeat-sale index (Freddie Mac &amp; Fannie Mae records). ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources.${hpiSrc === "fhfa" ? " <strong>← active</strong>" : ""}`,
+      `${hpiSrc === "cs" ? "<strong>← active</strong> " : ""}S&amp;P CoreLogic Case-Shiller HPI: all arm's-length repeat-sale transactions (broader than FHFA's conforming-loan-only). ${locLabel} mapped to ${lnk([csSrc])}. Pre-series years use FHFA fallback.`,
+      `${hpiSrc === "fhfa" ? "<strong>← active</strong> " : ""}FHFA House Price Index (HPI): conforming-loan-only repeat-sale index (Freddie Mac &amp; Fannie Mae records). ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources.`,
       `Mortgage rates: <a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">FRED MORTGAGE30US</a>`,
       `Rent growth pre-2015: ${lnk(lSrc.rentPre2015)}`,
       `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
@@ -188,7 +188,9 @@ const STRINGS = {
     ],
     builtBy: "Built by Max Wang · DRE 02225524",
     disclaimer: "for entertainment purpose only",
-    labelHpiSource: "House Price Index:",
+    labelHpiSourceText: "HPI",
+    tipHpiSource:
+      "House Price Index — tracks home price appreciation. Case-Shiller covers all arm's-length transactions; FHFA covers conforming-loan-only.",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
     labelPriceOnlyComparison: "Price only",
@@ -402,8 +404,8 @@ const STRINGS = {
       hpiSrc = "cs",
     ) => [
       `${idxLabel}收益数据：${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)}（当年实时数据）`,
-      `S&amp;P CoreLogic Case-Shiller HPI：覆盖所有等价交易（非FHFA合规贷款限定）。${locLabel}对应：${lnk([csSrc])}。CS序列开始前使用FHFA数据。${hpiSrc === "cs" ? "（<strong>当前使用</strong>）" : ""}`,
-      `FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数。${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。${hpiSrc === "fhfa" ? "（<strong>当前使用</strong>）" : ""}`,
+      `${hpiSrc === "cs" ? "<strong>← 当前</strong> " : ""}S&amp;P CoreLogic Case-Shiller HPI：覆盖所有等价交易（非FHFA合规贷款限定）。${locLabel}对应：${lnk([csSrc])}。CS序列开始前使用FHFA数据。`,
+      `${hpiSrc === "fhfa" ? "<strong>← 当前</strong> " : ""}FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数。${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。`,
       `房贷利率：<a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">美联储 FRED MORTGAGE30US</a>`,
       `2015年前租金涨幅：${lnk(lSrc.rentPre2015)}`,
       `2015年后租金涨幅：${lnk(lSrc.rentPost2015)}`,
@@ -413,7 +415,9 @@ const STRINGS = {
     ],
     builtBy: "由 Max Wang 制作 · DRE 02225524",
     disclaimer: "仅供娱乐参考",
-    labelHpiSource: "房价指数 (HPI)：",
+    labelHpiSourceText: "HPI",
+    tipHpiSource:
+      "房价指数（HPI）——追踪房价涨幅。Case-Shiller 覆盖所有等价转让交易；FHFA 仅限合规贷款交易。",
     btnFhfa: "FHFA",
     btnCs: "CS",
     labelPriceOnlyComparison: "纯价格对比",

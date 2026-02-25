@@ -419,7 +419,12 @@ function applyLang() {
     overlayLegLabel.textContent = `S\u0026P 500 vs ${locAbbr}`;
   }
   const labelHpiSrc = document.getElementById("label-hpi-source");
-  if (labelHpiSrc) labelHpiSrc.textContent = s.labelHpiSource || "HPI:";
+  if (labelHpiSrc) {
+    const tt = labelHpiSrc.querySelector(".tip-text");
+    if (tt) tt.textContent = s.labelHpiSourceText || "HPI";
+    const ti = labelHpiSrc.querySelector(".tip-icon");
+    if (ti) ti.setAttribute("data-tip", s.tipHpiSource || "");
+  }
   const btnHpiFhfa = document.getElementById("btn-hpi-fhfa");
   if (btnHpiFhfa) btnHpiFhfa.textContent = s.btnFhfa || "FHFA";
   const btnHpiCs = document.getElementById("btn-hpi-cs");

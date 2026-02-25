@@ -226,7 +226,8 @@ input[type="range"] {
 #label-includes,
 #label-propmode,
 #label-tax-bracket,
-#label-refi {
+#label-refi,
+#label-hpi-source {
   min-width: 74px;
 }
 #btn-refi-0,
