@@ -2,12 +2,13 @@ name: Monthly projection update
 
 on:
   schedule:
-    # FHFA Q4 and S&P CS HPI Dec are published ~Feb 25 each year.
-    # Firing from March 1 ensures all prior-year data is available.
-    # Jan 1 / Feb 1 skipped — FHFA/CS not yet published, would always fail.
-    # Monthly Mar–Dec: 10 runs/year, 0 expected retries.
-    - cron: "0 8 1 3-12 *"
-  workflow_dispatch: # manual trigger for Jan/Feb or emergency reruns
+    # Runs monthly on the 1st at 8am UTC.
+    # FMP (stocks, mortgage) always succeeds.
+    # FRED groups (FHFA, S&P CS, BLS rent) are skipped silently when prior-year
+    # data isn't published yet (Jan–Feb); they land automatically once available
+    # (~March) without any retry logic or manual intervention.
+    - cron: "0 8 1 * *"
+  workflow_dispatch: # manual trigger if needed
 
 jobs:
   update:
