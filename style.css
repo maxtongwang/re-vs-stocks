@@ -755,6 +755,21 @@ th:first-child {
 .decomp-row.active-edu .decomp-lbl {
   color: var(--val);
 }
+.decomp-row.decomp-sub .decomp-lbl {
+  font-size: 10px;
+  padding-left: 8px;
+  opacity: 0.8;
+}
+.decomp-row.decomp-sub .decomp-amt {
+  font-size: 10px;
+  opacity: 0.8;
+}
+.decomp-row.decomp-sub .decomp-bar-track {
+  height: 3px;
+}
+.decomp-row.decomp-sub .decomp-bar {
+  height: 3px;
+}
 .decomp-bar-td {
   width: 80px;
   max-width: 80px;

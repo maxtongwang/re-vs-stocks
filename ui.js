@@ -1015,6 +1015,7 @@ function renderDecomp(monthsToShow) {
     txCosts: isZh ? "交易成本" : "Tx Costs",
     capGains: s.btnCapGains,
     total: isZh ? "→ 净资产" : "→ Net Worth",
+    noi: isZh ? "净运营收入" : "NOI",
   };
 
   // Find best visible RE scenario
@@ -1185,57 +1186,131 @@ function renderDecomp(monthsToShow) {
             : `<strong style="color:${reColor}">${lbl.appreciation}</strong><br>• down ${fmt(INIT)} + gain ${fmt(reDc.appr)} = <strong style="color:${DC.hi}">${barVal}</strong> | property ${fmt(price)} → ${fmt(propVal)} (+${appPct}%)<br>&nbsp;&nbsp;· ${downPct}% down (${fmt(INIT)}) = <strong style="color:${DC.hi}">${reOnCapCagr}%/yr on capital</strong> (${leverage}x leverage, ${rePriceCagr}%/yr on property)<br>• leverage cuts both ways: −10% property → <strong style="color:${DC.int}">−${(10 / down).toFixed(0)}%</strong> on your capital`;
         },
       });
-      if (!isPrimary && reDc.cumRent > 0) {
+      if (!isPrimary) {
+        // ── NOI group: parent bar + rent sub-row + costs sub-row ──────────────
+        const cumNOI = reDc.cumRent - reDc.cumCosts;
+        const noiColor = cumNOI >= 0 ? DC.rent : DC.costs;
         reRows.push({
-          key: `re${ri}-rent`,
-          label: lbl.rentIncome,
-          val: reDc.cumRent,
-          color: DC.rent,
+          key: `re${ri}-noi`,
+          label: lbl.noi,
+          val: cumNOI,
+          color: noiColor,
           edu: () => {
-            const grossMonthlyRent = Math.round((price * startYield) / 12);
-            const avgMonthlyRent = Math.round(reDc.cumRent / (m + 1));
-            const rentToIntPct =
-              reDc.cumInt > 0
-                ? ((reDc.cumRent / reDc.cumInt) * 100).toFixed(0)
-                : "∞";
-            const rentToCostsPct =
-              reDc.cumCosts > 0
-                ? ((reDc.cumRent / reDc.cumCosts) * 100).toFixed(0)
-                : "∞";
-            const yieldPct = (startYield * 100).toFixed(1);
-            const [yLo, yHi] = activeLocConfig.typicalYieldRange || [
-              0.035, 0.055,
-            ];
-            const fmtYield = (v) => String(Number((v * 100).toFixed(1)));
-            const yieldCtx =
-              startYield < yLo
-                ? isZh
-                  ? `低回报率——${startYear}年房价已超租金涨幅`
-                  : `low — prices outpaced rents entering ${startYear}`
-                : startYield > yHi
-                  ? isZh
-                    ? `高回报率——${startYear}年租金相对房价较高`
-                    : `high — rents strong relative to prices in ${startYear}`
-                  : isZh
-                    ? `典型市场回报率区间（${fmtYield(yLo)}–${fmtYield(yHi)}%）`
-                    : `within typical market range (${fmtYield(yLo)}–${fmtYield(yHi)}%)`;
-            const vacRate = activeLocConfig.vacancyRate ?? 0.05;
-            const vacPct = Math.round(vacRate * 100);
-            const collectedPct = 100 - vacPct;
-            const collectedMonthlyRent = Math.round(
-              grossMonthlyRent * (1 - vacRate),
+            const annualNOI = cumNOI / years;
+            const capRate =
+              price > 0 ? ((annualNOI / price) * 100).toFixed(1) : "0";
+            const initAnnualRent = Math.round(price * startYield);
+            const initAnnualCosts = Math.round(
+              price * (activeLocConfig.propTaxRate + 0.015),
             );
-            const mgmtRate = activeLocConfig.mgmtFeeRate ?? 0.09;
-            const mgmtPct = Math.round(mgmtRate * 100);
-            const mgmtMonthlyFee = Math.round(collectedMonthlyRent * mgmtRate);
-            const mgmtLine = inclMgmtFee
-              ? isZh
-                ? `<br>• 物管费 ${W(mgmtPct + "%")} × 实收 = ${W("−" + fmt(mgmtMonthlyFee) + "/月")}（IRS Schedule E 可抵税）`
-                : `<br>• mgmt fee ${W(mgmtPct + "%")} × collected = ${W("−" + fmt(mgmtMonthlyFee) + "/mo")} (IRS Schedule E deductible)`
-              : "";
+            const initNOI = initAnnualRent - initAnnualCosts;
             return isZh
-              ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 均值 ${W(fmt(avgMonthlyRent) + "/月")}（实收）<br>&nbsp;&nbsp;· 租金 ÷ 利息 = ${W(rentToIntPct + "%")} | 租金 ÷ 成本 = ${W(rentToCostsPct + "%")}<br>• 起始毛租金 ${W(fmt(grossMonthlyRent) + "/月")} · ${W(yieldPct + "%回报率")} = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩<br>• 空置率 ${W(vacPct + "%")}（人口普查ACS）：实收 = 毛租金 × ${W(collectedPct + "%")} = ${W(fmt(collectedMonthlyRent) + "/月")}${mgmtLine}<br>• 租金管控未建模——若受租金管制，实际租金涨幅可能低于市场水平`
-              : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | avg ${W(fmt(avgMonthlyRent) + "/mo")} collected<br>&nbsp;&nbsp;· rent ÷ interest = ${W(rentToIntPct + "%")} | rent ÷ costs = ${W(rentToCostsPct + "%")}<br>• gross ${W(fmt(grossMonthlyRent) + "/mo")} at start · ${W(yieldPct + "% yield")} = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent → yield compresses over time<br>• vacancy ${W(vacPct + "%")} (Census ACS): collected = gross × ${W(collectedPct + "%")} = ${W(fmt(collectedMonthlyRent) + "/mo")}${mgmtLine}<br>• Rent control not modeled — if rent-stabilized, actual growth may be lower than market`;
+              ? `<strong style="color:${noiColor}">净运营收入（NOI）</strong><br>• NOI = 租金收入 − 运营成本（不含贷款利息、折旧、所得税）<br>&nbsp;&nbsp;· 累计：${W(fmt(reDc.cumRent))} − ${W(fmt(reDc.cumCosts))} = ${W(fmt(Math.abs(cumNOI)))}${cumNOI < 0 ? "（负值）" : ""} / ${yrs}年<br>&nbsp;&nbsp;· 第1年：${fmt(initAnnualRent)} − ${fmt(initAnnualCosts)} = ${W(fmt(initNOI))}<br>• 资本化率 = 年化NOI ÷ 房产价值 = ${W(fmt(Math.round(annualNOI)))} ÷ ${fmt(price)} = ${W(capRate + "%")}<br>&nbsp;&nbsp;· 住宅典型资本化率 4–8%；越高 → 现金流越强，但可能反映高风险或低增值预期<br>• NOI衡量物业盈利能力，不受贷款方式影响 — 横向对比不同物业的标准指标<br>&nbsp;&nbsp;· 点击↳行查看租金与成本明细`
+              : `<strong style="color:${noiColor}">Net Operating Income (NOI)</strong><br>• NOI = Gross Rent − Operating Expenses (excl. mortgage interest, depreciation, income tax)<br>&nbsp;&nbsp;· cumulative: ${W(fmt(reDc.cumRent))} − ${W(fmt(reDc.cumCosts))} = ${W(fmt(Math.abs(cumNOI)))}${cumNOI < 0 ? " (negative)" : ""} / ${yrs}yrs<br>&nbsp;&nbsp;· yr 1: ${fmt(initAnnualRent)} − ${fmt(initAnnualCosts)} = ${W(fmt(initNOI))}<br>• Cap Rate = annual NOI ÷ property value = ${W(fmt(Math.round(annualNOI)))} ÷ ${fmt(price)} = ${W(capRate + "%")}<br>&nbsp;&nbsp;· residential typical cap rate 4–8%; higher → stronger cash flow but may signal higher risk / lower appreciation market<br>• NOI measures property's income power independent of financing — the standard metric for comparing properties<br>&nbsp;&nbsp;· click ↳ rows below for rent and costs detail`;
+          },
+        });
+        if (reDc.cumRent > 0) {
+          reRows.push({
+            key: `re${ri}-rent`,
+            label: `↳ ${lbl.rentIncome}`,
+            val: reDc.cumRent,
+            sub: true,
+            color: DC.rent,
+            edu: () => {
+              const grossMonthlyRent = Math.round((price * startYield) / 12);
+              const avgMonthlyRent = Math.round(reDc.cumRent / (m + 1));
+              const rentToIntPct =
+                reDc.cumInt > 0
+                  ? ((reDc.cumRent / reDc.cumInt) * 100).toFixed(0)
+                  : "∞";
+              const rentToCostsPct =
+                reDc.cumCosts > 0
+                  ? ((reDc.cumRent / reDc.cumCosts) * 100).toFixed(0)
+                  : "∞";
+              const yieldPct = (startYield * 100).toFixed(1);
+              const [yLo, yHi] = activeLocConfig.typicalYieldRange || [
+                0.035, 0.055,
+              ];
+              const fmtYield = (v) => String(Number((v * 100).toFixed(1)));
+              const yieldCtx =
+                startYield < yLo
+                  ? isZh
+                    ? `低回报率——${startYear}年房价已超租金涨幅`
+                    : `low — prices outpaced rents entering ${startYear}`
+                  : startYield > yHi
+                    ? isZh
+                      ? `高回报率——${startYear}年租金相对房价较高`
+                      : `high — rents strong relative to prices in ${startYear}`
+                    : isZh
+                      ? `典型市场回报率区间（${fmtYield(yLo)}–${fmtYield(yHi)}%）`
+                      : `within typical market range (${fmtYield(yLo)}–${fmtYield(yHi)}%)`;
+              const vacRate = activeLocConfig.vacancyRate ?? 0.05;
+              const vacPct = Math.round(vacRate * 100);
+              const collectedPct = 100 - vacPct;
+              const collectedMonthlyRent = Math.round(
+                grossMonthlyRent * (1 - vacRate),
+              );
+              const mgmtRate = activeLocConfig.mgmtFeeRate ?? 0.09;
+              const mgmtPct = Math.round(mgmtRate * 100);
+              const mgmtMonthlyFee = Math.round(
+                collectedMonthlyRent * mgmtRate,
+              );
+              const mgmtLine = inclMgmtFee
+                ? isZh
+                  ? `<br>• 物管费 ${W(mgmtPct + "%")} × 实收 = ${W("−" + fmt(mgmtMonthlyFee) + "/月")}（IRS Schedule E 可抵税）`
+                  : `<br>• mgmt fee ${W(mgmtPct + "%")} × collected = ${W("−" + fmt(mgmtMonthlyFee) + "/mo")} (IRS Schedule E deductible)`
+                : "";
+              return isZh
+                ? `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}年 | 均值 ${W(fmt(avgMonthlyRent) + "/月")}（实收）<br>&nbsp;&nbsp;· 租金 ÷ 利息 = ${W(rentToIntPct + "%")} | 租金 ÷ 成本 = ${W(rentToCostsPct + "%")}<br>• 起始毛租金 ${W(fmt(grossMonthlyRent) + "/月")} · ${W(yieldPct + "%回报率")} = ${yieldCtx}<br>&nbsp;&nbsp;· 房价涨幅 > 租金 → 回报率随时间压缩<br>• 空置率 ${W(vacPct + "%")}（人口普查ACS）：实收 = 毛租金 × ${W(collectedPct + "%")} = ${W(fmt(collectedMonthlyRent) + "/月")}${mgmtLine}<br>• 租金管控未建模——若受租金管制，实际租金涨幅可能低于市场水平`
+                : `<strong style="color:${DC.rent}">${lbl.rentIncome}</strong><br>• ${fmt(reDc.cumRent)} / ${yrs}yrs | avg ${W(fmt(avgMonthlyRent) + "/mo")} collected<br>&nbsp;&nbsp;· rent ÷ interest = ${W(rentToIntPct + "%")} | rent ÷ costs = ${W(rentToCostsPct + "%")}<br>• gross ${W(fmt(grossMonthlyRent) + "/mo")} at start · ${W(yieldPct + "% yield")} = ${yieldCtx}<br>&nbsp;&nbsp;· price growth > rent → yield compresses over time<br>• vacancy ${W(vacPct + "%")} (Census ACS): collected = gross × ${W(collectedPct + "%")} = ${W(fmt(collectedMonthlyRent) + "/mo")}${mgmtLine}<br>• Rent control not modeled — if rent-stabilized, actual growth may be lower than market`;
+            },
+          });
+        }
+        if (reDc.cumCosts > 0) {
+          reRows.push({
+            key: `re${ri}-costs`,
+            label: `↳ ${lbl.costs}`,
+            val: -reDc.cumCosts,
+            sub: true,
+            color: DC.costs,
+            edu: () => {
+              const propTaxPct = (activeLocConfig.propTaxRate * 100).toFixed(2);
+              const totalCostPct = (
+                (activeLocConfig.propTaxRate + 0.015) *
+                100
+              ).toFixed(2);
+              const initAnnualCosts = Math.round(
+                price * (activeLocConfig.propTaxRate + 0.015),
+              );
+              const costsAsRentPct =
+                reDc.cumRent > 0
+                  ? ((reDc.cumCosts / reDc.cumRent) * 100).toFixed(0)
+                  : "—";
+              return isZh
+                ? `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${W(fmt(Math.round(initAnnualCosts / 12)) + "/月")}（${W(fmt(initAnnualCosts) + "/年")}，第1年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年（第1年）")}，+4%/年建筑成本通胀<br>&nbsp;&nbsp;· = 租金收入 ${W(costsAsRentPct + "%")}（第1年）<br>• 切换<em>运营成本</em>可量化拖累`
+                : `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${W(fmt(Math.round(initAnnualCosts / 12)) + "/mo")} (${W(fmt(initAnnualCosts) + "/yr")}, yr 1)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr (yr 1)")}, +4%/yr construction cost inflation<br>&nbsp;&nbsp;· = ${W(costsAsRentPct + "%")} of gross rent (yr 1)<br>• toggle <em>Op. Costs</em> to isolate drag`;
+            },
+          });
+        }
+      } else if (isPrimary && reDc.cumCosts > 0) {
+        // Primary: no rent, no NOI — standalone costs row
+        reRows.push({
+          key: `re${ri}-costs`,
+          label: lbl.costs,
+          val: -reDc.cumCosts,
+          color: DC.costs,
+          edu: () => {
+            const propTaxPct = (activeLocConfig.propTaxRate * 100).toFixed(2);
+            const totalCostPct = (
+              (activeLocConfig.propTaxRate + 0.015) *
+              100
+            ).toFixed(2);
+            const initAnnualCosts = Math.round(
+              price * (activeLocConfig.propTaxRate + 0.015),
+            );
+            return isZh
+              ? `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${W(fmt(Math.round(initAnnualCosts / 12)) + "/月")}（${W(fmt(initAnnualCosts) + "/年")}，第1年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年（第1年）")}，+4%/年建筑成本通胀<br>• 切换<em>运营成本</em>可量化拖累`
+              : `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${W(fmt(Math.round(initAnnualCosts / 12)) + "/mo")} (${W(fmt(initAnnualCosts) + "/yr")}, yr 1)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr (yr 1)")}, +4%/yr construction cost inflation<br>• toggle <em>Op. Costs</em> to isolate drag`;
           },
         });
       }
@@ -1356,31 +1431,6 @@ function renderDecomp(monthsToShow) {
             return isZh
               ? `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")}（30年固定）| ${yrs}年<br>&nbsp;&nbsp;· 月供 ${fmt(mortPmt)} | 首月利息 ${fmt(initMonthlyInt)} | 累计 = 购价 <strong style="color:${DC.hi}">${intAsPctPrice}%</strong><br>• 等额还款前期利息为主，本金后期加速<br>&nbsp;&nbsp;· ${leverage}x 杠杆成本：全款需 ${fmt(price)} vs 首付 ${fmt(INIT)}${!isPrimary ? `<br>&nbsp;&nbsp;· 租赁：利息可抵税 → 见${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}行` : ""}`
               : `<strong style="color:${DC.int}">${lbl.interest}</strong><br>• ${fmt(reDc.cumInt)} | ${W((mortRate * 100).toFixed(2) + "%")} (${W("30yr fixed")}) | ${yrs}yrs<br>&nbsp;&nbsp;· ${fmt(mortPmt)}/mo | month-1 interest = ${fmt(initMonthlyInt)} | total = <strong style="color:${DC.hi}">${intAsPctPrice}%</strong> of purchase price<br>• amortization front-loads interest; principal accelerates near payoff<br>&nbsp;&nbsp;· ${leverage}x leverage cost: ${fmt(price)} cash needed vs ${fmt(INIT)} down${!isPrimary ? `<br>&nbsp;&nbsp;· rental: interest ${W("tax-deductible")} → see ${reDc.cumTax >= 0 ? lbl.taxShield : lbl.taxBill}` : ""}`;
-          },
-        });
-      }
-      if (reDc.cumCosts > 0) {
-        reRows.push({
-          key: `re${ri}-costs`,
-          label: lbl.costs,
-          val: -reDc.cumCosts,
-          color: DC.costs,
-          edu: () => {
-            const propTaxPct = (activeLocConfig.propTaxRate * 100).toFixed(2);
-            const totalCostPct = (
-              (activeLocConfig.propTaxRate + 0.015) *
-              100
-            ).toFixed(2);
-            const initAnnualCosts = Math.round(
-              price * (activeLocConfig.propTaxRate + 0.015),
-            );
-            const costsAsRentPct =
-              reDc.cumRent > 0
-                ? ((reDc.cumCosts / reDc.cumRent) * 100).toFixed(0)
-                : "—";
-            return isZh
-              ? `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}年 | 起始 ${W(fmt(Math.round(initAnnualCosts / 12)) + "/月")}（${W(fmt(initAnnualCosts) + "/年")}，第1年）<br>• ${W(propTaxPct + "% 房产税")}（${activeLocConfig.propTaxNoteZh ?? activeLocConfig.propTaxNote ?? "按地区"}）+ ${W("0.5%保险")} + ${W("1%维护")} = ${W(totalCostPct + "%/年（第1年）")}，+4%/年建筑成本通胀${!isPrimary ? `<br>&nbsp;&nbsp;· = 租金收入 ${W(costsAsRentPct + "%")}（第1年）` : ""}<br>• 切换<em>运营成本</em>可量化拖累`
-              : `<strong style="color:${DC.costs}">${lbl.costs}</strong><br>• ${fmt(reDc.cumCosts)} / ${yrs}yrs | start ${W(fmt(Math.round(initAnnualCosts / 12)) + "/mo")} (${W(fmt(initAnnualCosts) + "/yr")}, yr 1)<br>• ${W(propTaxPct + "% prop tax")} (${activeLocConfig.propTaxNote ?? "varies by state"}) + ${W("0.5% ins")} + ${W("1% maint")} = ${W(totalCostPct + "%/yr (yr 1)")}, +4%/yr construction cost inflation${!isPrimary ? `<br>&nbsp;&nbsp;· = ${W(costsAsRentPct + "%")} of gross rent (yr 1)` : ""}<br>• toggle <em>Op. Costs</em> to isolate drag`;
           },
         });
       }
@@ -1573,11 +1623,20 @@ function renderDecomp(monthsToShow) {
   // Sum(positive bars) - sum(negative bars) = total bar width. ✓
   function buildTable(rows, headerLabel, headerColor) {
     if (!rows.length) return "";
-    const maxVal = Math.max(...rows.map((r) => Math.abs(r.val)), 1);
+    const maxVal = Math.max(
+      ...rows.filter((r) => !r.sub).map((r) => Math.abs(r.val)),
+      1,
+    );
+    const subMaxVal = Math.max(
+      ...rows.filter((r) => r.sub).map((r) => Math.abs(r.val)),
+      1,
+    );
     let h = `<table class="decomp-table"><thead><tr><td colspan="3" class="decomp-table-head" style="color:${headerColor}">${headerLabel}</td></tr></thead><tbody>`;
     rows.forEach((row) => {
       const isNeg = row.val < 0;
-      const w = Math.round((Math.abs(row.val) / maxVal) * 100);
+      const w = Math.round(
+        (Math.abs(row.val) / (row.sub ? subMaxVal : maxVal)) * 100,
+      );
       const opacity = row.total ? 1 : row.base ? 0.8 : 0.7;
       const barPos = isNeg ? "left:auto;right:0" : "left:0";
       const bold = row.total ? ";font-weight:bold" : "";
@@ -1586,7 +1645,7 @@ function renderDecomp(monthsToShow) {
         row.total || row.base
           ? fmt(row.val)
           : `${sign}${fmt(Math.abs(row.val))}`;
-      h += `<tr class="decomp-row" data-key="${row.key}">
+      h += `<tr class="decomp-row${row.sub ? " decomp-sub" : ""}" data-key="${row.key}">
               <td class="decomp-lbl" style="color:${row.color}${bold}">${row.label}</td>
               <td class="decomp-bar-td"><div class="decomp-bar-track"><div class="decomp-bar" style="width:${w}%;background:${row.color};opacity:${opacity};${barPos}"></div></div></td>
               <td class="decomp-amt" style="color:${row.color}${bold};text-align:${isNeg ? "right" : "left"}">${dispVal}</td>
