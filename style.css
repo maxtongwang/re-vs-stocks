@@ -159,49 +159,36 @@ body {
 /* ── Year range brush bar (below chart) ── */
 #year-range-bar {
   position: relative;
-  height: 28px;
-  margin: 4px 0 0;
-  padding-bottom: 16px; /* space for year labels */
+  height: 6px;
+  margin: 10px 0 0;
+  background: var(--border);
+  border-radius: 3px;
   user-select: none;
   touch-action: none;
+  overflow: visible;
 }
-/* dim track */
-#year-range-bar::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 4px;
-  background: var(--border);
-  border-radius: 2px;
-  pointer-events: none;
-}
-/* selected fill */
+/* selected fill between handles */
 #year-range-fill {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  height: 4px;
-  background: var(--text-mid);
-  opacity: 0.35;
-  pointer-events: none;
-  border-radius: 1px;
-}
-/* clamp handle */
-.yr-handle {
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 7px;
+  background: var(--text-mid);
+  opacity: 0.4;
+  pointer-events: none;
+}
+/* clamp handle: narrow vertical bar taller than the track */
+.yr-handle {
+  position: absolute;
+  top: -7px;
+  bottom: -7px;
+  width: 6px;
   background: var(--text-mid);
   border-radius: 2px;
   cursor: ew-resize;
   transform: translateX(-50%);
   touch-action: none;
 }
-/* grip lines */
+/* three grip dots */
 .yr-handle::before {
   content: "";
   position: absolute;
@@ -209,24 +196,20 @@ body {
   top: 50%;
   transform: translate(-50%, -50%);
   width: 2px;
-  height: 10px;
-  background: rgba(128, 128, 128, 0.45);
+  height: 6px;
+  background: rgba(128, 128, 128, 0.5);
   box-shadow:
-    0 -4px 0 rgba(128, 128, 128, 0.45),
-    0 4px 0 rgba(128, 128, 128, 0.45);
+    0 -3px 0 rgba(128, 128, 128, 0.5),
+    0 3px 0 rgba(128, 128, 128, 0.5);
   border-radius: 1px;
 }
-/* year label below each handle */
-.yr-handle-label {
-  position: absolute;
-  top: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
+/* year labels: start left, end right */
+#year-range-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
   font-size: 10px;
-  font-family: monospace;
   color: var(--text-mid);
-  white-space: nowrap;
-  pointer-events: none;
 }
 /* ── Icon buttons (theme toggle, share) ─────────────────────────────── */
 .icon-btn {
