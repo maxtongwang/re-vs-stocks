@@ -1503,16 +1503,54 @@ function renderDecomp(monthsToShow) {
         total: true,
         color: reColor,
         edu: () => {
+          const appreciationPart = Math.round(INIT + reDc.appr);
+          const cashFlowPart = Math.round(
+            reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
+          );
+
+          // Bankruptcy branch
+          if (displayTotal < 0) {
+            // Find first month wealth went negative
+            let brokeMonth = -1;
+            for (let mi = 0; mi < allWealth[ri].length; mi++) {
+              if (allWealth[ri][mi] < 0) {
+                brokeMonth = mi;
+                break;
+              }
+            }
+            const brokeYr =
+              brokeMonth >= 0 ? startYear + Math.floor(brokeMonth / 12) : "?";
+            const leverageFactor = down > 0 ? (1 / down).toFixed(1) : "∞";
+            const lossAmt = fmt(Math.abs(displayTotal));
+            const avoidItems = isZh
+              ? [
+                  `提高首付比例 — 选择 ${down > 0.2 ? "全款" : "20%+首付"} 降低杠杆倍数`,
+                  `减少杠杆：${leverageFactor}x → 越高，房价下跌放大倍数越大`,
+                  isPrimary
+                    ? "保留6–12个月PITI现金储备以度过危机"
+                    : "保留6–12个月空置期现金储备",
+                  "切换至收益更稳定的城市或时间段",
+                  "切换<em>首付</em>选项对比不同方案",
+                ]
+              : [
+                  `increase down payment — try ${down > 0.2 ? "all cash" : "20%+ down"} to cut leverage`,
+                  `lower LTV: at ${leverageFactor}x leverage, every −1% on property = −${leverageFactor}% on your capital`,
+                  isPrimary
+                    ? "hold 6–12 months of PITI as cash reserve before buying"
+                    : "hold 6–12 months vacancy reserve",
+                  "switch to a market or period with less price volatility",
+                  "toggle <em>Down Payment</em> options to compare scenarios side-by-side",
+                ];
+            return isZh
+              ? `<strong style="color:${DC.taxNeg}">破产 — 净值为负</strong><br>• 定义：房产市值 − 剩余贷款 + 现金流 < 0 → 模拟视为资不抵债<br>&nbsp;&nbsp;· 一旦净值跌破零，模型冻结于最大亏损点（不允许虚假反弹）<br>&nbsp;&nbsp;· 首次破产：${W(String(brokeYr))}年 | 最大亏损：${W(lossAmt)}<br>• 成因：${leverageFactor}x 杠杆放大了房价下跌 → 权益归零 → 负现金流耗尽储备<br>&nbsp;&nbsp;· 升值部分 ≈ ${W(fmt(appreciationPart))} | 现金流部分 ≈ ${W(fmt(cashFlowPart))}<br>• 如何避免：<br>&nbsp;&nbsp;· ${avoidItems.join("<br>&nbsp;&nbsp;· ")}`
+              : `<strong style="color:${DC.taxNeg}">Bankrupted — Negative Net Worth</strong><br>• Definition: property value − loan balance + cash flows < 0 → simulation treats as insolvent<br>&nbsp;&nbsp;· once net worth crosses zero, model freezes at max loss (no false recovery modeled)<br>&nbsp;&nbsp;· first went negative: ${W(String(brokeYr))} | max loss: ${W(lossAmt)}<br>• Why it happened: ${leverageFactor}x leverage amplified the price drop → equity wiped → negative cash flow consumed reserves<br>&nbsp;&nbsp;· appreciation part ≈ ${W(fmt(appreciationPart))} | cash flow part ≈ ${W(fmt(cashFlowPart))}<br>• How to avoid:<br>&nbsp;&nbsp;· ${avoidItems.join("<br>&nbsp;&nbsp;· ")}`;
+          }
+
           const reCagr = (
             (Math.pow(Math.max(displayTotal, 1) / INIT, 1 / years) - 1) *
             100
           ).toFixed(1);
           const mult = (displayTotal / INIT).toFixed(1);
-          // Additive decomposition: wealth = (INIT + appr) + (cumRent - cumInt - cumCosts + cumTax) - txCosts
-          const appreciationPart = Math.round(INIT + reDc.appr);
-          const cashFlowPart = Math.round(
-            reDc.cumRent - reDc.cumInt - reDc.cumCosts + reDc.cumTax,
-          );
           return isZh
             ? `<strong style="color:${reColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | 年化 <strong style="color:${DC.hi}">${reCagr}%</strong> | ${yrs}年<br>&nbsp;&nbsp;· 权益（本金+涨幅）≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "净成本（−利息−运营成本）" : "现金流（租金−利息−成本+税收）"} ≈ ${W(fmt(cashFlowPart))}<br>• 杠杆放大涨幅；${isPrimary ? "自住无租金收入，成本为纯支出" : "租金+税收决定现金流方向"}<br>&nbsp;&nbsp;· 点击各行查看明细`
             : `<strong style="color:${reColor}">${lbl.total}</strong><br>• ${fmt(INIT)} → <strong style="color:${DC.hi}">${fmt(displayTotal)}</strong> | ${mult}x | <strong style="color:${DC.hi}">${reCagr}%/yr</strong> | ${yrs}yrs<br>&nbsp;&nbsp;· equity (capital + appr) ≈ ${W(fmt(appreciationPart))}<br>&nbsp;&nbsp;· ${isPrimary ? "net costs (−interest − op. costs)" : "cash flows (rent − interest − costs + tax)"} ≈ ${W(fmt(cashFlowPart))}<br>• leverage → price gain; ${isPrimary ? "no rental income — PITI is pure cost" : "rent + tax → cash flow direction"}<br>&nbsp;&nbsp;· click rows for breakdown`;
