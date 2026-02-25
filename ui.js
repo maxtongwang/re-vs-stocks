@@ -1923,14 +1923,14 @@ function handleCanvasPointer(clientX, clientY) {
   const xInChart = cx - PL;
   const hasProjH = projStartM + 1 < totalMonths;
   const effProjH = hasProjH ? lastProjPX : 0;
-  const histWH = chartW - effProjH;
+  const histWH = chartW - lastProjPX; // always constant (lastProjPX = projReservePX)
   const histEndMH = projStartM + 1;
   let m;
   if (!hasProjH) {
     m = Math.round(
       Math.max(
         0,
-        Math.min(totalMonths - 1, (xInChart * totalMonths) / chartW - 1),
+        Math.min(totalMonths - 1, (xInChart * totalMonths) / histWH - 1),
       ),
     );
   } else if (xInChart <= histWH) {
@@ -2082,13 +2082,13 @@ function draw(monthsToShow) {
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
-  // Responsive fixed-width projection zone: ~12% of chartW, clamped [20, 48]px
-  const effProjPX = hasProjZone
-    ? Math.min(48, Math.max(20, Math.round(chartW * 0.12)))
-    : 0;
-  const histW = chartW - effProjPX;
+  // Always reserve projReservePX on the right so histW is constant in both modes.
+  // No-prediction: right margin is empty. Prediction: yellow zone fills it.
+  const projReservePX = Math.min(48, Math.max(20, Math.round(chartW * 0.12)));
+  const effProjPX = hasProjZone ? projReservePX : 0;
+  const histW = chartW - projReservePX; // constant regardless of hasProjZone
   const histEndM = projStartM + 1;
-  lastProjPX = effProjPX;
+  lastProjPX = projReservePX; // always reserve; yr-end-label stays constant
 
   // Y range (log scale) — bidirectional smooth lerp during play, instant snap
   // during slider. Null means first frame: snap immediately.
@@ -2122,7 +2122,8 @@ function draw(monthsToShow) {
   const yLo = lerpYLo;
   const yHi = lerpYHi;
   const tx = (m) => {
-    if (!hasProjZone) return PL + (m / Math.max(totalMonths, 1)) * chartW;
+    // No projection: data fills histW (= chartW - projReservePX); right margin empty
+    if (!hasProjZone) return PL + (m / Math.max(totalMonths, 1)) * histW;
     if (m <= histEndM) return PL + (m / histEndM) * histW;
     return (
       PL +
