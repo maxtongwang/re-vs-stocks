@@ -169,7 +169,7 @@ const STRINGS = {
     labelSources: "Sources",
     buildSources: (idxLabel, locLabel, iSrc, lSrc, lnk) => [
       `${idxLabel} returns: ${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)} (current year live)`,
-      `${locLabel} home prices: ${lnk(lSrc.homePrice)}`,
+      `FHFA House Price Index (HPI): purchase-only, repeat-sale index derived from Freddie Mac &amp; Fannie Mae conforming loan records. Tracks price changes on the same properties over time — ${locLabel} data: ${lnk(lSrc.homePrice)}. Pre-1976 values estimated from regional sources where FHFA coverage is limited.`,
       `Mortgage rates: <a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">FRED MORTGAGE30US</a>`,
       `Rent growth pre-2015: ${lnk(lSrc.rentPre2015)}`,
       `Rent growth 2015+: ${lnk(lSrc.rentPost2015)}`,
@@ -381,7 +381,7 @@ const STRINGS = {
     labelSources: "数据来源",
     buildSources: (idxLabel, locLabel, iSrc, lSrc, lnk) => [
       `${idxLabel}收益数据：${lnk(iSrc.returns)} &amp; ${lnk(iSrc.live)}（当年实时数据）`,
-      `${locLabel}房价：${lnk(lSrc.homePrice)}`,
+      `FHFA房价指数（HPI）：基于房利美与房地美合规贷款的同房重复交易指数，追踪同一房产随时间的价格变化——${locLabel}数据：${lnk(lSrc.homePrice)}。1976年前数据来自地区资料估算。`,
       `房贷利率：<a href="https://fred.stlouisfed.org/series/MORTGAGE30US" target="_blank">美联储 FRED MORTGAGE30US</a>`,
       `2015年前租金涨幅：${lnk(lSrc.rentPre2015)}`,
       `2015年后租金涨幅：${lnk(lSrc.rentPost2015)}`,
