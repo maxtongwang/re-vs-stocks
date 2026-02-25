@@ -53,6 +53,7 @@ _mq.addEventListener("change", () => {
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
 let endYear = 2026;
+let lastPR = 40; // chart right-padding — updated by draw(), read by updateRangeBar()
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
@@ -2021,6 +2022,7 @@ function draw(monthsToShow) {
     PR = Math.ceil(maxLW) + 10,
     PT = 16,
     PB = 28;
+  lastPR = PR; // expose for year-range-bar alignment
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
 
@@ -2501,6 +2503,7 @@ function draw(monthsToShow) {
   updateOutcomeCallout(fullM);
   updateLegendCagr(fullM);
   renderDecomp(fullM);
+  updateRangeBar(); // keep brush aligned with chart's PL/PR
 }
 
 // ── Year label ────────────────────────────────────────────────────────────
@@ -2613,7 +2616,9 @@ function rebuild() {
 }
 
 function updateRangeBar() {
-  const bar = document.getElementById("year-range-bar");
+  // Sync label widths with chart's axis areas (PL=52 fixed, PR=lastPR dynamic)
+  document.getElementById("yr-end-label").style.width = lastPR + "px";
+
   const pS = (startYear - RB_MIN) / (RB_MAX - RB_MIN);
   const pE = (endYear - RB_MIN) / (RB_MAX - RB_MIN);
   document.getElementById("year-range-start-handle").style.left =
