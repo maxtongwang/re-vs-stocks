@@ -863,3 +863,10 @@ th:first-child {
   background: var(--border) !important;
   transition: background 0.15s;
 }
+#legend.overlay-active > * > * {
+  opacity: 0.2;
+  transition: opacity 0.15s;
+}
+#legend.overlay-active > * > *.hidden {
+  opacity: 0.08;
+}

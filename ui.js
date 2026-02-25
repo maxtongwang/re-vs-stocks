@@ -486,10 +486,9 @@ document.getElementById("overlay-legend-row").addEventListener("click", () => {
   document
     .getElementById("overlay-legend-row")
     .classList.toggle("active", showIndexOverlay);
-  document.querySelectorAll(".leg-item").forEach((item) => {
-    const idx = parseInt(item.dataset.idx);
-    item.classList.toggle("hidden", showIndexOverlay || hidden.has(idx));
-  });
+  document
+    .getElementById("legend")
+    .classList.toggle("overlay-active", showIndexOverlay);
   draw(curMonth - 1);
 });
 
