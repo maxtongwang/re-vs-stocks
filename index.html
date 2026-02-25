@@ -8,11 +8,11 @@
     </title>
     <meta
       name="description"
-      content="Compare S&P 500, NASDAQ, and 60/40 against real estate across 54 locations in CA, TX, FL, WA, and NY using real 1970–2025 data with 2026 estimates. 5 leverage scenarios, Case-Shiller &amp; FHFA HPI toggle, cash-out refi, rental income, depreciation tax shield, and capital gains tax modeled."
+      content="Compare S&P 500, NASDAQ &amp; 60/40 against real estate across 54 US locations using real 1970–2025 data with 2026 estimates. 5 leverage scenarios, NOI &amp; cap rate breakdown, Case-Shiller/FHFA toggle, cash-out refi, depreciation tax shield, capital gains tax, and interactive wealth decomposition."
     />
     <meta
       name="keywords"
-      content="S&P 500 vs real estate, NASDAQ vs real estate, 60/40 portfolio vs real estate, stocks vs property, real estate investment calculator, real estate vs stock market, Case-Shiller HPI, FHFA house price index, house price index comparison, California real estate returns, Texas real estate returns, Florida real estate returns, Washington real estate returns, New York real estate returns, Orange County real estate, Newport Beach real estate, Irvine real estate, Yorba Linda real estate, Laguna Beach real estate, Huntington Beach real estate, Los Angeles real estate, Beverly Hills real estate, Santa Monica real estate, Malibu real estate, Pasadena real estate, Manhattan Beach real estate, San Diego real estate, La Jolla real estate, Del Mar real estate, Rancho Santa Fe real estate, Coronado real estate, Carlsbad real estate, San Francisco Bay Area real estate, Palo Alto real estate, Atherton real estate, Los Altos real estate, Menlo Park real estate, Saratoga real estate, Dallas Fort Worth real estate, Highland Park Texas real estate, University Park Texas real estate, Southlake real estate, Frisco real estate, Plano real estate, Miami real estate, Miami Beach real estate, Coral Gables real estate, Key Biscayne real estate, Coconut Grove real estate, Brickell real estate, Seattle real estate, Medina Washington real estate, Mercer Island real estate, Bellevue real estate, Kirkland real estate, Redmond real estate, New York City real estate, Manhattan real estate, Brooklyn real estate, Hoboken real estate, Scarsdale real estate, Great Neck real estate, leverage calculator, cash out refinance calculator, rental property returns, depreciation tax shield, capital gains tax real estate, 1031 exchange calculator, transaction costs, mortgage refinancing, wealth comparison, historical returns 1970 2026, real estate vs stocks 2026"
+      content="S&P 500 vs real estate, NASDAQ vs real estate, 60/40 portfolio vs real estate, stocks vs property, real estate investment calculator, real estate vs stock market, Case-Shiller HPI, FHFA house price index, NOI calculator real estate, net operating income real estate, cap rate calculator, PITI calculator, real estate return breakdown, wealth decomposition calculator, rental property returns, real estate wealth calculator, California real estate returns, Texas real estate returns, Florida real estate returns, Washington real estate returns, New York real estate returns, Orange County real estate, Newport Beach real estate, Irvine real estate, Yorba Linda real estate, Laguna Beach real estate, Huntington Beach real estate, Los Angeles real estate, Beverly Hills real estate, Santa Monica real estate, Malibu real estate, Pasadena real estate, Manhattan Beach real estate, San Diego real estate, La Jolla real estate, Del Mar real estate, Rancho Santa Fe real estate, Coronado real estate, Carlsbad real estate, San Francisco Bay Area real estate, Palo Alto real estate, Atherton real estate, Los Altos real estate, Menlo Park real estate, Saratoga real estate, Dallas Fort Worth real estate, Highland Park Texas real estate, University Park Texas real estate, Southlake real estate, Frisco real estate, Plano real estate, Miami real estate, Miami Beach real estate, Coral Gables real estate, Key Biscayne real estate, Coconut Grove real estate, Brickell real estate, Seattle real estate, Medina Washington real estate, Mercer Island real estate, Bellevue real estate, Kirkland real estate, Redmond real estate, New York City real estate, Manhattan real estate, Brooklyn real estate, Hoboken real estate, Scarsdale real estate, Great Neck real estate, leverage calculator, cash out refinance calculator, depreciation tax shield, capital gains tax real estate, 1031 exchange calculator, transaction costs, mortgage refinancing, historical returns 1970 2026, real estate vs stocks 2026, 股票vs房产, 标普500对比房产"
     />
     <meta name="author" content="Max Wang" />
     <meta name="robots" content="index, follow" />
@@ -49,7 +49,7 @@
     />
     <meta
       property="og:description"
-      content="Compare S&P 500, NASDAQ, or 60/40 against real estate across 54 locations in CA, TX, FL, WA, and NY using real 1970–2025 data with 2026 estimates. Case-Shiller &amp; FHFA HPI, 5 leverage scenarios, cash-out refi, rental income, depreciation, and capital gains tax modeled."
+      content="Compare S&P 500, NASDAQ &amp; 60/40 against real estate across 54 US locations using real 1970–2025 data with 2026 estimates. NOI &amp; cap rate breakdown, Case-Shiller/FHFA toggle, 5 leverage scenarios, refi, depreciation, and capital gains tax modeled."
     />
     <meta
       property="og:image"
@@ -66,7 +66,7 @@
     />
     <meta
       name="twitter:description"
-      content="Compare S&P 500, NASDAQ, or 60/40 against real estate across 54 locations in CA, TX, FL, WA, and NY using real 1970–2025 data with 2026 estimates. Case-Shiller &amp; FHFA HPI, 5 leverage scenarios, cash-out refi, rental income, depreciation, and capital gains tax modeled."
+      content="Compare S&P 500, NASDAQ &amp; 60/40 against real estate across 54 US locations using real 1970–2025 data with 2026 estimates. NOI &amp; cap rate breakdown, Case-Shiller/FHFA toggle, 5 leverage scenarios, refi, depreciation, and capital gains tax modeled."
     />
     <meta
       name="twitter:image"
@@ -78,7 +78,7 @@
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Stocks vs. Real Estate: The Honest Answer Nobody Wants to Give You",
-        "description": "Compare S&P 500, NASDAQ, and 60/40 against real estate across 54 locations in CA, TX, FL, WA, and NY using real 1970–2025 data with 2026 estimates. Case-Shiller and FHFA HPI switchable. 5 leverage scenarios, cash-out refi, rental income, depreciation tax shield, and capital gains tax modeled.",
+        "description": "Compare S&P 500, NASDAQ, and 60/40 against real estate across 54 US locations using real 1970–2025 data with 2026 estimates. Features: 5 leverage scenarios, NOI and cap rate breakdown, Case-Shiller/FHFA HPI toggle, up to 3 refinances, rental income, depreciation tax shield, capital gains tax, 1031 exchange, and interactive wealth decomposition showing exactly where each dollar came from.",
         "url": "https://chart.maxwangestates.com/",
         "author": { "@type": "Person", "name": "Max Wang" },
         "inLanguage": ["en", "zh-CN"],
@@ -171,7 +171,15 @@
             "name": "Does this calculator include rental income and depreciation?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. The rental mode models rent yield (adjustable), annual rent growth, vacancy, maintenance (1%), insurance (0.5%), property tax (location-specific), and IRS 27.5-year depreciation on the improvement portion. The depreciation tax shield can create a paper loss that offsets rental income taxes even when the property cash flows positively."
+              "text": "Yes. The rental mode models rent yield (adjustable), annual rent growth, vacancy, maintenance (1%), insurance (0.5%), property tax (location-specific), and IRS 27.5-year depreciation on the improvement portion. The depreciation tax shield can create a paper loss that offsets rental income taxes even when the property cash flows positively. An interactive NOI breakdown panel shows cumulative net operating income, cap rate at purchase and current, rent yield, and operating cost percentage at any point in the holding period."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What is NOI and cap rate in the real estate return breakdown?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "NOI (Net Operating Income) = Gross Rent minus Operating Expenses, excluding mortgage interest, depreciation, and income tax. Cap Rate = Annual NOI divided by property value — the standard metric for comparing properties independent of financing. This calculator shows two cap rates: at purchase (Year 1 NOI / purchase price) and current (last-12-month NOI / current property value), plus rent yield and operating cost percentage as a percentage of current value. These update live as you drag the timeline slider."
             }
           },
           {
@@ -219,7 +227,15 @@
             "name": "Can I compare NASDAQ or a 60/40 portfolio against real estate?",
             "acceptedAnswer": {
               "@type": "Answer",
-              "text": "Yes. The index selector lets you switch between S&P 500 total return, NASDAQ Composite, and a 60/40 blend (S&P 500 / TLT bonds). All three use historical annual return data from 1970–2025 with 2026 estimates and can be compared against any of the 54 real estate locations with any leverage scenario. A price-only overlay chart is also available to compare pure price appreciation without leverage or income."
+              "text": "Yes. The index selector lets you switch between S&P 500 total return, NASDAQ Composite, and a 60/40 blend (S&P 500 / TLT bonds). All three use historical annual return data from 1970–2025 with 2026 estimates and can be compared against any of the 54 real estate locations with any leverage scenario. A 'The Usual Story' overlay is also available — it shows the simplified price-only comparison (S&P without dividends vs home prices without leverage or income) that most financial debates use, so you can see the full picture vs the cherry-picked narrative side by side."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "What does the 'The Usual Story' comparison show?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "'The Usual Story' is the apples-to-oranges comparison you see in most investment debates: S&P 500 price appreciation only (no dividends) vs local home price index (no leverage, rent, or costs). One side strips out 1.5–2% annual dividends; the other ignores that you borrowed 4–5x your cash to buy the property. Neither asset is shown fairly. Toggling it lets you see the misleading narrative alongside the full simulation — both lines start from the same dollar amount with no financing advantages built in."
             }
           },
           {
@@ -243,8 +259,8 @@
       gtag('config', 'G-XXXXXXXXXX');
     </script>
     -->
-    <link rel="stylesheet" href="themes.css?v=20260224t" />
-    <link rel="stylesheet" href="style.css?v=20260224t" />
+    <link rel="stylesheet" href="themes.css?v=20260224u" />
+    <link rel="stylesheet" href="style.css?v=20260224u" />
   </head>
   <body>
     <noscript>
@@ -600,12 +616,16 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
-        padding: 4px 0 6px;
+        padding: 4px 10px 5px;
         cursor: pointer;
         font-size: 11px;
-        opacity: 0.52;
+        opacity: 0.72;
         transition: opacity 0.15s;
         user-select: none;
+        border: 1px dashed var(--text-sub);
+        border-radius: 6px;
+        margin: 2px auto 4px;
+        width: fit-content;
       "
     >
       <span id="label-price-only-comparison" style="color: var(--text-sub)"
@@ -913,10 +933,13 @@
         </li>
       </ul>
       <p style="margin-top: 4px; color: var(--text-sub)">
-        All scenarios: $100,000 initial investment · 5 leverage levels (all
-        cash, 60% down, 40% down, 25% down, 3.5% down) · historical data
-        1970–2025 · S&amp;P 500 (total return), NASDAQ, and 60/40 portfolio
-        available as index benchmarks.
+        All scenarios: $100K–$5M initial investment · 5 leverage levels
+        (all-cash, 60% down, 40% down, 25% down, 3.5% down) · historical data
+        1970–2025 with 2026 estimates · S&amp;P 500 (total return), NASDAQ, and
+        60/40 portfolio · Case-Shiller or FHFA HPI toggle · rental NOI breakdown
+        with purchase and current cap rate · up to 3 refinances (rate-and-term
+        or cash-out) · depreciation tax shield · capital gains tax · 1031
+        exchange · interactive wealth decomposition · bilingual (EN/ZH).
       </p>
     </details>
 
@@ -1007,8 +1030,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260224t" defer></script>
-    <script src="sim.js?v=20260224t" defer></script>
-    <script src="ui.js?v=20260224t" defer></script>
+    <script src="data.js?v=20260224u" defer></script>
+    <script src="sim.js?v=20260224u" defer></script>
+    <script src="ui.js?v=20260224u" defer></script>
   </body>
 </html>

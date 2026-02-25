@@ -852,9 +852,10 @@ th:first-child {
 /* ── Overlay legend row (above chart) ── */
 #overlay-legend-row.active {
   opacity: 1;
+  border-color: transparent !important;
 }
 #overlay-legend-row:hover {
-  opacity: 0.7;
+  opacity: 0.92;
 }
 #overlay-legend-row.active:hover {
   opacity: 0.85;
