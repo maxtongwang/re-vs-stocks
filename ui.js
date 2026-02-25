@@ -1898,8 +1898,8 @@ function draw(monthsToShow) {
       ctx.font = xLabelFont;
       ctx.textAlign = "center";
       const labelY = PT + 8 + (refiLabelIdx % 3) * 18;
-      ctx.fillText(`R${refi.year}`, x, labelY);
-      ctx.fillText(`${(refi.rate * 100).toFixed(1)}%`, x, labelY + 9);
+      ctx.fillText(`${(refi.rate * 100).toFixed(1)}%`, x, labelY);
+      ctx.fillText(`R${refi.year}`, x, labelY + 9);
       refiLabelIdx++;
     }
   }
