@@ -203,7 +203,7 @@ body {
   pointer-events: none;
   border-radius: 3px;
 }
-/* clamp handle: narrow vertical bar taller than the track */
+/* clamp handle: narrow visual bar, wide touch target */
 .yr-handle {
   position: absolute;
   top: -7px;
@@ -214,6 +214,16 @@ body {
   cursor: ew-resize;
   transform: translateX(-50%);
   touch-action: none;
+}
+/* invisible 44px-wide touch target centered on the 6px visual bar */
+.yr-handle::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
 }
 /* three grip lines */
 .yr-handle::before {
