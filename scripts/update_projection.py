@@ -8,6 +8,7 @@ Updates in data.js:
   4. {LOC}_ANN estimates (12 metros)    → FHFA Q4-to-Q4 HPI annual return via FRED
   5. {LOC}_RENT_GROWTH estimates        → BLS CPI rent Dec-to-Dec via FRED
   6. City _ANN/_RENT_GROWTH estimates   → derived from parent metro × city scale factor
+  7. CS_{LOC}_ANN estimates (8 metros)  → S&P CS HPI Dec-to-Dec annual return via FRED
 
 Updates in index.html:
   7. Displayed mortgage rate            → <strong id="proj-mort-rate">
@@ -52,6 +53,18 @@ HPI_SERIES = {
     "NY_ANN":       "NYSTHPI",         # New York statewide
     "NATIONAL_ANN": "USSTHPI",         # National FHFA HPI
     # NYC_ANN: no single FHFA series matches; skip
+}
+
+# ── FRED series for S&P CS HPI (Dec-to-Dec annual return, monthly NSA) ──────
+CS_HPI_SERIES = {
+    "CS_LA_ANN":       "LXXRSA",      # S&P CS Los Angeles Metro
+    "CS_SD_ANN":       "SDXRSA",      # S&P CS San Diego Metro
+    "CS_SF_ANN":       "SFXRSA",      # S&P CS San Francisco Metro
+    "CS_SEATTLE_ANN":  "SEXRSA",      # S&P CS Seattle Metro
+    "CS_MIAMI_ANN":    "MIAXRSA",     # S&P CS Miami Metro
+    "CS_DALLAS_ANN":   "DAXRSA",      # S&P CS Dallas Metro
+    "CS_NY_ANN":       "NYXRSA",      # S&P CS New York Metro
+    "CS_NATIONAL_ANN": "CSUSHPINSA",  # S&P CS U.S. National (NSA)
 }
 
 # ── FRED series for BLS CPI rent (Dec-to-Dec annual growth) ─────────────────
@@ -155,6 +168,7 @@ CITY_FROM_METRO = {
 #   • <strong id="proj-mort-rate"> in index.html (auto)
 #   • <!-- PROJ_DATE_START/END --> in index.html (auto)
 #   • All HPI_SERIES metros → {LOC}_ANN in data.js
+#   • All CS_HPI_SERIES metros → CS_{LOC}_ANN in data.js
 #   • All RENT_SERIES metros → {LOC}_RENT_GROWTH in data.js
 #   • All CITY_FROM_METRO cities → derived from parent × scale factors
 # ─────────────────────────────────────────────────────────────────────────────
@@ -283,6 +297,28 @@ def hpi_annual_return(series_id: str, year: int, fred_key: str) -> float | None:
             return round((q4_curr / q4_prev) - 1, 4)
     except Exception as e:
         print(f"    FRED HPI fetch error ({series_id}): {e}")
+    return None
+
+
+# ── S&P CS HPI annual return (FRED, monthly Dec-to-Dec) ──────────────────────
+
+def cs_hpi_annual_return(series_id: str, year: int, fred_key: str) -> float | None:
+    """Compute Dec-to-Dec CS HPI annual return from monthly FRED series."""
+    try:
+        start = f"{year-1}-12-01"
+        end   = f"{year}-12-31"
+        data  = fetch_fred(series_id, start, end, fred_key)
+        obs   = {
+            o["date"]: float(o["value"])
+            for o in data.get("observations", [])
+            if o["value"] != "."
+        }
+        dec_prev = obs.get(f"{year-1}-12-01")
+        dec_curr = obs.get(f"{year}-12-01")
+        if dec_prev and dec_curr and dec_prev > 0:
+            return round((dec_curr / dec_prev) - 1, 4)
+    except Exception as e:
+        print(f"    FRED CS HPI fetch error ({series_id}): {e}")
     return None
 
 
@@ -504,6 +540,16 @@ def main():
         for var_name, series_id in HPI_SERIES.items():
             ret = hpi_annual_return(series_id, est_year, fred_key)
             metro_returns[var_name] = ret
+            if ret is not None:
+                print(f"  {var_name} ({series_id}): {ret:+.4f}")
+                data = patch_loc_estimate(data, var_name, ret, est_year)
+            else:
+                print(f"  {var_name} ({series_id}): no data yet, skipping")
+
+        # ── FRED: S&P CS HPI annual returns ───────────────────────────────────
+        print(f"\nFetching S&P CS HPI {est_year} Dec-to-Dec returns from FRED…")
+        for var_name, series_id in CS_HPI_SERIES.items():
+            ret = cs_hpi_annual_return(series_id, est_year, fred_key)
             if ret is not None:
                 print(f"  {var_name} ({series_id}): {ret:+.4f}")
                 data = patch_loc_estimate(data, var_name, ret, est_year)
