@@ -52,8 +52,8 @@ _mq.addEventListener("change", () => {
 
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
-let endYear = 2026;
-let lastPR = 40; // chart right-padding — updated by draw(), read by updateRangeBar()
+let endYear = 2025;
+let lastPR = 100; // chart right-padding — static 100px, read by updateRangeBar()
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
@@ -732,7 +732,7 @@ document.getElementById("ltv-pct-slider").addEventListener("input", (e) => {
 function getShareParams() {
   const p = new URLSearchParams();
   if (startYear !== 1995) p.set("s", startYear);
-  if (endYear !== MAX_YEAR) p.set("e", endYear);
+  if (endYear !== RB_MAX) p.set("e", endYear);
   if (reinvest) p.set("m", "r");
   if (reinvest && reinvestIdx !== "sp500") p.set("ri", reinvestIdx);
   if (isPrimary) p.set("p", "1");
@@ -799,7 +799,7 @@ function loadFromHash() {
   }
   if (p.has("e")) {
     const v = parseInt(p.get("e"));
-    if (v > BASE_YEAR && v <= MAX_YEAR) endYear = v;
+    if (v > BASE_YEAR && v <= MAX_YEAR) endYear = Math.min(v, RB_MAX);
   }
   if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
   if (p.has("m")) reinvest = p.get("m") === "r";
@@ -2043,18 +2043,11 @@ function draw(monthsToShow) {
   ];
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
-  const maxLW = SCENARIOS.reduce(
-    (mx, s, i) =>
-      hidden.has(i)
-        ? mx
-        : Math.max(mx, ctx.measureText(chartLegLabels[i]).width),
-    0,
-  );
   const PL = 52,
-    PR = Math.ceil(maxLW) + 10,
+    PR = 100,
     PT = 16,
     PB = 28;
-  lastPR = PR; // expose for year-range-bar alignment
+  lastPR = PR; // static 100px — keeps year-range-bar aligned regardless of label widths
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
 
@@ -2682,7 +2675,7 @@ function setEndYear(yr) {
 
 // ── Year range brush drag ──────────────────────────────────────────────────
 const RB_MIN = 1970,
-  RB_MAX = 2026;
+  RB_MAX = 2025;
 
 function makeYrHandleDraggable(handleEl, which) {
   handleEl.addEventListener("pointerdown", (e) => {
