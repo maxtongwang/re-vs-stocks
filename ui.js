@@ -431,6 +431,10 @@ function applyLang() {
   const labelPriceOnly = document.getElementById("label-price-only-comparison");
   if (labelPriceOnly)
     labelPriceOnly.textContent = s.labelPriceOnlyComparison || "Price only";
+  const seoEn = document.getElementById("seo-en");
+  const seoZh = document.getElementById("seo-zh");
+  if (seoEn) seoEn.style.display = lang === "zh" ? "none" : "";
+  if (seoZh) seoZh.style.display = lang === "zh" ? "" : "none";
 }
 
 // ── Reinvest toggle ───────────────────────────────────────────────────────
