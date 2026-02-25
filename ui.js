@@ -1638,7 +1638,7 @@ function handleCanvasPointer(clientX, clientY) {
       {
         v: indexSpWealth[m],
         color: getCSSVar("--color-s0"),
-        label: "",
+        label: "S&P 500",
       },
       {
         v: indexReWealth[m],
@@ -2093,7 +2093,7 @@ function draw(monthsToShow) {
       {
         w: indexSpWealth,
         color: CT.s[0],
-        label: "",
+        label: "S&P 500",
       },
       {
         w: indexReWealth,
