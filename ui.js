@@ -2074,10 +2074,10 @@ function draw(monthsToShow) {
   const lfs = Math.max(8, Math.min(10, W / 65));
   ctx.font = `${lfs}px monospace`;
   const PL = 52,
-    PR = 100,
+    PR = Math.min(100, Math.max(55, Math.round(W * 0.2))),
     PT = 16,
     PB = 28;
-  lastPR = PR; // static 100px — keeps year-range-bar aligned regardless of label widths
+  lastPR = PR; // responsive: ~20% of W, clamped [55, 100] — year-range-bar reads lastPR
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
   const hasProjZone = projStartM + 1 < totalMonths;
