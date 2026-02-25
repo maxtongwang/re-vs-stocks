@@ -2053,7 +2053,7 @@ function draw(monthsToShow) {
   if (numRefis > 0) {
     const refis = getRefis(startYear, endYear, numRefis);
     const xLabelFont = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
-    let refiLabelIdx = 0;
+    const placedRefiLabels = [];
     for (const refi of refis) {
       if (refi.m > fullM) continue;
       const x = tx(refi.m + 1);
@@ -2068,10 +2068,21 @@ function draw(monthsToShow) {
       ctx.fillStyle = CT.refiLabel;
       ctx.font = xLabelFont;
       ctx.textAlign = "center";
-      const labelY = PT + 8 + (refiLabelIdx % 3) * 18;
+      // Always start at top; stagger down only when labels would overlap
+      let labelY = PT + 8;
+      for (let lvl = 0; lvl < 3; lvl++) {
+        const testY = PT + 8 + lvl * 18;
+        if (
+          !placedRefiLabels.some((p) => p.y === testY && Math.abs(p.x - x) < 34)
+        ) {
+          labelY = testY;
+          break;
+        }
+        labelY = PT + 8 + (lvl + 1) * 18;
+      }
       ctx.fillText(`${(refi.rate * 100).toFixed(1)}%`, x, labelY);
       ctx.fillText(`R${refi.year}`, x, labelY + 9);
-      refiLabelIdx++;
+      placedRefiLabels.push({ x, y: labelY });
     }
   }
 
@@ -2110,17 +2121,6 @@ function draw(monthsToShow) {
     }
   }
   ctx.globalAlpha = 1.0;
-
-  // X-axis year labels
-  ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
-  ctx.textAlign = "center";
-  const fullDur = endYear - startYear + 1;
-  const step = fullDur <= 10 ? 1 : fullDur <= 20 ? 2 : 5;
-  for (let yr = 0; yr <= fullDur; yr += step) {
-    const m = yr * 12;
-    ctx.fillStyle = CT.label;
-    ctx.fillText(startYear + yr, tx(m), H - 6);
-  }
 
   // Projection zone shading
   const pxStart = tx(projStartM + 1);
@@ -2213,6 +2213,18 @@ function draw(monthsToShow) {
       ctx.setLineDash([]);
       ctx.globalAlpha = showIndexOverlay ? 0.18 : 1.0;
     }
+  }
+
+  // X-axis year labels — drawn after lines so they paint over chart lines near bottom
+  ctx.globalAlpha = 1.0;
+  ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
+  ctx.textAlign = "center";
+  const fullDur = endYear - startYear + 1;
+  const step = fullDur <= 10 ? 1 : fullDur <= 20 ? 2 : 5;
+  for (let yr = 0; yr <= fullDur; yr += step) {
+    const m = yr * 12;
+    ctx.fillStyle = CT.label;
+    ctx.fillText(startYear + yr, tx(m), H - 6);
   }
 
   // Tip dots (interpolated for smooth movement)
