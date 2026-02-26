@@ -2306,9 +2306,10 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   // Counterfactual: sale point at 2/3 of visible range
   const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
   if (m_T >= 0 && allWealth[0][m_T] > 0) {
-    // Planned sale vertical marker — amber, full height, labels inside chart
+    // Planned sale vertical marker — amber, full height
     const xSale = tx(m_T + 1);
     const saleColor = "#e8a838";
+    const smFont = `${Math.max(6, Math.min(9, W / 65))}px monospace`;
     ctx.globalAlpha = 0.85;
     ctx.strokeStyle = saleColor;
     ctx.lineWidth = 1.5;
@@ -2318,20 +2319,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.lineTo(xSale, PT + chartH);
     ctx.stroke();
     ctx.setLineDash([]);
-    // Two-line label inside chart, left of line if near right edge, else right
-    const smFont = `${Math.max(6, Math.min(9, W / 65))}px monospace`;
-    ctx.font = smFont;
+    // Single label: year, placed just above bottom of chart to avoid top overlap
     const saleYear = `${startYear + Math.floor(m_T / 12)}`;
-    const lblW = Math.max(
-      ctx.measureText("planned sale").width,
-      ctx.measureText(saleYear).width,
-    );
-    const lblX = xSale + lblW + 6 > PL + chartW ? xSale - 4 : xSale + 4;
-    ctx.textAlign = xSale + lblW + 6 > PL + chartW ? "right" : "left";
+    const lblRight = xSale + ctx.measureText(saleYear).width + 6 > PL + chartW;
+    ctx.font = smFont;
+    ctx.textAlign = lblRight ? "right" : "left";
     ctx.fillStyle = saleColor;
     ctx.globalAlpha = 0.9;
-    ctx.fillText("planned sale", lblX, PT + 18);
-    ctx.fillText(saleYear, lblX, PT + 29);
+    ctx.fillText("sell target", lblRight ? xSale - 4 : xSale + 4, PT + 13);
+    ctx.fillText(saleYear, lblRight ? xSale - 4 : xSale + 4, PT + 23);
     ctx.globalAlpha = 1.0;
 
     // Amber shaded band: planned sale → actual (delayed) sale
@@ -2341,14 +2337,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.globalAlpha = 0.09;
       ctx.fillStyle = "#e8a838";
       ctx.fillRect(xSale, PT, xActual_zone - xSale, chartH);
-      ctx.globalAlpha = 0.7;
-      ctx.fillStyle = "#e8a838";
+      // "Xmo delay" at bottom of zone to avoid overlap with top labels
+      ctx.globalAlpha = 0.75;
+      ctx.fillStyle = saleColor;
       ctx.font = smFont;
       ctx.textAlign = "center";
       ctx.fillText(
         `${waitMonths}mo delay`,
         (xSale + xActual_zone) / 2,
-        PT + 11,
+        PT + chartH - 6,
       );
       ctx.globalAlpha = 1.0;
     }
@@ -2375,36 +2372,36 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       const delta = cfEnd - net_now;
       const cfColor = delta > 0 ? "#50b060" : "#e05050";
 
-      // L-line: from actual sale point → horizontal right → vertical to cfEnd
+      // L-line colored by outcome: from actual sale → right → up/down to cfEnd
       const xActual = tx(m_actual + 1);
       const yCf = ty(cfEnd);
       const yActual = ty(net_actual);
-      ctx.strokeStyle = CT.s[i];
-      ctx.globalAlpha = 0.7;
+      ctx.strokeStyle = cfColor;
+      ctx.globalAlpha = 0.75;
       ctx.lineWidth = 1.5;
       ctx.lineJoin = "miter";
-      ctx.setLineDash([4, 3]);
+      ctx.setLineDash([5, 4]);
       ctx.beginPath();
-      ctx.moveTo(xActual, yActual); // start: actual (delayed) sale point
-      ctx.lineTo(xEnd, yActual); // horizontal right → current time
-      ctx.lineTo(xEnd, yCf); // vertical → counterfactual level
+      ctx.moveTo(xActual, yActual);
+      ctx.lineTo(xEnd, yActual);
+      ctx.lineTo(xEnd, yCf);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Small tick at actual sale point on the solid line
-      ctx.strokeStyle = CT.s[i];
-      ctx.globalAlpha = 0.8;
-      ctx.lineWidth = 1.5;
+      // Tick at actual sale point — outcome color, taller
+      ctx.strokeStyle = cfColor;
+      ctx.globalAlpha = 0.9;
+      ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.moveTo(xActual, yActual - 5);
-      ctx.lineTo(xActual, yActual + 5);
+      ctx.moveTo(xActual, yActual - 7);
+      ctx.lineTo(xActual, yActual + 7);
       ctx.stroke();
 
-      // Dot at counterfactual endpoint in outcome color
+      // Dot at counterfactual endpoint
       ctx.globalAlpha = 1.0;
       ctx.fillStyle = cfColor;
       ctx.beginPath();
-      ctx.arc(xEnd, yCf, 3.5, 0, Math.PI * 2);
+      ctx.arc(xEnd, yCf, 5, 0, Math.PI * 2);
       ctx.fill();
 
       cfEndpoints.push({ cfEnd, delta, cfColor });
@@ -2413,7 +2410,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     // Endpoint callouts — right-aligned just inside chart near dot
     if (cfEndpoints.length > 0) {
       cfEndpoints.sort((a, b) => b.cfEnd - a.cfEnd);
-      const lblH = (lfs + 2) * 2;
+      const lblH = lfs + 4;
       const positions = cfEndpoints.map(({ cfEnd }) => ty(cfEnd) + lfs * 0.35);
       for (let k = 1; k < positions.length; k++)
         if (positions[k] < positions[k - 1] + lblH)
@@ -2424,17 +2421,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
         if (k < positions.length - 1 && positions[k] > positions[k + 1] - lblH)
           positions[k] = positions[k + 1] - lblH;
       }
-      ctx.font = `${lfs}px monospace`;
+      ctx.font = `bold ${lfs}px monospace`;
       ctx.textAlign = "right";
       cfEndpoints.forEach(({ delta, cfColor }, k) => {
-        ctx.globalAlpha = 0.6;
-        ctx.fillStyle = cfColor;
-        ctx.fillText("sold on time →", xEnd - 7, positions[k]);
         ctx.globalAlpha = 1.0;
+        ctx.fillStyle = cfColor;
         ctx.fillText(
           `${delta >= 0 ? "+" : ""}${fmt(delta)}`,
-          xEnd - 7,
-          positions[k] + lfs + 2,
+          xEnd - 9,
+          positions[k] + lfs * 0.35,
         );
       });
     }
