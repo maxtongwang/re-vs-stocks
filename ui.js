@@ -2998,10 +2998,11 @@ function renderWaitSummary(hm) {
   const indexName =
     document.getElementById("index-select")?.selectedOptions[0]?.text ||
     "Index";
-  const scenLabels = [
-    "All Cash",
-    ...RE_DOWN_PMTS.map((p) => `${dpPct(p)}% Down`),
-  ];
+  const legLabels = isPrimary
+    ? STRINGS[lang].legendLabelsPrimary
+    : STRINGS[lang].legendLabels;
+  // legLabels[0] = index, legLabels[1] = All Cash, legLabels[2..] = down pmts
+  const scenLabels = legLabels.slice(1);
   let html = "";
   for (let i = 1; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
