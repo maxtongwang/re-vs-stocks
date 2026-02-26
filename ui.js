@@ -513,15 +513,14 @@ function setActiveStory(story) {
   activeStory = story;
   showIndexOverlay = activeStory === "usual";
 
+  const locAbbr = SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase();
   document.getElementById("story-abbr").textContent =
     activeStory === "usual"
-      ? "Usual"
+      ? locAbbr
       : activeStory === "wait"
         ? "Cost of Delay"
         : "Story";
-  document
-    .getElementById("story-row")
-    .classList.toggle("active", activeStory !== "");
+  document.getElementById("story-row").classList.add("active");
 
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = activeStory === "usual" ? "flex" : "none";
@@ -3267,7 +3266,8 @@ if (isPrimary) {
 syncPmFeeBtn();
 if (activeStory === "usual") {
   document.getElementById("story-select").value = "usual";
-  document.getElementById("story-abbr").textContent = "Usual";
+  document.getElementById("story-abbr").textContent =
+    SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase();
   document.getElementById("story-row").classList.add("active");
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = "flex";
