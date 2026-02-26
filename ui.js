@@ -431,6 +431,16 @@ function applyLang() {
   buildSourcesList();
   buildTable();
   syncTableCols();
+  // Localize story select options + re-sync chip text
+  const storySel = document.getElementById("story-select");
+  if (storySel) {
+    storySel.options[0].text = "—";
+    storySel.options[1].text = s.storyUsual;
+    storySel.options[2].text = s.storyWait;
+    const selText = storySel.selectedOptions[0]?.text || "";
+    document.getElementById("story-abbr").textContent =
+      selText === "—" || selText === "" ? s.storyDefault : selText;
+  }
   const overlayIcon = document.querySelector("#overlay-legend-row .tip-icon");
   if (overlayIcon)
     overlayIcon.setAttribute("data-tip", STRINGS[lang].tipPriceOverlay || "");
@@ -516,7 +526,7 @@ function setActiveStory(story) {
   const sel = document.getElementById("story-select");
   const selText = sel.selectedOptions[0]?.text || "";
   document.getElementById("story-abbr").textContent =
-    selText === "—" || selText === "" ? "Learned Lessons" : selText;
+    selText === "—" || selText === "" ? STRINGS[lang].storyDefault : selText;
   document.getElementById("story-row").classList.add("active");
 
   const legendRow = document.getElementById("overlay-legend-row");
