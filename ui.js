@@ -2187,11 +2187,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   };
 
   // Pre-compute after-tax liquidation values for RE scenarios (full range)
-  // (1031 always off; inclCapGains read from user settings)
+  // Wait mode always applies tx costs + cap gains (1031 off) — a real sale
   const netWW = {};
   {
     const savedU1031 = use1031;
+    const savedTx = inclTxCosts;
+    const savedCg = inclCapGains;
     use1031 = false;
+    inclTxCosts = true;
+    inclCapGains = true;
     for (let i = 1; i < SCENARIOS.length; i++) {
       if (hidden.has(i)) continue;
       const lDc = allDecomp[i];
@@ -2200,14 +2204,16 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       for (let m = 0; m <= hm; m++) {
         if (m >= allWealth[i].length) break;
         const sc =
-          inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m]
+          lDc.txSellRate > 0 && lDc.dComp?.[m]
             ? Math.round((lDc.price + lDc.dComp[m].appr) * lDc.txSellRate)
             : 0;
-        const cg = inclCapGains ? computeCapGains(i, m) : 0;
+        const cg = computeCapGains(i, m);
         netWW[i][m] = allWealth[i][m] - sc - cg;
       }
     }
     use1031 = savedU1031;
+    inclTxCosts = savedTx;
+    inclCapGains = savedCg;
   }
 
   // Y range — linear scale, stretch to fill height
@@ -3020,6 +3026,13 @@ function renderWaitSummary(hm) {
     : STRINGS[lang].legendLabels;
   // legLabels[0] = index, legLabels[1] = All Cash, legLabels[2..] = down pmts
   const scenLabels = legLabels.slice(1);
+  const savedU1031 = use1031;
+  const savedTx = inclTxCosts;
+  const savedCg = inclCapGains;
+  use1031 = false;
+  inclTxCosts = true;
+  inclCapGains = true;
+
   let html = "";
   for (let i = 1; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
@@ -3027,19 +3040,15 @@ function renderWaitSummary(hm) {
     if (!lDc || !lDc.dComp?.[m_T]) continue;
 
     const sellCost_T =
-      inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
+      lDc.txSellRate > 0 && lDc.dComp?.[m_T]
         ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
         : 0;
     const sellCost_now =
-      inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
+      lDc.txSellRate > 0 && lDc.dComp?.[hm]
         ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
         : 0;
-
-    const savedUse1031 = use1031;
-    use1031 = false;
-    const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
-    const capGains_now = inclCapGains ? computeCapGains(i, hm) : 0;
-    use1031 = savedUse1031;
+    const capGains_T = computeCapGains(i, m_T);
+    const capGains_now = computeCapGains(i, hm);
 
     const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
     const cfNow = net_T * (allWealth[0][hm] / allWealth[0][m_T]);
@@ -3059,6 +3068,11 @@ function renderWaitSummary(hm) {
         indexName,
       ) + "<br>";
   }
+
+  use1031 = savedU1031;
+  inclTxCosts = savedTx;
+  inclCapGains = savedCg;
+
   el.innerHTML = html;
 }
 
