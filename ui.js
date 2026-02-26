@@ -3027,7 +3027,7 @@ function renderWaitSummary(hm) {
     const outcomeColor = delta > 0 ? "#e05050" : "#50b060";
     const label = scenLabels[i - 1] || `Scenario ${i}`;
     html +=
-      `<span style="color:var(--text-sub)">${label} — ${waitMonths}mo delay of sale: </span>` +
+      `<span style="color:var(--text-sub)">${label} — if sold ${waitMonths}mo earlier: </span>` +
       `<span style="color:${outcomeColor}">${sign}${fmt(delta)}</span>` +
       `<span style="color:var(--text-sub)"> invested into ${indexName}</span><br>`;
   }
