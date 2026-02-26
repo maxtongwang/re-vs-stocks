@@ -191,7 +191,7 @@ const STRINGS = {
       `2026 projection: S&amp;P 500 +8% &amp; NASDAQ +10% per Wall Street consensus range (<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>); home prices +1–5% by market per <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a> (formerly CoreLogic) &amp; <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> forecasts`,
       `Price-only overlay (S&amp;P 500 price vs ${hpiSrc === "cs" ? "Case-Shiller" : "FHFA"} HPI): same HPI data as the main simulation. Both lines reflect pure price appreciation from the same starting capital with no leverage, rent, or costs.`,
     ],
-    builtBy: "Built by Max Wang · DRE 02225524",
+    builtBy: "Built by Max Wang",
     disclaimer: "for entertainment purpose only",
     labelHpiSourceText: "HPI",
     tipHpiSource:
@@ -447,7 +447,7 @@ const STRINGS = {
       `2026年预测：S&amp;P 500 +8%、纳斯达克 +10%，基于华尔街共识区间（<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>）；各市场房价 +1–5%，来自 <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a>（原CoreLogic）及 <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> 预测`,
       `纯价格对比覆盖层（标普500价格 vs ${hpiSrc === "cs" ? "Case-Shiller" : "FHFA"} HPI）：与主模拟相同的HPI数据。两线均为纯价格涨幅，不含杠杆、租金或成本。`,
     ],
-    builtBy: "由 Max Wang 制作 · DRE 02225524",
+    builtBy: "由 Max Wang 制作",
     disclaimer: "仅供娱乐参考",
     labelHpiSourceText: "HPI",
     tipHpiSource:
