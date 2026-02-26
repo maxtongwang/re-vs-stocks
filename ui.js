@@ -2374,13 +2374,14 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     // Delta labels — collision-avoided, left-aligned in right margin
     if (cfEndpoints.length > 0) {
       cfEndpoints.sort((a, b) => b.cfEnd - a.cfEnd);
-      const lblH = lfs + 3;
+      const lblH = (lfs + 2) * 2;
       const positions = cfEndpoints.map(({ cfEnd }) => ty(cfEnd) + lfs * 0.35);
       for (let k = 1; k < positions.length; k++)
         if (positions[k] < positions[k - 1] + lblH)
           positions[k] = positions[k - 1] + lblH;
       for (let k = positions.length - 1; k >= 0; k--) {
-        if (positions[k] > PT + chartH - 2) positions[k] = PT + chartH - 2;
+        if (positions[k] > PT + chartH - lfs - 2)
+          positions[k] = PT + chartH - lfs - 2;
         if (k < positions.length - 1 && positions[k] > positions[k + 1] - lblH)
           positions[k] = positions[k + 1] - lblH;
       }
@@ -2388,10 +2389,11 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.textAlign = "left";
       cfEndpoints.forEach(({ delta, cfColor }, k) => {
         ctx.fillStyle = cfColor;
+        ctx.fillText("on plan:", xEnd + 5, positions[k]);
         ctx.fillText(
-          `on plan: ${delta >= 0 ? "+" : ""}${fmt(delta)}`,
+          `${delta >= 0 ? "+" : ""}${fmt(delta)}`,
           xEnd + 5,
-          positions[k],
+          positions[k] + lfs + 2,
         );
       });
     }
