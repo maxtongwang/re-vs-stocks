@@ -2225,7 +2225,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
     for (let m = 0; m <= hm && m < w.length; m++) {
-      const val = w[m]; // gross wealth; cost gap shown via connector at sell target
+      const val = netWW[i]?.[m] ?? w[m]; // net after-tax so visual gap = labeled delta
       if (val > yMax) yMax = val;
       if (val < yMin) yMin = val;
     }
@@ -2289,7 +2289,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.fillText(`${yr}`, tx(m), H - 6);
   }
 
-  // Scenario lines (solid) — gross wealth; cost offset visible at sell target connector
+  // Scenario lines (solid) — net after-tax so visual gap matches labeled delta
   for (let i = 0; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
@@ -2300,7 +2300,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.beginPath();
     let first = true;
     for (let m = 0; m <= hm && m < w.length; m++) {
-      const val = w[m]; // gross
+      const val = netWW[i]?.[m] ?? w[m];
       if (first) {
         ctx.moveTo(tx(m + 1), ty(val));
         first = false;
@@ -2353,53 +2353,6 @@ function drawWaitChart(CT, W, H, fullM, frac) {
         (xSale + xActual_zone) / 2,
         PT + chartH - 6,
       );
-      ctx.globalAlpha = 1.0;
-    }
-
-    // Cost connectors at sell target: gross line drops to net (after tx + cap gains)
-    // This makes the deduction visible before the dashed counterfactual begins
-    for (let i = 1; i < SCENARIOS.length; i++) {
-      if (hidden.has(i)) continue;
-      if (!netWW[i] || !(m_T in netWW[i])) continue;
-      const grossAtT = allWealth[i][m_T];
-      const netAtT = netWW[i][m_T];
-      const costGap = grossAtT - netAtT;
-      if (costGap < (yHi - yLo) * 0.004) continue;
-      const x = tx(m_T + 1);
-      const yGross = ty(grossAtT);
-      const yNet = ty(netAtT);
-      // Thin vertical connector in scenario color
-      ctx.strokeStyle = CT.s[i];
-      ctx.globalAlpha = 0.6;
-      ctx.lineWidth = 1;
-      ctx.setLineDash([2, 2]);
-      ctx.beginPath();
-      ctx.moveTo(x, yGross);
-      ctx.lineTo(x, yNet);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      // Horizontal tick at net level (where dashed line starts)
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(x - 4, yNet);
-      ctx.lineTo(x + 4, yNet);
-      ctx.stroke();
-      // Label cost if connector is tall enough
-      const connH = Math.abs(yNet - yGross);
-      if (connH > 14) {
-        const cFont = `${Math.max(6, Math.min(8, W / 72))}px monospace`;
-        ctx.font = cFont;
-        const labelRight =
-          x + ctx.measureText(`−${fmt(costGap)}`).width + 8 > PL + chartW;
-        ctx.textAlign = labelRight ? "right" : "left";
-        ctx.globalAlpha = 0.8;
-        ctx.fillStyle = CT.s[i];
-        ctx.fillText(
-          `−${fmt(costGap)}`,
-          labelRight ? x - 6 : x + 6,
-          (yGross + yNet) / 2 + 3,
-        );
-      }
       ctx.globalAlpha = 1.0;
     }
 
