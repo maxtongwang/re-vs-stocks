@@ -530,8 +530,7 @@ function setActiveStory(story) {
     .getElementById("legend")
     .classList.toggle("overlay-active", showIndexOverlay);
 
-  document.getElementById("period-wrap").style.display =
-    activeStory === "wait" ? "inline-block" : "none";
+  document.getElementById("period-wrap").style.display = "none";
   if (activeStory !== "wait")
     document.getElementById("wait-summary").innerHTML = "";
 
@@ -2192,7 +2191,8 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   // Y range — linear scale, stretch to fill height
   let yMin = Infinity,
     yMax = -Infinity;
-  const m_T_pre = hm >= waitMonths ? hm - waitMonths : -1;
+  // Sale point at 2/3 of visible range (right 1/3 = comparison window)
+  const m_T_pre = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
@@ -2281,8 +2281,8 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.stroke();
   }
 
-  // Counterfactual dashed lines
-  const m_T = hm >= waitMonths ? hm - waitMonths : -1;
+  // Counterfactual: sale point at 2/3 of visible range
+  const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
   if (m_T >= 0 && allWealth[0][m_T] > 0) {
     // Sale-date vertical marker
     const xSale = tx(m_T + 1);
@@ -2299,7 +2299,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.fillStyle = CT.label;
     ctx.font = `${Math.max(6, Math.min(8, W / 70))}px monospace`;
     ctx.textAlign = "center";
-    ctx.fillText(`\u2212${waitMonths}mo`, xSale, PT + 11);
+    ctx.fillText(`${startYear + Math.floor(m_T / 12)}`, xSale, PT + 11);
     ctx.globalAlpha = 1.0;
 
     const cfEndpoints = [];
@@ -2958,15 +2958,12 @@ function draw(monthsToShow) {
 function renderWaitSummary(hm) {
   const el = document.getElementById("wait-summary");
   if (!el) return;
-  if (
-    activeStory !== "wait" ||
-    hm < waitMonths ||
-    allWealth[0][hm - waitMonths] <= 0
-  ) {
+  const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
+  if (activeStory !== "wait" || m_T < 0 || allWealth[0][m_T] <= 0) {
     el.innerHTML = "";
     return;
   }
-  const m_T = hm - waitMonths;
+  const derivedMonths = hm - m_T;
   const indexName =
     document.getElementById("index-select")?.selectedOptions[0]?.text ||
     "Index";
@@ -3004,7 +3001,7 @@ function renderWaitSummary(hm) {
     const arrow = delta > 0 ? "↑" : "↓";
     const label = scenLabels[i - 1] || `Scenario ${i}`;
     html +=
-      `<span style="color:var(--text-mid)">${label}: sold ${waitMonths}mo ago → ${indexName} ${fmt(cfNow)}</span>` +
+      `<span style="color:var(--text-mid)">${label}: sold ${derivedMonths}mo ago → ${indexName} ${fmt(cfNow)}</span>` +
       `<span style="color:var(--text-dim)">  vs today ${fmt(net_now)}</span>` +
       `  <span style="color:${arrowColor}">${sign}${fmt(delta)} ${arrow}</span><br>`;
   }
