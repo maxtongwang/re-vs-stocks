@@ -513,13 +513,9 @@ function setActiveStory(story) {
   activeStory = story;
   showIndexOverlay = activeStory === "usual";
 
-  const locAbbr = SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase();
+  const sel = document.getElementById("story-select");
   document.getElementById("story-abbr").textContent =
-    activeStory === "usual"
-      ? locAbbr
-      : activeStory === "wait"
-        ? "Cost of Delay"
-        : "Story";
+    sel.selectedOptions[0]?.text || "Story";
   document.getElementById("story-row").classList.add("active");
 
   const legendRow = document.getElementById("overlay-legend-row");
@@ -579,7 +575,9 @@ document.getElementById("story-select").addEventListener("change", (e) => {
 
 document.getElementById("period-select").addEventListener("change", (e) => {
   waitMonths = +e.target.value;
-  document.getElementById("period-abbr").textContent = waitMonths + "mo";
+  const pSel = document.getElementById("period-select");
+  document.getElementById("period-abbr").textContent =
+    pSel.selectedOptions[0]?.text || waitMonths + " mo";
   draw(curMonth - 1);
 });
 
@@ -3267,7 +3265,7 @@ syncPmFeeBtn();
 if (activeStory === "usual") {
   document.getElementById("story-select").value = "usual";
   document.getElementById("story-abbr").textContent =
-    SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase();
+    document.getElementById("story-select").selectedOptions[0]?.text || "Story";
   document.getElementById("story-row").classList.add("active");
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = "flex";

@@ -977,7 +977,7 @@ th:first-child {
 }
 #story-row.active {
   opacity: 1;
-  border-color: transparent !important;
+  border-color: rgba(152, 152, 216, 0.45) !important;
   animation: none;
 }
 /* No underline on the abbr-text inside the box — box already signals interaction */
