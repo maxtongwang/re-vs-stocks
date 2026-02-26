@@ -235,6 +235,20 @@ body {
   pointer-events: none;
   border-radius: 3px;
 }
+/* wait mode: hide handles, make fill a draggable block */
+#year-range-bar.wait-mode .yr-handle {
+  display: none;
+}
+#year-range-bar.wait-mode #year-range-fill {
+  pointer-events: auto;
+  cursor: grab;
+  opacity: 0.55;
+  top: -3px;
+  bottom: -3px;
+}
+#year-range-bar.wait-mode #year-range-fill:active {
+  cursor: grabbing;
+}
 /* clamp handle: narrow visual bar, wide touch target */
 .yr-handle {
   position: absolute;

@@ -65,6 +65,8 @@ let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest m
 let activeStory = ""; // "" | "usual" | "wait"
 let waitMonths = 3; // default period for Cost of Delayed Sale
 let savedHiddenBeforeWait = null; // saved hidden set when entering wait mode
+let savedRangeBeforeWait = null; // saved { s, e } year range when entering wait mode
+const WAIT_SPAN = 10; // fixed 10-year window in wait mode
 let showIndexOverlay = false; // derived from activeStory; kept in sync
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
 let indexSpWealth = []; // populated by buildAllWealth
@@ -545,17 +547,31 @@ function setActiveStory(story) {
     for (let i = 2; i < SCENARIOS.length; i++) hidden.add(i);
     syncLegendItems();
     syncTableCols();
+    // Lock to 10-year window; keep current start if possible
+    savedRangeBeforeWait = { s: startYear, e: endYear };
+    const ws = Math.max(RB_MIN, Math.min(startYear, RB_MAX - WAIT_SPAN));
+    startYear = ws;
+    endYear = ws + WAIT_SPAN;
+    document.getElementById("year-range-bar").classList.add("wait-mode");
+    rebuild();
   } else if (
     prev === "wait" &&
     activeStory !== "wait" &&
     savedHiddenBeforeWait !== null
   ) {
-    // Exit wait mode: restore previous hidden state
+    // Exit wait mode: restore previous hidden state and year range
     hidden.clear();
     savedHiddenBeforeWait.forEach((v) => hidden.add(v));
     savedHiddenBeforeWait = null;
+    if (savedRangeBeforeWait) {
+      startYear = savedRangeBeforeWait.s;
+      endYear = savedRangeBeforeWait.e;
+      savedRangeBeforeWait = null;
+    }
+    document.getElementById("year-range-bar").classList.remove("wait-mode");
     syncLegendItems();
     syncTableCols();
+    rebuild();
   }
 }
 
@@ -3251,6 +3267,45 @@ makeYrHandleDraggable(
   "start",
 );
 makeYrHandleDraggable(document.getElementById("year-range-end-handle"), "end");
+
+// ── Wait-mode fill drag: pan fixed 10-year window ─────────────────────────
+{
+  const fill = document.getElementById("year-range-fill");
+  const bar = document.getElementById("year-range-bar");
+  fill.addEventListener("pointerdown", (e) => {
+    if (activeStory !== "wait") return;
+    e.preventDefault();
+    stopPlay();
+    fill.setPointerCapture(e.pointerId);
+    const barW = bar.getBoundingClientRect().width;
+    const grabX = e.clientX;
+    const grabStart = startYear;
+    const onMove = (mv) => {
+      const dx = mv.clientX - grabX;
+      const dYears = Math.round((dx / barW) * (RB_MAX - RB_MIN));
+      const ns = Math.max(
+        RB_MIN,
+        Math.min(RB_MAX - WAIT_SPAN, grabStart + dYears),
+      );
+      if (ns !== startYear) {
+        startYear = ns;
+        endYear = ns + WAIT_SPAN;
+        rebuild();
+      }
+    };
+    fill.addEventListener("pointermove", onMove);
+    fill.addEventListener(
+      "pointerup",
+      () => fill.removeEventListener("pointermove", onMove),
+      { once: true },
+    );
+    fill.addEventListener(
+      "pointercancel",
+      () => fill.removeEventListener("pointermove", onMove),
+      { once: true },
+    );
+  });
+}
 
 // ── Resize ────────────────────────────────────────────────────────────────
 // Debounced: rotation fires many rapid events; only redraw after it settles
