@@ -65,6 +65,8 @@ let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest m
 let activeStory = ""; // "" | "usual" | "wait"
 let waitMonths = 3; // default period for Cost of Delayed Sale
 let showIndexOverlay = false; // derived from activeStory; kept in sync
+let hiddenOverlaySp = false; // toggle S&P 500 line in usual-story overlay
+let hiddenOverlayRe = false; // toggle RE index line in usual-story overlay
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
 let indexSpWealth = []; // populated by buildAllWealth
 let indexReWealth = [];
@@ -506,7 +508,15 @@ document.getElementById("story-select").addEventListener("change", (e) => {
     .classList.toggle("active", activeStory !== "");
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = activeStory === "usual" ? "flex" : "none";
-  legendRow.classList.add("active"); // always visual-only
+  legendRow.classList.add("active");
+  if (activeStory === "usual") {
+    // Reset per-line toggles when entering usual story
+    hiddenOverlaySp = false;
+    hiddenOverlayRe = false;
+    document
+      .querySelectorAll(".overlay-leg-item")
+      .forEach((el) => (el.style.opacity = ""));
+  }
   document
     .getElementById("legend")
     .classList.toggle("overlay-active", showIndexOverlay);
@@ -523,6 +533,21 @@ document.getElementById("story-select").addEventListener("change", (e) => {
 document.getElementById("period-select").addEventListener("change", (e) => {
   waitMonths = +e.target.value;
   document.getElementById("period-abbr").textContent = waitMonths + "mo";
+  draw(curMonth - 1);
+});
+
+// ── Overlay legend: per-line toggles in usual-story mode ─────────────────
+document.getElementById("overlay-legend-row").addEventListener("click", (e) => {
+  if (activeStory !== "usual") return;
+  const item = e.target.closest(".overlay-leg-item");
+  if (!item) return;
+  if (item.dataset.line === "sp") {
+    hiddenOverlaySp = !hiddenOverlaySp;
+    item.style.opacity = hiddenOverlaySp ? "0.35" : "";
+  } else if (item.dataset.line === "re") {
+    hiddenOverlayRe = !hiddenOverlayRe;
+    item.style.opacity = hiddenOverlayRe ? "0.35" : "";
+  }
   draw(curMonth - 1);
 });
 
@@ -2530,11 +2555,13 @@ function draw(monthsToShow) {
         w: indexSpWealth,
         color: "#9898d8",
         label: "S&P 500",
+        skip: hiddenOverlaySp,
       },
       {
         w: indexReWealth,
         color: "#c07840",
         label: SELECT_ABBR[getLocKey()] || getLocKey().toUpperCase(),
+        skip: hiddenOverlayRe,
       },
     ];
     const hm = Math.min(fullM, totalMonths - 1);
@@ -2554,7 +2581,8 @@ function draw(monthsToShow) {
     const minGapO = lfs * 2 + 4;
     if (overlayPositions[1] < overlayPositions[0] + minGapO)
       overlayPositions[1] = overlayPositions[0] + minGapO;
-    overlayPairs.forEach(({ w, color, label }, oi) => {
+    overlayPairs.forEach(({ w, color, label, skip }, oi) => {
+      if (skip) return;
       ctx.strokeStyle = color;
       ctx.lineWidth = 2.5;
       ctx.lineJoin = "round";

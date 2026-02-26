@@ -409,8 +409,8 @@
       gtag("js", new Date());
       gtag("config", "G-4PG67S53TS");
     </script>
-    <link rel="stylesheet" href="themes.css?v=20260225f" />
-    <link rel="stylesheet" href="style.css?v=20260225f" />
+    <link rel="stylesheet" href="themes.css?v=20260225g" />
+    <link rel="stylesheet" href="style.css?v=20260225g" />
   </head>
   <body>
     <noscript>
@@ -792,14 +792,39 @@
       <span id="label-price-only-comparison" style="color: var(--text-sub)"
         >The Usual Stock Story</span
       ><span class="tip-icon" data-tip="" style="margin-right: 4px"></span>
-      <div class="leg-dot" style="background: #9898d8"></div>
       <span
-        id="overlay-legend-label"
-        class="tip-text"
-        style="color: var(--text-sub)"
-        >S&amp;P 500 vs OC</span
+        class="overlay-leg-item"
+        data-line="sp"
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        "
       >
-      <div class="leg-dot" style="background: #c07840"></div>
+        <div class="leg-dot" style="background: #9898d8"></div>
+        <span style="color: var(--text-sub)">S&amp;P 500</span>
+      </span>
+      <span
+        class="overlay-leg-item"
+        data-line="re"
+        style="
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          transition: opacity 0.15s;
+        "
+      >
+        <div class="leg-dot" style="background: #c07840"></div>
+        <span
+          id="overlay-legend-label"
+          class="tip-text"
+          style="color: var(--text-sub)"
+          >OC</span
+        >
+      </span>
     </div>
 
     <div id="chart-wrap">
@@ -1343,8 +1368,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260225f" defer></script>
-    <script src="sim.js?v=20260225f" defer></script>
-    <script src="ui.js?v=20260225f" defer></script>
+    <script src="data.js?v=20260225g" defer></script>
+    <script src="sim.js?v=20260225g" defer></script>
+    <script src="ui.js?v=20260225g" defer></script>
   </body>
 </html>
