@@ -990,28 +990,6 @@ th:first-child {
     opacity: 1;
   }
 }
-#overlay-legend-row:not(.active) {
-  animation: cta-pulse 1.7s ease-in-out infinite;
-  border-style: solid !important;
-  border-color: rgba(152, 152, 216, 0.7) !important;
-  border-width: 1.5px !important;
-  opacity: 1 !important;
-}
-#overlay-legend-row:not(.active) #label-price-only-comparison,
-#overlay-legend-row:not(.active) #overlay-legend-label {
-  color: var(--text) !important;
-}
-#overlay-legend-row.active {
-  opacity: 1;
-  border-color: transparent !important;
-  animation: none;
-}
-#overlay-legend-row:hover {
-  opacity: 0.92;
-}
-#overlay-legend-row.active:hover {
-  opacity: 0.85;
-}
 #overlay-legend-row:not(.active) .leg-dot {
   background: var(--border) !important;
   transition: background 0.15s;

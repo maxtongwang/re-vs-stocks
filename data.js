@@ -455,7 +455,7 @@ const STRINGS = {
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
     storyDefault: "宝贵经验",
-    storyUsual: "常见股市",
+    storyUsual: "常见叙事",
     storyWait: "延迟出售的代价",
     waitSummary: (label, n, delta, sign, fmtDelta, color, indexName) =>
       `<span style="color:var(--text-sub)">${label} — 若</span>` +

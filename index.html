@@ -409,8 +409,8 @@
       gtag("js", new Date());
       gtag("config", "G-4PG67S53TS");
     </script>
-    <link rel="stylesheet" href="themes.css?v=20260225ag" />
-    <link rel="stylesheet" href="style.css?v=20260225ag" />
+    <link rel="stylesheet" href="themes.css?v=20260225ah" />
+    <link rel="stylesheet" href="style.css?v=20260225ah" />
   </head>
   <body>
     <noscript>
@@ -769,37 +769,28 @@
           <option value="12">12 mo</option>
         </select>
       </span>
-    </div>
-
-    <!-- Overlay legend row: visual-only when story = "The Usual Stock Story" -->
-    <div
-      id="overlay-legend-row"
-      class="tip active"
-      style="
-        display: none;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        padding: 4px 10px 5px;
-        cursor: pointer;
-        font-size: 11px;
-        transition: opacity 0.15s;
-        user-select: none;
-        border: 1px dashed var(--text-sub);
-        border-radius: 6px;
-        margin: 4px auto 4px;
-        width: fit-content;
-      "
-    >
-      <span class="tip-icon" data-tip="" style="margin-right: 4px"></span>
-      <div class="leg-dot" style="background: #9898d8"></div>
-      <span
-        id="overlay-legend-label"
-        class="tip-text"
-        style="color: var(--text-sub)"
-        >S&amp;P 500 vs OC</span
+      <!-- Overlay legend: inline in story-row when usual story active -->
+      <div
+        id="overlay-legend-row"
+        class="tip active"
+        style="
+          display: none;
+          align-items: center;
+          gap: 6px;
+          font-size: 11px;
+          user-select: none;
+        "
       >
-      <div class="leg-dot" style="background: #c07840"></div>
+        <span class="tip-icon" data-tip="" style="margin-right: 2px"></span>
+        <div class="leg-dot" style="background: #9898d8"></div>
+        <span
+          id="overlay-legend-label"
+          class="tip-text"
+          style="color: var(--text-sub)"
+          >S&amp;P 500 vs OC</span
+        >
+        <div class="leg-dot" style="background: #c07840"></div>
+      </div>
     </div>
 
     <div id="wait-summary"></div>
@@ -1343,8 +1334,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260225ag" defer></script>
-    <script src="sim.js?v=20260225ag" defer></script>
-    <script src="ui.js?v=20260225ag" defer></script>
+    <script src="data.js?v=20260225ah" defer></script>
+    <script src="sim.js?v=20260225ah" defer></script>
+    <script src="ui.js?v=20260225ah" defer></script>
   </body>
 </html>

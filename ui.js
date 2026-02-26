@@ -527,7 +527,7 @@ function setActiveStory(story) {
   document.getElementById("story-row").classList.add("active");
 
   const legendRow = document.getElementById("overlay-legend-row");
-  legendRow.style.display = activeStory === "usual" ? "flex" : "none";
+  legendRow.style.display = activeStory === "usual" ? "inline-flex" : "none";
   legendRow.classList.add("active");
   document
     .getElementById("legend")
@@ -3283,7 +3283,7 @@ if (activeStory === "usual") {
     document.getElementById("story-select").selectedOptions[0]?.text || "Story";
   document.getElementById("story-row").classList.add("active");
   const legendRow = document.getElementById("overlay-legend-row");
-  legendRow.style.display = "flex";
+  legendRow.style.display = "inline-flex";
   legendRow.classList.add("active");
   document.getElementById("legend").classList.add("overlay-active");
 }
