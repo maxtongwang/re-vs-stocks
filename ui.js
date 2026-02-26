@@ -2405,24 +2405,29 @@ function drawWaitChart(CT, W, H, fullM, frac) {
 
     const cfEndpoints = [];
     const xEnd = tx(hm + 1);
+    const xDelay = tx(m_actual_zone + 1);
+
     for (let i = 1; i < SCENARIOS.length; i++) {
       if (hidden.has(i)) continue;
       const lDc = allDecomp[i];
       if (!lDc || !lDc.dComp?.[m_T] || !netWW[i]) continue;
 
-      const net_T = netWW[i][m_T] ?? 0; // value at planned sale date
-      const net_now = netWW[i][hm] ?? 0;
+      const net_T = netWW[i][m_T] ?? 0;
+      const net_delay = netWW[i][m_actual_zone] ?? 0; // after-tax RE at delay point
+      const net_end = netWW[i][hm] ?? 0; // after-tax RE at period end
       const idxAt_mT = allWealth[0][m_T];
       if (idxAt_mT <= 0 || net_T <= 0) continue;
 
-      // cfEnd: if sold at planned date, invested in index until now
-      const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
-      const delta = cfEnd - net_now;
-      const cfColor = delta > 0 ? "#50b060" : "#e05050";
+      // Two counterfactual values: at delay point, and at period end
+      const cf_delay = net_T * (allWealth[0][m_actual_zone] / idxAt_mT);
+      const cf_end = net_T * (allWealth[0][hm] / idxAt_mT);
+      const delta_delay = cf_delay - net_delay;
+      const delta_end = cf_end - net_end;
+      const delayColor = delta_delay > 0 ? "#50b060" : "#e05050";
+      const endColor = delta_end > 0 ? "#50b060" : "#e05050";
 
-      // Counterfactual growth curve: starts at sell target, follows index to today
-      const yCf = ty(cfEnd);
-      ctx.strokeStyle = cfColor;
+      // Dashed counterfactual line from sell target to period end
+      ctx.strokeStyle = endColor;
       ctx.globalAlpha = 0.8;
       ctx.lineWidth = 1.5;
       ctx.setLineDash([5, 4]);
@@ -2435,39 +2440,84 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Dot at counterfactual endpoint
+      // Small dot at delay point (right edge of amber zone)
+      const yCfDelay = ty(cf_delay);
       ctx.globalAlpha = 1.0;
-      ctx.fillStyle = cfColor;
+      ctx.fillStyle = delayColor;
       ctx.beginPath();
-      ctx.arc(xEnd, yCf, 5, 0, Math.PI * 2);
+      ctx.arc(xDelay, yCfDelay, 3, 0, Math.PI * 2);
       ctx.fill();
 
-      cfEndpoints.push({ cfEnd, delta, cfColor });
+      // Larger dot at period end
+      const yCfEnd = ty(cf_end);
+      ctx.fillStyle = endColor;
+      ctx.beginPath();
+      ctx.arc(xEnd, yCfEnd, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      cfEndpoints.push({
+        cf_delay,
+        delta_delay,
+        delayColor,
+        yCfDelay,
+        cf_end,
+        delta_end,
+        endColor,
+        yCfEnd,
+      });
     }
 
-    // Endpoint callouts — right-aligned just inside chart near dot
     if (cfEndpoints.length > 0) {
-      cfEndpoints.sort((a, b) => b.cfEnd - a.cfEnd);
-      const lblH = lfs + 4;
-      const positions = cfEndpoints.map(({ cfEnd }) => ty(cfEnd) + lfs * 0.35);
-      for (let k = 1; k < positions.length; k++)
-        if (positions[k] < positions[k - 1] + lblH)
-          positions[k] = positions[k - 1] + lblH;
-      for (let k = positions.length - 1; k >= 0; k--) {
-        if (positions[k] > PT + chartH - lfs - 2)
-          positions[k] = PT + chartH - lfs - 2;
-        if (k < positions.length - 1 && positions[k] > positions[k + 1] - lblH)
-          positions[k] = positions[k + 1] - lblH;
-      }
       ctx.font = `bold ${lfs}px monospace`;
+      const lblH = lfs + 4;
+
+      // Delay labels — left of delay dot (skip if delay point == period end)
+      const showDelayLabels = m_actual_zone < hm - 1;
+      if (showDelayLabels) {
+        const sortedD = cfEndpoints
+          .slice()
+          .sort((a, b) => a.yCfDelay - b.yCfDelay);
+        const dPos = sortedD.map(({ yCfDelay }) => yCfDelay + lfs * 0.35);
+        for (let k = 1; k < dPos.length; k++)
+          if (dPos[k] < dPos[k - 1] + lblH) dPos[k] = dPos[k - 1] + lblH;
+        for (let k = dPos.length - 1; k >= 0; k--) {
+          if (dPos[k] > PT + chartH - lfs - 2) dPos[k] = PT + chartH - lfs - 2;
+          if (k < dPos.length - 1 && dPos[k] > dPos[k + 1] - lblH)
+            dPos[k] = dPos[k + 1] - lblH;
+        }
+        const delayLabelX = xDelay + 7;
+        const delayTextAlign = delayLabelX + 70 > xEnd - 20 ? "right" : "left";
+        ctx.textAlign = delayTextAlign;
+        const labelX = delayTextAlign === "right" ? xDelay - 7 : delayLabelX;
+        sortedD.forEach(({ delta_delay, delayColor }, k) => {
+          ctx.globalAlpha = 1.0;
+          ctx.fillStyle = delayColor;
+          ctx.fillText(
+            `${waitMonths}mo: ${delta_delay >= 0 ? "+" : ""}${fmt(delta_delay)}`,
+            labelX,
+            dPos[k],
+          );
+        });
+      }
+
+      // End labels — right-aligned at period end
+      const sortedE = cfEndpoints.slice().sort((a, b) => b.cf_end - a.cf_end);
+      const ePos = sortedE.map(({ yCfEnd }) => yCfEnd + lfs * 0.35);
+      for (let k = 1; k < ePos.length; k++)
+        if (ePos[k] < ePos[k - 1] + lblH) ePos[k] = ePos[k - 1] + lblH;
+      for (let k = ePos.length - 1; k >= 0; k--) {
+        if (ePos[k] > PT + chartH - lfs - 2) ePos[k] = PT + chartH - lfs - 2;
+        if (k < ePos.length - 1 && ePos[k] > ePos[k + 1] - lblH)
+          ePos[k] = ePos[k + 1] - lblH;
+      }
       ctx.textAlign = "right";
-      cfEndpoints.forEach(({ delta, cfColor }, k) => {
+      sortedE.forEach(({ delta_end, endColor }, k) => {
         ctx.globalAlpha = 1.0;
-        ctx.fillStyle = cfColor;
+        ctx.fillStyle = endColor;
         ctx.fillText(
-          `${delta >= 0 ? "+" : ""}${fmt(delta)}`,
+          `end: ${delta_end >= 0 ? "+" : ""}${fmt(delta_end)}`,
           xEnd - 9,
-          positions[k] + lfs * 0.35,
+          ePos[k] + lfs * 0.35,
         );
       });
     }
@@ -3080,53 +3130,71 @@ function renderWaitSummary(hm) {
   inclTxCosts = true;
   inclCapGains = true;
 
+  const m_actual = Math.min(m_T + waitMonths, hm);
+  const idxAt_mT = allWealth[0][m_T];
+  const idxAt_delay = allWealth[0][m_actual];
+  const idxAt_end = allWealth[0][hm];
+
   let html = "";
   for (let i = 1; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
     const lDc = allDecomp[i];
     if (!lDc || !lDc.dComp?.[m_T]) continue;
 
+    // Costs at sell target
     const sellCost_T =
       lDc.txSellRate > 0 && lDc.dComp?.[m_T]
         ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
         : 0;
-    const sellCost_now =
+    const capGains_T = computeCapGains(i, m_T);
+    const gross_T = allWealth[i][m_T];
+    const net_T = gross_T - sellCost_T - capGains_T;
+
+    // Delay comparison: RE at m_actual vs index grown from m_T to m_actual
+    const sellCost_delay =
+      lDc.txSellRate > 0 && lDc.dComp?.[m_actual]
+        ? Math.round((lDc.price + lDc.dComp[m_actual].appr) * lDc.txSellRate)
+        : 0;
+    const capGains_delay = computeCapGains(i, m_actual);
+    const net_delay = allWealth[i][m_actual] - sellCost_delay - capGains_delay;
+    const idxGrowthDelay = idxAt_mT > 0 ? idxAt_delay / idxAt_mT : 1;
+    const cf_delay = net_T * idxGrowthDelay;
+    const delta_delay = cf_delay - net_delay;
+    const delayColor = delta_delay > 0 ? "#50b060" : "#e05050";
+
+    // Period-end comparison: RE at hm vs index grown from m_T to hm
+    const sellCost_end =
       lDc.txSellRate > 0 && lDc.dComp?.[hm]
         ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
         : 0;
-    const capGains_T = computeCapGains(i, m_T);
-    const capGains_now = computeCapGains(i, hm);
+    const capGains_end = computeCapGains(i, hm);
+    const net_end = allWealth[i][hm] - sellCost_end - capGains_end;
+    const idxGrowthEnd = idxAt_mT > 0 ? idxAt_end / idxAt_mT : 1;
+    const cf_end = net_T * idxGrowthEnd;
+    const delta_end = cf_end - net_end;
+    const endColor = delta_end > 0 ? "#50b060" : "#e05050";
 
-    const gross_T = allWealth[i][m_T];
-    const net_T = gross_T - sellCost_T - capGains_T;
-    const idxGrowth = allWealth[0][hm] / allWealth[0][m_T];
-    const cfNow = net_T * idxGrowth;
-    const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
-    const delta = cfNow - net_now;
-    const sign = delta >= 0 ? "+" : "";
-    const outcomeColor = delta > 0 ? "#50b060" : "#e05050";
     const label = scenLabels[i - 1] || `Scenario ${i}`;
-
-    // Math breakdown: show the full calculation
-    const mathParts = [fmt(gross_T)];
-    if (sellCost_T > 0) mathParts.push(`− ${fmt(sellCost_T)} tx`);
-    if (capGains_T > 0) mathParts.push(`− ${fmt(capGains_T)} cg`);
-    mathParts.push(`= ${fmt(net_T)}`);
-    mathParts.push(`× ${idxGrowth.toFixed(3)}`);
-    mathParts.push(`= ${fmt(cfNow)}`);
-    mathParts.push(`vs hold ${fmt(net_now)}`);
-    const mathLine = mathParts.join("  ");
+    const nMoText = lang === "zh" ? `${waitMonths}个月` : `${waitMonths}mo`;
+    const endText = lang === "zh" ? "至期末" : "period end";
+    const sep = `<span style="color:var(--text-sub)">  |  </span>`;
 
     html +=
-      STRINGS[lang].waitSummary(
-        label,
-        waitMonths,
-        delta,
-        sign,
-        fmt(delta),
-        outcomeColor,
-        indexName,
-      ) + `<br><span class="wait-math">${mathLine}</span><br>`;
+      `<span style="color:var(--text-sub)">${label}${lang === "zh" ? "：" : ": "}</span>` +
+      `<span style="color:${delayColor}">${nMoText} → ${delta_delay >= 0 ? "+" : ""}${fmt(delta_delay)}</span>` +
+      sep +
+      `<span style="color:${endColor}">${endText} → ${delta_end >= 0 ? "+" : ""}${fmt(delta_end)}</span>` +
+      `<br>`;
+
+    // Math breakdown
+    let mathLine = fmt(gross_T);
+    if (sellCost_T > 0) mathLine += `  − ${fmt(sellCost_T)} tx`;
+    if (capGains_T > 0) mathLine += `  − ${fmt(capGains_T)} cg`;
+    mathLine += `  = ${fmt(net_T)} net`;
+    mathLine += `  ×${idxGrowthDelay.toFixed(3)} → ${fmt(cf_delay)} vs ${fmt(net_delay)} (${waitMonths}mo)`;
+    mathLine += `  |  ×${idxGrowthEnd.toFixed(3)} → ${fmt(cf_end)} vs ${fmt(net_end)} (end)`;
+
+    html += `<span class="wait-math">${mathLine}</span><br>`;
   }
 
   use1031 = savedU1031;
