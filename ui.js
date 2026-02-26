@@ -64,6 +64,7 @@ let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let activeStory = ""; // "" | "usual" | "wait"
 let waitMonths = 3; // default period for Cost of Delayed Sale
+let savedHiddenBeforeWait = null; // saved hidden set when entering wait mode
 let showIndexOverlay = false; // derived from activeStory; kept in sync
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
 let indexSpWealth = []; // populated by buildAllWealth
@@ -225,10 +226,23 @@ function buildTable() {
 }
 
 // ── Legend + table column sync ────────────────────────────────────────────
+function syncLegendItems() {
+  document
+    .querySelectorAll(".leg-item")
+    .forEach((item) =>
+      item.classList.toggle("hidden", hidden.has(parseInt(item.dataset.idx))),
+    );
+}
+
 document.getElementById("legend").addEventListener("click", (e) => {
   const item = e.target.closest(".leg-item");
   if (!item) return;
   const idx = parseInt(item.dataset.idx);
+  if (activeStory === "wait") {
+    waitModeLegendSwitch(idx);
+    draw(curMonth - 1);
+    return;
+  }
   if (hidden.has(idx)) {
     hidden.delete(idx);
     item.classList.remove("hidden");
@@ -491,29 +505,72 @@ document.getElementById("btn-additive").addEventListener("click", () => {
   });
 });
 
-// ── Story select + Period select ──────────────────────────────────────────
-document.getElementById("story-select").addEventListener("change", (e) => {
-  activeStory = e.target.value;
+// ── Story state machine ────────────────────────────────────────────────────
+// All story-mode transitions centralized here. Event handlers below delegate.
+
+function setActiveStory(story) {
+  const prev = activeStory;
+  activeStory = story;
   showIndexOverlay = activeStory === "usual";
+
   document.getElementById("story-abbr").textContent =
     activeStory === "usual"
       ? "Usual"
       : activeStory === "wait"
         ? "Delay"
-        : "Learned Lessons";
+        : "Story";
   document
     .getElementById("story-row")
     .classList.toggle("active", activeStory !== "");
+
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = activeStory === "usual" ? "flex" : "none";
   legendRow.classList.add("active");
   document
     .getElementById("legend")
     .classList.toggle("overlay-active", showIndexOverlay);
+
   document.getElementById("period-wrap").style.display =
     activeStory === "wait" ? "inline-block" : "none";
   if (activeStory !== "wait")
     document.getElementById("wait-summary").innerHTML = "";
+
+  if (activeStory === "wait" && prev !== "wait") {
+    // Enter wait mode: lock index off, show only All Cash (scenario 1)
+    savedHiddenBeforeWait = new Set(hidden);
+    hidden.clear();
+    hidden.add(0);
+    for (let i = 2; i < SCENARIOS.length; i++) hidden.add(i);
+    syncLegendItems();
+    syncTableCols();
+  } else if (
+    prev === "wait" &&
+    activeStory !== "wait" &&
+    savedHiddenBeforeWait !== null
+  ) {
+    // Exit wait mode: restore previous hidden state
+    hidden.clear();
+    savedHiddenBeforeWait.forEach((v) => hidden.add(v));
+    savedHiddenBeforeWait = null;
+    syncLegendItems();
+    syncTableCols();
+  }
+}
+
+function waitModeLegendSwitch(idx) {
+  // In wait mode: index stays locked off; clicking an RE item makes it the sole visible scenario
+  if (idx === 0) return;
+  for (let i = 1; i < SCENARIOS.length; i++) {
+    if (i === idx) hidden.delete(i);
+    else hidden.add(i);
+  }
+  syncLegendItems();
+  syncTableCols();
+}
+
+// ── Story select + Period select ──────────────────────────────────────────
+document.getElementById("story-select").addEventListener("change", (e) => {
+  setActiveStory(e.target.value);
   draw(curMonth - 1);
 });
 
@@ -2095,6 +2152,30 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   const tx = (m) =>
     PL + Math.max(0, Math.min(1, (m - zoomStart) / zoomSpan)) * chartW;
 
+  // Pre-compute after-tax liquidation values for RE scenarios in zoom window
+  // (1031 always off; inclCapGains read from user settings)
+  const netWW = {};
+  {
+    const savedU1031 = use1031;
+    use1031 = false;
+    for (let i = 1; i < SCENARIOS.length; i++) {
+      if (hidden.has(i)) continue;
+      const lDc = allDecomp[i];
+      if (!lDc) continue;
+      netWW[i] = {};
+      for (let m = zoomStart; m <= hm; m++) {
+        if (m >= allWealth[i].length) break;
+        const sc =
+          inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m]
+            ? Math.round((lDc.price + lDc.dComp[m].appr) * lDc.txSellRate)
+            : 0;
+        const cg = inclCapGains ? computeCapGains(i, m) : 0;
+        netWW[i][m] = allWealth[i][m] - sc - cg;
+      }
+    }
+    use1031 = savedU1031;
+  }
+
   // Y range: visible window only — linear scale, stretch to fill height
   let yMin = Infinity,
     yMax = -Infinity;
@@ -2103,12 +2184,14 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
     for (let m = zoomStart; m <= hm && m < w.length; m++) {
-      if (w[m] > yMax) yMax = w[m];
-      if (w[m] < yMin) yMin = w[m];
+      const val = netWW[i]?.[m] ?? w[m];
+      if (val > yMax) yMax = val;
+      if (val < yMin) yMin = val;
     }
-    // Estimate counterfactual endpoint for y-range (approx, no tax overhead)
+    // Estimate counterfactual endpoint for y-range
     if (i > 0 && m_T_pre >= 0 && allWealth[0][m_T_pre] > 0) {
-      const cfEst = w[m_T_pre] * (allWealth[0][hm] / allWealth[0][m_T_pre]);
+      const netAtT = netWW[i]?.[m_T_pre] ?? w[m_T_pre];
+      const cfEst = netAtT * (allWealth[0][hm] / allWealth[0][m_T_pre]);
       if (cfEst > yMax) yMax = cfEst;
       if (cfEst < yMin) yMin = cfEst;
     }
@@ -2181,10 +2264,11 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.beginPath();
     let first = true;
     for (let m = zoomStart; m <= hm && m < w.length; m++) {
+      const val = netWW[i]?.[m] ?? w[m];
       if (first) {
-        ctx.moveTo(tx(m + 1), ty(w[m]));
+        ctx.moveTo(tx(m + 1), ty(val));
         first = false;
-      } else ctx.lineTo(tx(m + 1), ty(w[m]));
+      } else ctx.lineTo(tx(m + 1), ty(val));
     }
     ctx.stroke();
   }
@@ -2211,65 +2295,44 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.globalAlpha = 1.0;
 
     const cfEndpoints = [];
+    const xEnd = tx(hm + 1);
     for (let i = 1; i < SCENARIOS.length; i++) {
       if (hidden.has(i)) continue;
       const lDc = allDecomp[i];
-      if (!lDc || !lDc.dComp?.[m_T]) continue;
+      if (!lDc || !lDc.dComp?.[m_T] || !netWW[i]) continue;
 
-      const sellCost_T =
-        inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
-          ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
-          : 0;
-      const sellCost_now =
-        inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
-          ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
-          : 0;
-      const savedUse1031 = use1031,
-        savedInclCG = inclCapGains;
-      use1031 = false;
-      if (!isPrimary) inclCapGains = true;
-      const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
-      const capGains_now = inclCapGains ? computeCapGains(i, hm) : 0;
-      use1031 = savedUse1031;
-      inclCapGains = savedInclCG;
-
-      const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
+      const net_T = netWW[i][m_T] ?? 0;
+      const net_now = netWW[i][hm] ?? 0;
       const idxAt_mT = allWealth[0][m_T];
       if (idxAt_mT <= 0 || net_T <= 0) continue;
 
       const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
-      const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
       const delta = cfEnd - net_now;
       // Red = selling earlier was better; green = holding beat index
       const cfColor = delta > 0 ? "#e05050" : "#50b060";
 
-      // Dashed path following actual index growth month by month
-      ctx.strokeStyle = cfColor;
-      ctx.globalAlpha = 0.9;
-      ctx.lineWidth = 2;
-      ctx.lineJoin = "round";
+      // Right-angled dashed L-line in scenario color:
+      // vertical from sale point → cfEnd level, then horizontal → current time
+      const xSaleEnd = tx(m_T + 1);
+      const yCf = ty(cfEnd);
+      const ySale = ty(net_T); // sale point on solid line
+      ctx.strokeStyle = CT.s[i];
+      ctx.globalAlpha = 0.7;
+      ctx.lineWidth = 1.5;
+      ctx.lineJoin = "miter";
       ctx.setLineDash([4, 3]);
       ctx.beginPath();
-      ctx.moveTo(xSale, ty(net_T));
-      for (let m = m_T + 1; m <= hm; m++)
-        ctx.lineTo(tx(m + 1), ty(net_T * (allWealth[0][m] / idxAt_mT)));
+      ctx.moveTo(xSaleEnd, ySale); // start: sale point on solid line
+      ctx.lineTo(xSaleEnd, yCf); // vertical → counterfactual level
+      ctx.lineTo(xEnd, yCf); // horizontal → current time
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // 90° turn: horizontal leader into right margin
-      const xEnd = tx(hm + 1),
-        yEnd = ty(cfEnd);
-      ctx.globalAlpha = 0.7;
-      ctx.beginPath();
-      ctx.moveTo(xEnd, yEnd);
-      ctx.lineTo(xEnd + 8, yEnd);
-      ctx.stroke();
-
-      // Endpoint dot
+      // Dot at counterfactual endpoint in outcome color
       ctx.globalAlpha = 1.0;
       ctx.fillStyle = cfColor;
       ctx.beginPath();
-      ctx.arc(xEnd, yEnd, 3.5, 0, Math.PI * 2);
+      ctx.arc(xEnd, yCf, 3.5, 0, Math.PI * 2);
       ctx.fill();
 
       cfEndpoints.push({ cfEnd, delta, cfColor });
@@ -2290,10 +2353,13 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       }
       ctx.font = `${lfs}px monospace`;
       ctx.textAlign = "left";
-      const lx = tx(hm + 1) + 11;
       cfEndpoints.forEach(({ delta, cfColor }, k) => {
         ctx.fillStyle = cfColor;
-        ctx.fillText(`${delta >= 0 ? "+" : ""}${fmt(delta)}`, lx, positions[k]);
+        ctx.fillText(
+          `${delta >= 0 ? "+" : ""}${fmt(delta)}`,
+          xEnd + 5,
+          positions[k],
+        );
       });
     }
   }
@@ -2915,14 +2981,11 @@ function renderWaitSummary(hm) {
         ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
         : 0;
 
-    const savedInclCG = inclCapGains,
-      savedUse1031 = use1031;
+    const savedUse1031 = use1031;
     use1031 = false;
-    if (!isPrimary) inclCapGains = true; // rental sale always triggers cap gains
     const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
     const capGains_now = inclCapGains ? computeCapGains(i, hm) : 0;
     use1031 = savedUse1031;
-    inclCapGains = savedInclCG;
 
     const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
     const cfNow = net_T * (allWealth[0][hm] / allWealth[0][m_T]);
