@@ -514,8 +514,9 @@ function setActiveStory(story) {
   showIndexOverlay = activeStory === "usual";
 
   const sel = document.getElementById("story-select");
+  const selText = sel.selectedOptions[0]?.text || "";
   document.getElementById("story-abbr").textContent =
-    sel.selectedOptions[0]?.text || "Story";
+    selText === "—" || selText === "" ? "Learned Lessons" : selText;
   document.getElementById("story-row").classList.add("active");
 
   const legendRow = document.getElementById("overlay-legend-row");
