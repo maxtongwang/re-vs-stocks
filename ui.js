@@ -54,6 +54,44 @@ _mq.addEventListener("change", () => {
 const RB_MIN = BASE_YEAR; // = 1970
 const RB_MAX = DATA_THROUGH_YEAR; // advances when data.js updates
 
+// ── DOM element cache (avoid repeated getElementById in hot paths) ─────────
+const EL = {};
+[
+  "story-select",
+  "story-abbr",
+  "story-row",
+  "period-wrap",
+  "wait-summary",
+  "overlay-legend-row",
+  "year-range-bar",
+  "legend",
+  "yr-start-label",
+  "yr-end-label",
+  "year-range-fill",
+  "year-range-start-handle",
+  "year-range-end-handle",
+  "btn-incl-tx-costs",
+  "btn-incl-cap-gains",
+  "btn-1031",
+].forEach((id) => (EL[id] = document.getElementById(id)));
+EL["slider-wrap"] = document.querySelector(".slider-wrap");
+
+// ── Story snapshot (replaces 5 saved* globals) ────────────────────────────
+class StateSnapshot {
+  capture(keys, extra = {}) {
+    keys.forEach((k) => (this[k] = window[k]));
+    Object.assign(this, extra);
+    return this;
+  }
+  restore(keys) {
+    keys.forEach((k) => {
+      if (k in this) window[k] = this[k];
+    });
+  }
+}
+let _waitSnap = null;
+
+
 // ── Mutable state ─────────────────────────────────────────────────────────
 let startYear = 1995;
 let endYear = RB_MAX;
@@ -65,11 +103,6 @@ let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest m
 let activeStory = ""; // "" | "usual" | "wait"
 let pendingWaitMode = false; // set by readHashParams when ov=w; consumed at boot
 let waitMonths = 3; // default period for Cost of Delayed Sale
-let savedHiddenBeforeWait = null; // saved hidden set when entering wait mode
-let savedRangeBeforeWait = null; // saved { s, e } year range when entering wait mode
-let savedTxBeforeWait = null; // saved inclTxCosts before wait mode
-let savedCgBeforeWait = null; // saved inclCapGains before wait mode
-let saved1031BeforeWait = null; // saved use1031 before wait mode
 const WAIT_SPAN = 5; // fixed 5-year window in wait mode
 let showIndexOverlay = false; // derived from activeStory; kept in sync
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
@@ -478,145 +511,147 @@ function syncReinvestIdxWrap() {
   if (wrap) wrap.style.display = reinvest ? "" : "none";
 }
 
-document.getElementById("btn-reinvest").addEventListener("click", () => {
-  if (reinvest) return;
-  reinvest = true;
-  document.getElementById("btn-reinvest").classList.add("active");
-  document.getElementById("btn-additive").classList.remove("active");
-  syncReinvestIdxWrap();
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
-});
+// ── Event delegation helpers ───────────────────────────────────────────────
+function wireRadio(containerId, getter, setter, onChange) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-value]");
+    if (!btn || getter() === btn.dataset.value) return;
+    setter(btn.dataset.value);
+    el.querySelectorAll("[data-value]").forEach((b) =>
+      b.classList.toggle("active", b === btn),
+    );
+    onChange(btn.dataset.value);
+  });
+}
 
-document.getElementById("btn-additive").addEventListener("click", () => {
-  if (!reinvest) return;
-  reinvest = false;
-  document.getElementById("btn-additive").classList.add("active");
-  document.getElementById("btn-reinvest").classList.remove("active");
-  syncReinvestIdxWrap();
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
-});
+function wireBinaryToggle(containerId, getter, setter, trueValue, onChange) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  el.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-value]");
+    if (!btn) return;
+    const newVal = btn.dataset.value === trueValue;
+    if (getter() === newVal) return;
+    setter(newVal);
+    el.querySelectorAll("[data-value]").forEach((b) =>
+      b.classList.toggle("active", b === btn),
+    );
+    onChange();
+  });
+}
+
+// ── Cash flow mode (Additive / Reinvested) ────────────────────────────────
+wireBinaryToggle(
+  "sg-cf-group",
+  () => reinvest,
+  (v) => { reinvest = v; },
+  true,
+  () => { syncReinvestIdxWrap(); commit(); },
+);
 
 // ── Reinvest index selector ───────────────────────────────────────────────
-["sp500", "nasdaq", "sixty40"].forEach((key) => {
-  document.getElementById(`btn-ri-${key}`).addEventListener("click", () => {
-    if (reinvestIdx === key) return;
-    reinvestIdx = key;
-    ["sp500", "nasdaq", "sixty40"].forEach((k) =>
-      document
-        .getElementById(`btn-ri-${k}`)
-        .classList.toggle("active", k === key),
-    );
-    refreshDatasets(); // recomputes reinvestMonthlyAll and rebuilds
-  });
-});
+wireRadio(
+  "reinvest-idx-wrap",
+  () => reinvestIdx,
+  (v) => { reinvestIdx = v; },
+  () => refreshDatasets(),
+);
 
 // ── Story state machine ────────────────────────────────────────────────────
 // All story-mode transitions centralized here. Event handlers below delegate.
+
+function _applyWaitLocks(lock) {
+  const txBtn = EL["btn-incl-tx-costs"];
+  const cgBtn = EL["btn-incl-cap-gains"];
+  const b1031 = EL["btn-1031"];
+  if (lock) {
+    txBtn.classList.add("active");
+    txBtn.setAttribute("disabled", "");
+    cgBtn.classList.add("active");
+    cgBtn.setAttribute("disabled", "");
+    b1031.classList.remove("active");
+    b1031.querySelector(".tip-text").textContent = STRINGS[lang].btn1031Off;
+    b1031.setAttribute("disabled", "");
+  } else {
+    txBtn.removeAttribute("disabled");
+    cgBtn.removeAttribute("disabled");
+    b1031.removeAttribute("disabled");
+  }
+}
+
+function _syncToggleButtonStates() {
+  EL["btn-incl-tx-costs"].classList.toggle("active", inclTxCosts);
+  EL["btn-incl-cap-gains"].classList.toggle("active", inclCapGains);
+  if (inclCapGains) EL["btn-incl-tx-costs"].setAttribute("disabled", "");
+  const b1031 = EL["btn-1031"];
+  b1031.classList.toggle("active", use1031);
+  b1031.querySelector(".tip-text").textContent = use1031
+    ? STRINGS[lang].btn1031On
+    : STRINGS[lang].btn1031Off;
+}
+
+function onEnterWait() {
+  _waitSnap = new StateSnapshot().capture(
+    ["startYear", "endYear", "inclTxCosts", "inclCapGains", "use1031"],
+    { hiddenSet: new Set(hidden) },
+  );
+  hidden.clear();
+  for (let i = 2; i < SCENARIOS.length; i++) hidden.add(i);
+  const ws = Math.max(RB_MIN, Math.min(startYear, RB_MAX - WAIT_SPAN));
+  startYear = ws;
+  endYear = ws + WAIT_SPAN;
+  inclTxCosts = true;
+  inclCapGains = true;
+  use1031 = false;
+  _applyWaitLocks(true);
+  EL["slider-wrap"].style.display = "none";
+  EL["year-range-bar"].classList.add("wait-mode");
+  syncLegendItems();
+  syncTableCols();
+  rebuild();
+}
+
+function onExitWait() {
+  if (!_waitSnap) return;
+  hidden.clear();
+  _waitSnap.hiddenSet.forEach((v) => hidden.add(v));
+  _waitSnap.restore(["startYear", "endYear", "inclTxCosts", "inclCapGains", "use1031"]);
+  _waitSnap = null;
+  _applyWaitLocks(false);
+  _syncToggleButtonStates();
+  EL["slider-wrap"].style.display = "";
+  EL["year-range-bar"].classList.remove("wait-mode");
+  syncLegendItems();
+  syncTableCols();
+  rebuild();
+}
 
 function setActiveStory(story) {
   const prev = activeStory;
   activeStory = story;
   showIndexOverlay = activeStory === "usual";
 
-  const sel = document.getElementById("story-select");
-  const selText = sel.selectedOptions[0]?.text || "";
-  document.getElementById("story-abbr").textContent =
+  const selText = EL["story-select"].selectedOptions[0]?.text || "";
+  EL["story-abbr"].textContent =
     selText === "—" || selText === "" ? STRINGS[lang].storyDefault : selText;
-  document.getElementById("story-row").classList.add("active");
+  EL["story-row"].classList.add("active");
 
-  const legendRow = document.getElementById("overlay-legend-row");
+  const legendRow = EL["overlay-legend-row"];
   legendRow.style.display = activeStory === "usual" ? "inline-flex" : "none";
   legendRow.classList.add("active");
-  document
-    .getElementById("legend")
-    .classList.toggle("overlay-active", showIndexOverlay);
+  EL["legend"].classList.toggle("overlay-active", showIndexOverlay);
 
-  document.getElementById("period-wrap").style.display =
-    activeStory === "wait" ? "inline-block" : "none";
-  if (activeStory !== "wait")
-    document.getElementById("wait-summary").innerHTML = "";
+  EL["period-wrap"].style.display = activeStory === "wait" ? "inline-block" : "none";
+  if (activeStory !== "wait") EL["wait-summary"].innerHTML = "";
 
   if (activeStory === "wait" && prev !== "wait") {
-    // Enter wait mode: show only All Cash (scenario 1); index remains user-controlled
-    savedHiddenBeforeWait = new Set(hidden);
-    hidden.clear();
-    for (let i = 2; i < SCENARIOS.length; i++) hidden.add(i);
-    syncLegendItems();
-    syncTableCols();
-    // Lock to 5-year window; keep current start if possible
-    savedRangeBeforeWait = { s: startYear, e: endYear };
-    const ws = Math.max(RB_MIN, Math.min(startYear, RB_MAX - WAIT_SPAN));
-    startYear = ws;
-    endYear = ws + WAIT_SPAN;
-    document.getElementById("year-range-bar").classList.add("wait-mode");
-    document.querySelector(".slider-wrap").style.display = "none";
-    // Force tx costs + cap gains on; lock buttons to signal this
-    savedTxBeforeWait = inclTxCosts;
-    savedCgBeforeWait = inclCapGains;
-    saved1031BeforeWait = use1031;
-    inclTxCosts = true;
-    inclCapGains = true;
-    use1031 = false;
-    ["btn-incl-tx-costs", "btn-incl-cap-gains"].forEach((id) => {
-      const b = document.getElementById(id);
-      b.classList.add("active");
-      b.setAttribute("disabled", "");
-    });
-    {
-      const b1031 = document.getElementById("btn-1031");
-      b1031.classList.remove("active"); // force off: selling into index, no 1031 applies
-      b1031.querySelector(".tip-text").textContent = STRINGS[lang].btn1031Off;
-      b1031.setAttribute("disabled", "");
-    }
-    rebuild();
-  } else if (
-    prev === "wait" &&
-    activeStory !== "wait" &&
-    savedHiddenBeforeWait !== null
-  ) {
-    // Exit wait mode: restore previous hidden state, year range, and button state
-    hidden.clear();
-    savedHiddenBeforeWait.forEach((v) => hidden.add(v));
-    savedHiddenBeforeWait = null;
-    if (savedRangeBeforeWait) {
-      startYear = savedRangeBeforeWait.s;
-      endYear = savedRangeBeforeWait.e;
-      savedRangeBeforeWait = null;
-    }
-    document.getElementById("year-range-bar").classList.remove("wait-mode");
-    document.querySelector(".slider-wrap").style.display = "";
-    inclTxCosts = savedTxBeforeWait;
-    inclCapGains = savedCgBeforeWait;
-    use1031 = saved1031BeforeWait;
-    savedTxBeforeWait = null;
-    savedCgBeforeWait = null;
-    saved1031BeforeWait = null;
-    const txBtn = document.getElementById("btn-incl-tx-costs");
-    const cgBtn = document.getElementById("btn-incl-cap-gains");
-    txBtn.classList.toggle("active", inclTxCosts);
-    cgBtn.classList.toggle("active", inclCapGains);
-    txBtn.removeAttribute("disabled");
-    cgBtn.removeAttribute("disabled");
-    if (inclCapGains) txBtn.setAttribute("disabled", ""); // re-apply cap-gains lock
-    {
-      const b1031 = document.getElementById("btn-1031");
-      b1031.removeAttribute("disabled");
-      b1031.classList.toggle("active", use1031);
-      b1031.querySelector(".tip-text").textContent = use1031
-        ? STRINGS[lang].btn1031On
-        : STRINGS[lang].btn1031Off;
-    }
-    syncLegendItems();
-    syncTableCols();
-    rebuild();
+    onEnterWait();
+  } else if (prev === "wait" && activeStory !== "wait" && _waitSnap !== null) {
+    onExitWait();
+  } else {
+    draw(curMonth - 1);
   }
 }
 
@@ -664,29 +699,19 @@ document.getElementById("overlay-legend-row").addEventListener("click", () => {
 });
 
 // ── Property mode toggle ─────────────────────────────────────────────────
-document.getElementById("btn-rental").addEventListener("click", () => {
-  if (!isPrimary) return;
-  isPrimary = false;
-  document.getElementById("btn-rental").classList.add("active");
-  document.getElementById("btn-primary").classList.remove("active");
-  syncPmFeeBtn();
-  allWealth = buildAllWealth(startYear);
-  syncCapGainsSubBtn();
-  applyLang();
-  draw(curMonth - 1);
-});
-
-document.getElementById("btn-primary").addEventListener("click", () => {
-  if (isPrimary) return;
-  isPrimary = true;
-  document.getElementById("btn-primary").classList.add("active");
-  document.getElementById("btn-rental").classList.remove("active");
-  syncPmFeeBtn();
-  allWealth = buildAllWealth(startYear);
-  syncCapGainsSubBtn();
-  applyLang();
-  draw(curMonth - 1);
-});
+wireBinaryToggle(
+  "sg-prop-group",
+  () => isPrimary,
+  (v) => { isPrimary = v; },
+  "true",
+  () => {
+    syncPmFeeBtn();
+    allWealth = buildAllWealth(startYear);
+    syncCapGainsSubBtn();
+    applyLang();
+    draw(curMonth - 1);
+  },
+);
 
 // ── Includes toggles ─────────────────────────────────────────────────────
 ["taxbenefit", "depreciation", "costs", "tx-costs"].forEach((key) => {
@@ -706,8 +731,7 @@ document.getElementById("btn-primary").addEventListener("click", () => {
             ? inclCosts
             : inclTxCosts;
     document.getElementById(`btn-incl-${key}`).classList.toggle("active", val);
-    allWealth = buildAllWealth(startYear);
-    draw(curMonth - 1);
+    commit();
   });
 });
 
@@ -727,11 +751,7 @@ document.getElementById("btn-incl-mgmt").addEventListener("click", () => {
   document
     .getElementById("btn-incl-mgmt")
     .classList.toggle("active", inclMgmtFee);
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
+  commit();
 });
 
 // ── HOA toggle + amount ───────────────────────────────────────────────────
@@ -741,19 +761,11 @@ document.getElementById("btn-incl-hoa").addEventListener("click", () => {
   document.getElementById("hoa-amount-select").style.display = inclHoa
     ? ""
     : "none";
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
+  commit();
 });
 document.getElementById("hoa-amount-select").addEventListener("change", (e) => {
   hoaMonthly = parseInt(e.target.value);
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
+  commit();
 });
 
 // ── Cap Gains toggles ─────────────────────────────────────────────────────
@@ -774,8 +786,7 @@ document.getElementById("btn-incl-cap-gains").addEventListener("click", () => {
   syncCapGainsSubBtn();
   const assBullet = document.getElementById("assump-capgains");
   if (assBullet) assBullet.style.display = inclCapGains ? "" : "none";
-  allWealth = buildAllWealth(startYear);
-  draw(curMonth - 1);
+  commit();
 });
 
 document.getElementById("btn-1031").addEventListener("click", () => {
@@ -785,8 +796,7 @@ document.getElementById("btn-1031").addEventListener("click", () => {
     ? STRINGS[lang].btn1031On
     : STRINGS[lang].btn1031Off;
   el.classList.toggle("active", use1031);
-  allWealth = buildAllWealth(startYear);
-  draw(curMonth - 1);
+  commit();
 });
 
 document.getElementById("btn-excl").addEventListener("click", () => {
@@ -796,105 +806,54 @@ document.getElementById("btn-excl").addEventListener("click", () => {
     primaryExclusion === "married"
       ? STRINGS[lang].btnExclMarried
       : STRINGS[lang].btnExclSingle;
-  allWealth = buildAllWealth(startYear);
-  draw(curMonth - 1);
+  commit();
 });
 
 // ── HPI source toggle ────────────────────────────────────────────────────
-["fhfa", "cs"].forEach((k) => {
-  const btn = document.getElementById(`btn-hpi-${k}`);
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    if (hpiSource === k) return;
-    hpiSource = k;
-    document
-      .getElementById("btn-hpi-fhfa")
-      .classList.toggle("active", k === "fhfa");
-    document
-      .getElementById("btn-hpi-cs")
-      .classList.toggle("active", k === "cs");
-    refreshDatasets();
-  });
-});
+wireRadio(
+  "hpi-group",
+  () => hpiSource,
+  (v) => { hpiSource = v; },
+  () => refreshDatasets(),
+);
 
 // ── Refi count toggle ────────────────────────────────────────────────────
-[0, 1, 2, 3].forEach((n) => {
-  document.getElementById(`btn-refi-${n}`).addEventListener("click", () => {
-    if (numRefis === n) return;
-    numRefis = n;
-    [0, 1, 2, 3].forEach((i) =>
-      document
-        .getElementById(`btn-refi-${i}`)
-        .classList.toggle("active", i === n),
-    );
-    const hasRefis = n > 0;
-    document.getElementById("refi-type-group").style.display = hasRefis
-      ? "flex"
-      : "none";
-    document.getElementById("row-ltv-pct").style.display =
-      hasRefis && refiLTV ? "flex" : "none";
-    allWealth = buildAllWealth(startYear);
-    updateAssumptions();
-    buildTable();
-    syncTableCols();
-    draw(curMonth - 1);
-  });
-});
+wireRadio(
+  "refi-count-group",
+  () => String(numRefis),
+  (v) => { numRefis = parseInt(v); },
+  () => {
+    const hasRefis = numRefis > 0;
+    document.getElementById("refi-type-group").style.display = hasRefis ? "flex" : "none";
+    document.getElementById("row-ltv-pct").style.display = hasRefis && refiLTV ? "flex" : "none";
+    commit();
+  },
+);
 
 // ── Refi type toggle (Rate-term vs LTV cash-out) ──────────────────────────
-document.getElementById("btn-refi-rate").addEventListener("click", () => {
-  if (!refiLTV) return;
-  refiLTV = false;
-  document.getElementById("row-ltv-pct").style.display = "none";
-  document.getElementById("btn-refi-rate").classList.add("active");
-  document.getElementById("btn-refi-ltv").classList.remove("active");
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
-});
-document.getElementById("btn-refi-ltv").addEventListener("click", () => {
-  if (refiLTV) return;
-  refiLTV = true;
-  document.getElementById("row-ltv-pct").style.display = "flex";
-  document.getElementById("btn-refi-ltv").classList.add("active");
-  document.getElementById("btn-refi-rate").classList.remove("active");
-  allWealth = buildAllWealth(startYear);
-  updateAssumptions();
-  buildTable();
-  syncTableCols();
-  draw(curMonth - 1);
-});
+wireBinaryToggle(
+  "refi-type-group",
+  () => refiLTV,
+  (v) => { refiLTV = v; },
+  "true",
+  () => {
+    document.getElementById("row-ltv-pct").style.display = refiLTV ? "flex" : "none";
+    commit();
+  },
+);
 document.getElementById("ltv-pct-slider").addEventListener("input", (e) => {
   refiLTVPct = parseInt(e.target.value) / 100;
   document.getElementById("ltv-pct-val").textContent = e.target.value + "%";
-  if (refiLTV) {
-    allWealth = buildAllWealth(startYear);
-    updateAssumptions();
-    buildTable();
-    syncTableCols();
-    draw(curMonth - 1);
-  }
+  if (refiLTV) commit();
 });
 
 // ── Income tier toggle ────────────────────────────────────────────────────
-[0, 1, 2, 3, 4].forEach((n) => {
-  document.getElementById(`btn-tier-${n}`).addEventListener("click", () => {
-    if (incomeTier === n) return;
-    incomeTier = n;
-    [0, 1, 2, 3, 4].forEach((i) =>
-      document
-        .getElementById(`btn-tier-${i}`)
-        .classList.toggle("active", i === n),
-    );
-    allWealth = buildAllWealth(startYear);
-    updateAssumptions();
-    buildTable();
-    syncTableCols();
-    draw(curMonth - 1);
-  });
-});
+wireRadio(
+  "tier-group",
+  () => String(incomeTier),
+  (v) => { incomeTier = parseInt(v); },
+  () => commit(),
+);
 
 // ── Share URL ─────────────────────────────────────────────────────────────
 function getShareParams() {
@@ -3365,6 +3324,14 @@ sliderEl.addEventListener("input", () => {
 });
 
 // ── Start / end year controls ─────────────────────────────────────────────
+function commit(full = true) {
+  if (full) allWealth = buildAllWealth(startYear);
+  updateAssumptions();
+  buildTable();
+  syncTableCols();
+  draw(curMonth - 1);
+}
+
 function rebuild() {
   allWealth = buildAllWealth(startYear);
   totalMonths = (endYear - startYear + 1) * 12;
@@ -3384,21 +3351,17 @@ function rebuild() {
 
 function updateRangeBar() {
   // Sync label widths with chart PL/PR so track aligns with data area
-  document.getElementById("yr-start-label").style.width = lastPL + "px";
-  document.getElementById("yr-end-label").style.width =
-    lastProjPX + lastPR + "px";
+  EL["yr-start-label"].style.width = lastPL + "px";
+  EL["yr-end-label"].style.width = lastProjPX + lastPR + "px";
 
   const pS = (startYear - RB_MIN) / (RB_MAX - RB_MIN);
   const pE = (endYear - RB_MIN) / (RB_MAX - RB_MIN);
-  document.getElementById("year-range-start-handle").style.left =
-    (pS * 100).toFixed(2) + "%";
-  document.getElementById("year-range-end-handle").style.left =
-    (pE * 100).toFixed(2) + "%";
-  document.getElementById("yr-start-label").textContent = startYear;
-  document.getElementById("yr-end-label").textContent = endYear;
-  const fill = document.getElementById("year-range-fill");
-  fill.style.left = (pS * 100).toFixed(2) + "%";
-  fill.style.width = ((pE - pS) * 100).toFixed(2) + "%";
+  EL["year-range-start-handle"].style.left = (pS * 100).toFixed(2) + "%";
+  EL["year-range-end-handle"].style.left = (pE * 100).toFixed(2) + "%";
+  EL["yr-start-label"].textContent = startYear;
+  EL["yr-end-label"].textContent = endYear;
+  EL["year-range-fill"].style.left = (pS * 100).toFixed(2) + "%";
+  EL["year-range-fill"].style.width = ((pE - pS) * 100).toFixed(2) + "%";
 }
 
 function setStartYear(yr) {

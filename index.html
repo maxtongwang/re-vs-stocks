@@ -409,8 +409,8 @@
       gtag("js", new Date());
       gtag("config", "G-4PG67S53TS");
     </script>
-    <link rel="stylesheet" href="themes.css?v=20260226q" />
-    <link rel="stylesheet" href="style.css?v=20260226q" />
+    <link rel="stylesheet" href="themes.css?v=20260226s" />
+    <link rel="stylesheet" href="style.css?v=20260226s" />
   </head>
   <body>
     <noscript>
@@ -511,9 +511,13 @@
       <!-- Prop -->
       <div id="sg-prop" style="display: flex; align-items: center; gap: 8px">
         <span id="label-propmode">Prop:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-rental">Rental</button>
-          <button class="toggle-btn" id="btn-primary">Primary</button>
+        <div class="toggle-group" id="sg-prop-group">
+          <button class="toggle-btn active" id="btn-rental" data-value="false">
+            Rental
+          </button>
+          <button class="toggle-btn" id="btn-primary" data-value="true">
+            Primary
+          </button>
         </div>
       </div>
 
@@ -523,12 +527,22 @@
         style="display: flex; align-items: center; gap: 8px"
       >
         <span id="label-tax-bracket">Tax bracket:</span>
-        <div class="toggle-group">
-          <button class="toggle-btn" id="btn-tier-0">$75K</button>
-          <button class="toggle-btn active" id="btn-tier-1">$150K</button>
-          <button class="toggle-btn" id="btn-tier-2">$300K</button>
-          <button class="toggle-btn" id="btn-tier-3">$500K</button>
-          <button class="toggle-btn" id="btn-tier-4">$750K+</button>
+        <div class="toggle-group" id="tier-group">
+          <button class="toggle-btn" id="btn-tier-0" data-value="0">
+            $75K
+          </button>
+          <button class="toggle-btn active" id="btn-tier-1" data-value="1">
+            $150K
+          </button>
+          <button class="toggle-btn" id="btn-tier-2" data-value="2">
+            $300K
+          </button>
+          <button class="toggle-btn" id="btn-tier-3" data-value="3">
+            $500K
+          </button>
+          <button class="toggle-btn" id="btn-tier-4" data-value="4">
+            $750K+
+          </button>
         </div>
       </div>
 
@@ -543,18 +557,28 @@
           >Refi:</span
         >
         <div style="display: flex; flex-direction: column; gap: 5px">
-          <div class="toggle-group">
-            <button class="toggle-btn active" id="btn-refi-0">0</button>
-            <button class="toggle-btn" id="btn-refi-1">1</button>
-            <button class="toggle-btn" id="btn-refi-2">2</button>
-            <button class="toggle-btn" id="btn-refi-3">3</button>
+          <div class="toggle-group" id="refi-count-group">
+            <button class="toggle-btn active" id="btn-refi-0" data-value="0">
+              0
+            </button>
+            <button class="toggle-btn" id="btn-refi-1" data-value="1">1</button>
+            <button class="toggle-btn" id="btn-refi-2" data-value="2">2</button>
+            <button class="toggle-btn" id="btn-refi-3" data-value="3">3</button>
           </div>
           <div class="toggle-group" id="refi-type-group" style="display: none">
-            <button class="toggle-btn tip tip-right active" id="btn-refi-rate">
+            <button
+              class="toggle-btn tip tip-right active"
+              id="btn-refi-rate"
+              data-value="false"
+            >
               <span class="tip-text">Balance</span
               ><span class="tip-icon">ⓘ</span>
             </button>
-            <button class="toggle-btn tip tip-right" id="btn-refi-ltv">
+            <button
+              class="toggle-btn tip tip-right"
+              id="btn-refi-ltv"
+              data-value="true"
+            >
               <span class="tip-text">LTV</span><span class="tip-icon">ⓘ</span>
             </button>
           </div>
@@ -578,17 +602,37 @@
           ><span class="tip-text">Cash flow</span
           ><span class="tip-icon">ⓘ</span>:</span
         >
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-additive">Additive</button>
-          <button class="toggle-btn tip tip-right" id="btn-reinvest">
+        <div class="toggle-group" id="sg-cf-group">
+          <button
+            class="toggle-btn active"
+            id="btn-additive"
+            data-value="false"
+          >
+            Additive
+          </button>
+          <button
+            class="toggle-btn tip tip-right"
+            id="btn-reinvest"
+            data-value="true"
+          >
             <span class="tip-text">Reinvested</span
             ><span class="tip-icon">ⓘ</span>
           </button>
         </div>
         <div id="reinvest-idx-wrap" class="toggle-group" style="display: none">
-          <button class="toggle-btn active" id="btn-ri-sp500">S&amp;P</button>
-          <button class="toggle-btn" id="btn-ri-nasdaq">NQ</button>
-          <button class="toggle-btn" id="btn-ri-sixty40">60/40</button>
+          <button
+            class="toggle-btn active"
+            id="btn-ri-sp500"
+            data-value="sp500"
+          >
+            S&amp;P
+          </button>
+          <button class="toggle-btn" id="btn-ri-nasdaq" data-value="nasdaq">
+            NQ
+          </button>
+          <button class="toggle-btn" id="btn-ri-sixty40" data-value="sixty40">
+            60/40
+          </button>
         </div>
       </div>
 
@@ -602,11 +646,13 @@
             >ⓘ</span
           >:</span
         >
-        <div class="toggle-group">
-          <button class="toggle-btn active" id="btn-hpi-cs">
+        <div class="toggle-group" id="hpi-group">
+          <button class="toggle-btn active" id="btn-hpi-cs" data-value="cs">
             Case-Shiller
           </button>
-          <button class="toggle-btn" id="btn-hpi-fhfa">FHFA</button>
+          <button class="toggle-btn" id="btn-hpi-fhfa" data-value="fhfa">
+            FHFA
+          </button>
         </div>
       </div>
 
@@ -1249,7 +1295,15 @@
 
     <div class="built-by">
       <div class="built-by-label" id="label-built-by">
-        Built by Max Wang · DRE 02225524
+        Built by Max Wang ·
+        <a
+          href="https://buymeacoffee.com/whatupmax"
+          target="_blank"
+          rel="noopener"
+          class="bmc-btn"
+          >☕ Buy me a coffee</a
+        >
+        · DRE 02225524
       </div>
       <!-- AdSense: replace ca-pub-XXXXXXXXXXXXXXXX and data-ad-slot with your values -->
       <ins
@@ -1334,8 +1388,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260226q" defer></script>
-    <script src="sim.js?v=20260226q" defer></script>
-    <script src="ui.js?v=20260226q" defer></script>
+    <script src="data.js?v=20260226s" defer></script>
+    <script src="sim.js?v=20260226s" defer></script>
+    <script src="ui.js?v=20260226s" defer></script>
   </body>
 </html>

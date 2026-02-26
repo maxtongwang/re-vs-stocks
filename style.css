@@ -610,6 +610,21 @@ th:first-child {
   color: var(--text-dim);
   margin-bottom: 8px;
 }
+.bmc-btn {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #ffdd00;
+  color: #000;
+  text-decoration: none;
+  font-size: 10px;
+  font-weight: bold;
+  white-space: nowrap;
+  transition: opacity 0.15s;
+}
+.bmc-btn:hover {
+  opacity: 0.85;
+}
 .socials {
   display: flex;
   justify-content: center;
