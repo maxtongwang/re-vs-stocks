@@ -568,7 +568,12 @@ function setActiveStory(story) {
       b.classList.add("active");
       b.setAttribute("disabled", "");
     });
-    document.getElementById("btn-1031").setAttribute("disabled", "");
+    {
+      const b1031 = document.getElementById("btn-1031");
+      b1031.classList.remove("active"); // force off: selling into index, no 1031 applies
+      b1031.querySelector(".tip-text").textContent = STRINGS[lang].btn1031Off;
+      b1031.setAttribute("disabled", "");
+    }
     rebuild();
   } else if (
     prev === "wait" &&
@@ -598,7 +603,14 @@ function setActiveStory(story) {
     txBtn.removeAttribute("disabled");
     cgBtn.removeAttribute("disabled");
     if (inclCapGains) txBtn.setAttribute("disabled", ""); // re-apply cap-gains lock
-    document.getElementById("btn-1031").removeAttribute("disabled");
+    {
+      const b1031 = document.getElementById("btn-1031");
+      b1031.removeAttribute("disabled");
+      b1031.classList.toggle("active", use1031);
+      b1031.querySelector(".tip-text").textContent = use1031
+        ? STRINGS[lang].btn1031On
+        : STRINGS[lang].btn1031Off;
+    }
     syncLegendItems();
     syncTableCols();
     rebuild();
