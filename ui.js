@@ -2598,109 +2598,64 @@ function draw(monthsToShow) {
     if (hm >= waitMonths) {
       const m_T = hm - waitMonths;
       if (m_T >= 0 && allWealth[0][m_T] > 0) {
-        const waitLineItems = [];
+        // Faint vertical "hypothetical sale date" marker
+        const xSale = tx(m_T + 1);
+        ctx.globalAlpha = 0.18;
+        ctx.strokeStyle = CT.axis;
+        ctx.lineWidth = 1;
+        ctx.setLineDash([3, 4]);
+        ctx.beginPath();
+        ctx.moveTo(xSale, PT);
+        ctx.lineTo(xSale, PT + chartH);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha = 1.0;
+
         for (let i = 1; i < SCENARIOS.length; i++) {
           if (hidden.has(i)) continue;
           const lDc = allDecomp[i];
           if (!lDc || !lDc.dComp?.[m_T]) continue;
 
-          // Sell cost at m_T
+          // Net proceeds at m_T: rental always triggers cap gains; primary uses settings
           const sellCost_T =
             inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
               ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
               : 0;
-
-          // Cap gains at m_T — always apply taxes (1031 off)
-          const savedInclCG = inclCapGains,
-            savedUse1031 = use1031;
-          inclCapGains = true;
+          const savedUse1031 = use1031,
+            savedInclCG = inclCapGains;
           use1031 = false;
-          const capGains_T = computeCapGains(i, m_T);
-          inclCapGains = savedInclCG;
+          if (!isPrimary) inclCapGains = true;
+          const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
           use1031 = savedUse1031;
+          inclCapGains = savedInclCG;
 
           const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
           const idxAt_mT = allWealth[0][m_T];
-          if (idxAt_mT <= 0) continue;
+          if (idxAt_mT <= 0 || net_T <= 0) continue;
 
-          // Build counterfactual path from m_T to hm
-          const cf = [];
-          for (let m = m_T; m <= hm; m++) {
-            cf.push(net_T * (allWealth[0][m] / idxAt_mT));
-          }
-
-          // Net at current time (hm)
-          const sellCost_now =
-            inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
-              ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
-              : 0;
-          const savedInclCG2 = inclCapGains,
-            savedUse1031_2 = use1031;
-          inclCapGains = true;
-          use1031 = false;
-          const capGains_now = computeCapGains(i, hm);
-          inclCapGains = savedInclCG2;
-          use1031 = savedUse1031_2;
-
-          const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
-          const delta = cf[cf.length - 1] - net_now;
-
-          // Draw dashed counterfactual line
           const color = CT.s[i];
+
+          // Dashed counterfactual: branch from RE line at m_T, follow index growth
           ctx.strokeStyle = color;
-          ctx.globalAlpha = 0.6;
+          ctx.globalAlpha = 0.65;
           ctx.lineWidth = 1.5;
           ctx.lineJoin = "round";
           ctx.setLineDash([3, 3]);
           ctx.beginPath();
-          ctx.moveTo(tx(m_T + 1), ty(cf[0]));
-          for (let k = 1; k < cf.length; k++) {
-            ctx.lineTo(tx(m_T + k + 1), ty(cf[k]));
+          ctx.moveTo(xSale, ty(net_T));
+          for (let m = m_T + 1; m <= hm; m++) {
+            ctx.lineTo(tx(m + 1), ty(net_T * (allWealth[0][m] / idxAt_mT)));
           }
           ctx.stroke();
           ctx.setLineDash([]);
           ctx.globalAlpha = 1.0;
 
-          // Endpoint dot
-          const endX = tx(hm + 1);
-          const endY = ty(cf[cf.length - 1]);
+          // Filled endpoint dot at hm
+          const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
           ctx.fillStyle = color;
           ctx.beginPath();
-          ctx.arc(endX, endY, 3, 0, Math.PI * 2);
+          ctx.arc(tx(hm + 1), ty(cfEnd), 3, 0, Math.PI * 2);
           ctx.fill();
-
-          waitLineItems.push({ i, endY, delta, color });
-        }
-
-        // Delta labels with collision avoidance
-        if (waitLineItems.length > 0) {
-          ctx.font = `${lfs}px monospace`;
-          ctx.textAlign = "left";
-          const lx = tx(hm + 1) + 6;
-          waitLineItems.sort((a, b) => a.endY - b.endY);
-          const positions = waitLineItems.map((w) => w.endY);
-          const minGap = lfs * 2 + 2;
-          for (let k = 1; k < positions.length; k++)
-            if (positions[k] < positions[k - 1] + minGap)
-              positions[k] = positions[k - 1] + minGap;
-          const yBottom = PT + chartH - lfs;
-          for (let k = positions.length - 1; k >= 0; k--) {
-            if (positions[k] > yBottom) positions[k] = yBottom;
-            if (
-              k < positions.length - 1 &&
-              positions[k] > positions[k + 1] - minGap
-            )
-              positions[k] = positions[k + 1] - minGap;
-          }
-          for (let k = 0; k < positions.length; k++)
-            if (positions[k] < PT + lfs) positions[k] = PT + lfs;
-
-          waitLineItems.forEach(({ delta }, k) => {
-            const sign = delta >= 0 ? "+" : "";
-            // red = selling earlier was better (missed index gains); green = holding RE was better
-            ctx.fillStyle = delta > 0 ? "#e05050" : "#50b060";
-            ctx.fillText(`${sign}${fmt(delta)}`, lx, positions[k]);
-          });
         }
       }
     }
@@ -2786,12 +2741,12 @@ function renderWaitSummary(hm) {
 
     const savedInclCG = inclCapGains,
       savedUse1031 = use1031;
-    inclCapGains = true;
     use1031 = false;
-    const capGains_T = computeCapGains(i, m_T);
-    const capGains_now = computeCapGains(i, hm);
-    inclCapGains = savedInclCG;
+    if (!isPrimary) inclCapGains = true; // rental sale always triggers cap gains
+    const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
+    const capGains_now = inclCapGains ? computeCapGains(i, hm) : 0;
     use1031 = savedUse1031;
+    inclCapGains = savedInclCG;
 
     const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
     const cfNow = net_T * (allWealth[0][hm] / allWealth[0][m_T]);
