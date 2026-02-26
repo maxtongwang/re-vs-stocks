@@ -2220,10 +2220,10 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   // Linear scale: top = yHi, bottom = yLo
   const ty = (v) => PT + ((yHi - v) / (yHi - yLo)) * chartH;
 
-  // Y-axis grid — linear nice-step intervals, ~4-6 lines
+  // Y-axis grid — linear nice-step intervals, ~3-4 lines
   ctx.font = `${lfs}px monospace`;
   const yRange = yHi - yLo;
-  const roughStep = yRange / 5;
+  const roughStep = yRange / 3;
   const mag = Math.pow(10, Math.floor(Math.log10(roughStep)));
   const niceStep =
     [1, 2, 2.5, 5].map((m) => m * mag).find((s) => s >= roughStep) ?? mag;
@@ -2249,10 +2249,12 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   }
   ctx.setLineDash([]);
 
-  // Year x-axis labels
+  // Year x-axis labels — step every 2 or 3 years to avoid crowding
   ctx.globalAlpha = 1.0;
   ctx.textAlign = "center";
-  for (let yr = startYear; yr <= endYear; yr++) {
+  const yrSpan = endYear - startYear + 1;
+  const yrStep = yrSpan <= 6 ? 1 : yrSpan <= 12 ? 2 : 3;
+  for (let yr = startYear; yr <= endYear; yr += yrStep) {
     const m = (yr - startYear) * 12;
     if (m > fullM) break;
     ctx.fillStyle = CT.axis;
@@ -2329,8 +2331,8 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.setLineDash([4, 3]);
       ctx.beginPath();
       ctx.moveTo(xSaleEnd, ySale); // start: sale point on solid line
-      ctx.lineTo(xSaleEnd, yCf); // vertical → counterfactual level
-      ctx.lineTo(xEnd, yCf); // horizontal → current time
+      ctx.lineTo(xEnd, ySale); // horizontal right → current time
+      ctx.lineTo(xEnd, yCf); // vertical → counterfactual level
       ctx.stroke();
       ctx.setLineDash([]);
 
