@@ -409,8 +409,8 @@
       gtag("js", new Date());
       gtag("config", "G-4PG67S53TS");
     </script>
-    <link rel="stylesheet" href="themes.css?v=20260225h" />
-    <link rel="stylesheet" href="style.css?v=20260225h" />
+    <link rel="stylesheet" href="themes.css?v=20260225i" />
+    <link rel="stylesheet" href="style.css?v=20260225i" />
   </head>
   <body>
     <noscript>
@@ -781,8 +781,10 @@
         justify-content: center;
         gap: 6px;
         padding: 4px 10px 5px;
+        cursor: pointer;
         font-size: 11px;
         transition: opacity 0.15s;
+        user-select: none;
         border: 1px dashed var(--text-sub);
         border-radius: 6px;
         margin: 4px auto 4px;
@@ -792,39 +794,14 @@
       <span id="label-price-only-comparison" style="color: var(--text-sub)"
         >The Usual Stock Story</span
       ><span class="tip-icon" data-tip="" style="margin-right: 4px"></span>
+      <div class="leg-dot" style="background: #9898d8"></div>
       <span
-        class="overlay-leg-item"
-        data-line="sp"
-        style="
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          transition: opacity 0.15s;
-        "
+        id="overlay-legend-label"
+        class="tip-text"
+        style="color: var(--text-sub)"
+        >S&amp;P 500 vs OC</span
       >
-        <div class="leg-dot" style="background: #9898d8"></div>
-        <span style="color: var(--text-sub)">S&amp;P 500</span>
-      </span>
-      <span
-        class="overlay-leg-item"
-        data-line="re"
-        style="
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          cursor: pointer;
-          transition: opacity 0.15s;
-        "
-      >
-        <div class="leg-dot" style="background: #c07840"></div>
-        <span
-          id="overlay-legend-label"
-          class="tip-text"
-          style="color: var(--text-sub)"
-          >OC</span
-        >
-      </span>
+      <div class="leg-dot" style="background: #c07840"></div>
     </div>
 
     <div id="chart-wrap">
@@ -1368,8 +1345,8 @@
       </div>
     </div>
 
-    <script src="data.js?v=20260225h" defer></script>
-    <script src="sim.js?v=20260225h" defer></script>
-    <script src="ui.js?v=20260225h" defer></script>
+    <script src="data.js?v=20260225i" defer></script>
+    <script src="sim.js?v=20260225i" defer></script>
+    <script src="ui.js?v=20260225i" defer></script>
   </body>
 </html>
