@@ -201,6 +201,12 @@ const STRINGS = {
     storyDefault: "Learned Lessons",
     storyUsual: "The Usual Stock Story",
     storyWait: "Cost of Delayed Sale",
+    waitSummary: (label, n, delta, sign, fmtDelta, color, indexName) =>
+      `<span style="color:var(--text-sub)">${label} — if sold </span>` +
+      `<span style="color:${color}">${n}mo earlier</span>` +
+      `<span style="color:var(--text-sub)">: </span>` +
+      `<span style="color:${color}">${sign}${fmtDelta}</span>` +
+      `<span style="color:var(--text-sub)"> invested into ${indexName}</span>`,
     modeLabelReinvest: "Reinvested (compound)",
     modeLabelAdditive: "Additive (no compound)",
     subtitle: (rv, ey, MY, isPrimary) =>
@@ -452,6 +458,12 @@ const STRINGS = {
     storyDefault: "宝贵经验",
     storyUsual: "常见股市",
     storyWait: "延迟出售的代价",
+    waitSummary: (label, n, delta, sign, fmtDelta, color, indexName) =>
+      `<span style="color:var(--text-sub)">${label} — 若提前 </span>` +
+      `<span style="color:${color}">${n}个月出售</span>` +
+      `<span style="color:var(--text-sub)">：</span>` +
+      `<span style="color:${color}">${sign}${fmtDelta}</span>` +
+      `<span style="color:var(--text-sub)"> 投入${indexName}</span>`,
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
     subtitle: (rv, ey, MY, isPrimary) =>
