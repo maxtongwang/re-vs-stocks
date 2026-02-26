@@ -66,7 +66,7 @@ let activeStory = ""; // "" | "usual" | "wait"
 let waitMonths = 3; // default period for Cost of Delayed Sale
 let savedHiddenBeforeWait = null; // saved hidden set when entering wait mode
 let savedRangeBeforeWait = null; // saved { s, e } year range when entering wait mode
-const WAIT_SPAN = 10; // fixed 10-year window in wait mode
+const WAIT_SPAN = 5; // fixed 5-year window in wait mode
 let showIndexOverlay = false; // derived from activeStory; kept in sync
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
 let indexSpWealth = []; // populated by buildAllWealth
@@ -2220,7 +2220,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   let yMin = Infinity,
     yMax = -Infinity;
   // Sale point at 2/3 of visible range (right 1/3 = comparison window)
-  const m_T_pre = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
+  const m_T_pre = hm > 2 ? Math.max(1, Math.round(hm / 3)) : -1;
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
@@ -2310,7 +2310,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   }
 
   // Counterfactual: sale point at 2/3 of visible range
-  const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
+  const m_T = hm > 2 ? Math.max(1, Math.round(hm / 3)) : -1;
   if (m_T >= 0 && allWealth[0][m_T] > 0) {
     // Planned sale vertical marker — amber, full height
     const xSale = tx(m_T + 1);
@@ -3109,7 +3109,7 @@ function draw(monthsToShow) {
 function renderWaitSummary(hm) {
   const el = document.getElementById("wait-summary");
   if (!el) return;
-  const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
+  const m_T = hm > 2 ? Math.max(1, Math.round(hm / 3)) : -1;
   if (activeStory !== "wait" || m_T < 0 || allWealth[0][m_T] <= 0) {
     el.innerHTML = "";
     return;
