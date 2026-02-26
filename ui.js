@@ -2340,15 +2340,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.stroke();
   }
 
-  // Right-side endpoint labels for solid scenario lines
+  // Chasing endpoint labels — match regular chart style exactly
   {
     const legLbls = isPrimary
       ? STRINGS[lang].legendLabelsPrimary
       : STRINGS[lang].legendLabels;
-    const elfs = Math.max(7, Math.min(9, W / 72));
-    ctx.font = `${elfs}px monospace`;
-    const elbH = elfs + 3;
-    const solidEndX = tx(hm + 1);
+    ctx.font = `${lfs}px monospace`;
+    const minGap = lfs * 2 + 4;
+    const dotX = tx(hm + 1);
+    const lx = dotX + 14;
     const endPts = [];
     for (let i = 0; i < SCENARIOS.length; i++) {
       if (hidden.has(i)) continue;
@@ -2358,19 +2358,40 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       endPts.push({ i, val, label: legLbls[i] || `S${i}` });
     }
     endPts.sort((a, b) => b.val - a.val);
-    const ePosY = endPts.map(({ val }) => ty(val) + elfs * 0.35);
-    for (let k = 1; k < ePosY.length; k++)
-      if (ePosY[k] < ePosY[k - 1] + elbH) ePosY[k] = ePosY[k - 1] + elbH;
-    for (let k = ePosY.length - 1; k >= 0; k--) {
-      if (ePosY[k] > PT + chartH - elfs - 2) ePosY[k] = PT + chartH - elfs - 2;
-      if (k < ePosY.length - 1 && ePosY[k] > ePosY[k + 1] - elbH)
-        ePosY[k] = ePosY[k + 1] - elbH;
+    const positions = endPts.map(({ val }) => ty(val));
+    // Forward pass: push down
+    for (let k = 1; k < positions.length; k++)
+      if (positions[k] < positions[k - 1] + minGap)
+        positions[k] = positions[k - 1] + minGap;
+    // Clamp bottom + backward pass: push up
+    const yBottom = PT + chartH - lfs;
+    for (let k = positions.length - 1; k >= 0; k--) {
+      if (positions[k] > yBottom) positions[k] = yBottom;
+      if (k < positions.length - 1 && positions[k] > positions[k + 1] - minGap)
+        positions[k] = positions[k + 1] - minGap;
     }
+    // Clamp top
+    for (let k = 0; k < positions.length; k++)
+      if (positions[k] < PT + lfs) positions[k] = PT + lfs;
+
     ctx.textAlign = "left";
-    endPts.forEach(({ i, label }, k) => {
-      ctx.globalAlpha = 0.85;
+    endPts.forEach(({ i, val, label }, k) => {
+      const actualY = ty(val);
+      const bumpedY = positions[k];
+      // TradingView-style leader
+      ctx.globalAlpha = 0.45;
+      ctx.strokeStyle = CT.s[i];
+      ctx.lineWidth = 0.75;
+      ctx.setLineDash([]);
+      ctx.beginPath();
+      ctx.moveTo(dotX, actualY);
+      if (Math.abs(bumpedY - actualY) > 1) ctx.lineTo(dotX, bumpedY);
+      ctx.lineTo(lx - 4, bumpedY);
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
       ctx.fillStyle = CT.s[i];
-      ctx.fillText(label, solidEndX + 3, ePosY[k]);
+      ctx.fillText(fmt(val), lx, bumpedY - lfs * 0.3);
+      ctx.fillText(label, lx, bumpedY + lfs * 0.9);
     });
     ctx.globalAlpha = 1.0;
   }
