@@ -184,10 +184,6 @@ body {
   min-width: 36px;
 }
 /* ── Year range brush: [1995] ━━━━━━━━━ [2026] ── */
-#year-range-row.disabled {
-  opacity: 0.3;
-  pointer-events: none;
-}
 #year-range-row {
   display: flex;
   align-items: center;

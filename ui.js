@@ -522,9 +522,6 @@ document.getElementById("story-select").addEventListener("change", (e) => {
     .classList.toggle("overlay-active", showIndexOverlay);
   document.getElementById("period-wrap").style.display =
     activeStory === "wait" ? "inline-block" : "none";
-  document
-    .getElementById("year-range-row")
-    .classList.toggle("disabled", activeStory === "wait");
   if (activeStory !== "wait")
     document.getElementById("wait-summary").innerHTML = "";
   draw(curMonth - 1);
@@ -2089,6 +2086,219 @@ function resizeCanvas() {
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
+// ── Cost of Delayed Sale: dedicated chart renderer ────────────────────────
+function drawWaitChart(CT, W, H, fullM, frac) {
+  ctx.fillStyle = CT.bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const lfs = Math.max(8, Math.min(10, W / 65));
+  const PL = Math.min(44, Math.max(36, Math.round(W * 0.08)));
+  const PR = Math.min(70, Math.max(62, Math.round(W * 0.11)));
+  const PT = 16,
+    PB = 28;
+  const chartW = W - PL - PR,
+    chartH = H - PT - PB;
+
+  // Zoom: always show last (waitMonths + 18) months
+  const zoomSpan = waitMonths + 18;
+  const hm = Math.min(fullM, totalMonths - 1);
+  const zoomEnd = hm + 1;
+  const zoomStart = Math.max(0, zoomEnd - zoomSpan);
+  const tx = (m) =>
+    PL + Math.max(0, Math.min(1, (m - zoomStart) / zoomSpan)) * chartW;
+
+  // Y range: visible window only, include counterfactual endpoints
+  let yMin = Infinity,
+    yMax = 200000;
+  for (let i = 0; i < allWealth.length; i++) {
+    if (hidden.has(i)) continue;
+    const w = allWealth[i];
+    for (let m = zoomStart; m <= hm && m < w.length; m++) {
+      if (w[m] > yMax) yMax = w[m];
+      if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
+    }
+  }
+  if (!isFinite(yMin)) yMin = 50000;
+  const yLo = Math.max(1000, yMin * 0.85);
+  const yHi = yMax * 1.1;
+  const logRange = Math.log(yHi) - Math.log(yLo);
+  const ty = (v) =>
+    PT + ((Math.log(yHi) - Math.log(Math.max(v, yLo))) / logRange) * chartH;
+
+  // Y-axis grid (log-spaced 1/2/5 × powers of 10)
+  ctx.font = `${lfs}px monospace`;
+  const gridVals = [];
+  const lo10 = Math.pow(10, Math.floor(Math.log10(yLo)));
+  for (const mult of [1, 2, 5]) {
+    for (let p = lo10 / 10; p <= yHi * 10; p *= 10) {
+      const v = mult * p;
+      if (v >= yLo && v <= yHi) gridVals.push(v);
+    }
+  }
+  gridVals.sort((a, b) => a - b);
+  ctx.strokeStyle = CT.grid;
+  ctx.lineWidth = 1;
+  ctx.setLineDash([3, 4]);
+  ctx.textAlign = "right";
+  ctx.fillStyle = CT.axis;
+  for (const v of gridVals) {
+    const y = ty(v);
+    ctx.beginPath();
+    ctx.moveTo(PL, y);
+    ctx.lineTo(PL + chartW, y);
+    ctx.stroke();
+    ctx.fillText(fmt(v), PL - 3, y + 4);
+  }
+  ctx.setLineDash([]);
+
+  // Monthly x-axis labels
+  ctx.globalAlpha = 1.0;
+  ctx.textAlign = "center";
+  const MON = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
+  const tickStep = zoomSpan <= 12 ? 2 : zoomSpan <= 24 ? 3 : 6;
+  for (let m = zoomStart; m <= zoomEnd; m += tickStep) {
+    if (m > fullM) break;
+    const mo = m % 12,
+      yr = startYear + Math.floor(m / 12);
+    ctx.fillStyle = mo === 0 ? CT.axis : CT.label;
+    ctx.fillText(
+      mo === 0 ? `${yr}` : `${MON[mo]}'${String(yr).slice(2)}`,
+      Math.min(tx(m + 1), PL + chartW),
+      H - 6,
+    );
+  }
+
+  // Scenario lines (solid, full opacity) from zoomStart to hm
+  for (let i = 0; i < SCENARIOS.length; i++) {
+    if (hidden.has(i)) continue;
+    const w = allWealth[i];
+    ctx.strokeStyle = CT.s[i];
+    ctx.lineWidth = i === 0 ? 2 : 1.5;
+    ctx.lineJoin = "round";
+    ctx.setLineDash([]);
+    ctx.beginPath();
+    let first = true;
+    for (let m = zoomStart; m <= hm && m < w.length; m++) {
+      if (first) {
+        ctx.moveTo(tx(m + 1), ty(w[m]));
+        first = false;
+      } else ctx.lineTo(tx(m + 1), ty(w[m]));
+    }
+    ctx.stroke();
+  }
+
+  // Counterfactual dashed lines
+  const m_T = hm >= waitMonths ? hm - waitMonths : -1;
+  if (m_T >= 0 && allWealth[0][m_T] > 0) {
+    // Sale-date vertical marker
+    const xSale = tx(m_T + 1);
+    ctx.globalAlpha = 0.25;
+    ctx.strokeStyle = CT.axis;
+    ctx.lineWidth = 1;
+    ctx.setLineDash([3, 4]);
+    ctx.beginPath();
+    ctx.moveTo(xSale, PT + 14);
+    ctx.lineTo(xSale, PT + chartH);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = CT.label;
+    ctx.font = `${Math.max(6, Math.min(8, W / 70))}px monospace`;
+    ctx.textAlign = "center";
+    ctx.fillText(`\u2212${waitMonths}mo`, xSale, PT + 11);
+    ctx.globalAlpha = 1.0;
+
+    const cfEndpoints = [];
+    for (let i = 1; i < SCENARIOS.length; i++) {
+      if (hidden.has(i)) continue;
+      const lDc = allDecomp[i];
+      if (!lDc || !lDc.dComp?.[m_T]) continue;
+
+      const sellCost_T =
+        inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
+          ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
+          : 0;
+      const sellCost_now =
+        inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
+          ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
+          : 0;
+      const savedUse1031 = use1031,
+        savedInclCG = inclCapGains;
+      use1031 = false;
+      if (!isPrimary) inclCapGains = true;
+      const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
+      const capGains_now = inclCapGains ? computeCapGains(i, hm) : 0;
+      use1031 = savedUse1031;
+      inclCapGains = savedInclCG;
+
+      const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
+      const idxAt_mT = allWealth[0][m_T];
+      if (idxAt_mT <= 0 || net_T <= 0) continue;
+
+      const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
+      const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
+      const delta = cfEnd - net_now;
+      // Red = selling earlier was better; green = holding beat index
+      const cfColor = delta > 0 ? "#e05050" : "#50b060";
+
+      // Dashed path following actual index growth month by month
+      ctx.strokeStyle = cfColor;
+      ctx.globalAlpha = 0.9;
+      ctx.lineWidth = 2;
+      ctx.lineJoin = "round";
+      ctx.setLineDash([4, 3]);
+      ctx.beginPath();
+      ctx.moveTo(xSale, ty(net_T));
+      for (let m = m_T + 1; m <= hm; m++)
+        ctx.lineTo(tx(m + 1), ty(net_T * (allWealth[0][m] / idxAt_mT)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 90° turn: horizontal leader into right margin
+      const xEnd = tx(hm + 1),
+        yEnd = ty(cfEnd);
+      ctx.globalAlpha = 0.7;
+      ctx.beginPath();
+      ctx.moveTo(xEnd, yEnd);
+      ctx.lineTo(xEnd + 8, yEnd);
+      ctx.stroke();
+
+      // Endpoint dot
+      ctx.globalAlpha = 1.0;
+      ctx.fillStyle = cfColor;
+      ctx.beginPath();
+      ctx.arc(xEnd, yEnd, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      cfEndpoints.push({ cfEnd, delta, cfColor });
+    }
+
+    // Delta labels — collision-avoided, left-aligned in right margin
+    if (cfEndpoints.length > 0) {
+      cfEndpoints.sort((a, b) => b.cfEnd - a.cfEnd);
+      const lblH = lfs + 3;
+      const positions = cfEndpoints.map(({ cfEnd }) => ty(cfEnd) + lfs * 0.35);
+      for (let k = 1; k < positions.length; k++)
+        if (positions[k] < positions[k - 1] + lblH)
+          positions[k] = positions[k - 1] + lblH;
+      for (let k = positions.length - 1; k >= 0; k--) {
+        if (positions[k] > PT + chartH - 2) positions[k] = PT + chartH - 2;
+        if (k < positions.length - 1 && positions[k] > positions[k + 1] - lblH)
+          positions[k] = positions[k + 1] - lblH;
+      }
+      ctx.font = `${lfs}px monospace`;
+      ctx.textAlign = "left";
+      const lx = tx(hm + 1) + 11;
+      cfEndpoints.forEach(({ delta, cfColor }, k) => {
+        ctx.fillStyle = cfColor;
+        ctx.fillText(`${delta >= 0 ? "+" : ""}${fmt(delta)}`, lx, positions[k]);
+      });
+    }
+  }
+
+  renderWaitSummary(hm);
+}
+
 function draw(monthsToShow) {
   const W = cW,
     H = cH;
@@ -2115,11 +2325,12 @@ function draw(monthsToShow) {
   // Sub-month interpolation for smooth animation
   const fullM = Math.floor(monthsToShow);
   const frac = monthsToShow - fullM;
-  // Wait-story zoom: show last (waitMonths + 18) months on x-axis
-  const waitZoomSpan = waitMonths + 18;
-  const _waitZoomEnd = Math.min(fullM, totalMonths - 1) + 1;
-  const waitZoomStart =
-    activeStory === "wait" ? Math.max(0, _waitZoomEnd - waitZoomSpan) : 0;
+  // Cost of Delayed Sale uses its own dedicated chart renderer
+  if (activeStory === "wait") {
+    drawWaitChart(CT, W, H, fullM, frac);
+    updateRangeBar();
+    return;
+  }
   ctx.fillStyle = CT.bg;
   ctx.fillRect(0, 0, W, H);
   // Compute right padding to fit chasing labels
@@ -2155,7 +2366,7 @@ function draw(monthsToShow) {
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
-    for (let m = waitZoomStart; m <= fullM && m < w.length; m++) {
+    for (let m = 0; m <= fullM && m < w.length; m++) {
       if (w[m] > yMax) yMax = w[m];
       if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
     }
@@ -2180,11 +2391,6 @@ function draw(monthsToShow) {
   const yLo = lerpYLo;
   const yHi = lerpYHi;
   const tx = (m) => {
-    if (activeStory === "wait")
-      return (
-        PL +
-        Math.max(0, Math.min(1, (m - waitZoomStart) / waitZoomSpan)) * histW
-      );
     // No projection: data fills histW (= chartW - projReservePX); right margin empty
     if (!hasProjZone) return PL + (m / Math.max(totalMonths, 1)) * histW;
     if (m <= histEndM) return PL + (m / histEndM) * histW;
@@ -2319,9 +2525,8 @@ function draw(monthsToShow) {
     ctx.fillText("EST.", pxProjStart + 4, PT - 3);
   }
 
-  // Lines — dim to background when overlay is active, or shade in wait-story mode
+  // Lines — dim to background when overlay is active
   if (showIndexOverlay) ctx.globalAlpha = 0.18;
-  else if (activeStory === "wait") ctx.globalAlpha = 0.28;
   for (let i = 0; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
@@ -2369,11 +2574,7 @@ function draw(monthsToShow) {
     const inDashZone = fullM > projStartM || (fullM === projStartM && frac > 0);
     if (inDashZone) {
       ctx.setLineDash([4, 4]);
-      ctx.globalAlpha = showIndexOverlay
-        ? 0.18
-        : activeStory === "wait"
-          ? 0.2
-          : 0.7;
+      ctx.globalAlpha = showIndexOverlay ? 0.18 : 0.7;
       ctx.beginPath();
       ctx.moveTo(tx(solidEnd + 1), ty(w[solidEnd]));
       for (let m = solidEnd + 1; m <= fullM && m < w.length; m++) {
@@ -2393,48 +2594,26 @@ function draw(monthsToShow) {
         );
       ctx.stroke();
       ctx.setLineDash([]);
-      ctx.globalAlpha = showIndexOverlay
-        ? 0.18
-        : activeStory === "wait"
-          ? 0.28
-          : 1.0;
+      ctx.globalAlpha = showIndexOverlay ? 0.18 : 1.0;
     }
   }
 
-  // X-axis labels — monthly ticks in wait-story mode, yearly otherwise
+  // X-axis year labels — drawn after lines so they paint over chart lines near bottom
   ctx.globalAlpha = 1.0;
   ctx.font = `${Math.max(7, Math.min(9, W / 55))}px monospace`;
   ctx.textAlign = "center";
-  if (activeStory === "wait") {
-    const MON = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
-    const tickStep = waitZoomSpan <= 12 ? 2 : waitZoomSpan <= 24 ? 3 : 6;
-    for (let m = waitZoomStart; m <= _waitZoomEnd; m += tickStep) {
-      if (m > fullM) break;
-      const mo = m % 12;
-      const yr = startYear + Math.floor(m / 12);
-      const isJan = mo === 0;
-      ctx.fillStyle = isJan ? CT.axis : CT.label;
-      ctx.fillText(
-        isJan ? `${yr}` : `${MON[mo]}'${String(yr).slice(2)}`,
-        Math.min(tx(m + 1), PL + histW),
-        H - 6,
-      );
-    }
-  } else {
-    const fullDur = endYear - startYear + 1;
-    const step = fullDur <= 10 ? 1 : fullDur <= 20 ? 2 : 5;
-    for (let yr = 0; yr <= fullDur; yr += step) {
-      const m = yr * 12;
-      ctx.fillStyle = CT.label;
-      // Shift label to tx(m+1) so "2008" aligns with the January 2008 data vertex
-      // (data for month m is drawn at tx(m+1), not tx(m)). Clamp to right edge.
-      ctx.fillText(startYear + yr, Math.min(tx(m + 1), PL + chartW), H - 6);
-    }
+  const fullDur = endYear - startYear + 1;
+  const step = fullDur <= 10 ? 1 : fullDur <= 20 ? 2 : 5;
+  for (let yr = 0; yr <= fullDur; yr += step) {
+    const m = yr * 12;
+    ctx.fillStyle = CT.label;
+    // Shift label to tx(m+1) so "2008" aligns with the January 2008 data vertex
+    // (data for month m is drawn at tx(m+1), not tx(m)). Clamp to right edge.
+    ctx.fillText(startYear + yr, Math.min(tx(m + 1), PL + chartW), H - 6);
   }
 
   // Tip dots + chasing labels share the same dim level as lines when overlay active
   if (showIndexOverlay) ctx.globalAlpha = 0.18;
-  else if (activeStory === "wait") ctx.globalAlpha = 0.28;
 
   // Tip dots (interpolated for smooth movement)
   if (monthsToShow > 1) {
@@ -2658,123 +2837,6 @@ function draw(monthsToShow) {
     ctx.font = `${lfs}px monospace`; // restore font
   } else {
     ctx.globalAlpha = 1.0;
-  }
-
-  // ── Cost of Delayed Sale: counterfactual dashed lines ──────────────────
-  if (activeStory === "wait") {
-    const hm = Math.min(fullM, totalMonths - 1);
-    if (hm >= waitMonths) {
-      const m_T = hm - waitMonths;
-      if (m_T >= 0 && allWealth[0][m_T] > 0) {
-        const xSale = tx(m_T + 1);
-
-        // Vertical sale-date marker
-        ctx.globalAlpha = 0.25;
-        ctx.strokeStyle = CT.axis;
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 4]);
-        ctx.beginPath();
-        ctx.moveTo(xSale, PT + 14);
-        ctx.lineTo(xSale, PT + chartH);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        // "−Nmo" label above marker
-        ctx.globalAlpha = 0.55;
-        ctx.fillStyle = CT.label;
-        ctx.font = `${Math.max(6, Math.min(8, W / 70))}px monospace`;
-        ctx.textAlign = "center";
-        ctx.fillText(`\u2212${waitMonths}mo`, xSale, PT + 11);
-        ctx.globalAlpha = 1.0;
-
-        // First pass: compute all endpoints for collision-avoided delta labels
-        const cfEndpoints = []; // { cfEnd, delta, color }
-        for (let i = 1; i < SCENARIOS.length; i++) {
-          if (hidden.has(i)) continue;
-          const lDc = allDecomp[i];
-          if (!lDc || !lDc.dComp?.[m_T]) continue;
-
-          // Net proceeds at m_T: rental always triggers cap gains; primary uses settings
-          const sellCost_T =
-            inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
-              ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
-              : 0;
-          const savedUse1031 = use1031,
-            savedInclCG = inclCapGains;
-          use1031 = false;
-          if (!isPrimary) inclCapGains = true;
-          const capGains_T = inclCapGains ? computeCapGains(i, m_T) : 0;
-          const sellCost_now =
-            inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
-              ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
-              : 0;
-          const capGains_now = inclCapGains ? computeCapGains(i, hm) : 0;
-          use1031 = savedUse1031;
-          inclCapGains = savedInclCG;
-
-          const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
-          const idxAt_mT = allWealth[0][m_T];
-          if (idxAt_mT <= 0 || net_T <= 0) continue;
-
-          const color = CT.s[i];
-          const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
-          const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
-          const delta = cfEnd - net_now;
-
-          // Draw dashed counterfactual line
-          ctx.strokeStyle = color;
-          ctx.globalAlpha = 0.88;
-          ctx.lineWidth = 2;
-          ctx.lineJoin = "round";
-          ctx.setLineDash([4, 3]);
-          ctx.beginPath();
-          ctx.moveTo(xSale, ty(net_T));
-          for (let m = m_T + 1; m <= hm; m++)
-            ctx.lineTo(tx(m + 1), ty(net_T * (allWealth[0][m] / idxAt_mT)));
-          ctx.stroke();
-          ctx.setLineDash([]);
-          ctx.globalAlpha = 1.0;
-
-          // Endpoint dot
-          ctx.fillStyle = color;
-          ctx.beginPath();
-          ctx.arc(tx(hm + 1), ty(cfEnd), 3.5, 0, Math.PI * 2);
-          ctx.fill();
-
-          cfEndpoints.push({ cfEnd, delta, color });
-        }
-
-        // Delta labels at endpoints — stacked with collision avoidance
-        if (cfEndpoints.length > 0) {
-          cfEndpoints.sort((a, b) => b.cfEnd - a.cfEnd);
-          const lblH = lfs + 3;
-          const positions = cfEndpoints.map(({ cfEnd }) => ty(cfEnd) - 5);
-          // Push down overlapping labels
-          for (let k = 1; k < positions.length; k++)
-            if (positions[k] < positions[k - 1] + lblH)
-              positions[k] = positions[k - 1] + lblH;
-          // Clamp to chart bottom, then push up
-          for (let k = positions.length - 1; k >= 0; k--) {
-            if (positions[k] > PT + chartH - lfs)
-              positions[k] = PT + chartH - lfs;
-            if (
-              k < positions.length - 1 &&
-              positions[k] > positions[k + 1] - lblH
-            )
-              positions[k] = positions[k + 1] - lblH;
-          }
-          ctx.font = `${lfs}px monospace`;
-          ctx.textAlign = "right";
-          const lx = tx(hm + 1) - 5;
-          cfEndpoints.forEach(({ delta }, k) => {
-            const sign = delta >= 0 ? "+" : "";
-            ctx.fillStyle = delta > 0 ? "#e05050" : "#50b060";
-            ctx.fillText(`${sign}${fmt(delta)}`, lx, positions[k]);
-          });
-          ctx.globalAlpha = 1.0;
-        }
-      }
-    }
-    renderWaitSummary(Math.min(fullM, totalMonths - 1));
   }
 
   // Annotate when any visible scenario is below the chart floor (negative equity)
