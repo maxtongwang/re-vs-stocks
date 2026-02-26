@@ -2342,9 +2342,12 @@ function drawWaitChart(CT, W, H, fullM, frac) {
 
   // Chasing endpoint labels — match regular chart style exactly
   {
-    const legLbls = isPrimary
-      ? STRINGS[lang].legendLabelsPrimary
-      : STRINGS[lang].legendLabels;
+    const waitChartLabels = [
+      document.getElementById("index-select")?.selectedOptions[0]?.text ||
+        "S&P 500",
+      "All Cash",
+      ...RE_DOWN_PMTS.map((p) => `${dpPct(p)}% Down`),
+    ];
     ctx.font = `${lfs}px monospace`;
     const minGap = lfs * 2 + 4;
     const dotX = tx(hm + 1);
@@ -2355,7 +2358,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       const w = allWealth[i];
       const val = netWW[i]?.[hm] ?? w[hm];
       if (!isFinite(val)) continue;
-      endPts.push({ i, val, label: legLbls[i] || `S${i}` });
+      endPts.push({ i, val, label: waitChartLabels[i] || `S${i}` });
     }
     endPts.sort((a, b) => b.val - a.val);
     const positions = endPts.map(({ val }) => ty(val));
