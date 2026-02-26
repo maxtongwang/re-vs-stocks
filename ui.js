@@ -3028,7 +3028,8 @@ function renderWaitSummary(hm) {
     const label = scenLabels[i - 1] || `Scenario ${i}`;
     html +=
       `<span style="color:var(--text-sub)">${label} — ${waitMonths}mo delay of sale: </span>` +
-      `<span style="color:${outcomeColor}">${sign}${fmt(delta)}</span><br>`;
+      `<span style="color:${outcomeColor}">${sign}${fmt(delta)}</span>` +
+      `<span style="color:var(--text-sub)"> invested into ${indexName}</span><br>`;
   }
   el.innerHTML = html;
 }
