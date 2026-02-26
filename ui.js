@@ -536,10 +536,9 @@ function setActiveStory(story) {
     document.getElementById("wait-summary").innerHTML = "";
 
   if (activeStory === "wait" && prev !== "wait") {
-    // Enter wait mode: lock index off, show only All Cash (scenario 1)
+    // Enter wait mode: show only All Cash (scenario 1); index remains user-controlled
     savedHiddenBeforeWait = new Set(hidden);
     hidden.clear();
-    hidden.add(0);
     for (let i = 2; i < SCENARIOS.length; i++) hidden.add(i);
     syncLegendItems();
     syncTableCols();
@@ -558,11 +557,16 @@ function setActiveStory(story) {
 }
 
 function waitModeLegendSwitch(idx) {
-  // In wait mode: index stays locked off; clicking an RE item makes it the sole visible scenario
-  if (idx === 0) return;
-  for (let i = 1; i < SCENARIOS.length; i++) {
-    if (i === idx) hidden.delete(i);
-    else hidden.add(i);
+  // In wait mode: clicking an RE item makes it the sole visible RE scenario
+  // Index (0) toggles normally
+  if (idx === 0) {
+    if (hidden.has(0)) hidden.delete(0);
+    else hidden.add(0);
+  } else {
+    for (let i = 1; i < SCENARIOS.length; i++) {
+      if (i === idx) hidden.delete(i);
+      else hidden.add(i);
+    }
   }
   syncLegendItems();
   syncTableCols();
@@ -2144,15 +2148,24 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   const chartW = W - PL - PR,
     chartH = H - PT - PB;
 
-  // Zoom: always show last (waitMonths + 18) months
-  const zoomSpan = waitMonths + 18;
+  // Full range — same x layout as main chart
   const hm = Math.min(fullM, totalMonths - 1);
-  const zoomEnd = hm + 1;
-  const zoomStart = Math.max(0, zoomEnd - zoomSpan);
-  const tx = (m) =>
-    PL + Math.max(0, Math.min(1, (m - zoomStart) / zoomSpan)) * chartW;
+  const hasProjZone = projStartM + 1 < totalMonths;
+  const projReservePX = Math.min(32, Math.max(14, Math.round(chartW * 0.08)));
+  const effProjPX = hasProjZone ? projReservePX : 0;
+  const histW = chartW - projReservePX;
+  const histEndM = projStartM + 1;
+  const tx = (m) => {
+    if (!hasProjZone) return PL + (m / Math.max(totalMonths, 1)) * histW;
+    if (m <= histEndM) return PL + (m / histEndM) * histW;
+    return (
+      PL +
+      histW +
+      ((m - histEndM) / Math.max(totalMonths - histEndM, 1)) * effProjPX
+    );
+  };
 
-  // Pre-compute after-tax liquidation values for RE scenarios in zoom window
+  // Pre-compute after-tax liquidation values for RE scenarios (full range)
   // (1031 always off; inclCapGains read from user settings)
   const netWW = {};
   {
@@ -2163,7 +2176,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       const lDc = allDecomp[i];
       if (!lDc) continue;
       netWW[i] = {};
-      for (let m = zoomStart; m <= hm; m++) {
+      for (let m = 0; m <= hm; m++) {
         if (m >= allWealth[i].length) break;
         const sc =
           inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m]
@@ -2176,14 +2189,14 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     use1031 = savedU1031;
   }
 
-  // Y range: visible window only — linear scale, stretch to fill height
+  // Y range — linear scale, stretch to fill height
   let yMin = Infinity,
     yMax = -Infinity;
   const m_T_pre = hm >= waitMonths ? hm - waitMonths : -1;
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
-    for (let m = zoomStart; m <= hm && m < w.length; m++) {
+    for (let m = 0; m <= hm && m < w.length; m++) {
       const val = netWW[i]?.[m] ?? w[m];
       if (val > yMax) yMax = val;
       if (val < yMin) yMin = val;
@@ -2236,24 +2249,17 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   }
   ctx.setLineDash([]);
 
-  // Monthly x-axis labels
+  // Year x-axis labels
   ctx.globalAlpha = 1.0;
   ctx.textAlign = "center";
-  const MON = ["J", "F", "M", "A", "M", "J", "J", "A", "S", "O", "N", "D"];
-  const tickStep = zoomSpan <= 12 ? 2 : zoomSpan <= 24 ? 3 : 6;
-  for (let m = zoomStart; m <= zoomEnd; m += tickStep) {
+  for (let yr = startYear; yr <= endYear; yr++) {
+    const m = (yr - startYear) * 12;
     if (m > fullM) break;
-    const mo = m % 12,
-      yr = startYear + Math.floor(m / 12);
-    ctx.fillStyle = mo === 0 ? CT.axis : CT.label;
-    ctx.fillText(
-      mo === 0 ? `${yr}` : `${MON[mo]}'${String(yr).slice(2)}`,
-      Math.min(tx(m + 1), PL + chartW),
-      H - 6,
-    );
+    ctx.fillStyle = CT.axis;
+    ctx.fillText(`${yr}`, tx(m), H - 6);
   }
 
-  // Scenario lines (solid, full opacity) from zoomStart to hm
+  // Scenario lines (solid) — RE scenarios show after-tax liquidation value
   for (let i = 0; i < SCENARIOS.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
@@ -2263,7 +2269,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.setLineDash([]);
     ctx.beginPath();
     let first = true;
-    for (let m = zoomStart; m <= hm && m < w.length; m++) {
+    for (let m = 0; m <= hm && m < w.length; m++) {
       const val = netWW[i]?.[m] ?? w[m];
       if (first) {
         ctx.moveTo(tx(m + 1), ty(val));
