@@ -2333,8 +2333,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       // cfEnd: if sold at planned date, invested in index until now
       const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
       const delta = cfEnd - net_now;
-      // Red = selling at planned date was better; green = holding beat it
-      const cfColor = delta > 0 ? "#e05050" : "#50b060";
+      const cfColor = delta > 0 ? "#50b060" : "#e05050";
 
       // L-line: from actual sale point → horizontal right → vertical to cfEnd
       const xActual = tx(m_actual + 1);
@@ -3024,7 +3023,7 @@ function renderWaitSummary(hm) {
     const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
     const delta = cfNow - net_now;
     const sign = delta >= 0 ? "+" : "";
-    const outcomeColor = delta > 0 ? "#e05050" : "#50b060";
+    const outcomeColor = delta > 0 ? "#50b060" : "#e05050";
     const label = scenLabels[i - 1] || `Scenario ${i}`;
     html +=
       `<span style="color:var(--text-sub)">${label} — if sold ${waitMonths}mo earlier: </span>` +
