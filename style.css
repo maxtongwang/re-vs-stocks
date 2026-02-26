@@ -964,21 +964,13 @@ th:first-child {
 .ha:nth-child(3) {
   animation-delay: 0.36s;
 }
-/* ── Story row: CTA box (same pulse as overlay-legend-row) ── */
-#story-row:not(.active) {
+/* ── Story row: CTA box — always pulses ── */
+#story-row {
   animation: cta-pulse 1.7s ease-in-out infinite;
   border-style: solid !important;
   border-color: rgba(152, 152, 216, 0.7) !important;
   border-width: 1.5px !important;
   opacity: 1 !important;
-}
-#story-row:not(.active) #story-abbr {
-  color: var(--text) !important;
-}
-#story-row.active {
-  opacity: 1;
-  border-color: rgba(152, 152, 216, 0.45) !important;
-  animation: none;
 }
 /* No underline on the abbr-text inside the box — box already signals interaction */
 #story-wrap .abbr-text {
