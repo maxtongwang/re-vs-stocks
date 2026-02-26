@@ -450,10 +450,10 @@ const STRINGS = {
       "房价指数。Case-Shiller（默认）：覆盖所有等价转让含现金及巨额贷款，更适合高端滨海市场。FHFA：仅限合规贷款，县级粒度更细。详见下方「房价指数（HPI）」说明。",
     btnFhfa: "FHFA",
     btnCs: "Case-Shiller",
-    storyDefault: "学到的经验",
-    storyUsual: "常见股市叙事",
+    storyDefault: "宝贵经验",
+    storyUsual: "常见股市",
     storyWait: "延迟出售的代价",
-    labelPriceOnlyComparison: "常见叙事",
+    labelPriceOnlyComparison: "常见",
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
     subtitle: (rv, ey, MY, isPrimary) =>
