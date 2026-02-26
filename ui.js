@@ -2515,17 +2515,16 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.stroke();
       ctx.globalAlpha = 1.0;
 
-      // Small dot at CF side of delay point
+      // Dots — same small size at both points
       ctx.fillStyle = delayColor;
       ctx.beginPath();
-      ctx.arc(xDelay, yCfDelay, 3, 0, Math.PI * 2);
+      ctx.arc(xDelay, yCfDelay, 2.5, 0, Math.PI * 2);
       ctx.fill();
 
-      // Larger dot at period end
       const yCfEnd = ty(cf_end);
       ctx.fillStyle = endColor;
       ctx.beginPath();
-      ctx.arc(xEnd, yCfEnd, 5, 0, Math.PI * 2);
+      ctx.arc(xEnd, yCfEnd, 2.5, 0, Math.PI * 2);
       ctx.fill();
 
       cfEndpoints.push({
