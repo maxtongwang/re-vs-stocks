@@ -63,6 +63,7 @@ let lastProjPX = 0; // set by draw(), read by updateRangeBar
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
 let activeStory = ""; // "" | "usual" | "wait"
+let pendingWaitMode = false; // set by readHashParams when ov=w; consumed at boot
 let waitMonths = 3; // default period for Cost of Delayed Sale
 let savedHiddenBeforeWait = null; // saved hidden set when entering wait mode
 let savedRangeBeforeWait = null; // saved { s, e } year range when entering wait mode
@@ -898,8 +899,10 @@ document.getElementById("ltv-pct-slider").addEventListener("input", (e) => {
 // ── Share URL ─────────────────────────────────────────────────────────────
 function getShareParams() {
   const p = new URLSearchParams();
-  if (startYear !== 1995) p.set("s", startYear);
-  if (endYear !== RB_MAX) p.set("e", endYear);
+  if (startYear !== 1995 && activeStory !== "wait") p.set("s", startYear);
+  if (endYear !== RB_MAX && activeStory !== "wait") p.set("e", endYear);
+  if (activeStory === "usual") p.set("ov", "1");
+  else if (activeStory === "wait") p.set("ov", "w");
   if (reinvest) p.set("m", "r");
   if (reinvest && reinvestIdx !== "sp500") p.set("ri", reinvestIdx);
   if (isPrimary) p.set("p", "1");
@@ -972,9 +975,11 @@ function loadFromHash() {
   if (p.has("m")) reinvest = p.get("m") === "r";
   if (p.has("ri") && ["sp500", "nasdaq", "sixty40"].includes(p.get("ri")))
     reinvestIdx = p.get("ri");
-  if (p.has("ov") && p.get("ov") === "1") {
-    activeStory = "usual";
-    showIndexOverlay = true;
+  if (p.has("ov")) {
+    if (p.get("ov") === "1") {
+      activeStory = "usual";
+      showIndexOverlay = true;
+    } else if (p.get("ov") === "w") pendingWaitMode = true;
   }
   if (p.has("p")) isPrimary = p.get("p") === "1";
   if (p.has("r"))
@@ -3745,6 +3750,11 @@ window.addEventListener("resize", updateChartMaxHeight);
 updateChartMaxHeight();
 resizeCanvas(); // explicit init sizing (debounced handler won't fire on load)
 applyLang();
+if (pendingWaitMode) {
+  pendingWaitMode = false;
+  document.getElementById("story-select").value = "wait";
+  setActiveStory("wait");
+}
 updateLabel(curMonth);
 draw(curMonth - 1);
 
