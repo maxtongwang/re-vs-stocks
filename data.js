@@ -201,7 +201,6 @@ const STRINGS = {
     storyDefault: "Learned Lessons",
     storyUsual: "The Usual Stock Story",
     storyWait: "Cost of Delayed Sale",
-    labelPriceOnlyComparison: "The Usual Story",
     modeLabelReinvest: "Reinvested (compound)",
     modeLabelAdditive: "Additive (no compound)",
     subtitle: (rv, ey, MY, isPrimary) =>
@@ -453,7 +452,6 @@ const STRINGS = {
     storyDefault: "宝贵经验",
     storyUsual: "常见股市",
     storyWait: "延迟出售的代价",
-    labelPriceOnlyComparison: "常见",
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
     subtitle: (rv, ey, MY, isPrimary) =>
