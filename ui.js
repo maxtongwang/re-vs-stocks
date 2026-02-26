@@ -2362,40 +2362,25 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       const idxAt_mT = allWealth[0][m_T];
       if (idxAt_mT <= 0 || net_T <= 0) continue;
 
-      // Actual (delayed) sale = planned + waitMonths; must be within visible range
-      const m_actual = Math.min(m_T + waitMonths, hm);
-      if (m_actual >= allWealth[i].length || !netWW[i][m_actual]) continue;
-      const net_actual = netWW[i][m_actual]; // value at actual sale point on solid line
-
       // cfEnd: if sold at planned date, invested in index until now
       const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
       const delta = cfEnd - net_now;
       const cfColor = delta > 0 ? "#50b060" : "#e05050";
 
-      // L-line colored by outcome: from actual sale → right → up/down to cfEnd
-      const xActual = tx(m_actual + 1);
+      // Counterfactual growth curve: starts at sell target, follows index to today
       const yCf = ty(cfEnd);
-      const yActual = ty(net_actual);
       ctx.strokeStyle = cfColor;
-      ctx.globalAlpha = 0.75;
+      ctx.globalAlpha = 0.8;
       ctx.lineWidth = 1.5;
-      ctx.lineJoin = "miter";
       ctx.setLineDash([5, 4]);
       ctx.beginPath();
-      ctx.moveTo(xActual, yActual);
-      ctx.lineTo(xEnd, yActual);
-      ctx.lineTo(xEnd, yCf);
+      for (let m = m_T; m <= hm; m++) {
+        const cfVal = net_T * (allWealth[0][m] / idxAt_mT);
+        if (m === m_T) ctx.moveTo(tx(m + 1), ty(cfVal));
+        else ctx.lineTo(tx(m + 1), ty(cfVal));
+      }
       ctx.stroke();
       ctx.setLineDash([]);
-
-      // Tick at actual sale point — outcome color, taller
-      ctx.strokeStyle = cfColor;
-      ctx.globalAlpha = 0.9;
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(xActual, yActual - 7);
-      ctx.lineTo(xActual, yActual + 7);
-      ctx.stroke();
 
       // Dot at counterfactual endpoint
       ctx.globalAlpha = 1.0;
