@@ -3024,13 +3024,11 @@ function renderWaitSummary(hm) {
     const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
     const delta = cfNow - net_now;
     const sign = delta >= 0 ? "+" : "";
-    const arrowColor = delta > 0 ? "#e05050" : "#50b060";
-    const arrow = delta > 0 ? "↑" : "↓";
+    const outcomeColor = delta > 0 ? "#e05050" : "#50b060";
     const label = scenLabels[i - 1] || `Scenario ${i}`;
     html +=
-      `<span style="color:var(--text-mid)">${label}: delayed ${waitMonths}mo → ${indexName} ${fmt(cfNow)}</span>` +
-      `<span style="color:var(--text-dim)">  vs today ${fmt(net_now)}</span>` +
-      `  <span style="color:${arrowColor}">${sign}${fmt(delta)} ${arrow}</span><br>`;
+      `<span style="color:var(--text-sub)">${label} — ${waitMonths}mo delay of sale: </span>` +
+      `<span style="color:${outcomeColor}">${sign}${fmt(delta)}</span><br>`;
   }
   el.innerHTML = html;
 }
