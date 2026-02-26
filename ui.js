@@ -556,6 +556,7 @@ function setActiveStory(story) {
     startYear = ws;
     endYear = ws + WAIT_SPAN;
     document.getElementById("year-range-bar").classList.add("wait-mode");
+    document.querySelector(".slider-wrap").style.display = "none";
     // Force tx costs + cap gains on; lock buttons to signal this
     savedTxBeforeWait = inclTxCosts;
     savedCgBeforeWait = inclCapGains;
@@ -590,6 +591,7 @@ function setActiveStory(story) {
       savedRangeBeforeWait = null;
     }
     document.getElementById("year-range-bar").classList.remove("wait-mode");
+    document.querySelector(".slider-wrap").style.display = "";
     inclTxCosts = savedTxBeforeWait;
     inclCapGains = savedCgBeforeWait;
     use1031 = saved1031BeforeWait;
