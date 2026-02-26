@@ -200,12 +200,12 @@ const STRINGS = {
     btnCs: "Case-Shiller",
     storyDefault: "Learned Lessons",
     storyUsual: "The Usual Stock Story",
-    storyWait: "Cost of Delayed Sale",
+    storyWait: "What If I Sold Earlier?",
     waitSummary: (label, n, delta, sign, fmtDelta, color, indexName) =>
-      `<span style="color:var(--text-sub)">${label} — if sold </span>` +
-      `<span style="color:${color}">${n}mo earlier</span>` +
-      `<span style="color:var(--text-sub)">: invested into ${indexName} </span>` +
-      `<span style="color:${color}">${sign}${fmtDelta}</span>`,
+      `<span style="color:var(--text-sub)">${label}: sold </span>` +
+      `<span style="color:${color}">${n}mo sooner</span>` +
+      `<span style="color:var(--text-sub)">, put into ${indexName} → </span>` +
+      `<span style="color:${color}">${sign}${fmtDelta} today</span>`,
     modeLabelReinvest: "Reinvested (compound)",
     modeLabelAdditive: "Additive (no compound)",
     subtitle: (rv, ey, MY, isPrimary) =>
@@ -456,11 +456,11 @@ const STRINGS = {
     btnCs: "Case-Shiller",
     storyDefault: "宝贵经验",
     storyUsual: "常见叙事",
-    storyWait: "延迟出售的代价",
+    storyWait: "如果早点卖？",
     waitSummary: (label, n, delta, sign, fmtDelta, color, indexName) =>
-      `<span style="color:var(--text-sub)">${label} — 若</span>` +
+      `<span style="color:var(--text-sub)">${label}：</span>` +
       `<span style="color:${color}">提前${n}个月</span>` +
-      `<span style="color:var(--text-sub)">出售：投入${indexName} </span>` +
+      `<span style="color:var(--text-sub)">卖掉，投入${indexName} → </span>` +
       `<span style="color:${color}">${sign}${fmtDelta}</span>`,
     modeLabelReinvest: "复投（复利）",
     modeLabelAdditive: "叠加（无复利）",
