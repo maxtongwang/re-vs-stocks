@@ -530,7 +530,8 @@ function setActiveStory(story) {
     .getElementById("legend")
     .classList.toggle("overlay-active", showIndexOverlay);
 
-  document.getElementById("period-wrap").style.display = "none";
+  document.getElementById("period-wrap").style.display =
+    activeStory === "wait" ? "inline-block" : "none";
   if (activeStory !== "wait")
     document.getElementById("wait-summary").innerHTML = "";
 
@@ -2309,29 +2310,34 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       const lDc = allDecomp[i];
       if (!lDc || !lDc.dComp?.[m_T] || !netWW[i]) continue;
 
-      const net_T = netWW[i][m_T] ?? 0;
+      const net_T = netWW[i][m_T] ?? 0; // value at planned sale date
       const net_now = netWW[i][hm] ?? 0;
       const idxAt_mT = allWealth[0][m_T];
       if (idxAt_mT <= 0 || net_T <= 0) continue;
 
+      // Actual (delayed) sale = planned + waitMonths; must be within visible range
+      const m_actual = Math.min(m_T + waitMonths, hm);
+      if (m_actual >= allWealth[i].length || !netWW[i][m_actual]) continue;
+      const net_actual = netWW[i][m_actual]; // value at actual sale point on solid line
+
+      // cfEnd: if sold at planned date, invested in index until now
       const cfEnd = net_T * (allWealth[0][hm] / idxAt_mT);
       const delta = cfEnd - net_now;
-      // Red = selling earlier was better; green = holding beat index
+      // Red = selling at planned date was better; green = holding beat it
       const cfColor = delta > 0 ? "#e05050" : "#50b060";
 
-      // Right-angled dashed L-line in scenario color:
-      // vertical from sale point → cfEnd level, then horizontal → current time
-      const xSaleEnd = tx(m_T + 1);
+      // L-line: from actual sale point → horizontal right → vertical to cfEnd
+      const xActual = tx(m_actual + 1);
       const yCf = ty(cfEnd);
-      const ySale = ty(net_T); // sale point on solid line
+      const yActual = ty(net_actual);
       ctx.strokeStyle = CT.s[i];
       ctx.globalAlpha = 0.7;
       ctx.lineWidth = 1.5;
       ctx.lineJoin = "miter";
       ctx.setLineDash([4, 3]);
       ctx.beginPath();
-      ctx.moveTo(xSaleEnd, ySale); // start: sale point on solid line
-      ctx.lineTo(xEnd, ySale); // horizontal right → current time
+      ctx.moveTo(xActual, yActual); // start: actual (delayed) sale point
+      ctx.lineTo(xEnd, yActual); // horizontal right → current time
       ctx.lineTo(xEnd, yCf); // vertical → counterfactual level
       ctx.stroke();
       ctx.setLineDash([]);
@@ -2959,11 +2965,11 @@ function renderWaitSummary(hm) {
   const el = document.getElementById("wait-summary");
   if (!el) return;
   const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
+  const m_actual = m_T >= 0 ? Math.min(m_T + waitMonths, hm) : -1;
   if (activeStory !== "wait" || m_T < 0 || allWealth[0][m_T] <= 0) {
     el.innerHTML = "";
     return;
   }
-  const derivedMonths = hm - m_T;
   const indexName =
     document.getElementById("index-select")?.selectedOptions[0]?.text ||
     "Index";
@@ -3001,7 +3007,7 @@ function renderWaitSummary(hm) {
     const arrow = delta > 0 ? "↑" : "↓";
     const label = scenLabels[i - 1] || `Scenario ${i}`;
     html +=
-      `<span style="color:var(--text-mid)">${label}: sold ${derivedMonths}mo ago → ${indexName} ${fmt(cfNow)}</span>` +
+      `<span style="color:var(--text-mid)">${label}: delayed ${waitMonths}mo → ${indexName} ${fmt(cfNow)}</span>` +
       `<span style="color:var(--text-dim)">  vs today ${fmt(net_now)}</span>` +
       `  <span style="color:${arrowColor}">${sign}${fmt(delta)} ${arrow}</span><br>`;
   }
