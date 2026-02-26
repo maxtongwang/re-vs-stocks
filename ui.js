@@ -3110,7 +3110,6 @@ function renderWaitSummary(hm) {
   const el = document.getElementById("wait-summary");
   if (!el) return;
   const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
-  const m_actual = m_T >= 0 ? Math.min(m_T + waitMonths, hm) : -1;
   if (activeStory !== "wait" || m_T < 0 || allWealth[0][m_T] <= 0) {
     el.innerHTML = "";
     return;
