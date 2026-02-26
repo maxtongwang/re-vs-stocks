@@ -66,6 +66,9 @@ let activeStory = ""; // "" | "usual" | "wait"
 let waitMonths = 3; // default period for Cost of Delayed Sale
 let savedHiddenBeforeWait = null; // saved hidden set when entering wait mode
 let savedRangeBeforeWait = null; // saved { s, e } year range when entering wait mode
+let savedTxBeforeWait = null; // saved inclTxCosts before wait mode
+let savedCgBeforeWait = null; // saved inclCapGains before wait mode
+let saved1031BeforeWait = null; // saved use1031 before wait mode
 const WAIT_SPAN = 5; // fixed 5-year window in wait mode
 let showIndexOverlay = false; // derived from activeStory; kept in sync
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
@@ -547,19 +550,32 @@ function setActiveStory(story) {
     for (let i = 2; i < SCENARIOS.length; i++) hidden.add(i);
     syncLegendItems();
     syncTableCols();
-    // Lock to 10-year window; keep current start if possible
+    // Lock to 5-year window; keep current start if possible
     savedRangeBeforeWait = { s: startYear, e: endYear };
     const ws = Math.max(RB_MIN, Math.min(startYear, RB_MAX - WAIT_SPAN));
     startYear = ws;
     endYear = ws + WAIT_SPAN;
     document.getElementById("year-range-bar").classList.add("wait-mode");
+    // Force tx costs + cap gains on; lock buttons to signal this
+    savedTxBeforeWait = inclTxCosts;
+    savedCgBeforeWait = inclCapGains;
+    saved1031BeforeWait = use1031;
+    inclTxCosts = true;
+    inclCapGains = true;
+    use1031 = false;
+    ["btn-incl-tx-costs", "btn-incl-cap-gains"].forEach((id) => {
+      const b = document.getElementById(id);
+      b.classList.add("active");
+      b.setAttribute("disabled", "");
+    });
+    document.getElementById("btn-1031").setAttribute("disabled", "");
     rebuild();
   } else if (
     prev === "wait" &&
     activeStory !== "wait" &&
     savedHiddenBeforeWait !== null
   ) {
-    // Exit wait mode: restore previous hidden state and year range
+    // Exit wait mode: restore previous hidden state, year range, and button state
     hidden.clear();
     savedHiddenBeforeWait.forEach((v) => hidden.add(v));
     savedHiddenBeforeWait = null;
@@ -569,6 +585,20 @@ function setActiveStory(story) {
       savedRangeBeforeWait = null;
     }
     document.getElementById("year-range-bar").classList.remove("wait-mode");
+    inclTxCosts = savedTxBeforeWait;
+    inclCapGains = savedCgBeforeWait;
+    use1031 = saved1031BeforeWait;
+    savedTxBeforeWait = null;
+    savedCgBeforeWait = null;
+    saved1031BeforeWait = null;
+    const txBtn = document.getElementById("btn-incl-tx-costs");
+    const cgBtn = document.getElementById("btn-incl-cap-gains");
+    txBtn.classList.toggle("active", inclTxCosts);
+    cgBtn.classList.toggle("active", inclCapGains);
+    txBtn.removeAttribute("disabled");
+    cgBtn.removeAttribute("disabled");
+    if (inclCapGains) txBtn.setAttribute("disabled", ""); // re-apply cap-gains lock
+    document.getElementById("btn-1031").removeAttribute("disabled");
     syncLegendItems();
     syncTableCols();
     rebuild();
@@ -2187,33 +2217,22 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   };
 
   // Pre-compute after-tax liquidation values for RE scenarios (full range)
-  // Wait mode always applies tx costs + cap gains (1031 off) — a real sale
+  // Globals are already forced: inclTxCosts=true, inclCapGains=true, use1031=false
   const netWW = {};
-  {
-    const savedU1031 = use1031;
-    const savedTx = inclTxCosts;
-    const savedCg = inclCapGains;
-    use1031 = false;
-    inclTxCosts = true;
-    inclCapGains = true;
-    for (let i = 1; i < SCENARIOS.length; i++) {
-      if (hidden.has(i)) continue;
-      const lDc = allDecomp[i];
-      if (!lDc) continue;
-      netWW[i] = {};
-      for (let m = 0; m <= hm; m++) {
-        if (m >= allWealth[i].length) break;
-        const sc =
-          lDc.txSellRate > 0 && lDc.dComp?.[m]
-            ? Math.round((lDc.price + lDc.dComp[m].appr) * lDc.txSellRate)
-            : 0;
-        const cg = computeCapGains(i, m);
-        netWW[i][m] = allWealth[i][m] - sc - cg;
-      }
+  for (let i = 1; i < SCENARIOS.length; i++) {
+    if (hidden.has(i)) continue;
+    const lDc = allDecomp[i];
+    if (!lDc) continue;
+    netWW[i] = {};
+    for (let m = 0; m <= hm; m++) {
+      if (m >= allWealth[i].length) break;
+      const sc =
+        lDc.txSellRate > 0 && lDc.dComp?.[m]
+          ? Math.round((lDc.price + lDc.dComp[m].appr) * lDc.txSellRate)
+          : 0;
+      const cg = computeCapGains(i, m);
+      netWW[i][m] = allWealth[i][m] - sc - cg;
     }
-    use1031 = savedU1031;
-    inclTxCosts = savedTx;
-    inclCapGains = savedCg;
   }
 
   // Y range — linear scale, stretch to fill height
@@ -2309,7 +2328,42 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.stroke();
   }
 
-  // Counterfactual: sale point at 2/3 of visible range
+  // Right-side endpoint labels for solid scenario lines
+  {
+    const legLbls = isPrimary
+      ? STRINGS[lang].legendLabelsPrimary
+      : STRINGS[lang].legendLabels;
+    const elfs = Math.max(7, Math.min(9, W / 72));
+    ctx.font = `${elfs}px monospace`;
+    const elbH = elfs + 3;
+    const solidEndX = tx(hm + 1);
+    const endPts = [];
+    for (let i = 0; i < SCENARIOS.length; i++) {
+      if (hidden.has(i)) continue;
+      const w = allWealth[i];
+      const val = netWW[i]?.[hm] ?? w[hm];
+      if (!isFinite(val)) continue;
+      endPts.push({ i, val, label: legLbls[i] || `S${i}` });
+    }
+    endPts.sort((a, b) => b.val - a.val);
+    const ePosY = endPts.map(({ val }) => ty(val) + elfs * 0.35);
+    for (let k = 1; k < ePosY.length; k++)
+      if (ePosY[k] < ePosY[k - 1] + elbH) ePosY[k] = ePosY[k - 1] + elbH;
+    for (let k = ePosY.length - 1; k >= 0; k--) {
+      if (ePosY[k] > PT + chartH - elfs - 2) ePosY[k] = PT + chartH - elfs - 2;
+      if (k < ePosY.length - 1 && ePosY[k] > ePosY[k + 1] - elbH)
+        ePosY[k] = ePosY[k + 1] - elbH;
+    }
+    ctx.textAlign = "left";
+    endPts.forEach(({ i, label }, k) => {
+      ctx.globalAlpha = 0.85;
+      ctx.fillStyle = CT.s[i];
+      ctx.fillText(label, solidEndX + 3, ePosY[k]);
+    });
+    ctx.globalAlpha = 1.0;
+  }
+
+  // Counterfactual: sale point at 1/3 of visible range
   const m_T = hm > 2 ? Math.max(1, Math.round(hm / 3)) : -1;
   if (m_T >= 0 && allWealth[0][m_T] > 0) {
     // Planned sale vertical marker — amber, full height
@@ -3075,12 +3129,7 @@ function renderWaitSummary(hm) {
     : STRINGS[lang].legendLabels;
   // legLabels[0] = index, legLabels[1] = All Cash, legLabels[2..] = down pmts
   const scenLabels = legLabels.slice(1);
-  const savedU1031 = use1031;
-  const savedTx = inclTxCosts;
-  const savedCg = inclCapGains;
-  use1031 = false;
-  inclTxCosts = true;
-  inclCapGains = true;
+  // Globals are already forced by setActiveStory: inclTxCosts=true, inclCapGains=true, use1031=false
 
   const m_actual = Math.min(m_T + waitMonths, hm);
   const idxAt_mT = allWealth[0][m_T];
@@ -3148,10 +3197,6 @@ function renderWaitSummary(hm) {
 
     html += `<span class="wait-math">${mathLine}</span><br>`;
   }
-
-  use1031 = savedU1031;
-  inclTxCosts = savedTx;
-  inclCapGains = savedCg;
 
   el.innerHTML = html;
 }
