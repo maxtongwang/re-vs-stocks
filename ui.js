@@ -2095,35 +2095,49 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   const tx = (m) =>
     PL + Math.max(0, Math.min(1, (m - zoomStart) / zoomSpan)) * chartW;
 
-  // Y range: visible window only, include counterfactual endpoints
+  // Y range: visible window only — linear scale, stretch to fill height
   let yMin = Infinity,
-    yMax = 200000;
+    yMax = -Infinity;
+  const m_T_pre = hm >= waitMonths ? hm - waitMonths : -1;
   for (let i = 0; i < allWealth.length; i++) {
     if (hidden.has(i)) continue;
     const w = allWealth[i];
     for (let m = zoomStart; m <= hm && m < w.length; m++) {
       if (w[m] > yMax) yMax = w[m];
-      if (w[m] > 1000 && w[m] < yMin) yMin = w[m];
+      if (w[m] < yMin) yMin = w[m];
+    }
+    // Estimate counterfactual endpoint for y-range (approx, no tax overhead)
+    if (i > 0 && m_T_pre >= 0 && allWealth[0][m_T_pre] > 0) {
+      const cfEst = w[m_T_pre] * (allWealth[0][hm] / allWealth[0][m_T_pre]);
+      if (cfEst > yMax) yMax = cfEst;
+      if (cfEst < yMin) yMin = cfEst;
     }
   }
-  if (!isFinite(yMin)) yMin = 50000;
-  const yLo = Math.max(1000, yMin * 0.85);
-  const yHi = yMax * 1.1;
-  const logRange = Math.log(yHi) - Math.log(yLo);
-  const ty = (v) =>
-    PT + ((Math.log(yHi) - Math.log(Math.max(v, yLo))) / logRange) * chartH;
+  if (!isFinite(yMin) || yMin === yMax) {
+    yMin = 50000;
+    yMax = 100000;
+  }
+  // Tight 4% padding — stretch the range to fill the chart height
+  const pad = (yMax - yMin) * 0.04;
+  const yLo = yMin - pad;
+  const yHi = yMax + pad;
+  // Linear scale: top = yHi, bottom = yLo
+  const ty = (v) => PT + ((yHi - v) / (yHi - yLo)) * chartH;
 
-  // Y-axis grid (log-spaced 1/2/5 × powers of 10)
+  // Y-axis grid — linear nice-step intervals, ~4-6 lines
   ctx.font = `${lfs}px monospace`;
+  const yRange = yHi - yLo;
+  const roughStep = yRange / 5;
+  const mag = Math.pow(10, Math.floor(Math.log10(roughStep)));
+  const niceStep =
+    [1, 2, 2.5, 5].map((m) => m * mag).find((s) => s >= roughStep) ?? mag;
   const gridVals = [];
-  const lo10 = Math.pow(10, Math.floor(Math.log10(yLo)));
-  for (const mult of [1, 2, 5]) {
-    for (let p = lo10 / 10; p <= yHi * 10; p *= 10) {
-      const v = mult * p;
-      if (v >= yLo && v <= yHi) gridVals.push(v);
-    }
-  }
-  gridVals.sort((a, b) => a - b);
+  for (
+    let v = Math.ceil(yLo / niceStep) * niceStep;
+    v <= yHi + 1e-9;
+    v += niceStep
+  )
+    gridVals.push(Math.round(v));
   ctx.strokeStyle = CT.grid;
   ctx.lineWidth = 1;
   ctx.setLineDash([3, 4]);
