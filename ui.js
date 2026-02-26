@@ -2459,9 +2459,45 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Small dot at delay point (right edge of amber zone)
-      const yCfDelay = ty(cf_delay);
+      // Colored fill band between CF curve and RE line over delay period
+      // Shows the cumulative impact of the delay, layered on top of the amber zone
+      const yRedelay = ty(net_delay);
+      ctx.globalAlpha = 0.22;
+      ctx.fillStyle = delayColor;
+      ctx.beginPath();
+      for (let m = m_T; m <= m_actual_zone; m++) {
+        const cfV = net_T * (allWealth[0][m] / idxAt_mT);
+        if (m === m_T) ctx.moveTo(tx(m + 1), ty(cfV));
+        else ctx.lineTo(tx(m + 1), ty(cfV));
+      }
+      for (let m = m_actual_zone; m >= m_T; m--) {
+        const reV = netWW[i]?.[m] ?? allWealth[i][m];
+        ctx.lineTo(tx(m + 1), ty(reV));
+      }
+      ctx.closePath();
+      ctx.fill();
       ctx.globalAlpha = 1.0;
+
+      // Vertical connector at delay point: CF endpoint → RE line
+      const yCfDelay = ty(cf_delay);
+      const tickW = 4;
+      ctx.strokeStyle = delayColor;
+      ctx.lineWidth = 1.5;
+      ctx.globalAlpha = 0.9;
+      ctx.beginPath();
+      ctx.moveTo(xDelay, yCfDelay);
+      ctx.lineTo(xDelay, yRedelay);
+      ctx.stroke();
+      // Ticks at both ends
+      ctx.beginPath();
+      ctx.moveTo(xDelay - tickW, yCfDelay);
+      ctx.lineTo(xDelay + tickW, yCfDelay);
+      ctx.moveTo(xDelay - tickW, yRedelay);
+      ctx.lineTo(xDelay + tickW, yRedelay);
+      ctx.stroke();
+      ctx.globalAlpha = 1.0;
+
+      // Small dot at CF side of delay point
       ctx.fillStyle = delayColor;
       ctx.beginPath();
       ctx.arc(xDelay, yCfDelay, 3, 0, Math.PI * 2);
