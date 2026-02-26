@@ -62,7 +62,9 @@ let lastPR = 100; // set by draw(), read by updateRangeBar
 let lastProjPX = 0; // set by draw(), read by updateRangeBar
 let reinvest = false;
 let reinvestIdx = "sp500"; // index used to compound RE cash flows in reinvest mode
-let showIndexOverlay = false; // "common chart" overlay: S&P total return vs RE price only
+let activeStory = ""; // "" | "usual" | "wait"
+let waitMonths = 3; // default period for Cost of Delayed Sale
+let showIndexOverlay = false; // derived from activeStory; kept in sync
 let hpiSource = "cs"; // "cs" | "fhfa" — default Case-Shiller
 let indexSpWealth = []; // populated by buildAllWealth
 let indexReWealth = [];
@@ -489,15 +491,32 @@ document.getElementById("btn-additive").addEventListener("click", () => {
   });
 });
 
-// ── S&P 500 price vs VNQ overlay toggle ──────────────────────────────────
-document.getElementById("overlay-legend-row").addEventListener("click", () => {
-  showIndexOverlay = !showIndexOverlay;
-  document
-    .getElementById("overlay-legend-row")
-    .classList.toggle("active", showIndexOverlay);
+// ── Story select + Period select ──────────────────────────────────────────
+document.getElementById("story-select").addEventListener("change", (e) => {
+  activeStory = e.target.value;
+  showIndexOverlay = activeStory === "usual";
+  document.getElementById("story-abbr").textContent =
+    activeStory === "usual"
+      ? "Usual"
+      : activeStory === "wait"
+        ? "Delay"
+        : "Story";
+  const legendRow = document.getElementById("overlay-legend-row");
+  legendRow.style.display = activeStory === "usual" ? "flex" : "none";
+  legendRow.classList.add("active"); // always visual-only
   document
     .getElementById("legend")
     .classList.toggle("overlay-active", showIndexOverlay);
+  document.getElementById("period-wrap").style.display =
+    activeStory === "wait" ? "inline-block" : "none";
+  if (activeStory !== "wait")
+    document.getElementById("wait-summary").innerHTML = "";
+  draw(curMonth - 1);
+});
+
+document.getElementById("period-select").addEventListener("change", (e) => {
+  waitMonths = +e.target.value;
+  document.getElementById("period-abbr").textContent = waitMonths + "mo";
   draw(curMonth - 1);
 });
 
@@ -811,7 +830,10 @@ function loadFromHash() {
   if (p.has("m")) reinvest = p.get("m") === "r";
   if (p.has("ri") && ["sp500", "nasdaq", "sixty40"].includes(p.get("ri")))
     reinvestIdx = p.get("ri");
-  if (p.has("ov")) showIndexOverlay = p.get("ov") === "1";
+  if (p.has("ov") && p.get("ov") === "1") {
+    activeStory = "usual";
+    showIndexOverlay = true;
+  }
   if (p.has("p")) isPrimary = p.get("p") === "1";
   if (p.has("r"))
     numRefis = Math.min(3, Math.max(0, parseInt(p.get("r")) || 0));
@@ -2567,6 +2589,121 @@ function draw(monthsToShow) {
     ctx.globalAlpha = 1.0;
   }
 
+  // ── Cost of Delayed Sale: counterfactual dashed lines ──────────────────
+  if (activeStory === "wait") {
+    const hm = Math.min(fullM, totalMonths - 1);
+    if (hm >= waitMonths) {
+      const m_T = hm - waitMonths;
+      if (m_T >= 0 && allWealth[0][m_T] > 0) {
+        const waitLineItems = [];
+        for (let i = 1; i < SCENARIOS.length; i++) {
+          if (hidden.has(i)) continue;
+          const lDc = allDecomp[i];
+          if (!lDc || !lDc.dComp?.[m_T]) continue;
+
+          // Sell cost at m_T
+          const sellCost_T =
+            inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
+              ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
+              : 0;
+
+          // Cap gains at m_T — always apply taxes (1031 off)
+          const savedInclCG = inclCapGains,
+            savedUse1031 = use1031;
+          inclCapGains = true;
+          use1031 = false;
+          const capGains_T = computeCapGains(i, m_T);
+          inclCapGains = savedInclCG;
+          use1031 = savedUse1031;
+
+          const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
+          const idxAt_mT = allWealth[0][m_T];
+          if (idxAt_mT <= 0) continue;
+
+          // Build counterfactual path from m_T to hm
+          const cf = [];
+          for (let m = m_T; m <= hm; m++) {
+            cf.push(net_T * (allWealth[0][m] / idxAt_mT));
+          }
+
+          // Net at current time (hm)
+          const sellCost_now =
+            inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
+              ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
+              : 0;
+          const savedInclCG2 = inclCapGains,
+            savedUse1031_2 = use1031;
+          inclCapGains = true;
+          use1031 = false;
+          const capGains_now = computeCapGains(i, hm);
+          inclCapGains = savedInclCG2;
+          use1031 = savedUse1031_2;
+
+          const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
+          const delta = cf[cf.length - 1] - net_now;
+
+          // Draw dashed counterfactual line
+          const color = CT.s[i];
+          ctx.strokeStyle = color;
+          ctx.globalAlpha = 0.6;
+          ctx.lineWidth = 1.5;
+          ctx.lineJoin = "round";
+          ctx.setLineDash([3, 3]);
+          ctx.beginPath();
+          ctx.moveTo(tx(m_T + 1), ty(cf[0]));
+          for (let k = 1; k < cf.length; k++) {
+            ctx.lineTo(tx(m_T + k + 1), ty(cf[k]));
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.globalAlpha = 1.0;
+
+          // Endpoint dot
+          const endX = tx(hm + 1);
+          const endY = ty(cf[cf.length - 1]);
+          ctx.fillStyle = color;
+          ctx.beginPath();
+          ctx.arc(endX, endY, 3, 0, Math.PI * 2);
+          ctx.fill();
+
+          waitLineItems.push({ i, endY, delta, color });
+        }
+
+        // Delta labels with collision avoidance
+        if (waitLineItems.length > 0) {
+          ctx.font = `${lfs}px monospace`;
+          ctx.textAlign = "left";
+          const lx = tx(hm + 1) + 6;
+          waitLineItems.sort((a, b) => a.endY - b.endY);
+          const positions = waitLineItems.map((w) => w.endY);
+          const minGap = lfs * 2 + 2;
+          for (let k = 1; k < positions.length; k++)
+            if (positions[k] < positions[k - 1] + minGap)
+              positions[k] = positions[k - 1] + minGap;
+          const yBottom = PT + chartH - lfs;
+          for (let k = positions.length - 1; k >= 0; k--) {
+            if (positions[k] > yBottom) positions[k] = yBottom;
+            if (
+              k < positions.length - 1 &&
+              positions[k] > positions[k + 1] - minGap
+            )
+              positions[k] = positions[k + 1] - minGap;
+          }
+          for (let k = 0; k < positions.length; k++)
+            if (positions[k] < PT + lfs) positions[k] = PT + lfs;
+
+          waitLineItems.forEach(({ delta }, k) => {
+            const sign = delta >= 0 ? "+" : "";
+            // red = selling earlier was better (missed index gains); green = holding RE was better
+            ctx.fillStyle = delta > 0 ? "#e05050" : "#50b060";
+            ctx.fillText(`${sign}${fmt(delta)}`, lx, positions[k]);
+          });
+        }
+      }
+    }
+    renderWaitSummary(Math.min(fullM, totalMonths - 1));
+  }
+
   // Annotate when any visible scenario is below the chart floor (negative equity)
   {
     let hasFloored = false;
@@ -2607,6 +2744,66 @@ function draw(monthsToShow) {
   updateLegendCagr(fullM);
   renderDecomp(fullM);
   updateRangeBar(); // keep brush aligned with chart's PL/PR
+}
+
+// ── Wait Summary ─────────────────────────────────────────────────────────
+function renderWaitSummary(hm) {
+  const el = document.getElementById("wait-summary");
+  if (!el) return;
+  if (
+    activeStory !== "wait" ||
+    hm < waitMonths ||
+    allWealth[0][hm - waitMonths] <= 0
+  ) {
+    el.innerHTML = "";
+    return;
+  }
+  const m_T = hm - waitMonths;
+  const indexName =
+    document.getElementById("index-select")?.selectedOptions[0]?.text ||
+    "Index";
+  const scenLabels = [
+    "All Cash",
+    ...RE_DOWN_PMTS.map((p) => `${dpPct(p)}% Down`),
+  ];
+  let html = "";
+  for (let i = 1; i < SCENARIOS.length; i++) {
+    if (hidden.has(i)) continue;
+    const lDc = allDecomp[i];
+    if (!lDc || !lDc.dComp?.[m_T]) continue;
+
+    const sellCost_T =
+      inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[m_T]
+        ? Math.round((lDc.price + lDc.dComp[m_T].appr) * lDc.txSellRate)
+        : 0;
+    const sellCost_now =
+      inclTxCosts && lDc.txSellRate > 0 && lDc.dComp?.[hm]
+        ? Math.round((lDc.price + lDc.dComp[hm].appr) * lDc.txSellRate)
+        : 0;
+
+    const savedInclCG = inclCapGains,
+      savedUse1031 = use1031;
+    inclCapGains = true;
+    use1031 = false;
+    const capGains_T = computeCapGains(i, m_T);
+    const capGains_now = computeCapGains(i, hm);
+    inclCapGains = savedInclCG;
+    use1031 = savedUse1031;
+
+    const net_T = allWealth[i][m_T] - sellCost_T - capGains_T;
+    const cfNow = net_T * (allWealth[0][hm] / allWealth[0][m_T]);
+    const net_now = allWealth[i][hm] - sellCost_now - capGains_now;
+    const delta = cfNow - net_now;
+    const sign = delta >= 0 ? "+" : "";
+    const arrowColor = delta > 0 ? "#e05050" : "#50b060";
+    const arrow = delta > 0 ? "↑" : "↓";
+    const label = scenLabels[i - 1] || `Scenario ${i}`;
+    html +=
+      `<span style="color:var(--text-mid)">${label}: sold ${waitMonths}mo ago → ${indexName} ${fmt(cfNow)}</span>` +
+      `<span style="color:var(--text-dim)">  vs today ${fmt(net_now)}</span>` +
+      `  <span style="color:${arrowColor}">${sign}${fmt(delta)} ${arrow}</span><br>`;
+  }
+  el.innerHTML = html;
 }
 
 // ── Year label ────────────────────────────────────────────────────────────
@@ -2841,8 +3038,14 @@ if (isPrimary) {
   document.getElementById("btn-rental").classList.remove("active");
 }
 syncPmFeeBtn();
-if (showIndexOverlay)
-  document.getElementById("overlay-legend-row").classList.add("active");
+if (activeStory === "usual") {
+  document.getElementById("story-select").value = "usual";
+  document.getElementById("story-abbr").textContent = "Usual";
+  const legendRow = document.getElementById("overlay-legend-row");
+  legendRow.style.display = "flex";
+  legendRow.classList.add("active");
+  document.getElementById("legend").classList.add("overlay-active");
+}
 if (numRefis > 0) {
   [0, 1, 2, 3].forEach((i) =>
     document

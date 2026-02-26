@@ -1010,3 +1010,12 @@ th:first-child {
   opacity: 0.2;
   transition: opacity 0.15s;
 }
+#wait-summary {
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--text-mid);
+  text-align: center;
+  line-height: 1.8;
+  margin: 3px 0 4px;
+  min-height: 0;
+}
