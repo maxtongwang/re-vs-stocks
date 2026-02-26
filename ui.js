@@ -500,7 +500,10 @@ document.getElementById("story-select").addEventListener("change", (e) => {
       ? "Usual"
       : activeStory === "wait"
         ? "Delay"
-        : "Story";
+        : "Learned Lessons";
+  document
+    .getElementById("story-row")
+    .classList.toggle("active", activeStory !== "");
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = activeStory === "usual" ? "flex" : "none";
   legendRow.classList.add("active"); // always visual-only
@@ -3041,6 +3044,7 @@ syncPmFeeBtn();
 if (activeStory === "usual") {
   document.getElementById("story-select").value = "usual";
   document.getElementById("story-abbr").textContent = "Usual";
+  document.getElementById("story-row").classList.add("active");
   const legendRow = document.getElementById("overlay-legend-row");
   legendRow.style.display = "flex";
   legendRow.classList.add("active");
