@@ -2318,6 +2318,25 @@ function drawWaitChart(CT, W, H, fullM, frac) {
     ctx.fillText(saleYear, lblX, PT + 29);
     ctx.globalAlpha = 1.0;
 
+    // Amber shaded band: planned sale → actual (delayed) sale
+    const m_actual_zone = Math.min(m_T + waitMonths, hm);
+    const xActual_zone = tx(m_actual_zone + 1);
+    if (xActual_zone > xSale + 2) {
+      ctx.globalAlpha = 0.09;
+      ctx.fillStyle = "#e8a838";
+      ctx.fillRect(xSale, PT, xActual_zone - xSale, chartH);
+      ctx.globalAlpha = 0.7;
+      ctx.fillStyle = "#e8a838";
+      ctx.font = smFont;
+      ctx.textAlign = "center";
+      ctx.fillText(
+        `${waitMonths}mo delay`,
+        (xSale + xActual_zone) / 2,
+        PT + 11,
+      );
+      ctx.globalAlpha = 1.0;
+    }
+
     const cfEndpoints = [];
     const xEnd = tx(hm + 1);
     for (let i = 1; i < SCENARIOS.length; i++) {
@@ -2375,7 +2394,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       cfEndpoints.push({ cfEnd, delta, cfColor });
     }
 
-    // Delta labels — collision-avoided, left-aligned in right margin
+    // Endpoint callouts — right-aligned just inside chart near dot
     if (cfEndpoints.length > 0) {
       cfEndpoints.sort((a, b) => b.cfEnd - a.cfEnd);
       const lblH = (lfs + 2) * 2;
@@ -2390,13 +2409,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
           positions[k] = positions[k + 1] - lblH;
       }
       ctx.font = `${lfs}px monospace`;
-      ctx.textAlign = "left";
+      ctx.textAlign = "right";
       cfEndpoints.forEach(({ delta, cfColor }, k) => {
+        ctx.globalAlpha = 0.6;
         ctx.fillStyle = cfColor;
-        ctx.fillText("on plan:", xEnd + 5, positions[k]);
+        ctx.fillText("sold on time →", xEnd - 7, positions[k]);
+        ctx.globalAlpha = 1.0;
         ctx.fillText(
           `${delta >= 0 ? "+" : ""}${fmt(delta)}`,
-          xEnd + 5,
+          xEnd - 7,
           positions[k] + lfs + 2,
         );
       });
