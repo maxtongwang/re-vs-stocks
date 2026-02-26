@@ -2285,25 +2285,32 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   // Counterfactual: sale point at 2/3 of visible range
   const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
   if (m_T >= 0 && allWealth[0][m_T] > 0) {
-    // Planned sale vertical marker
+    // Planned sale vertical marker — amber, full height, labels inside chart
     const xSale = tx(m_T + 1);
-    ctx.globalAlpha = 0.6;
-    ctx.strokeStyle = CT.axis;
+    const saleColor = "#e8a838";
+    ctx.globalAlpha = 0.85;
+    ctx.strokeStyle = saleColor;
     ctx.lineWidth = 1.5;
     ctx.setLineDash([5, 3]);
     ctx.beginPath();
-    ctx.moveTo(xSale, PT + 18);
+    ctx.moveTo(xSale, PT);
     ctx.lineTo(xSale, PT + chartH);
     ctx.stroke();
     ctx.setLineDash([]);
-    const smFont = `${Math.max(6, Math.min(8, W / 70))}px monospace`;
+    // Two-line label inside chart, left of line if near right edge, else right
+    const smFont = `${Math.max(6, Math.min(9, W / 65))}px monospace`;
     ctx.font = smFont;
-    ctx.textAlign = "center";
-    ctx.globalAlpha = 0.8;
-    ctx.fillStyle = CT.label;
-    ctx.fillText("planned sale", xSale, PT + 8);
-    ctx.globalAlpha = 0.65;
-    ctx.fillText(`${startYear + Math.floor(m_T / 12)}`, xSale, PT + 17);
+    const saleYear = `${startYear + Math.floor(m_T / 12)}`;
+    const lblW = Math.max(
+      ctx.measureText("planned sale").width,
+      ctx.measureText(saleYear).width,
+    );
+    const lblX = xSale + lblW + 6 > PL + chartW ? xSale - 4 : xSale + 4;
+    ctx.textAlign = xSale + lblW + 6 > PL + chartW ? "right" : "left";
+    ctx.fillStyle = saleColor;
+    ctx.globalAlpha = 0.9;
+    ctx.fillText("planned sale", lblX, PT + 18);
+    ctx.fillText(saleYear, lblX, PT + 29);
     ctx.globalAlpha = 1.0;
 
     const cfEndpoints = [];
