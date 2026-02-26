@@ -2459,27 +2459,21 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Colored fill band between CF curve and RE line over delay period
-      // Shows the cumulative impact of the delay, layered on top of the amber zone
+      // Colored rectangle from sell-target line to delay point,
+      // height = gap between CF and RE values at the delay endpoint
       const yRedelay = ty(net_delay);
-      ctx.globalAlpha = 0.22;
+      const yCfDelay = ty(cf_delay);
+      ctx.globalAlpha = 0.25;
       ctx.fillStyle = delayColor;
-      ctx.beginPath();
-      for (let m = m_T; m <= m_actual_zone; m++) {
-        const cfV = net_T * (allWealth[0][m] / idxAt_mT);
-        if (m === m_T) ctx.moveTo(tx(m + 1), ty(cfV));
-        else ctx.lineTo(tx(m + 1), ty(cfV));
-      }
-      for (let m = m_actual_zone; m >= m_T; m--) {
-        const reV = netWW[i]?.[m] ?? allWealth[i][m];
-        ctx.lineTo(tx(m + 1), ty(reV));
-      }
-      ctx.closePath();
-      ctx.fill();
+      ctx.fillRect(
+        xSale,
+        Math.min(yCfDelay, yRedelay),
+        xDelay - xSale,
+        Math.abs(yRedelay - yCfDelay),
+      );
       ctx.globalAlpha = 1.0;
 
       // Vertical connector at delay point: CF endpoint → RE line
-      const yCfDelay = ty(cf_delay);
       const tickW = 4;
       ctx.strokeStyle = delayColor;
       ctx.lineWidth = 1.5;
