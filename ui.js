@@ -517,7 +517,7 @@ function setActiveStory(story) {
     activeStory === "usual"
       ? "Usual"
       : activeStory === "wait"
-        ? "Delay"
+        ? "Cost of Delay"
         : "Story";
   document
     .getElementById("story-row")
@@ -2285,22 +2285,25 @@ function drawWaitChart(CT, W, H, fullM, frac) {
   // Counterfactual: sale point at 2/3 of visible range
   const m_T = hm > 2 ? Math.max(1, Math.round((hm * 2) / 3)) : -1;
   if (m_T >= 0 && allWealth[0][m_T] > 0) {
-    // Sale-date vertical marker
+    // Planned sale vertical marker
     const xSale = tx(m_T + 1);
-    ctx.globalAlpha = 0.25;
+    ctx.globalAlpha = 0.6;
     ctx.strokeStyle = CT.axis;
-    ctx.lineWidth = 1;
-    ctx.setLineDash([3, 4]);
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash([5, 3]);
     ctx.beginPath();
-    ctx.moveTo(xSale, PT + 14);
+    ctx.moveTo(xSale, PT + 18);
     ctx.lineTo(xSale, PT + chartH);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.globalAlpha = 0.55;
-    ctx.fillStyle = CT.label;
-    ctx.font = `${Math.max(6, Math.min(8, W / 70))}px monospace`;
+    const smFont = `${Math.max(6, Math.min(8, W / 70))}px monospace`;
+    ctx.font = smFont;
     ctx.textAlign = "center";
-    ctx.fillText(`${startYear + Math.floor(m_T / 12)}`, xSale, PT + 11);
+    ctx.globalAlpha = 0.8;
+    ctx.fillStyle = CT.label;
+    ctx.fillText("planned sale", xSale, PT + 8);
+    ctx.globalAlpha = 0.65;
+    ctx.fillText(`${startYear + Math.floor(m_T / 12)}`, xSale, PT + 17);
     ctx.globalAlpha = 1.0;
 
     const cfEndpoints = [];
@@ -2342,6 +2345,15 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.stroke();
       ctx.setLineDash([]);
 
+      // Small tick at actual sale point on the solid line
+      ctx.strokeStyle = CT.s[i];
+      ctx.globalAlpha = 0.8;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(xActual, yActual - 5);
+      ctx.lineTo(xActual, yActual + 5);
+      ctx.stroke();
+
       // Dot at counterfactual endpoint in outcome color
       ctx.globalAlpha = 1.0;
       ctx.fillStyle = cfColor;
@@ -2370,7 +2382,7 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       cfEndpoints.forEach(({ delta, cfColor }, k) => {
         ctx.fillStyle = cfColor;
         ctx.fillText(
-          `${delta >= 0 ? "+" : ""}${fmt(delta)}`,
+          `on plan: ${delta >= 0 ? "+" : ""}${fmt(delta)}`,
           xEnd + 5,
           positions[k],
         );
