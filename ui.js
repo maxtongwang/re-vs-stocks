@@ -2483,14 +2483,10 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.stroke();
       ctx.setLineDash([]);
 
+      // Colored rectangle from sell-target line to delay point,
+      // height = gap between CF and RE values at the delay endpoint
       const yRedelay = ty(net_delay);
       const yCfDelay = ty(cf_delay);
-      const yReEnd = ty(net_end);
-      const yCfEnd = ty(cf_end);
-      const tickW = 4;
-      const dotR = 2.5;
-
-      // Rectangle 1: sell-target → delay point
       ctx.globalAlpha = 0.25;
       ctx.fillStyle = delayColor;
       ctx.fillRect(
@@ -2499,18 +2495,10 @@ function drawWaitChart(CT, W, H, fullM, frac) {
         xDelay - xSale,
         Math.abs(yRedelay - yCfDelay),
       );
-
-      // Rectangle 2: delay point → period end
-      ctx.fillStyle = endColor;
-      ctx.fillRect(
-        xDelay,
-        Math.min(yCfEnd, yReEnd),
-        xEnd - xDelay,
-        Math.abs(yReEnd - yCfEnd),
-      );
       ctx.globalAlpha = 1.0;
 
-      // Vertical connector at delay point
+      // Vertical connector at delay point: CF endpoint → RE line
+      const tickW = 4;
       ctx.strokeStyle = delayColor;
       ctx.lineWidth = 1.5;
       ctx.globalAlpha = 0.9;
@@ -2518,35 +2506,26 @@ function drawWaitChart(CT, W, H, fullM, frac) {
       ctx.moveTo(xDelay, yCfDelay);
       ctx.lineTo(xDelay, yRedelay);
       ctx.stroke();
+      // Ticks at both ends
       ctx.beginPath();
       ctx.moveTo(xDelay - tickW, yCfDelay);
       ctx.lineTo(xDelay + tickW, yCfDelay);
       ctx.moveTo(xDelay - tickW, yRedelay);
       ctx.lineTo(xDelay + tickW, yRedelay);
       ctx.stroke();
-
-      // Vertical connector at period end
-      ctx.strokeStyle = endColor;
-      ctx.beginPath();
-      ctx.moveTo(xEnd, yCfEnd);
-      ctx.lineTo(xEnd, yReEnd);
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(xEnd - tickW, yCfEnd);
-      ctx.lineTo(xEnd + tickW, yCfEnd);
-      ctx.moveTo(xEnd - tickW, yReEnd);
-      ctx.lineTo(xEnd + tickW, yReEnd);
-      ctx.stroke();
       ctx.globalAlpha = 1.0;
 
-      // Dots — same small size at both points
+      // Small dot at CF side of delay point
       ctx.fillStyle = delayColor;
       ctx.beginPath();
-      ctx.arc(xDelay, yCfDelay, dotR, 0, Math.PI * 2);
+      ctx.arc(xDelay, yCfDelay, 3, 0, Math.PI * 2);
       ctx.fill();
+
+      // Larger dot at period end
+      const yCfEnd = ty(cf_end);
       ctx.fillStyle = endColor;
       ctx.beginPath();
-      ctx.arc(xEnd, yCfEnd, dotR, 0, Math.PI * 2);
+      ctx.arc(xEnd, yCfEnd, 5, 0, Math.PI * 2);
       ctx.fill();
 
       cfEndpoints.push({
