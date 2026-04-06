@@ -1,21 +1,24 @@
 {
   "name": "re-vs-stocks",
-  "version": "1.0.0",
+  "version": "2026.04.06",
   "description": "S&P 500 vs CA Real Estate animated comparison",
   "scripts": {
     "start": "npx remotion studio src/index.ts",
     "preview": "npx remotion studio src/index.ts",
-    "render": "npx remotion render src/index.ts StocksVsRE out/animation.mp4"
+    "render": "npx remotion render src/index.ts StocksVsRE out/animation.mp4",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@remotion/cli": "^4.0.0",
-    "remotion": "^4.0.0",
     "react": "^18.0.0",
-    "react-dom": "^18.0.0"
+    "react-dom": "^18.0.0",
+    "remotion": "^4.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
-    "typescript": "^5.0.0"
+    "typescript": "^5.0.0",
+    "vitest": "^3.2.4"
   }
 }

@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      - name: Verify JS syntax
+        run: |
+          node -e "
+            const fs = require('fs');
+            try { new Function(fs.readFileSync('data.js', 'utf8')); }
+            catch(e) { console.error('data.js error:', e.message); process.exit(1); }
+            const html = fs.readFileSync('index.html', 'utf8');
+            const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
+            scripts.forEach((s, i) => {
+              try { new Function(s.replace(/<\/?script>/g, '')); }
+              catch(e) { console.error('index.html block', i, ':', e.message); process.exit(1); }
+            });
+            console.log('JS OK');
+          "

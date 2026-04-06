@@ -1,0 +1,20 @@
+language: en-US
+reviews:
+  profile: chill
+  high_level_summary: true
+  auto_review:
+    enabled: true
+    drafts: false
+  path_instructions:
+    - path: "sim.js"
+      instructions: "Financial simulation engine. Pay attention to mathematical correctness, off-by-one errors in month/year indexing, and financial assumptions."
+    - path: "data.js"
+      instructions: "Auto-generated historical data arrays. Only review structural changes, not data values."
+    - path: "ui.js"
+      instructions: "Browser DOM manipulation. Check for accessibility, XSS via innerHTML, and mobile responsiveness."
+    - path: "src/**"
+      instructions: "Remotion video animation in TypeScript. Check types and React best practices."
+    - path: "scripts/**"
+      instructions: "Python data fetcher. Check API error handling and data validation."
+chat:
+  auto_reply: true
