@@ -2,13 +2,10 @@ name: Monthly projection update
 
 on:
   schedule:
-    # Runs every Monday at 8am UTC (weekly retry cadence).
-    # FMP (stocks, mortgage) always updates.
-    # FRED groups (FHFA, S&P CS, BLS rent) are skipped silently when prior-year
-    # data isn't published yet; they are picked up automatically once available
-    # (~late Feb for Dec data) — typically within 7 days instead of 30.
-    # workflow_dispatch allows on-demand runs without waiting for the next Monday.
-    - cron: "0 8 * * 1"
+    # 3rd of month at 8am UTC — catches Case-Shiller (last Tue) + FHFA (quarterly)
+    # 17th of month at 8am UTC — catches BLS CPI rent (~10th–14th)
+    - cron: "0 8 3 * *"
+    - cron: "0 8 17 * *"
   workflow_dispatch: # manual trigger at any time
 
 jobs:
@@ -16,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
@@ -32,10 +30,8 @@ jobs:
         run: |
           node -e "
             const fs = require('fs');
-            // Check data.js (primary patch target)
             try { new Function(fs.readFileSync('data.js', 'utf8')); }
             catch(e) { console.error('data.js error:', e.message); process.exit(1); }
-            // Check inline <script> blocks in index.html
             const html = fs.readFileSync('index.html', 'utf8');
             const scripts = html.match(/<script>([\s\S]*?)<\/script>/g) || [];
             scripts.forEach((s, i) => {
@@ -50,14 +46,37 @@ jobs:
           TODAY=$(date +%Y-%m-%d)
           sed -i "s|<lastmod>.*</lastmod>|<lastmod>$TODAY</lastmod>|g" sitemap.xml
 
-      - name: Commit and push if changed
+      - name: Create PR if changed
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add index.html data.js sitemap.xml
           if git diff --staged --quiet; then
-            echo "No changes — data unchanged this week."
-          else
-            git commit -m "chore: projection update $(date +%Y-%m-%d) [skip ci]"
-            git push
+            echo "No changes — data unchanged this run."
+            exit 0
           fi
+
+          BRANCH="data/update-$(date +%Y-%m-%d)"
+          git checkout -b "$BRANCH"
+          git commit -m "chore: projection update $(date +%Y-%m-%d)"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: projection update $(date +%Y-%m-%d)" \
+            --body "$(cat <<'EOF'
+          Automated data refresh from FMP + FRED.
+
+          - S&P 500, NASDAQ, TLT: current-year YTD + prior-year annual (FMP)
+          - Mortgage rate: 10yr Treasury + 180bps spread (FMP)
+          - House prices: FHFA HPI + S&P Case-Shiller — annual + YTD annualized (FRED)
+          - Rent growth: BLS CPI — annual + YTD annualized (FRED)
+
+          Auto-merge enabled — will merge when CI passes.
+          EOF
+          )" \
+            --base main \
+            --head "$BRANCH"
+
+          gh pr merge "$BRANCH" --auto --squash --delete-branch

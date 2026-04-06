@@ -33,25 +33,25 @@ npm run render   # renders to out/animation.mp4
 
 ## Project Structure
 
-| Path                       | Purpose                                      |
-| -------------------------- | -------------------------------------------- |
-| `index.html`               | Main interactive web app                     |
-| `sim.js`                   | Financial simulation engine                  |
-| `ui.js`                    | UI rendering and controls                    |
-| `data.js`                  | Historical market data (auto-updated weekly) |
-| `style.css` / `themes.css` | Styling                                      |
-| `src/`                     | Remotion video animation (TypeScript)        |
-| `scripts/`                 | Python data fetcher for CI                   |
+| Path                       | Purpose                                                                    |
+| -------------------------- | -------------------------------------------------------------------------- |
+| `index.html`               | Main interactive web app                                                   |
+| `sim.js`                   | Financial simulation engine                                                |
+| `ui.js`                    | UI rendering and controls                                                  |
+| `data.js`                  | Historical market data (CI refreshes weekly; FRED sources update annually) |
+| `style.css` / `themes.css` | Styling                                                                    |
+| `src/`                     | Remotion video animation (TypeScript)                                      |
+| `scripts/`                 | Python data fetcher for CI                                                 |
 
 ## Data Sources
 
-| Data                 | Source                                                                                                            | Update Frequency |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------- |
-| S&P 500, NASDAQ      | [FMP](https://financialmodelingprep.com/)                                                                         | Weekly (CI)      |
-| House prices (metro) | [FHFA HPI](https://www.fhfa.gov/data/hpi) via FRED                                                                | Annual (Q4)      |
-| House prices (city)  | [S&P Case-Shiller](https://www.spglobal.com/spdji/en/index-family/indicators/sp-corelogic-case-shiller/) via FRED | Annual (Dec)     |
-| Rent growth          | [BLS CPI Rent](https://www.bls.gov/cpi/) via FRED                                                                 | Annual (Dec)     |
-| Mortgage rates       | FMP 10yr Treasury + 180bps spread                                                                                 | Weekly (CI)      |
+| Data                 | Source                                                                                                            | FRED Frequency | CI Picks Up                |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------- | -------------- | -------------------------- |
+| S&P 500, NASDAQ      | [FMP](https://financialmodelingprep.com/)                                                                         | —              | Twice monthly (3rd, 17th)  |
+| House prices (metro) | [FHFA HPI](https://www.fhfa.gov/data/hpi) via FRED                                                                | Quarterly      | Annual final + monthly YTD |
+| House prices (city)  | [S&P Case-Shiller](https://www.spglobal.com/spdji/en/index-family/indicators/sp-corelogic-case-shiller/) via FRED | Monthly        | Annual final + monthly YTD |
+| Rent growth          | [BLS CPI Rent](https://www.bls.gov/cpi/) via FRED                                                                 | Monthly        | Annual final + monthly YTD |
+| Mortgage rates       | FMP 10yr Treasury + 180bps spread                                                                                 | —              | Twice monthly (3rd, 17th)  |
 
 ## Testing
 

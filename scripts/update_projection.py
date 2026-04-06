@@ -6,11 +6,12 @@ Failure tiers:
   SOFT  — FRED group (fhfa / cs / rent) not yet published → skip that group,
           write the rest. Each FRED group is all-or-nothing within itself.
 
-Update cadence:
-  Monthly (Jan–Dec): FMP stock indices + mortgage rate always update.
-  ~March:            FRED groups land once prior-year Q4/Dec data is published.
-                     FHFA Q4 and S&P CS Dec typically release last week of Feb.
-                     BLS CPI rent Dec typically releases mid-January.
+Update cadence (CI runs on 3rd and 17th of each month):
+  3rd:  catches Case-Shiller (last Tue of prior month) + FHFA (quarterly).
+  17th: catches BLS CPI rent (~10th–14th of month).
+  Both: FMP stock indices + mortgage rate always update.
+  Annual: FRED prior-year final data lands ~Feb–Mar.
+  Monthly: FRED current-year YTD data annualized from latest available.
 
 Updates in data.js:
   1. SP500_PRICE current-year estimate  → actual annual return from FMP price history
@@ -354,6 +355,128 @@ def rent_growth_annual(series_id: str, year: int, fred_key: str) -> float | None
     return None
 
 
+# ── FHFA HPI YTD return (FRED, latest quarter vs prior Q4) ─────────────────
+
+def hpi_ytd_return(series_id: str, year: int, fred_key: str) -> float | None:
+    """Annualized YTD return from latest available FHFA quarter vs prior Q4.
+
+    FHFA publishes quarterly with ~2-month lag.  We fetch all observations
+    from prior Q4 through end of current year, find the latest quarter,
+    compute the raw change, and annualize: (1 + raw)^(4/quarters_elapsed) - 1.
+    Returns None if no current-year quarter is available yet.
+    """
+    try:
+        start = f"{year-1}-10-01"
+        end   = f"{year}-12-31"
+        data  = fetch_fred(series_id, start, end, fred_key)
+        obs   = sorted(
+            [(o["date"], float(o["value"]))
+             for o in data.get("observations", [])
+             if o["value"] != "."],
+            key=lambda x: x[0],
+        )
+        if not obs:
+            return None
+        # Prior Q4 value (YYYY-10-01 label)
+        q4_prev = None
+        for date_str, val in obs:
+            if date_str == f"{year-1}-10-01":
+                q4_prev = val
+                break
+        if q4_prev is None or q4_prev <= 0:
+            return None
+        # Latest observation in current year
+        cur_year_obs = [(d, v) for d, v in obs if d >= f"{year}-01-01"]
+        if not cur_year_obs:
+            return None
+        latest_date, latest_val = cur_year_obs[-1]
+        # Quarter count: Q1=01-01, Q2=04-01, Q3=07-01, Q4=10-01
+        month = int(latest_date[5:7])
+        quarters_elapsed = {1: 1, 4: 2, 7: 3, 10: 4}.get(month, 1)
+        raw = (latest_val / q4_prev) - 1
+        annualized = (1 + raw) ** (4 / quarters_elapsed) - 1
+        return round(annualized, 4)
+    except Exception as e:
+        print(f"    FRED HPI YTD error ({series_id}): {e}")
+    return None
+
+
+# ── S&P CS HPI YTD return (FRED, latest month vs prior Dec) ────────────────
+
+def cs_hpi_ytd_return(series_id: str, year: int, fred_key: str) -> float | None:
+    """Annualized YTD return from latest available CS month vs prior Dec.
+
+    Case-Shiller publishes monthly with ~2-month lag.  Fetch prior Dec
+    through end of current year, find the latest month, annualize.
+    """
+    try:
+        start = f"{year-1}-12-01"
+        end   = f"{year}-12-31"
+        data  = fetch_fred(series_id, start, end, fred_key)
+        obs   = sorted(
+            [(o["date"], float(o["value"]))
+             for o in data.get("observations", [])
+             if o["value"] != "."],
+            key=lambda x: x[0],
+        )
+        if not obs:
+            return None
+        dec_prev = None
+        for date_str, val in obs:
+            if date_str == f"{year-1}-12-01":
+                dec_prev = val
+                break
+        if dec_prev is None or dec_prev <= 0:
+            return None
+        cur_year_obs = [(d, v) for d, v in obs if d >= f"{year}-01-01"]
+        if not cur_year_obs:
+            return None
+        latest_date, latest_val = cur_year_obs[-1]
+        months_elapsed = int(latest_date[5:7])
+        raw = (latest_val / dec_prev) - 1
+        annualized = (1 + raw) ** (12 / months_elapsed) - 1
+        return round(annualized, 4)
+    except Exception as e:
+        print(f"    FRED CS HPI YTD error ({series_id}): {e}")
+    return None
+
+
+# ── BLS CPI rent YTD growth (FRED, latest month vs prior Dec) ──────────────
+
+def rent_growth_ytd(series_id: str, year: int, fred_key: str) -> float | None:
+    """Annualized YTD rent growth from latest available BLS CPI month vs prior Dec."""
+    try:
+        start = f"{year-1}-12-01"
+        end   = f"{year}-12-31"
+        data  = fetch_fred(series_id, start, end, fred_key)
+        obs   = sorted(
+            [(o["date"], float(o["value"]))
+             for o in data.get("observations", [])
+             if o["value"] != "."],
+            key=lambda x: x[0],
+        )
+        if not obs:
+            return None
+        dec_prev = None
+        for date_str, val in obs:
+            if date_str == f"{year-1}-12-01":
+                dec_prev = val
+                break
+        if dec_prev is None or dec_prev <= 0:
+            return None
+        cur_year_obs = [(d, v) for d, v in obs if d >= f"{year}-01-01"]
+        if not cur_year_obs:
+            return None
+        latest_date, latest_val = cur_year_obs[-1]
+        months_elapsed = int(latest_date[5:7])
+        raw = (latest_val / dec_prev) - 1
+        annualized = (1 + raw) ** (12 / months_elapsed) - 1
+        return round(annualized, 4)
+    except Exception as e:
+        print(f"    FRED rent YTD error ({series_id}): {e}")
+    return None
+
+
 # ── Glide path ────────────────────────────────────────────────────────────────
 
 def generate_glide(start_rate: float, floor: float = MORT_FLOOR) -> list[float]:
@@ -681,6 +804,37 @@ def main():
                 print(f"  {series_id}: {ret:+.4f}")
         rent_returns[var_name] = seen_series[series_id]
 
+    # FRED: current-year YTD estimates (annualized from latest available data)
+    # These are soft — any miss is silently skipped (data not yet published).
+    cur_hpi_ytd:  dict[str, float | None] = {}
+    cur_cs_ytd:   dict[str, float | None] = {}
+    cur_rent_ytd: dict[str, float | None] = {}
+    print(f"\nFRED: current-year ({cur_year}) YTD estimates…")
+
+    print(f"  FHFA HPI YTD (annualized from latest quarter)…")
+    for var_name, series_id in HPI_SERIES.items():
+        ret = hpi_ytd_return(series_id, cur_year, fred_key)
+        cur_hpi_ytd[var_name] = ret
+        if ret is not None:
+            print(f"    {var_name}: {ret:+.4f}")
+
+    print(f"  S&P CS HPI YTD (annualized from latest month)…")
+    for var_name, series_id in CS_HPI_SERIES.items():
+        ret = cs_hpi_ytd_return(series_id, cur_year, fred_key)
+        cur_cs_ytd[var_name] = ret
+        if ret is not None:
+            print(f"    {var_name}: {ret:+.4f}")
+
+    seen_ytd: dict[str, float | None] = {}
+    print(f"  BLS CPI rent YTD (annualized from latest month)…")
+    for var_name, series_id in RENT_SERIES.items():
+        if series_id not in seen_ytd:
+            ret = rent_growth_ytd(series_id, cur_year, fred_key)
+            seen_ytd[series_id] = ret
+            if ret is not None:
+                print(f"    {series_id}: {ret:+.4f}")
+        cur_rent_ytd[var_name] = seen_ytd[series_id]
+
     # ── Phase 2: Tiered failure gate ──────────────────────────────────────────
     if fmp_failures:
         print(f"\nERROR: {len(fmp_failures)} FMP fetch(es) failed — aborting, no files written:",
@@ -776,6 +930,59 @@ def main():
                 print(f"  {city_rent}: {parent_rent} × {rent_scale} = {city_rent_val:+.4f}")
                 data = patch_loc_estimate(data, city_rent, city_rent_val, est_year)
 
+    # ── Current-year YTD patches (soft — patch individually, skip missing) ────
+    ytd_count = 0
+    print(f"\nPatching {cur_year} YTD estimates…")
+
+    for var_name, ret in cur_hpi_ytd.items():
+        if ret is not None:
+            try:
+                data = patch_loc_estimate(data, var_name, ret, cur_year)
+                print(f"  {var_name}: {ret:+.4f}")
+                ytd_count += 1
+            except ValueError:
+                pass  # no cur_year marker yet (pre-rollover)
+
+    for var_name, ret in cur_cs_ytd.items():
+        if ret is not None:
+            try:
+                data = patch_loc_estimate(data, var_name, ret, cur_year)
+                print(f"  {var_name}: {ret:+.4f}")
+                ytd_count += 1
+            except ValueError:
+                pass
+
+    for var_name, ret in cur_rent_ytd.items():
+        if ret is not None:
+            try:
+                data = patch_loc_estimate(data, var_name, ret, cur_year)
+                print(f"  {var_name}: {ret:+.4f}")
+                ytd_count += 1
+            except ValueError:
+                pass
+
+    # City YTD estimates — derived from parent metro YTD × scale factor
+    for city_ann, (parent_hpi, price_scale, parent_rent, rent_scale) in CITY_FROM_METRO.items():
+        city_rent = city_ann.replace("_ANN", "_RENT_GROWTH")
+        parent_hpi_ytd = cur_hpi_ytd.get(parent_hpi)
+        if parent_hpi_ytd is not None:
+            try:
+                city_val = round(parent_hpi_ytd * price_scale, 4)
+                data = patch_loc_estimate(data, city_ann, city_val, cur_year)
+                ytd_count += 1
+            except ValueError:
+                pass
+        parent_rent_ytd = cur_rent_ytd.get(parent_rent)
+        if parent_rent_ytd is not None:
+            try:
+                city_rent_val = round(parent_rent_ytd * rent_scale, 4)
+                data = patch_loc_estimate(data, city_rent, city_rent_val, cur_year)
+                ytd_count += 1
+            except ValueError:
+                pass
+
+    print(f"  → {ytd_count} YTD estimates patched")
+
     with open(HTML_FILE, "w", encoding="utf-8") as f:
         f.write(html)
     with open(DATA_FILE, "w", encoding="utf-8") as f:
@@ -789,7 +996,8 @@ def main():
     print(f"\nDone. date={date}, mortgage={mort}")
     print(f"  {est_year} annual: sp500={sp_ret}, nasdaq={nasdaq_ret}, tlt={tlt_ret}")
     print(f"  {cur_year} YTD:    sp500={sp_cur}, nasdaq={nasdaq_cur}, tlt={tlt_cur}")
-    print(f"  FRED:           {fred_summary}")
+    print(f"  FRED annual:    {fred_summary}")
+    print(f"  FRED YTD:       {ytd_count} estimates patched")
 
 
 if __name__ == "__main__":
