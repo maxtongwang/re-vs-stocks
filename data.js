@@ -689,7 +689,7 @@ const SP500_PRICE = [
   0.1639, // 2025 (preliminary estimate)
   // SP500_2025_END
   // SP500_CUR_START (auto-updated monthly — current year YTD estimate)
-  -0.0384, // 2026 (estimate — Bloomberg Wall St consensus)
+  0.0286, // 2026 (estimate — Bloomberg Wall St consensus)
   // SP500_CUR_END
 ];
 // S&P 500 annual dividend yields — Macrotrends historical
@@ -4394,7 +4394,7 @@ const LAJOLLA_RENT_GROWTH = [
   0.081,
   0.0043,
   0.023,
-  0.023, // 2026 (estimate)
+  0.0192, // 2026 (estimate)
 ];
 // La Jolla gross rent yields 1970–2026
 const LAJOLLA_RENT_YIELDS = [
@@ -4525,7 +4525,7 @@ const DELMAR_RENT_GROWTH = [
   0.0766,
   0.0041,
   0.0218, // 2025 (estimate)
-  0.0218, // 2026 (estimate)
+  0.0182, // 2026 (estimate)
 ];
 // Del Mar gross rent yields 1970–2026
 const DELMAR_RENT_YIELDS = [
@@ -4656,7 +4656,7 @@ const RSF_RENT_GROWTH = [
   0.0634,
   0.0034,
   0.018,
-  0.018, // 2026 (estimate)
+  0.015, // 2026 (estimate)
 ];
 // Rancho Santa Fe gross rent yields 1970–2026
 const RSF_RENT_YIELDS = [
@@ -4787,7 +4787,7 @@ const CORONADO_RENT_GROWTH = [
   0.0792,
   0.0042,
   0.0225,
-  0.0225, // 2026 (estimate)
+  0.0188, // 2026 (estimate)
 ];
 // Coronado gross rent yields 1970–2026
 const CORONADO_RENT_YIELDS = [
@@ -4918,7 +4918,7 @@ const CARLSBAD_RENT_GROWTH = [
   0.0915,
   0.0049,
   0.026,
-  0.026, // 2026 (estimate)
+  0.0217, // 2026 (estimate)
 ];
 // Carlsbad gross rent yields 1970–2026
 const CARLSBAD_RENT_YIELDS = [
@@ -5050,7 +5050,7 @@ const PALOALTO_RENT_GROWTH = [
   0.0366,
   0.0277,
   0.0336,
-  0.0336, // 2026 (estimate)
+  0.029, // 2026 (estimate)
 ];
 // Palo Alto gross rent yields 1970–2026
 const PALOALTO_RENT_YIELDS = [
@@ -5181,7 +5181,7 @@ const ATHERTON_RENT_GROWTH = [
   0.0262,
   0.0198,
   0.024,
-  0.024, // 2026 (estimate)
+  0.0207, // 2026 (estimate)
 ];
 // Atherton gross rent yields 1970–2026
 const ATHERTON_RENT_YIELDS = [
@@ -5312,7 +5312,7 @@ const LOSALTOS_RENT_GROWTH = [
   0.0347,
   0.0262,
   0.0318, // 2025 (estimate)
-  0.0318, // 2026 (estimate)
+  0.0275, // 2026 (estimate)
 ];
 // Los Altos gross rent yields 1970–2026
 const LOSALTOS_RENT_YIELDS = [
@@ -5443,7 +5443,7 @@ const MENLOPARK_RENT_GROWTH = [
   0.036,
   0.0272,
   0.033,
-  0.033, // 2026 (estimate)
+  0.0285, // 2026 (estimate)
 ];
 // Menlo Park gross rent yields 1970–2026
 const MENLOPARK_RENT_YIELDS = [
@@ -5574,7 +5574,7 @@ const SARATOGA_RENT_GROWTH = [
   0.0314,
   0.0237,
   0.0288, // 2025 (estimate)
-  0.0288, // 2026 (estimate)
+  0.0249, // 2026 (estimate)
 ];
 // Saratoga gross rent yields 1970–2026
 const SARATOGA_RENT_YIELDS = [
@@ -5706,7 +5706,7 @@ const HIGHLANDPARK_RENT_GROWTH = [
   0.0079,
   -0.0088,
   0.0088, // 2025 (estimate)
-  0.0088, // 2026 (estimate)
+  -0.0092, // 2026 (estimate)
 ];
 // Highland Park gross rent yields 1970–2026
 const HIGHLANDPARK_RENT_YIELDS = [
@@ -5837,7 +5837,7 @@ const UNIVERSITYPK_RENT_GROWTH = [
   0.0081,
   -0.009,
   0.009,
-  0.009, // 2026 (estimate)
+  -0.0094, // 2026 (estimate)
 ];
 // University Park gross rent yields 1970–2026
 const UNIVERSITYPK_RENT_YIELDS = [
@@ -5968,7 +5968,7 @@ const SOUTHLAKE_RENT_GROWTH = [
   0.0083,
   -0.0092,
   0.0092,
-  0.0092, // 2026 (estimate)
+  -0.0096, // 2026 (estimate)
 ];
 // Southlake gross rent yields 1970–2026
 const SOUTHLAKE_RENT_YIELDS = [
@@ -6099,7 +6099,7 @@ const FRISCO_RENT_GROWTH = [
   0.0095,
   -0.0105,
   0.0105,
-  0.0105, // 2026 (estimate)
+  -0.0109, // 2026 (estimate)
 ];
 // Frisco gross rent yields 1970–2026
 const FRISCO_RENT_YIELDS = [
@@ -6229,7 +6229,7 @@ const PLANO_RENT_GROWTH = [
   0.0092,
   -0.0102,
   0.0102, // 2025 (estimate)
-  0.0102, // 2026 (estimate)
+  -0.0106, // 2026 (estimate)
 ];
 // Plano gross rent yields 1970–2026
 const PLANO_RENT_YIELDS = [
@@ -6361,7 +6361,7 @@ const MIAMIBEACH_RENT_GROWTH = [
   0.1062,
   0.0501,
   0.0105,
-  0.0105, // 2026 (estimate)
+  0.0098, // 2026 (estimate)
 ];
 // Miami Beach gross rent yields 1970–2026
 const MIAMIBEACH_RENT_YIELDS = [
@@ -6492,7 +6492,7 @@ const CORALGABLES_RENT_GROWTH = [
   0.0991,
   0.0467,
   0.0098,
-  0.0098, // 2026 (estimate)
+  0.0091, // 2026 (estimate)
 ];
 // Coral Gables gross rent yields 1970–2026
 const CORALGABLES_RENT_YIELDS = [
@@ -6623,7 +6623,7 @@ const KEYBISCAYNE_RENT_GROWTH = [
   0.091,
   0.0429,
   0.009,
-  0.009, // 2026 (estimate)
+  0.0084, // 2026 (estimate)
 ];
 // Key Biscayne gross rent yields 1970–2026
 const KEYBISCAYNE_RENT_YIELDS = [
@@ -6754,7 +6754,7 @@ const COCONUTGROVE_RENT_GROWTH = [
   0.1011,
   0.0477,
   0.01,
-  0.01, // 2026 (estimate)
+  0.0093, // 2026 (estimate)
 ];
 // Coconut Grove gross rent yields 1970–2026
 const COCONUTGROVE_RENT_YIELDS = [
@@ -6885,7 +6885,7 @@ const BRICKELL_RENT_GROWTH = [
   0.1062,
   0.0501,
   0.0105,
-  0.0105, // 2026 (estimate)
+  0.0098, // 2026 (estimate)
 ];
 // Brickell gross rent yields 1970–2026
 const BRICKELL_RENT_YIELDS = [
@@ -7017,7 +7017,7 @@ const MEDINA_RENT_GROWTH = [
   0.0298,
   0.0071,
   0.0164,
-  0.0164, // 2026 (estimate)
+  0.0034, // 2026 (estimate)
 ];
 // Medina gross rent yields 1970–2026
 const MEDINA_RENT_YIELDS = [
@@ -7148,7 +7148,7 @@ const MERCERISLAND_RENT_GROWTH = [
   0.0335,
   0.0079,
   0.0184,
-  0.0184, // 2026 (estimate)
+  0.0038, // 2026 (estimate)
 ];
 // Mercer Island gross rent yields 1970–2026
 const MERCERISLAND_RENT_YIELDS = [
@@ -7279,7 +7279,7 @@ const BELLEVUE_RENT_GROWTH = [
   0.0386,
   0.0091,
   0.0212,
-  0.0212, // 2026 (estimate)
+  0.0043, // 2026 (estimate)
 ];
 // Bellevue gross rent yields 1970–2026
 const BELLEVUE_RENT_YIELDS = [
@@ -7410,7 +7410,7 @@ const KIRKLAND_RENT_GROWTH = [
   0.04,
   0.0095,
   0.022,
-  0.022, // 2026 (estimate)
+  0.0045, // 2026 (estimate)
 ];
 // Kirkland gross rent yields 1970–2026
 const KIRKLAND_RENT_YIELDS = [
@@ -7541,7 +7541,7 @@ const REDMOND_RENT_GROWTH = [
   0.0408,
   0.0096,
   0.0224,
-  0.0224, // 2026 (estimate)
+  0.0046, // 2026 (estimate)
 ];
 // Redmond gross rent yields 1970–2026
 const REDMOND_RENT_YIELDS = [
@@ -7673,7 +7673,7 @@ const MANHATTAN_RENT_GROWTH = [
   0.0314,
   0.0358,
   0.028,
-  0.028, // 2026 (estimate)
+  0.0362, // 2026 (estimate)
 ];
 // Manhattan gross rent yields 1970–2026
 const MANHATTAN_RENT_YIELDS = [
@@ -7804,7 +7804,7 @@ const BROOKLYN_RENT_GROWTH = [
   0.033,
   0.0378,
   0.0295,
-  0.0295, // 2026 (estimate)
+  0.0381, // 2026 (estimate)
 ];
 // Brooklyn gross rent yields 1970–2026
 const BROOKLYN_RENT_YIELDS = [
@@ -7935,7 +7935,7 @@ const HOBOKEN_RENT_GROWTH = [
   0.035,
   0.04,
   0.0312,
-  0.0312, // 2026 (estimate)
+  0.0404, // 2026 (estimate)
 ];
 // Hoboken gross rent yields 1970–2026
 const HOBOKEN_RENT_YIELDS = [
@@ -8066,7 +8066,7 @@ const SCARSDALE_RENT_GROWTH = [
   0.0266,
   0.0304,
   0.0238,
-  0.0238, // 2026 (estimate)
+  0.0307, // 2026 (estimate)
 ];
 // Scarsdale gross rent yields 1970–2026
 const SCARSDALE_RENT_YIELDS = [
@@ -8197,7 +8197,7 @@ const GREATNECK_RENT_GROWTH = [
   0.0274,
   0.0314,
   0.0245,
-  0.0245, // 2026 (estimate)
+  0.0317, // 2026 (estimate)
 ];
 // Great Neck gross rent yields 1970–2026
 const GREATNECK_RENT_YIELDS = [
@@ -8292,7 +8292,7 @@ const SD_RENT_GROWTH = [
   // 2016–2024 (Zillow ZORI San Diego)
   0.0841, 0.0788, 0.0285, 0.0219, -0.0177, 0.1395, 0.1108, 0.088, 0.0047,
   // 2025 (estimate)
-  0.025,
+  0.0209,
   // 2026 (estimate)
   0.025,
 ];
@@ -8341,7 +8341,7 @@ const SF_RENT_GROWTH = [
   0.0413, 0.0113, 0.0061, 0.0359, 0.0441, 0.0454, 0.0604, 0.0676, 0.0654,
   0.0482, 0.0462, 0.0383, 0.0074, -0.0027, 0.0425, 0.0327, 0.0247,
   // 2025 (estimate)
-  0.03,
+  0.0259,
   // 2026 (estimate)
   0.03,
 ];
@@ -8390,7 +8390,7 @@ const MIAMI_RENT_GROWTH = [
   0.0104, 0.003, 0.0213, 0.0262, 0.0574, 0.0452, 0.0581, 0.0335, 0.0355, 0.0273,
   0.0268, 0.0371, 0.186, 0.1011, 0.0477,
   // 2025 (estimate)
-  0.01,
+  0.0093,
   // 2026 (estimate)
   0.01,
 ];
@@ -8441,7 +8441,7 @@ const DFW_RENT_GROWTH = [
   // 2016–2024 (Zillow ZORI Dallas–Fort Worth)
   0.0618, 0.0514, 0.0313, 0.0435, 0.0041, 0.1895, 0.0633, 0.009, -0.01,
   // 2025 (estimate)
-  0.01,
+  -0.0104,
   // 2026 (estimate)
   0.01,
 ];
@@ -8491,7 +8491,7 @@ const SEATTLE_RENT_GROWTH = [
   // 2016–2024 (Zillow ZORI Seattle)
   0.1067, 0.0644, -0.0004, 0.0346, 0.0234, 0.1563, 0.0268, 0.0364, 0.0086,
   // 2025 (estimate)
-  0.02,
+  0.0041,
   // 2026 (estimate)
   0.02,
 ];
@@ -8540,7 +8540,7 @@ const NYC_RENT_GROWTH = [
   0.028, 0.025, 0.012, -0.015, 0.005, 0.015, 0.032, 0.045, 0.042, 0.045, 0.04,
   0.035, 0.025, 0.022, 0.02, 0.065, 0.055, 0.028, 0.032,
   // 2025 (estimate)
-  0.025,
+  0.0323,
   // 2026 (estimate)
   0.025,
 ];
@@ -8586,7 +8586,7 @@ const TX_RENT_GROWTH = [
   0.035, 0.04, 0.015, -0.01, 0.005, 0.018, 0.028, 0.038, 0.04, 0.042, 0.038,
   0.03, 0.025, 0.028, 0.03, 0.085, 0.06, 0.025, 0.03,
   // 2025 (estimate)
-  0.025,
+  0.008,
   // 2026 (estimate)
   0.025,
 ];
@@ -8630,7 +8630,7 @@ const FL_RENT_GROWTH = [
   0.022, 0.018, 0.005, -0.02, -0.01, 0.01, 0.03, 0.04, 0.045, 0.045, 0.042,
   0.038, 0.028, 0.025, 0.028, 0.095, 0.068, 0.028, 0.03,
   // 2025 (estimate)
-  0.028,
+  0.008,
   // 2026 (estimate)
   0.028,
 ];
@@ -8674,7 +8674,7 @@ const WA_RENT_GROWTH = [
   0.03, 0.038, 0.042, 0.01, -0.008, 0.005, 0.018, 0.038, 0.05, 0.048, 0.052,
   0.048, 0.04, 0.032, 0.03, 0.032, 0.09, 0.062, 0.025, 0.03,
   // 2025 (estimate)
-  0.025,
+  0.0209,
   // 2026 (estimate)
   0.025,
 ];
@@ -8718,7 +8718,7 @@ const NY_RENT_GROWTH = [
   0.028, 0.025, 0.012, -0.015, 0.005, 0.015, 0.032, 0.045, 0.042, 0.045, 0.04,
   0.035, 0.025, 0.022, 0.02, 0.065, 0.055, 0.028, 0.032,
   // 2025 (estimate)
-  0.025,
+  0.0323,
   // 2026 (estimate)
   0.025,
 ];
@@ -8799,7 +8799,7 @@ const NASDAQ_PRICE = [
   0.2036, // 2025 (preliminary estimate)
   // NASDAQ_2025_END
   // NASDAQ_CUR_START (auto-updated monthly — current year YTD estimate)
-  -0.0586, // 2026 (estimate — Bloomberg analyst consensus)
+  0.037, // 2026 (estimate — Bloomberg analyst consensus)
   // NASDAQ_CUR_END
 ];
 const NASDAQ_DIV = [
@@ -8881,7 +8881,7 @@ const TLT_TOTAL = [
   0.0424, // 2025 (preliminary estimate)
   // TLT_2025_END
   // TLT_CUR_START (auto-updated monthly — current year YTD estimate)
-  0.0068, // 2026 (estimate)
+  0.0009, // 2026 (estimate)
   // TLT_CUR_END
 ];
 // Approximate 20-yr Treasury coupon/distribution yield at start of each year (income component)
@@ -8938,7 +8938,7 @@ const CA_RENT_GROWTH = [
   0.038, 0.048, 0.042, 0.02, -0.012, 0.008, 0.025, 0.045, 0.055, 0.06, 0.065,
   0.055, 0.045, 0.038, 0.03, 0.012, 0.108, 0.075, 0.032, 0.04,
   // 2025 (estimate)
-  0.038,
+  0.0209,
   // 2026 (estimate)
   0.038,
 ];
@@ -9004,7 +9004,7 @@ const NATIONAL_RENT_GROWTH = [
   0.032, 0.038, 0.04, 0.02, -0.005, 0.008, 0.02, 0.035, 0.04, 0.04, 0.04, 0.035,
   0.03, 0.025, 0.025, 0.025, 0.075, 0.055, 0.03, 0.032,
   // 2025 (estimate)
-  0.03,
+  0.0201,
   // 2026 (estimate)
   0.03,
 ];
@@ -9037,7 +9037,7 @@ const CS_LA_ANN = [
   0.055, 0.015, 0.155, 0.24, 0.075, 0.065, 0.058, 0.075, 0.035, 0.03, 0.115,
   0.22, 0.038, 0.065, 0.04,
   // 2025 (estimate)
-  0.03,
+  0.0244,
   // 2026 (estimate)
   0.03,
 ];
@@ -9053,7 +9053,7 @@ const CS_SD_ANN = [
   0.06, 0.01, 0.135, 0.21, 0.055, 0.06, 0.07, 0.08, 0.055, 0.04, 0.135, 0.27,
   0.02, 0.075, 0.05,
   // 2025 (estimate)
-  0.03,
+  -0.0467,
   // 2026 (estimate)
   0.03,
 ];
@@ -9069,7 +9069,7 @@ const CS_SF_ANN = [
   0.045, -0.015, 0.215, 0.27, 0.12, 0.1, 0.055, 0.085, 0.06, 0.01, 0.125, 0.25,
   -0.11, 0.06, 0.05,
   // 2025 (estimate)
-  0.03,
+  -0.0049,
   // 2026 (estimate)
   0.03,
 ];
@@ -9084,7 +9084,7 @@ const CS_SEATTLE_ANN = [
   0.055, 0.05, 0.09, 0.18, 0.155, 0.045, -0.09, -0.145, -0.065, -0.09, 0.08,
   0.15, 0.09, 0.095, 0.125, 0.135, 0.09, 0.055, 0.145, 0.29, -0.05, 0.075, 0.05,
   // 2025 (estimate)
-  0.03,
+  -0.04,
   // 2026 (estimate)
   0.03,
 ];
@@ -9116,7 +9116,7 @@ const CS_DALLAS_ANN = [
   -0.03, 0.055, 0.105, 0.08, 0.085, 0.085, 0.08, 0.065, 0.05, 0.08, 0.235, 0.15,
   0.005, -0.005,
   // 2025 (estimate)
-  0.02,
+  0.0191,
   // 2026 (estimate)
   0.02,
 ];
@@ -9132,7 +9132,7 @@ const CS_NY_ANN = [
   -0.035, -0.03, 0.025, 0.065, 0.065, 0.05, 0.04, 0.055, 0.04, 0.035, 0.085,
   0.155, 0.09, 0.06, 0.05,
   // 2025 (estimate)
-  0.03,
+  0.0217,
   // 2026 (estimate)
   0.03,
 ];
@@ -9148,7 +9148,7 @@ const CS_NATIONAL_ANN = [
   -0.025, -0.04, -0.038, 0.075, 0.115, 0.045, 0.055, 0.055, 0.065, 0.045, 0.035,
   0.105, 0.185, 0.06, 0.05, 0.04,
   // 2025 (estimate)
-  0.035,
+  -0.013,
   // 2026 (estimate)
   0.035,
 ];
