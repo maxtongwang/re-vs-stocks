@@ -1,6 +1,6 @@
 # Stocks vs. Real Estate
 
-Interactive financial visualization comparing S&P 500, NASDAQ, and 60/40 portfolio returns against real estate appreciation across 54 US locations using real 1970-2025 data.
+Interactive financial visualization comparing S&P 500, NASDAQ, 50/50 (NASDAQ/S&P 500), and 60/40 portfolio returns against real estate appreciation across 54 US locations using real 1970-2025 data.
 
 **[Live Demo](https://chart.maxwangestates.com/)**
 
@@ -8,7 +8,7 @@ Interactive financial visualization comparing S&P 500, NASDAQ, and 60/40 portfol
 
 ## Features
 
-- **3 stock indices**: S&P 500 (total return), NASDAQ, 60/40 portfolio
+- **4 stock indices**: S&P 500 (total return), NASDAQ, 50/50 (NASDAQ/S&P 500), 60/40 portfolio
 - **54 US locations**: CA, TX, FL, WA, NY metros and cities with FHFA + Case-Shiller data
 - **5 leverage scenarios**: All Cash, 60%, 40%, 25%, and 3.5% down
 - **Full financial model**: mortgage amortization, Prop 13 / state-specific property tax, depreciation tax shield, maintenance, insurance, vacancy, management fees, HOA

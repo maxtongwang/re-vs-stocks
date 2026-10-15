@@ -22,6 +22,7 @@ let activeLocConfig = LOC_CONFIG.oc;
 const SELECT_ABBR = {
   sp500: "S&P 500",
   nasdaq: "NASDAQ",
+  fifty50: "50/50",
   sixty40: "60/40",
   oc: "OC",
   nb: "NB",
@@ -86,12 +87,16 @@ function refreshDatasets() {
   const iPrice =
     idxKey === "nasdaq"
       ? NASDAQ_PRICE
+      : idxKey === "fifty50"
+        ? FIFTY_FIFTY_PRICE
       : idxKey === "sixty40"
         ? SIX_FORTY_PRICE
         : SP500_PRICE;
   const iDiv =
     idxKey === "nasdaq"
       ? NASDAQ_DIV
+      : idxKey === "fifty50"
+        ? FIFTY_FIFTY_DIV
       : idxKey === "sixty40"
         ? SIX_FORTY_DIV
         : SP500_DIV;
@@ -214,6 +219,12 @@ function refreshDatasets() {
       yield: SF_RENT_YIELDS,
     },
     paloalto: {
+      ann: PALOALTO_ANN,
+      cs: CS_SF_ANN,
+      rent: PALOALTO_RENT_GROWTH,
+      yield: PALOALTO_RENT_YIELDS,
+    },
+    mountainview: {
       ann: PALOALTO_ANN,
       cs: CS_SF_ANN,
       rent: PALOALTO_RENT_GROWTH,
@@ -447,12 +458,16 @@ function refreshDatasets() {
   const riPrice =
     reinvestIdx === "nasdaq"
       ? NASDAQ_PRICE
+      : reinvestIdx === "fifty50"
+        ? FIFTY_FIFTY_PRICE
       : reinvestIdx === "sixty40"
         ? SIX_FORTY_PRICE
         : SP500_PRICE;
   const riDiv =
     reinvestIdx === "nasdaq"
       ? NASDAQ_DIV
+      : reinvestIdx === "fifty50"
+        ? FIFTY_FIFTY_DIV
       : reinvestIdx === "sixty40"
         ? SIX_FORTY_DIV
         : SP500_DIV;

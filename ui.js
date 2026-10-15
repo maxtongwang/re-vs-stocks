@@ -932,7 +932,10 @@ function loadFromHash() {
   }
   if (startYear >= endYear) endYear = Math.min(startYear + 1, MAX_YEAR);
   if (p.has("m")) reinvest = p.get("m") === "r";
-  if (p.has("ri") && ["sp500", "nasdaq", "sixty40"].includes(p.get("ri")))
+  if (
+    p.has("ri") &&
+    ["sp500", "nasdaq", "fifty50", "sixty40"].includes(p.get("ri"))
+  )
     reinvestIdx = p.get("ri");
   if (p.has("ov")) {
     if (p.get("ov") === "1") {
@@ -3496,7 +3499,7 @@ if (reinvest) {
 }
 syncReinvestIdxWrap();
 if (reinvestIdx !== "sp500") {
-  ["sp500", "nasdaq", "sixty40"].forEach((k) =>
+  ["sp500", "nasdaq", "fifty50", "sixty40"].forEach((k) =>
     document
       .getElementById(`btn-ri-${k}`)
       .classList.toggle("active", k === reinvestIdx),
