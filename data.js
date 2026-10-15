@@ -191,7 +191,7 @@ const STRINGS = {
       `2026 projection: S&amp;P 500 +8% &amp; NASDAQ +10% per Wall Street consensus range (<a href="https://yardeni.com/charts/wall-streets-sp-500-targets/" target="_blank">Yardeni Research</a>); home prices +1–5% by market per <a href="https://www.cotality.com/intelligence/reports/home-price-insights" target="_blank">Cotality</a> (formerly CoreLogic) &amp; <a href="https://www.fanniemae.com/data-and-insights/forecast" target="_blank">Fannie Mae</a> forecasts`,
       `Price-only overlay (S&amp;P 500 price vs ${hpiSrc === "cs" ? "Case-Shiller" : "FHFA"} HPI): same HPI data as the main simulation. Both lines reflect pure price appreciation from the same starting capital with no leverage, rent, or costs.`,
     ],
-    builtBy: "Built by Max Wang",
+    builtBy: "Built by Max Wang/Shawn Lee",
     disclaimer: "for entertainment purpose only",
     labelHpiSourceText: "HPI",
     tipHpiSource:
